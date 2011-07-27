@@ -2,7 +2,7 @@ NAME
     Pinto - Perl archive repository manager
 
 VERSION
-    version 0.001
+    version 0.002
 
 DESCRIPTION
     You probably want to look at the documentation for pinto. This is a
@@ -107,8 +107,9 @@ TERMINOLOGY
 RULES
     There are certain rules that govern how the indexes are managed. These
     rules are intended to ensure that folks pulling packages from your
-    repository will always get the *right Also, the rules attempt to make
-    Pinto behave somewhat like PAUSE does.
+    repository will always get the *right* packages (according to my
+    definitionof "right"). Also, the rules attempt to make Pinto behave
+    somewhat like PAUSE does.
 
     A local package always masks a mirrored package, and all other packages
     that are in the same archive with the mirrored package.
@@ -117,13 +118,8 @@ RULES
         your own archive that contains "Foo" package, then both the "Foo"
         and "Bar" mirroed packages will be removed from your index. This
         ensures that anyone pulling packages from your repository will
-        always get *your* "Foo". But they'll never be able to get "Bar".
-
-        If this rule were not in place, someone could pull "Bar" from the
-        repository, which would overwrite the version of "Foo" that you
-        wanted them to have. This situation is probably rare, but it can
-        happen if you add a locally patched version of a mirrored archive,
-        but the mirrored archive later includes additional packages.
+        always get *your* version of "Foo". But as a result, they'll never
+        be able to get "Bar".
 
     You can never add an archive with the same name twice.
         Most archive-building tools will put some kind of version number in
@@ -145,7 +141,8 @@ WHY IS IT CALLED "Pinto"
     like <http://cpan.perl.org> or a site like <http://search.cpan.org>.
 
     I wanted to avoid confusion, so I picked a name that has no connection
-    to "CPAN". "Pinto" is a nickname that I sometimes call my son, Wesley.
+    to "CPAN" at all. "Pinto" is a nickname that I sometimes call my son,
+    Wesley.
 
 TODO
     Enable plugins for visiting and filtering

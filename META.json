@@ -71,79 +71,79 @@
    "provides" : {
       "App::Pinto" : {
          "file" : "lib/App/Pinto.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command" : {
          "file" : "lib/App/Pinto/Command.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::add" : {
          "file" : "lib/App/Pinto/Command/add.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::clean" : {
          "file" : "lib/App/Pinto/Command/clean.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::create" : {
          "file" : "lib/App/Pinto/Command/create.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::list" : {
          "file" : "lib/App/Pinto/Command/list.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::remove" : {
          "file" : "lib/App/Pinto/Command/remove.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::update" : {
          "file" : "lib/App/Pinto/Command/update.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "App::Pinto::Command::verify" : {
          "file" : "lib/App/Pinto/Command/verify.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto" : {
          "file" : "lib/Pinto.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Config" : {
          "file" : "lib/Pinto/Config.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Index" : {
          "file" : "lib/Pinto/Index.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Package" : {
          "file" : "lib/Pinto/Package.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Role::Log" : {
          "file" : "lib/Pinto/Role/Log.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Store" : {
          "file" : "lib/Pinto/Store.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Store::Svn" : {
          "file" : "lib/Pinto/Store/Svn.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::UserAgent" : {
          "file" : "lib/Pinto/UserAgent.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Util" : {
          "file" : "lib/Pinto/Util.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       },
       "Pinto::Util::Svn" : {
          "file" : "lib/Pinto/Util/Svn.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       }
    },
    "release_status" : "stable",
@@ -155,6 +155,6 @@
          "web" : "https://github.com/thaljef/Pinto"
       }
    },
-   "version" : "0.001"
+   "version" : "0.002"
 }
 

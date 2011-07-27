@@ -7,7 +7,7 @@ use Log::Log4perl;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ Pinto::Role::Log - Simple logger for Pinto
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 AUTHOR
 

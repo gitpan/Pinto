@@ -12,7 +12,7 @@ use Path::Class;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.001'; # VERSION
+our $VERSION = '0.002'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -230,7 +230,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 FUNCTIONS
 
