@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -26,24 +26,21 @@ sub opt_spec {
 sub usage_desc {
     my ($self) = @_;
     my ($command) = $self->command_names();
-    return "%c [global options] $command [command options] ARCHIVE [ARCHIVE...]";
+    return "%c [global options] $command [command options] ARCHIVE";
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opt, $args) = @_;
-    $self->usage_error("Must specify one or more file arguments")
-      if not @{ $args };
+    my ($self, $opts, $args) = @_;
+    $self->usage_error("Must specify exactly one archive") if @{ $args } != 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto()->add(author => $opts->{author}, file => $_) for @{ $args };
-    $self->pinto()->clean() unless $self->pinto()->config()->get('nocleanup');
-    return 0;
+    $self->pinto( $opts )->add( file => $args->[0] );
 }
 
 #------------------------------------------------------------------------------
@@ -62,7 +59,7 @@ App::Pinto::Command::add - add your own Perl archives to the repository
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 

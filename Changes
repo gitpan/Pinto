@@ -1,3 +1,8 @@
+0.003     2011-08-03 22:59:10 America/Los_Angeles
+
+Major overhaul of internals.  But the pinto[1]
+command line interface is mostly the same.
+
 0.002     2011-07-26 17:20:46 America/Los_Angeles
 
 Corrected default path to the Pinto configuration file.

@@ -11,12 +11,12 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opt, $args) = @_;
+    my ($self, $opts, $args) = @_;
     $self->usage_error('Arguments are not allowed') if @{ $args };
 }
 
@@ -24,8 +24,7 @@ sub validate_args {
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto()->clean();
-    return 0;
+    $self->pinto( $opts )->clean();
 }
 
 #------------------------------------------------------------------------------
@@ -44,7 +43,7 @@ App::Pinto::Command::clean - delete archives that are not in the index
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 

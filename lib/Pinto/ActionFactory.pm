@@ -1,47 +1,46 @@
-package App::Pinto::Command::remove;
+package Pinto::ActionFactory;
 
-# ABSTRACT: remove your own packages from the repository
+# ABSTRACT: Factory class for making Actions
 
-use strict;
-use warnings;
-
-#-----------------------------------------------------------------------------
-
-use base 'App::Pinto::Command';
+use Moose;
 
 #------------------------------------------------------------------------------
 
 our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
+# Attributes
 
-sub opt_spec {
-    return (
-        [ "author=s"  => 'Your PAUSE ID' ],
-    );
+has idxmgr => (
+    is       => 'ro',
+    isa      => 'Pinto::IndexManager',
+    required => 1,
+);
+
+#------------------------------------------------------------------------------
+# Roles
+
+with qw(Pinto::Role::Configurable Pinto::Role::Loggable);
+
+#------------------------------------------------------------------------------
+# Methods
+
+sub create_action {
+    my ($self, $action_name, %args) = @_;
+
+    my $action_class = "Pinto::Action::$action_name";
+    Class::Load::load_class( $action_class );
+
+    return $action_class->new( config => $self->config(),
+                               logger => $self->logger(),
+                               idxmgr => $self->idxmgr(),
+                               %args );
+
 }
 
 #------------------------------------------------------------------------------
 
-sub usage_desc {
-    my ($self) = @_;
-    my ($command) = $self->command_names();
-    return "%c [global options] $command [command options] PACKAGE";
-}
-
-#------------------------------------------------------------------------------
-
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error("Must specify exactly one package") if @{ $args } != 1;
-}
-
-#------------------------------------------------------------------------------
-
-sub execute {
-    my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->remove( package => $args->[0] );
-}
+__PACKAGE__->meta()->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +54,7 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::remove - remove your own packages from the repository
+Pinto::ActionFactory - Factory class for making Actions
 
 =head1 VERSION
 

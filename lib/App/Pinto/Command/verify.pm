@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -24,11 +24,9 @@ sub validate_args {
 #------------------------------------------------------------------------------
 
 sub execute {
-    $DB::single = 1;
     my ($self, $opts, $args) = @_;
-    $self->pinto()->verify();
+    $self->pinto( $opts )->verify();
     # TODO: exit with status 1 if not verified!
-    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -47,7 +45,7 @@ App::Pinto::Command::verify - verify that all the indexed archives are present
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 

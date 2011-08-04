@@ -3,11 +3,14 @@ package Pinto::Package;
 # ABSTRACT: Represents a single record in the 02packages.details.txt file
 
 use Moose;
-use Path::Class::File;
+
+use Path::Class qw();
+
+use Pinto::Util;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -36,10 +39,43 @@ has 'file'    => (
 has 'author'  => (
     is        => 'ro',
     isa       => 'Str',
-    lazy      => 1,
-    init_arg  => undef,
-    default   => sub { $_[0]->native_file()->dir()->dir_list(2, 1) },
+    required  => 1,
 );
+
+#------------------------------------------------------------------------------
+
+sub BUILDARGS {
+    my ($class, %args)  = @_;
+
+    if (my $author = $args{author}) {
+
+      # If the author argument is specified, then assume we are
+      # constructing this Package manually (i.e. like by reading
+      # metadata about some distribution).  In this case, the file
+      # attribute can be determined from the author and the name of
+      # the distribution.
+
+      my $author_dir = Pinto::Util::directory_for_author($author);
+      my $basename   = Path::Class::file( $args{file} )->basename();
+
+      $args{file}  = Path::Class::file($author_dir, $basename)
+        ->as_foreign('Unix')->stringify();
+    }
+    else {
+
+      # But if the author argument is not specified, then assume we
+      # are constructing this Package from data in an index.  In this
+      # case, the author can be determined from the file.  I'm doing
+      # this by hand (instead of using Path::Class or File::Spec) for
+      # performance reasons.  There's going to be a lot of these
+      # objects!
+
+      $args{author} = (split '/', $args{file})[2]
+        or die "Unable to extract author from $args{file}";
+    }
+
+    return \%args;
+}
 
 #------------------------------------------------------------------------------
 
@@ -58,6 +94,10 @@ sub to_string {
 
 #------------------------------------------------------------------------------
 
+__PACKAGE__->meta()->make_immutable();
+
+#------------------------------------------------------------------------------
+
 1;
 
 
@@ -72,7 +112,7 @@ Pinto::Package - Represents a single record in the 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
@@ -96,24 +136,12 @@ Returns the path to the file this Package lives in, as a string.  The path
 is as it appears in the C<02packages.details.txt> file.  So it will be
 in Unix format and relative to the F<authors/id> directory.
 
-=head2 native_file()
-
-Same as the C<file()> method, but returns the path as a
-L<Path::Class::File> object that is suitable for your OS.
-
-has 'native_file' => (
-    is            => 'ro',
-    isa           => 'Path::Class::File',
-    lazy          => 1,
-    init_arg      => undef,
-    default       => sub { Path::Class::File->new( $_[0]->file() ) },
-);
-
 =head2 author()
 
-Returns the author of this Package.  The author is extracted from the
-path to the file this Package lives in.  For example, the author of
-F<J/JO/JOHN/Foo-Bar-1.2.tar.gz> will be C<JOHN>.
+Returns the author of this Package.  If it wasn't given explicitly,
+the author is extracted from the path to the file this Package lives
+in.  For example, the author of F<J/JO/JOHN/Foo-Bar-1.2.tar.gz> will
+be C<JOHN>.
 
 =head1 METHODS
 

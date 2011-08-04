@@ -1,26 +1,47 @@
-package Pinto::Role::Log;
+package Pinto::Action;
 
-# ABSTRACT: Simple logger for Pinto
+# ABSTRACT: Base class for Actions
 
-use Moose::Role;
-use Log::Log4perl;
+use Moose;
 
-#------------------------------------------------------------------------------
-
-our $VERSION = '0.002'; # VERSION
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-BEGIN { Log::Log4perl->easy_init() }
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
+# Attributes
 
-has 'log' => (
-	is      => 'rw',
-	isa     => 'Log::Log4perl::Logger',
-	lazy    => 1,
-	default => sub { return Log::Log4perl->get_logger(ref($_[0])) }
+has idxmgr => (
+    is       => 'ro',
+    isa      => 'Pinto::IndexManager',
+    required => 1,
 );
+
+
+has message => (
+    is       => 'ro',
+    isa      => 'Str',
+    writer   => '_set_message',
+    default  => '',
+    init_arg => undef,
+);
+
+#------------------------------------------------------------------------------
+# Roles
+
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
+
+#------------------------------------------------------------------------------
+# Methods
+
+sub execute { return 0 }
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -34,11 +55,11 @@ has 'log' => (
 
 =head1 NAME
 
-Pinto::Role::Log - Simple logger for Pinto
+Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 

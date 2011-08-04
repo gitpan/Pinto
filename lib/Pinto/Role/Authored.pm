@@ -1,13 +1,13 @@
-package App::Pinto::Command;
+package Pinto::Role::Authored;
 
-# ABSTRACT: Base class for pinto commands
+# ABSTRACT: Something that has an author
 
-use strict;
-use warnings;
+use Moose::Role;
+use Pinto::Types qw(AuthorID);
 
-#-----------------------------------------------------------------------------
+use Carp;
 
-use App::Cmd::Setup -command;
+use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
@@ -15,14 +15,24 @@ our $VERSION = '0.003'; # VERSION
 
 #-----------------------------------------------------------------------------
 
+requires 'config';
 
-sub pinto {
-  my ($self, $options) = @_;
-  return $self->app()->pinto($options);
+has author => (
+    is         => 'ro',
+    isa        => AuthorID,
+    coerce     => 1,
+    lazy_build => 1,
+);
+
+sub _build_author {
+    my ($self) = @_;
+    return $self->config->author()
+      or croak 'author attribute is required';
 }
 
-#-----------------------------------------------------------------------------
 
+
+#-----------------------------------------------------------------------------
 
 1;
 
@@ -34,19 +44,11 @@ sub pinto {
 
 =head1 NAME
 
-App::Pinto::Command - Base class for pinto commands
+Pinto::Role::Authored - Something that has an author
 
 =head1 VERSION
 
 version 0.003
-
-=head1 METHODS
-
-=head2 pinto()
-
-Returns the Pinto object for this command.  Basically an alias for
-
-  $self->app();
 
 =head1 AUTHOR
 

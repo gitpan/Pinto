@@ -6,17 +6,13 @@ use strict;
 use warnings;
 
 use Carp qw(croak);
-use IPC::Cmd 0.72 qw(run can_run);
+use IPC::Cmd 0.72 qw(run);
 use List::MoreUtils qw(any);
 use Path::Class;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
-
-#--------------------------------------------------------------------------
-
-BEGIN { can_run('svn') or croak 'svn is not available' };
+our $VERSION = '0.003'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -140,7 +136,7 @@ sub svn_commit {
     my $paths    = $args{paths};
     my $message  = $args{message} || 'NO MESSAGE GIVEN';
 
-    my @paths = ref $paths ? @$paths : ($paths);
+    my @paths = ref $paths eq 'ARRAY' ? @{ $paths } : ($paths);
     return _svn(command => [qw(commit -m), $message, @paths] );
 }
 
@@ -230,7 +226,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 FUNCTIONS
 

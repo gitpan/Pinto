@@ -4,169 +4,104 @@ package Pinto;
 
 use Moose;
 
-use Pinto::Util;
-use Pinto::Index;
-use Pinto::Config;
-use Pinto::UserAgent;
-
 use Carp;
-use File::Copy;
-use File::Find;
-use Dist::Metadata;
 use Path::Class;
-use Class::Load;
-use URI;
+
+use Pinto::ActionFactory;
+use Pinto::ActionBatch;
+
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
 
-
-has 'config' => (
-    is       => 'ro',
-    isa      => 'Pinto::Config',
-    required => 1,
+has action_factory => (
+    is        => 'ro',
+    isa       => 'Pinto::ActionFactory',
+    builder   => '__build_action_factory',
+    handles   => [ qw(create_action) ],
+    lazy      => 1,
 );
 
-has '_store' => (
+#------------------------------------------------------------------------------
+
+has action_batch => (
+    is         => 'ro',
+    isa        => 'Pinto::ActionBatch',
+    builder    => '__build_action_batch',
+    handles    => [ qw(enqueue run) ],
+    lazy       => 1,
+);
+
+#------------------------------------------------------------------------------
+
+has idxmgr => (
     is       => 'ro',
-    isa      => 'Pinto::Store',
-    builder  => '__build_store',
+    isa      => 'Pinto::IndexManager',
+    builder  => '__build_idxmgr',
     init_arg => undef,
     lazy     => 1,
 );
 
-has '_ua'      => (
-    is         => 'ro',
-    isa        => 'Pinto::UserAgent',
-    default    => sub { Pinto::UserAgent->new() },
-    handles    => [qw(mirror)],
-    init_arg   => undef,
-);
-
-
-has 'remote_index' => (
-    is             => 'ro',
-    isa            => 'Pinto::Index',
-    builder        => '__build_remote_index',
-    init_arg       => undef,
-    lazy           => 1,
-);
-
-
-has 'local_index'   => (
-    is              => 'ro',
-    isa             => 'Pinto::Index',
-    builder         => '__build_local_index',
-    init_arg        => undef,
-    lazy            => 1,
-);
-
-
-has 'master_index'  => (
-    is              => 'ro',
-    isa             => 'Pinto::Index',
-    builder         => '__build_master_index',
-    init_arg        => undef,
-    lazy            => 1,
-);
-
 #------------------------------------------------------------------------------
-# Roles
+# Moose roles
 
-with 'Pinto::Role::Log';
+with qw(Pinto::Role::Configurable Pinto::Role::Loggable);
+
 
 #------------------------------------------------------------------------------
 # Builders
 
-sub __build_remote_index {
+sub __build_action_factory {
     my ($self) = @_;
 
-    return $self->__build_index(file => '02packages.details.remote.txt.gz');
+    return Pinto::ActionFactory->new( config => $self->config(),
+                                      logger => $self->logger(),
+                                      idxmgr => $self->idxmgr() );
 }
 
-#------------------------------------------------------------------------------
-
-sub __build_local_index {
+sub __build_action_batch {
     my ($self) = @_;
 
-    return $self->__build_index(file => '02packages.details.local.txt.gz');
+    return Pinto::ActionBatch->new( config => $self->config(),
+                                    logger => $self->logger(),
+                                    idxmgr => $self->idxmgr() );
 }
 
-#------------------------------------------------------------------------------
-
-sub __build_master_index {
+sub __build_idxmgr {
     my ($self) = @_;
 
-    return $self->__build_index(file => '02packages.details.txt.gz');
-}
-
-#------------------------------------------------------------------------------
-
-sub __build_index {
-    my ($self, %args) = @_;
-
-    my $local = $self->config()->get_required('local');
-    my $index_file = file($local, 'modules', $args{file});
-    $self->log->debug("Reading index $index_file");
-
-    return Pinto::Index->new(file => $index_file);
-}
-
-#------------------------------------------------------------------------------
-
-sub __build_store {
-   my ($self) = @_;
-
-   my $store_class = $self->config()->get('store_class') || 'Pinto::Store';
-   Class::Load::load_class($store_class);
-
-   return $store_class->new( config => $self->config() );
+    return Pinto::IndexManager->new( config => $self->config(),
+                                     logger => $self->logger() );
 }
 
 #------------------------------------------------------------------------------
 # Private methods
 
-sub _rebuild_master_index {
+sub _should_cleanup {
     my ($self) = @_;
-
-
-    # Do this first, to kick lazy builders which also causes
-    # validation on the configuration.  Then we can log...
-    $self->master_index()->clear();
-
-    $self->log()->debug("Building master index");
-
-    $self->master_index()->add( @{$self->remote_index()->packages()} );
-    $self->master_index()->merge( @{$self->local_index()->packages()} );
-
-    $self->master_index()->write();
-
-    return $self;
+    return not $self->config->nocleanup();
 }
 
 #------------------------------------------------------------------------------
 # Public methods
 
 
+
 sub create {
-    my ($self, %args) = @_;
+    my ($self) = @_;
 
-    my $local = $args{local} || $self->config->get_required('local');
+    # HACK...I want to do this before checking out from VCS
+    my $local = Path::Class::dir( $self->config()->local() );
+    die "Looks like you already have a repository at $local\n"
+        if -e file($local, qw(modules 02packages.details.txt.gz));
 
-    $self->_store()->initialize();
-
-    if (-e $self->master_index()->file()) {
-      $self->log->info("Repository already exists at $local");
-      return $self;
-    }
-
-    $self->_rebuild_master_index();
-
-    $self->_store()->finalize(message => 'Created new Pinto');
+    $self->enqueue( $self->create_action('Create') );
+    $self->run();
 
     return $self;
 }
@@ -174,36 +109,12 @@ sub create {
 #------------------------------------------------------------------------------
 
 
-sub update {
-    my ($self, %args) = @_;
+sub mirror {
+    my ($self) = @_;
 
-    $self->_store()->initialize();
-
-    my $local  = $args{local}  || $self->config()->get_required('local');
-    my $remote = $args{remote} || $self->config()->get_required('remote');
-
-    my $remote_index_uri = URI->new("$remote/modules/02packages.details.txt.gz");
-    $self->mirror(url => $remote_index_uri, to => $self->remote_index()->file());
-    $self->remote_index()->reload();
-
-    # TODO: Stop now if index has not changed, unless -force option is given.
-
-    my $changes = 0;
-    my $mirrorable_index = $self->remote_index() - $self->local_index();
-
-    for my $file ( @{ $mirrorable_index->files() } ) {
-        $self->log()->debug("Mirroring $file");
-        my $remote_uri = URI->new( "$remote/authors/id/$file" );
-        my $destination = Pinto::Util::native_file($local, 'authors', 'id', $file);
-        my $changed = $self->mirror(url => $remote_uri, to => $destination);
-        $self->log->info("Updated $file") if $changed;
-        $changes += $changed;
-    }
-
-    $self->_rebuild_master_index();
-
-    my $message = "Updated to latest mirror of $remote";
-    $self->_store()->finalize(message => $message);
+    $self->enqueue( $self->create_action('Mirror') );
+    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
+    $self->run();
 
     return $self;
 }
@@ -214,58 +125,9 @@ sub update {
 sub add {
     my ($self, %args) = @_;
 
-    $self->_store()->initialize();
-
-    my $local  = $args{local}  || $self->config->get_required('local');
-    my $author = $args{author} || $self->config->get_required('author');
-    my $file   = $args{file}   or croak 'Must specify a file argument';
-
-    $file = file($file) if not eval { $file->isa('Path::Class::File') };
-
-    my $author_dir    = Pinto::Util::directory_for_author($author);
-    my $file_in_index = file($author_dir, $file->basename())->as_foreign('Unix');
-
-    if (my $existing_file = $self->local_index()->packages_by_file->{$file_in_index}) {
-        croak "File $file_in_index already exists in the local index";
-    }
-
-    # Dist::Metadata will croak for us if $file is whack!
-    my $distmeta = Dist::Metadata->new(file => $file);
-    my $provides = $distmeta->package_versions();
-    return if not %{ $provides };
-
-
-
-    my @conflicts = ();
-    for my $package_name (keys %{ $provides }) {
-        if ( my $incumbent_package = $self->local_index()->packages_by_name()->{$package_name} ) {
-            my $incumbent_author = $incumbent_package->author();
-            push @conflicts, "Package $package_name is already owned by $incumbent_author\n"
-                if $incumbent_author ne $author;
-        }
-    }
-    die @conflicts if @conflicts;
-
-
-    my @packages = ();
-    while( my ($package_name, $version) = each %{ $provides } ) {
-        $self->log->info("Adding $package_name $version");
-        push @packages, Pinto::Package->new(name => $package_name,
-                                            version => $version,
-                                            file => "$file_in_index");
-    }
-
-    $self->local_index->add(@packages);
-    $self->local_index()->write();
-
-    my $destination_dir = Pinto::Util::directory_for_author($local, qw(authors id), $author);
-    $destination_dir->mkpath();  #TODO: log & error check
-    copy($file, $destination_dir); #TODO: log & error check
-
-    $self->_rebuild_master_index();
-
-    my $message = "Added local archive $file_in_index";
-    $self->_store->finalize(message => $message);
+    $self->enqueue( $self->create_action('Add', %args) );
+    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
+    $self->run();
 
     return $self;
 }
@@ -276,38 +138,9 @@ sub add {
 sub remove {
     my ($self, %args) = @_;
 
-    $self->_store()->initialize();
-
-    my $local  = $args{local}  || $self->config()->get_required('local');
-    my $author = $args{author} || $self->config()->get_required('author');
-    my $package_name = $args{package} or croak 'Must specify a package argument';
-
-    my $incumbent_package = $self->local_index()->packages_by_name->{$package_name};
-
-    if ($incumbent_package) {
-        my $incumbent_author = $incumbent_package->author();
-        die "Only author $incumbent_author can remove package $package_name.\n"
-            if $incumbent_author ne $author;
-    }
-    else {
-        $self->log()->info("$package_name is not in the local index");
-    }
-
-    # TODO: Log only after writing the index, in case of error.
-
-    my @local_removed = $self->local_index()->remove($package_name);
-    $self->log->info("Removed $_ from local index") for @local_removed;
-    $self->local_index()->write();
-
-    my @master_removed = $self->master_index()->remove($package_name);
-    $self->log->info("Removed $_ from master index") for @master_removed;
-    $self->master_index()->write();
-
-    # Do not rebuild master index after removing packages,
-    # or else the packages from the remote index will appear.
-
-    my $message = "Removed local packages " . join ', ', @local_removed;
-    $self->_store()->finalize(message => $message);
+    $self->enqueue( $self->create_action('Remove', %args) );
+    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
+    $self->run();
 
     return $self;
 }
@@ -316,37 +149,10 @@ sub remove {
 
 
 sub clean {
-    my ($self, %args) = @_;
+    my ($self) = @_;
 
-    $self->_store()->initialize();
-
-    my $local = $args{local} || $self->config()->get_required('local');
-
-    my $base_dir = dir($local, qw(authors id));
-    return if not -e $base_dir;
-
-    my $wanted = sub {
-
-        my $physical_file = file($File::Find::name);
-        my $index_file  = $physical_file->relative($base_dir)->as_foreign('Unix');
-
-        # TODO: Can we just use $_ instead of calling basename() ?
-        if (Pinto::Util::is_source_control_file( $physical_file->basename() )) {
-            $File::Find::prune = 1;
-            return;
-        }
-
-        return if not -f $physical_file;
-        return if exists $self->master_index()->packages_by_file()->{$index_file};
-        $self->log()->info("Cleaning $index_file"); # TODO: report as physical file instead?
-        $physical_file->remove(); # TODO: Error check!
-    };
-
-    # TODO: Consider using Path::Class::Dir->recurse() instead;
-    File::Find::find($wanted, $base_dir);
-
-    my $message = 'Cleaned up archives not found in the index.';
-    $self->_store()->finalize(message => $message);
+    $self->enqueue( $self->create_action('Clean') );
+    $self->run();
 
     return $self;
 }
@@ -357,12 +163,8 @@ sub clean {
 sub list {
     my ($self) = @_;
 
-    $self->_store()->initialize();
-
-    for my $package ( @{ $self->master_index()->packages() } ) {
-        # TODO: Report native paths instead?
-        print $package->to_string(), "\n";
-    }
+    $self->enqueue( $self->create_action('List') );
+    $self->run();
 
     return $self;
 }
@@ -373,21 +175,17 @@ sub list {
 sub verify {
     my ($self, %args) = @_;
 
-    $self->_store()->initialize();
-
-    my $local = $args{local} || $self->config()->get_required('local');
-
-    my @base = ($local, 'authors', 'id');
-    for my $file ( @{ $self->master_index()->files_native(@base) } ) {
-        # TODO: Report absolute or relative path?
-        print "$file is missing\n" if not -e $file;
-    }
+    $self->enqueue( $self->create_action('Verify') );
+    $self->run();
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
+__PACKAGE__->meta->make_immutable();
+
+#-----------------------------------------------------------------------------
 1;
 
 
@@ -404,7 +202,7 @@ Pinto - Perl archive repository manager
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
@@ -417,75 +215,27 @@ to read on anyway.
 This is a work in progress.  Comments, criticisms, and suggestions
 are always welcome.  Feel free to contact C<thaljef@cpan.org>.
 
-=head1 ATTRIBUTES
-
-=head2 config
-
-Returns the L<Pinto::Config> object for this Pinto.  You must provide
-one through the constructor.
-
-=head2 remote_index
-
-Returns the L<Pinto::Index> that represents our copy of the
-F<02packages> file from a CPAN mirror (or possibly another Pinto
-repository).  This index will include the latest versions of all the
-packages on the mirror.
-
-=head2 local_index
-
-Returns the L<Pinto::Index> that represents the F<02packages> file for
-your local packages.  This index will include only those packages that
-you've locally added to the repository.
-
-=head2 master_index
-
-Returns the L<Pinto::Index> that is the logical combination of
-packages from both the remote and local indexes.  See the L<"RULES">
-section below for information on how the indexes are combined.
-
 =head1 METHODS
 
 =head2 create()
 
-Creates a new empty repoistory.
+Creates a new empty repository.
 
-=head2 update(remote => 'http://cpan-mirror')
+=head2 mirror()
 
 Populates your repository with the latest version of all packages
 found on the CPAN mirror.  Your locally added packages will always
-override those on the mirror.
+mask those pulled from the mirror.
 
-=head2 add(author => 'YOUR_ID', file => 'YourDist.tar.gz')
+=head2 add(file => 'YourDist.tar.gz', author => 'SOMEONE')
 
-Adds your own Perl archive to the repository.  This could be a
-proprietary or personal archive, or it could be a patched version of
-an archive from a CPAN mirror.  See the L<"RULES"> section for
-information about how your archives are combined with those from the
-CPAN mirror.
-
-=head2 remove(author => 'YOUR_ID', package => 'Some::Package')
-
-Removes packages from the local index.  When a package is removed, all
-other packages that were contained in the same archive are also
-removed.  You can only remove a package if you are the author of that
-package.
+=head2 remove(package => 'Some::Package', author => 'SOMEONE')
 
 =head2 clean()
 
-Deletes any archives in the repository that are not currently
-represented in the master index.  You will usually want to run this
-after performing an C<"update">, C<"add">, or C<"remove"> operation.
-
 =head2 list()
 
-Prints a listing of all the packages and archives in the master index.
-This is basically what the F<02packages> file looks like.
-
 =head2 verify()
-
-Prints a listing of all the archives that are in the master index, but
-are not present in the repository.  This is usually a sign that things
-have gone wrong.
 
 =head1 TERMINOLOGY
 
@@ -597,7 +347,7 @@ Wesley.
 
 =item Automatically fetch dependecies when adding *VERY COOL*
 
-=item New command for listing conflicts between local and remote index
+=item New command for listing conflicts between local and mirrored index
 
 =item Make file/directory permissions configurable
 

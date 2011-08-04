@@ -2,7 +2,7 @@ NAME
     Pinto - Perl archive repository manager
 
 VERSION
-    version 0.002
+    version 0.003
 
 DESCRIPTION
     You probably want to look at the documentation for pinto. This is a
@@ -14,60 +14,20 @@ DESCRIPTION
     This is a work in progress. Comments, criticisms, and suggestions are
     always welcome. Feel free to contact "thaljef@cpan.org".
 
-ATTRIBUTES
-  config
-    Returns the Pinto::Config object for this Pinto. You must provide one
-    through the constructor.
-
-  remote_index
-    Returns the Pinto::Index that represents our copy of the 02packages file
-    from a CPAN mirror (or possibly another Pinto repository). This index
-    will include the latest versions of all the packages on the mirror.
-
-  local_index
-    Returns the Pinto::Index that represents the 02packages file for your
-    local packages. This index will include only those packages that you've
-    locally added to the repository.
-
-  master_index
-    Returns the Pinto::Index that is the logical combination of packages
-    from both the remote and local indexes. See the "RULES" section below
-    for information on how the indexes are combined.
-
 METHODS
   create()
-    Creates a new empty repoistory.
+    Creates a new empty repository.
 
-  update(remote => 'http://cpan-mirror')
+  mirror()
     Populates your repository with the latest version of all packages found
-    on the CPAN mirror. Your locally added packages will always override
-    those on the mirror.
+    on the CPAN mirror. Your locally added packages will always mask those
+    pulled from the mirror.
 
-  add(author => 'YOUR_ID', file => 'YourDist.tar.gz')
-    Adds your own Perl archive to the repository. This could be a
-    proprietary or personal archive, or it could be a patched version of an
-    archive from a CPAN mirror. See the "RULES" section for information
-    about how your archives are combined with those from the CPAN mirror.
-
-  remove(author => 'YOUR_ID', package => 'Some::Package')
-    Removes packages from the local index. When a package is removed, all
-    other packages that were contained in the same archive are also removed.
-    You can only remove a package if you are the author of that package.
-
+  add(file => 'YourDist.tar.gz', author => 'SOMEONE')
+  remove(package => 'Some::Package', author => 'SOMEONE')
   clean()
-    Deletes any archives in the repository that are not currently
-    represented in the master index. You will usually want to run this after
-    performing an "update", "add", or "remove" operation.
-
   list()
-    Prints a listing of all the packages and archives in the master index.
-    This is basically what the 02packages file looks like.
-
   verify()
-    Prints a listing of all the archives that are in the master index, but
-    are not present in the repository. This is usually a sign that things
-    have gone wrong.
-
 TERMINOLOGY
     Some of the terms around CPAN are frequently misused. So for the purpose
     of this document, I am going to define some terms. I am not saying that
@@ -150,7 +110,7 @@ TODO
     Fix my Moose abuses
     Consider storing indexes in a DB, instead of files
     Automatically fetch dependecies when adding *VERY COOL*
-    New command for listing conflicts between local and remote index
+    New command for listing conflicts between local and mirrored index
     Make file/directory permissions configurable
     Refine terminology: consider "distribution" instead of "archive"
     Need more error checking and logging

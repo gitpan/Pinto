@@ -1,13 +1,12 @@
-package App::Pinto::Command::create;
+package Pinto::Action::List;
 
-# ABSTRACT: create an empty repository
+# ABSTRACT: An action that lists the contents of a repository
 
-use strict;
-use warnings;
+use Moose;
 
-#-----------------------------------------------------------------------------
+extends 'Pinto::Action';
 
-use base 'App::Pinto::Command';
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
@@ -15,17 +14,19 @@ our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error('Arguments are not allowed') if @{ $args };
+sub execute {
+    my ($self) = @_;
+
+    for my $package ( $self->idxmgr()->all_packages() ) {
+        print $package->to_string(), "\n";
+    }
+
+    return 0;
 }
 
 #------------------------------------------------------------------------------
 
-sub execute {
-    my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->create();
-}
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::create - create an empty repository
+Pinto::Action::List - An action that lists the contents of a repository
 
 =head1 VERSION
 

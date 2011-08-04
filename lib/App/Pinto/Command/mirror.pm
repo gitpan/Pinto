@@ -1,4 +1,4 @@
-package App::Pinto::Command::update;
+package App::Pinto::Command::mirror;
 
 # ABSTRACT: get the latest archives from a CPAN mirror
 
@@ -11,31 +11,29 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     return (
-        [ "remote=s"  => 'URL of a CPAN mirror' ],
+        [ 'force'     => 'Force update, even if indexes appear unchanged' ],
+        [ 'mirror=s'  => 'URL of a CPAN mirror (or another Pinto repository)' ],
     );
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opt, $args) = @_;
-    $self->usage_error("Arguments are not allowed") if @{ $args };
+    my ($self, $opts, $args) = @_;
+    $self->usage_error('Arguments are not allowed') if @{ $args };
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
-    $DB::single = 1;
     my ($self, $opts, $args) = @_;
-    $self->pinto()->update(remote => $opts->{remote});
-    $self->pinto()->clean() unless $self->pinto()->config()->get('nocleanup');
-    return 0;
+    $self->pinto( $opts )->mirror();
 }
 
 #------------------------------------------------------------------------------
@@ -50,11 +48,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::update - get the latest archives from a CPAN mirror
+App::Pinto::Command::mirror - get the latest archives from a CPAN mirror
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 AUTHOR
 

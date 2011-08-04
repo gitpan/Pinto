@@ -1,13 +1,12 @@
-package App::Pinto::Command;
+package Pinto::Role::Loggable;
 
-# ABSTRACT: Base class for pinto commands
+# ABSTRACT: Something that wants to log its activity
 
-use strict;
-use warnings;
+use Moose::Role;
 
-#-----------------------------------------------------------------------------
+use Pinto::Logger;
 
-use App::Cmd::Setup -command;
+use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
@@ -15,14 +14,18 @@ our $VERSION = '0.003'; # VERSION
 
 #-----------------------------------------------------------------------------
 
+has logger => (
+    is         => 'ro',
+    isa        => 'Pinto::Logger',
+    lazy_build => 1,
+);
 
-sub pinto {
-  my ($self, $options) = @_;
-  return $self->app()->pinto($options);
+
+sub _build_logger {
+    return Pinto::Logger->new();
 }
 
 #-----------------------------------------------------------------------------
-
 
 1;
 
@@ -34,19 +37,11 @@ sub pinto {
 
 =head1 NAME
 
-App::Pinto::Command - Base class for pinto commands
+Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
 version 0.003
-
-=head1 METHODS
-
-=head2 pinto()
-
-Returns the Pinto object for this command.  Basically an alias for
-
-  $self->app();
 
 =head1 AUTHOR
 

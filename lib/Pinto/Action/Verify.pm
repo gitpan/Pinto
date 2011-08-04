@@ -1,13 +1,15 @@
-package App::Pinto::Command::create;
+package Pinto::Action::Verify;
 
-# ABSTRACT: create an empty repository
+# ABSTRACT: An action to verify all files are present in the repository
 
-use strict;
-use warnings;
+use Moose;
+use Moose::Autobox;
 
-#-----------------------------------------------------------------------------
+use Pinto::Util;
 
-use base 'App::Pinto::Command';
+extends 'Pinto::Action';
+
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
@@ -15,17 +17,21 @@ our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error('Arguments are not allowed') if @{ $args };
+sub execute {
+    my ($self) = @_;
+
+    my $local = $self->config()->local();
+    for my $location ( sort $self->idxmgr->master_index->files->keys->flatten() ) {
+        my $file = Pinto::Util::native_file($local, 'authors', 'id', $location);
+        print "Missing archive $file\n" if not -e $file;
+    }
+
+    return 0;
 }
 
 #------------------------------------------------------------------------------
 
-sub execute {
-    my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->create();
-}
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -39,7 +45,7 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::create - create an empty repository
+Pinto::Action::Verify - An action to verify all files are present in the repository
 
 =head1 VERSION
 

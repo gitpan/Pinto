@@ -5,11 +5,12 @@ author:
 build_requires:
   File::Temp: 0
   Module::Build: 0.3601
+  Test::Exception: 0
   Test::More: 0
 configure_requires:
   Module::Build: 0.3601
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200012, CPAN::Meta::Converter version 2.110930001'
+generated_by: 'Dist::Zilla version 4.200012, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -24,67 +25,113 @@ no_index:
 provides:
   App::Pinto:
     file: lib/App/Pinto.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command:
     file: lib/App/Pinto/Command.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command::add:
     file: lib/App/Pinto/Command/add.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command::clean:
     file: lib/App/Pinto/Command/clean.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command::create:
     file: lib/App/Pinto/Command/create.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command::list:
     file: lib/App/Pinto/Command/list.pm
-    version: 0.002
+    version: 0.003
+  App::Pinto::Command::mirror:
+    file: lib/App/Pinto/Command/mirror.pm
+    version: 0.003
   App::Pinto::Command::remove:
     file: lib/App/Pinto/Command/remove.pm
-    version: 0.002
-  App::Pinto::Command::update:
-    file: lib/App/Pinto/Command/update.pm
-    version: 0.002
+    version: 0.003
   App::Pinto::Command::verify:
     file: lib/App/Pinto/Command/verify.pm
-    version: 0.002
+    version: 0.003
   Pinto:
     file: lib/Pinto.pm
-    version: 0.002
+    version: 0.003
+  Pinto::Action:
+    file: lib/Pinto/Action.pm
+    version: 0.003
+  Pinto::Action::Add:
+    file: lib/Pinto/Action/Add.pm
+    version: 0.003
+  Pinto::Action::Clean:
+    file: lib/Pinto/Action/Clean.pm
+    version: 0.003
+  Pinto::Action::Create:
+    file: lib/Pinto/Action/Create.pm
+    version: 0.003
+  Pinto::Action::List:
+    file: lib/Pinto/Action/List.pm
+    version: 0.003
+  Pinto::Action::Mirror:
+    file: lib/Pinto/Action/Mirror.pm
+    version: 0.003
+  Pinto::Action::Remove:
+    file: lib/Pinto/Action/Remove.pm
+    version: 0.003
+  Pinto::Action::Verify:
+    file: lib/Pinto/Action/Verify.pm
+    version: 0.003
+  Pinto::ActionBatch:
+    file: lib/Pinto/ActionBatch.pm
+    version: 0.003
+  Pinto::ActionFactory:
+    file: lib/Pinto/ActionFactory.pm
+    version: 0.003
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.002
+    version: 0.003
   Pinto::Index:
     file: lib/Pinto/Index.pm
-    version: 0.002
+    version: 0.003
+  Pinto::IndexManager:
+    file: lib/Pinto/IndexManager.pm
+    version: 0.003
+  Pinto::Logger:
+    file: lib/Pinto/Logger.pm
+    version: 0.003
   Pinto::Package:
     file: lib/Pinto/Package.pm
-    version: 0.002
-  Pinto::Role::Log:
-    file: lib/Pinto/Role/Log.pm
-    version: 0.002
+    version: 0.003
+  Pinto::Role::Authored:
+    file: lib/Pinto/Role/Authored.pm
+    version: 0.003
+  Pinto::Role::Configurable:
+    file: lib/Pinto/Role/Configurable.pm
+    version: 0.003
+  Pinto::Role::Loggable:
+    file: lib/Pinto/Role/Loggable.pm
+    version: 0.003
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.002
+    version: 0.003
+  Pinto::Store::Git:
+    file: lib/Pinto/Store/Git.pm
+    version: 0.003
   Pinto::Store::Svn:
     file: lib/Pinto/Store/Svn.pm
-    version: 0.002
+    version: 0.003
+  Pinto::Types:
+    file: lib/Pinto/Types.pm
+    version: 0.003
   Pinto::UserAgent:
     file: lib/Pinto/UserAgent.pm
-    version: 0.002
+    version: 0.003
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.002
+    version: 0.003
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.002
+    version: 0.003
 requires:
   App::Cmd::Setup: 0
   Carp: 0
-  Class::Load: 0
   Compress::Zlib: 0
-  Config::Tiny: 0
   Date::Format: 0
   Dist::Metadata: 0
   Exporter: 0
@@ -94,18 +141,22 @@ requires:
   IPC::Cmd: 0.72
   LWP::UserAgent: 0
   List::MoreUtils: 0
-  Log::Log4perl: 0
   Moose: 0
   Moose::Autobox: 0
   Moose::Role: 0
-  MooseX::Types::Path::Class: 0
+  Moose::Util::TypeConstraints: 0
+  MooseX::Configuration: 0
+  MooseX::Types: 0
+  MooseX::Types::Moose: 0
   Path::Class: 0
+  Path::Class::Dir: 0
   Path::Class::File: 0
   Readonly: 0
   URI: 0
+  namespace::autoclean: 0
   overload: 0
   perl: 5.008
 resources:
   homepage: https://github.com/thaljef/Pinto
   repository: https://github.com/thaljef/Pinto
-version: 0.002
+version: 0.003

@@ -3,82 +3,122 @@ package Pinto::Config;
 # ABSTRACT: User configuration for Pinto
 
 use Moose;
+use MooseX::Configuration;
 
-use Carp;
-use Config::Tiny;
-use File::HomeDir;
-use Path::Class;
+use MooseX::Types::Moose qw(Str Bool Int);
+use Pinto::Types qw(AuthorID URI Dir);
 
-#------------------------------------------------------------------------------
-
-our $VERSION = '0.002'; # VERSION
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
+our $VERSION = '0.003'; # VERSION
 
-has 'profile' => (
-    is           => 'ro',
-    isa          => 'Str',
+#------------------------------------------------------------------------------
+# Moose attributes
+
+has 'local'   => (
+    is        => 'ro',
+    isa       => Dir,
+    key       => 'local',
+    required  => 1,
+    coerce    => 1,
+);
+
+
+has 'mirror'  => (
+    is        => 'ro',
+    isa       => URI,
+    key       => 'mirror',
+    default   => 'http://cpan.perl.org',
+    coerce    => 1,
+);
+
+
+has 'author'  => (
+    is        => 'ro',
+    isa       => AuthorID,
+    key       => 'author',
+    coerce    => 1,
+);
+
+
+has 'nocleanup' => (
+    is        => 'ro',
+    isa       => Bool,
+    key       => 'nocleanup',
+    default   => 0,
+);
+
+
+has 'force'    => (
+    is        => 'ro',
+    isa       => Bool,
+    key       => 'force',
+    default   => 0,
+);
+
+
+has 'store_class' => (
+    is        => 'ro',
+    isa       => Str,
+    key       => 'store_class',
+    default   => 'Pinto::Store',
+);
+
+has 'nocommit' => (
+    is       => 'ro',
+    isa      => Bool,
+    key      => 'nocommit',
+    default  => 0,
+);
+
+has 'quiet'  => (
+    is       => 'ro',
+    isa      => Bool,
+    key      => 'quiet',
+    default  => 0,
+);
+
+
+has 'verbose' => (
+    is          => 'ro',
+    isa         => Int,
+    key         => 'verbose',
+    default     => 0,
+);
+
+
+has 'svn_trunk' => (
+    is          => 'ro',
+    isa         => Str,
+    key         => 'trunk',
+    section     => 'Pinto::Store::Svn',
+);
+
+
+has 'svn_tag' => (
+    is          => 'ro',
+    isa         => Str,
+    key         => 'tag',
+    section     => 'Pinto::Store::Svn',
 );
 
 #------------------------------------------------------------------------------
+# Override builder
 
+sub _build_config_file {
 
-sub BUILD {
-    my ($self, $args) = @_;
+    require File::HomeDir;
+    require Path::Class;
 
-    # TODO: Rewrite all this.  It sucks!
-    # TODO: Decide where to do configuration validation
-
-    my $profile = $self->profile() || _find_profile();
-    croak "$profile does not exist" if defined $profile and not -e $profile;
-
-    my $params = $profile ? Config::Tiny->read( $profile )->{_} : {};
-
-    croak "Failed to read profile $profile: " . Config::Tiny->errorstr()
-        if not $params;
-
-    $self->{$_} = $params->{$_} for keys %{ $params };
-    $self->{$_} = $args->{$_}   for keys %{ $args   };
-
-    return $self;
+    # TODO: look at $ENV{PERL_PINTO} first.
+    return Path::Class::file( File::HomeDir->my_home(), qw(.pinto config.ini) );
 }
 
 #------------------------------------------------------------------------------
 
-
-sub get_required {
-    my ($self, $key) = @_;
-
-    croak 'Must specify a configuration key'
-        if not $key;
-
-    die "Parameter '$key' is required in your configuration.\n"
-        if not exists $self->{$key};
-
-    return $self->{$key};
-}
-
-#------------------------------------------------------------------------------
-
-
-sub get {
-    my ($self, $key) = @_;
-
-    croak 'Must specify a configuration key'
-        if not $key;
-
-    return $self->{$key};
-}
-
-#------------------------------------------------------------------------------
-
-sub _find_profile {
-    return $ENV{PERL_PINTO} if defined $ENV{PERL_PINTO};
-    my $home_file = file(File::HomeDir->my_home(), '.pinto', 'config.ini');
-    return $home_file if -e $home_file;
-    return;
-}
+__PACKAGE__->meta()->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -96,37 +136,12 @@ Pinto::Config - User configuration for Pinto
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
 This is a private module for internal use only.  There is nothing for
 you to see here (yet).
-
-=head1 ATTRIBUTES
-
-=head2 profile
-
-Returns the path to your L<Pinto> configuration file.  If you do not
-specify one through the constructor, then we look at C<$ENV{PINTO}>,
-then F<~/.pinto/config.ini>.  If the config file does not exist in any
-of those locations, then you will get an empty config.
-
-=head1 METHODS
-
-=head2 get_required($key)
-
-Returns the configuration value assocated with the given C<$key>.  If
-that value is not defined, then an exception is thrown.
-
-=head2 get($key)
-
-Returns the configuration value associated with the given C<$key>.  The
-value may be undefined.
-
-=for Pod::Coverage BUILD
-
-Internal, not documented
 
 =head1 AUTHOR
 

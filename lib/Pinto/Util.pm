@@ -12,7 +12,7 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #-------------------------------------------------------------------------------
 # TODO: Don't export!
@@ -60,6 +60,13 @@ sub native_file {
 
 #-------------------------------------------------------------------------------
 
+
+sub format_message {
+    my ($header, @items) = @_;
+    return "$header\n    " . join "\n    ", @items;
+}
+
+#-------------------------------------------------------------------------------
 1;
 
 
@@ -74,7 +81,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
@@ -105,6 +112,11 @@ is part of the internals of a source control system (e.g. git, svn, cvs).
 
 Given a Unix path to a file, returns the file in the native OS format
 (as a L<Path::Class::File>);
+
+=head2 format_message($header, @items)
+
+Formats a commit message, consisting of a header followed by a list
+of items.
 
 =head1 AUTHOR
 

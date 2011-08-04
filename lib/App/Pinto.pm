@@ -9,17 +9,19 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub global_opt_spec {
-  return (
-    [ "local=s"     => "Path to local repository directory"],
-    [ "loglevel=s"  => "Set the amount of noise (debug|info|warn)" ],
-    [ "nocleanup"   => "Do not clean repository after each action" ],
-    [ "profile=s"   => "Path to your pinto profile" ],
 
+  return (
+
+      [ "config=s"    => "Path to your pinto profile" ],
+      [ "local=s"     => "Path to local repository directory"],
+      [ "nocleanup"   => "Do not clean repository after each action" ],
+      [ "quiet|q"     => "Only report fatal errors"],
+      [ "verbose|v+"  => "More diagnostic output (repeatable)" ],
   );
 }
 
@@ -33,15 +35,18 @@ sub usage_desc {
 
 
 sub pinto {
-    my ($self) = @_;
+    my ($self, $command_options) = @_;
 
     require Pinto;
     require Pinto::Config;
+    require Pinto::Logger;
 
+    $DB::single = 1;
     return $self->{pinto} ||= do {
         my %global_options = %{ $self->global_options() };
-        my $config = Pinto::Config->new(%global_options);
-        my $pinto = Pinto->new(config => $config);
+        my $config = Pinto::Config->new(%global_options, %{$command_options});
+        my $logger = Pinto::Logger->new(config => $config);
+        my $pinto  = Pinto->new(config => $config, logger => $logger);
     };
 }
 
@@ -61,7 +66,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
@@ -70,11 +75,10 @@ documentation for L<pinto> instead.
 
 =head1 METHODS
 
-=head2 pinto()
+=head2 pinto( $command_options )
 
 Returns a reference to the L<Pinto> object.  If it does not already
-exist, one will be created using the global command options as
-arguments.
+exist, one will be created using the global and command options.
 
 =head1 AUTHOR
 

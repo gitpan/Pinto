@@ -10,7 +10,7 @@ use LWP::UserAgent;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.002'; # VERSION
+our $VERSION = '0.003'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -34,6 +34,7 @@ sub mirror {
     my ($self, %args) = @_;
     my $url = $args{url};
     my $to  = $args{to};
+    my $croak = $args{croak} || 0;
 
     $to = file($to) if not eval {$to->isa('Path::Class')};
     $to->dir()->mkpath();  # TODO: set mode & verbosity
@@ -48,7 +49,9 @@ sub mirror {
         return 0;
     }
     else{
-        croak "Mirror of $url to $to failed with status: " . $result->code();
+      my $msg = "Mirror of $url to $to failed with status: " . $result->code();
+      croak $msg if $croak;
+      warn "$msg\n";
     }
 }
 
@@ -84,7 +87,7 @@ Pinto::UserAgent - Thin wrapper around LWP::UserAgent
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 METHODS
 
