@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -115,7 +115,8 @@ sub _build_config_file {
     require Path::Class;
 
     # TODO: look at $ENV{PERL_PINTO} first.
-    return Path::Class::file( File::HomeDir->my_home(), qw(.pinto config.ini) );
+    my $file = Path::Class::file( File::HomeDir->my_home(), qw(.pinto config.ini) );
+    return -e $file ? $file : ();
 }
 
 #------------------------------------------------------------------------------
@@ -138,7 +139,7 @@ Pinto::Config - User configuration for Pinto
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 DESCRIPTION
 

@@ -6,7 +6,7 @@ use Moose;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose roles
@@ -24,9 +24,8 @@ sub initialize {
     my $local = $self->config->local();
 
     if (not -e $local) {
-        $self->logger->log("Making directory at $local ... ", {nolf => 1});
+        $self->logger->log("Making directory at $local");
         $local->mkpath(); # TODO: Set dirmode and verbosity here.
-        $self->logger->log("DONE");
     }
 
     return 1;
@@ -66,7 +65,7 @@ Pinto::Store - Back-end storage for a Pinto repoistory
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 DESCRIPTION
 

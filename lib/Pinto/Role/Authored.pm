@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ Pinto::Role::Authored - Something that has an author
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 AUTHOR
 

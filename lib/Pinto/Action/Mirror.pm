@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ Pinto::Action::Mirror - An action to fill the repository from a mirror
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 AUTHOR
 

@@ -9,7 +9,7 @@ use Pinto::IndexManager;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -125,7 +125,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 METHODS
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ App::Pinto::Command::verify - verify that all the indexed archives are present
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 AUTHOR
 

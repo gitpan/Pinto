@@ -18,7 +18,7 @@ use overload ('+' => '__plus', '-' => '__minus');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,9 +38,10 @@ has files => (
 );
 
 has 'file' => (
-    is       => 'ro',
-    isa      => File,
-    coerce   => 1,
+    is        => 'ro',
+    isa       => File,
+    predicate => 'has_file',
+    coerce    => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -59,7 +60,8 @@ sub _build_files    { return {} }
 sub BUILD {
     my ($self) = @_;
 
-    $self->load() if $self->file();
+    $self->load() if $self->has_file()
+      and -e $self->file();
 
     return $self;
 }
@@ -312,7 +314,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 DESCRIPTION
 

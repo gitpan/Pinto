@@ -6,7 +6,7 @@ use Moose;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.006'; # VERSION
+our $VERSION = '0.007'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -58,7 +58,7 @@ Pinto::ActionFactory - Factory class for making Actions
 
 =head1 VERSION
 
-version 0.006
+version 0.007
 
 =head1 AUTHOR
 
