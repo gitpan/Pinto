@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -59,12 +59,13 @@ has 'force'    => (
 );
 
 
-has 'store_class' => (
+has 'store' => (
     is        => 'ro',
     isa       => Str,
-    key       => 'store_class',
+    key       => 'store',
     default   => 'Pinto::Store',
 );
+
 
 has 'nocommit' => (
     is       => 'ro',
@@ -72,6 +73,7 @@ has 'nocommit' => (
     key      => 'nocommit',
     default  => 0,
 );
+
 
 has 'quiet'  => (
     is       => 'ro',
@@ -136,7 +138,7 @@ Pinto::Config - User configuration for Pinto
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 DESCRIPTION
 

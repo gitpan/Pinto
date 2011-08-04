@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -34,6 +34,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
     $self->pinto( $opts )->mirror();
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ App::Pinto::Command::mirror - get the latest archives from a CPAN mirror
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 AUTHOR
 

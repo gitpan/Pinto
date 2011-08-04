@@ -3,19 +3,21 @@ package Pinto::Logger;
 # ABSTRACT: A simple logger
 
 use Moose;
-use Moose::Util::TypeConstraints;
+use MooseX::Types::Moose qw(Int);
+
+use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
 
 has log_level => (
-    is      => 'ro',
-    builder => '__build_log_level',
-    lazy    => 1,
+    is         => 'ro',
+    isa        => Int,
+    lazy_build => 1,
 );
 
 
@@ -27,9 +29,9 @@ with qw(Pinto::Role::Configurable);
 #-----------------------------------------------------------------------------
 # Builders
 
-sub __build_log_level {
+sub _build_log_level {
     my ($self) = @_;
-    return -1 if $self->config->quiet();
+    return -2 if $self->config->quiet();
     return $self->config->verbose();
 }
 
@@ -46,21 +48,21 @@ sub _logit {
 
 sub debug {
     my ($self, $message, $opts) = @_;
-    _logit($message, $opts) if $self->log_level() >= 2;
+    _logit($message, $opts) if $self->log_level() >= 1;
 }
 
 #-----------------------------------------------------------------------------
 
 sub log {
     my ($self, $message, $opts) = @_;
-    _logit($message, $opts) if $self->log_level() >= 1;
+    _logit($message, $opts) if $self->log_level() >= 0;
 }
 
 #-----------------------------------------------------------------------------
 
 sub warn {
     my ($self, $message) = @_;
-    CORE::warn "$message\n" if $self->log_level() >= 0;
+    CORE::warn "$message\n" if $self->log_level() >= -1;
 }
 
 #-----------------------------------------------------------------------------
@@ -69,6 +71,10 @@ sub fatal {
     my ($self, $message) = @_;
     die "$message\n";
 }
+
+#-----------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable();
 
 #-----------------------------------------------------------------------------
 
@@ -86,7 +92,7 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 AUTHOR
 

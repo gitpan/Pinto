@@ -10,7 +10,7 @@ use LWP::UserAgent;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -87,7 +87,7 @@ Pinto::UserAgent - Thin wrapper around LWP::UserAgent
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 METHODS
 

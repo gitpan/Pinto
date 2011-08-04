@@ -8,7 +8,7 @@ META.yml
 README
 bin/pinto
 dist.ini
-example/pinto.ini
+example/config.ini
 lib/App/Pinto.pm
 lib/App/Pinto/Command.pm
 lib/App/Pinto/Command/add.pm

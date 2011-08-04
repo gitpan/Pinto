@@ -9,7 +9,7 @@ use Pinto::IndexManager;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -46,11 +46,11 @@ with qw(Pinto::Role::Loggable Pinto::Role::Configurable);
 sub __build_store {
    my ($self) = @_;
 
-   my $store_class = $self->config->store_class();
-   Class::Load::load_class($store_class);
+   my $store = $self->config->store();
+   Class::Load::load_class($store);
 
-   return $store_class->new( config => $self->config(),
-                             logger => $self->logger() );
+   return $store->new( config => $self->config(),
+                       logger => $self->logger() );
 }
 
 #-----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ sub run {
     $self->store()->initialize();
 
     my $changes_were_made;
-    while( my $action = $self->actions()->shift() ) {
+    for my $action ( $self->actions->flatten() ) {
 
       # HACK: To avoid running cleanup if we don't
       # have to.  But we still need to run it when
@@ -97,9 +97,9 @@ sub run {
             return $self;
         }
 
-        my @action_messages = map {$_->message()} $self->actions()->flatten();
+        my @action_messages = map {$_->message()} $self->actions->flatten();
         my $batch_message  = join "\n\n", grep {length} @action_messages;
-        $self->store()->finalize(message => $batch_message);
+        $self->store->finalize(message => $batch_message);
         return $self;
     }
 
@@ -125,7 +125,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 METHODS
 

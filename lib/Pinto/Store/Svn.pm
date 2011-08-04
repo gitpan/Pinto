@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ sub finalize {
     my $message   = $args{message} || 'NO MESSAGE WAS GIVEN';
     my $local     = $self->config->local();
 
-    $self->logger->log("Scheduling files for addition/deletion");
+    $self->logger->log("Scheduling additions/deletions");
     Pinto::Util::Svn::svn_schedule(path => $local);
 
     $self->logger->log("Committing changes");
@@ -61,7 +61,7 @@ sub _make_tag {
     my $as_of = time2str('%C', $now);
     my $message  = "Tagging Pinto repository as of $as_of.";
 
-    $self->logger->log("Copying to $tag");
+    $self->logger->log("Making tag");
     Pinto::Util::Svn::svn_tag(from => $trunk, to => $tag, message => $message);
 
     return 1;
@@ -87,13 +87,14 @@ Pinto::Store::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
 Add this to your Pinto configuration (usually in F<~/.pinto/config.ini>):
 
-  store_class   = Pinto::Store::Svn
+  # ... other global params here ... #
+  store   = Pinto::Store::Svn
 
   [Pinto::Store::Svn]
   trunk = http://my-repository/trunk/PINTO
@@ -114,7 +115,7 @@ config file, which is usually located in F<~/.pinto/config.ini>.
 
 =over 4
 
-=item svn_trunk_url
+=item trunk
 
 (Required) The URL to the location in Subversion where you want the
 trunk (i.e. mainline) branch of your Pinto repository.  If this
@@ -122,12 +123,12 @@ location does not exist, it will be created for you.  Each time you
 run L<pinto>, the changes to your repository will be committed to this
 branch.
 
-=item svn_tag_url
+=item tag
 
 (Optional) The URL of the location in your Subversion repository where
 you want to create a tag of the CPAN mirror.  When L<pinto> commits
-changes to the C<svn_trunk_url>, that URL will be tagged (i.e. copied)
-to the C<svn_tag_url>. If you do not specify C<svn_tag_url> then no
+changes to the C<trunk>, that URL will be tagged (i.e. copied)
+to the C<tag>. If you do not specify C<tag> then no
 tag is made.
 
 In most situations, you'll want to keep multiple tags that represent
@@ -138,7 +139,7 @@ conversion specifications in your URL.
 
 For example, if you had this in your F<~/.pinto/config.ini>:
 
- svn_tag_url: http://my-company/svn/tags/PINTO-%y.%m.%d
+ tag = http://my-company/svn/tags/PINTO-%y.%m.%d
 
 and ran C<pinto mirror> on June 17, 2011, then it would produce a tag at this URL:
 
@@ -150,7 +151,7 @@ you probably only need a year and month to distinguish your tag.  But
 if you are going to run it several times a day, then you'll need day,
 hours and minutes (and possibly seconds) too.
 
-And if you don't put any datestamp in your C<svn_tag_url> at all, then
+And if you don't put any datestamp in your C<tag> at all, then
 you're basically limited to running L<pinto> only once, because you
 can't make the same tag more than once (unless you remove the previous
 tag by some other means).

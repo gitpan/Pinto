@@ -10,7 +10,7 @@ use Pinto::Util;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ Pinto::Package - Represents a single record in the 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 DESCRIPTION
 

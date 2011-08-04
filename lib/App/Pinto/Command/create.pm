@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,6 +25,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
     $self->pinto( $opts )->create();
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -43,7 +44,7 @@ App::Pinto::Command::create - create an empty repository
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 AUTHOR
 

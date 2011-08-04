@@ -11,13 +11,13 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     return (
-        [ "author=s"  => 'Your PAUSE ID' ],
+        [ "author=s"  => 'Your author ID (like a PAUSE ID)' ],
     );
 }
 
@@ -41,6 +41,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
     $self->pinto( $opts )->remove( package => $args->[0] );
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ App::Pinto::Command::remove - remove your own packages from the repository
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 AUTHOR
 

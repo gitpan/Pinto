@@ -8,7 +8,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.003'; # VERSION
+our $VERSION = '0.004'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ pinto - Command-line utility for Pinto
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
@@ -101,7 +101,7 @@ The URL of a repository that you would like to mirror.  This could
 be a public CPAN mirror, or another Pinto repository.  This parameter
 is required for the C<update> operation.
 
-=item store_class
+=item store
 
 The name of the class that will handle storage of your repository.
 The default is L<Pinto::Store>, which basically stores your repository
