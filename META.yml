@@ -25,109 +25,109 @@ no_index:
 provides:
   App::Pinto:
     file: lib/App/Pinto.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command:
     file: lib/App/Pinto/Command.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::add:
     file: lib/App/Pinto/Command/add.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::clean:
     file: lib/App/Pinto/Command/clean.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::create:
     file: lib/App/Pinto/Command/create.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::list:
     file: lib/App/Pinto/Command/list.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::mirror:
     file: lib/App/Pinto/Command/mirror.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::remove:
     file: lib/App/Pinto/Command/remove.pm
-    version: 0.004
+    version: 0.005
   App::Pinto::Command::verify:
     file: lib/App/Pinto/Command/verify.pm
-    version: 0.004
+    version: 0.005
   Pinto:
     file: lib/Pinto.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Create:
     file: lib/Pinto/Action/Create.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Mirror:
     file: lib/Pinto/Action/Mirror.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Remove:
     file: lib/Pinto/Action/Remove.pm
-    version: 0.004
+    version: 0.005
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.004
+    version: 0.005
   Pinto::ActionBatch:
     file: lib/Pinto/ActionBatch.pm
-    version: 0.004
+    version: 0.005
   Pinto::ActionFactory:
     file: lib/Pinto/ActionFactory.pm
-    version: 0.004
+    version: 0.005
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.004
+    version: 0.005
   Pinto::Index:
     file: lib/Pinto/Index.pm
-    version: 0.004
+    version: 0.005
   Pinto::IndexManager:
     file: lib/Pinto/IndexManager.pm
-    version: 0.004
+    version: 0.005
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.004
+    version: 0.005
   Pinto::Package:
     file: lib/Pinto/Package.pm
-    version: 0.004
+    version: 0.005
   Pinto::Role::Authored:
     file: lib/Pinto/Role/Authored.pm
-    version: 0.004
+    version: 0.005
   Pinto::Role::Configurable:
     file: lib/Pinto/Role/Configurable.pm
-    version: 0.004
+    version: 0.005
   Pinto::Role::Loggable:
     file: lib/Pinto/Role/Loggable.pm
-    version: 0.004
+    version: 0.005
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.004
+    version: 0.005
   Pinto::Store::Git:
     file: lib/Pinto/Store/Git.pm
-    version: 0.004
+    version: 0.005
   Pinto::Store::Svn:
     file: lib/Pinto/Store/Svn.pm
-    version: 0.004
+    version: 0.005
   Pinto::Types:
     file: lib/Pinto/Types.pm
-    version: 0.004
+    version: 0.005
   Pinto::UserAgent:
     file: lib/Pinto/UserAgent.pm
-    version: 0.004
+    version: 0.005
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.004
+    version: 0.005
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.004
+    version: 0.005
 requires:
   App::Cmd::Setup: 0
   Carp: 0
@@ -158,4 +158,4 @@ requires:
 resources:
   homepage: https://github.com/thaljef/Pinto
   repository: https://github.com/thaljef/Pinto
-version: 0.004
+version: 0.005

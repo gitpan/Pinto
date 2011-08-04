@@ -18,7 +18,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.004'; # VERSION
+our $VERSION = '0.005'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attrbutes
@@ -116,7 +116,7 @@ Pinto::Action::Add - An action to add one archive to the repository
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 AUTHOR
 

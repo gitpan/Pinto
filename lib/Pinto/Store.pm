@@ -6,7 +6,7 @@ use Moose;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.004'; # VERSION
+our $VERSION = '0.005'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose roles
@@ -66,7 +66,7 @@ Pinto::Store - Back-end storage for a Pinto repoistory
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 DESCRIPTION
 

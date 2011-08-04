@@ -9,7 +9,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.004'; # VERSION
+our $VERSION = '0.005'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -92,7 +92,7 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 AUTHOR
 
