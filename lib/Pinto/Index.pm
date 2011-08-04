@@ -18,7 +18,7 @@ use overload ('+' => '__plus', '-' => '__minus');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.005'; # VERSION
+our $VERSION = '0.006'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
 =head1 DESCRIPTION
 
