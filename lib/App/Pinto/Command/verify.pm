@@ -1,6 +1,6 @@
 package App::Pinto::Command::verify;
 
-# ABSTRACT: verify that all the indexed archives are present
+# ABSTRACT: verify that all the indexed distributions are present
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -41,11 +41,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::verify - verify that all the indexed archives are present
+App::Pinto::Command::verify - verify that all the indexed distributions are present
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

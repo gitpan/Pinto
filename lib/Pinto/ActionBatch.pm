@@ -9,7 +9,7 @@ use Pinto::IndexManager;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -17,9 +17,7 @@ our $VERSION = '0.007'; # VERSION
 has 'store' => (
     is       => 'ro',
     isa      => 'Pinto::Store',
-    builder  => '__build_store',
-    init_arg => undef,
-    lazy     => 1,
+    required => 1
 );
 
 has actions => (
@@ -27,7 +25,6 @@ has actions => (
     isa      => 'ArrayRef[Pinto::Action]',
     default  => sub { [] },
 );
-
 
 has idxmgr => (
     is       => 'ro',
@@ -38,20 +35,8 @@ has idxmgr => (
 #-----------------------------------------------------------------------------
 # Moose roles
 
-with qw(Pinto::Role::Loggable Pinto::Role::Configurable);
-
-#-----------------------------------------------------------------------------
-# Builders
-
-sub __build_store {
-   my ($self) = @_;
-
-   my $store = $self->config->store();
-   Class::Load::load_class($store);
-
-   return $store->new( config => $self->config(),
-                       logger => $self->logger() );
-}
+with qw( Pinto::Role::Loggable
+         Pinto::Role::Configurable );
 
 #-----------------------------------------------------------------------------
 
@@ -71,36 +56,30 @@ sub enqueue {
 sub run {
     my ($self) = @_;
 
-    # TODO: don't initialize if we don't have to!
-    $self->store()->initialize();
+    $self->store->initialize()
+        unless $self->store->is_initialized()
+           and $self->config->noinit();
 
+
+    my @messages;
     my $changes_were_made;
-    for my $action ( $self->actions->flatten() ) {
-
-      # HACK: To avoid running cleanup if we don't
-      # have to.  But we still need to run it when
-      # explicitly asked to run a 'Clean' action.
-      next if $action->isa('Pinto::Action::Clean')
-        && defined $changes_were_made
-          && $changes_were_made == 0;
-
+    while ( my $action = $self->actions->shift() ) {
         $changes_were_made += $action->execute();
-
+        push @messages, $action->messages->flatten();
     }
 
     if ($changes_were_made) {
 
-        $self->idxmgr()->write_indexes();
+        $self->idxmgr->write_indexes();
+        # Always put the modules directory on the commit list!
+        my $modules_dir = $self->config->local->subdir('modules');
+        $self->store->modified_paths->push( $modules_dir );
 
-        if ( $self->config->nocommit() ) {
-            $self->logger->log('Not committing due to nocommit flag');
-            return $self;
-        }
+        return $self if $self->config->nocommit();
 
-        my @action_messages = map {$_->message()} $self->actions->flatten();
-        my $batch_message  = join "\n\n", grep {length} @action_messages;
+        my $batch_message  = join "\n\n", @messages;
+        $self->logger->debug($batch_message);
         $self->store->finalize(message => $batch_message);
-        return $self;
     }
 
     return $self;
@@ -108,7 +87,7 @@ sub run {
 
 #-----------------------------------------------------------------------------
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable();
 
 #-----------------------------------------------------------------------------
 1;
@@ -125,7 +104,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 METHODS
 

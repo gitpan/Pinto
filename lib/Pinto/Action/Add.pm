@@ -1,16 +1,12 @@
 package Pinto::Action::Add;
 
-# ABSTRACT: An action to add one archive to the repository
+# ABSTRACT: An action to add one distribution to the repository
 
 use Moose;
 
-use Carp;
-use File::Copy;
-use Dist::Metadata;
-
 use Pinto::Util;
-use Pinto::IndexManager;
-use Pinto::Types qw(File);
+use Pinto::Distribution;
+use Pinto::Types qw(File AuthorID);
 
 extends 'Pinto::Action';
 
@@ -18,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attrbutes
@@ -30,72 +26,41 @@ has file => (
     coerce   => 1,
 );
 
+
+has author => (
+    is         => 'ro',
+    isa        => AuthorID,
+    coerce     => 1,
+    lazy_build => 1,
+);
+
 #------------------------------------------------------------------------------
-# Roles
 
-with qw( Pinto::Role::Authored );
+sub _build_author { return shift()->config->author() }
 
 #------------------------------------------------------------------------------
 
-sub execute {
+override execute => sub {
     my ($self) = @_;
 
-    my $local  = $self->config->local();
-    my $author = $self->author();
-
-    my $file   = $self->file();
-    my $base   = $file->basename();
-
-    # Refactor to sub
-    croak "$file does not exist"  if not -e $file;
-    croak "$file is not readable" if not -r $file;
-    croak "$file is not a file"   if not -f $file;
-
-    # Refactor to sub
-    my $idxmgr = $self->idxmgr();
-    if ( my $existing = $idxmgr->find_file(author => $author, file => $file) ) {
-        croak "Archive $base already exists as $existing";
-    }
-
-    # Refactor to sub
-    # Dist::Metadata will croak for us if $file is whack!
-    my $distmeta = Dist::Metadata->new(file => $file->stringify());
-    my $provides = $distmeta->package_versions();
-    return 0 if not %{ $provides };
-
-    # Refactor to sub
-    my @conflicts = ();
-    for my $package_name (sort keys %{ $provides }) {
-        if ( my $orig_author = $idxmgr->local_author_of(package => $package_name) ) {
-            push @conflicts, "Package $package_name is already owned by $orig_author\n"
-                if $orig_author ne $author;
-        }
-    }
-    die @conflicts if @conflicts;
-
-    # Refactor to sub
-    my @packages = ();
-    for my $package_name (sort keys %{ $provides }) {
-
-        my $version = $provides->{$package_name} || 'undef';
-        $self->logger->log("Adding package $package_name $version");
-        push @packages, Pinto::Package->new( name    => $package_name,
-                                             file    => $file,
-                                             version => $version,
-                                             author  => $author );
-    }
+    my $local   = $self->config->local();
+    my $cleanup = !$self->config->nocleanup();
+    my $author  = $self->author();
+    my $file    = $self->file();
 
 
-    $self->idxmgr()->add_local_packages(@packages);
-    my $destination_dir = Pinto::Util::directory_for_author($local, qw(authors id), $author);
-    $destination_dir->mkpath();    # TODO: log & error check
-    copy($file, $destination_dir); # TODO: log & error check
+    my $added   = Pinto::Distribution->new_from_file( file   => $file, author => $author );
+    my @removed = $self->idxmgr->add_local_distribution( dist => $added );
+    $self->logger->log(sprintf "Adding $added with %i packages", $added->package_count());
 
-    my $message = Pinto::Util::format_message("Added archive $base providing:", sort keys %{$provides});
-    $self->_set_message($message);
+    $self->store->add( file => $added->path($local), source => $file );
+    $cleanup && $self->store->remove( file => $_->path($local) ) for @removed;
+
+    $self->add_message( Pinto::Util::added_dist_message($added) );
+    $self->add_message( Pinto::Util::removed_dist_message($_) ) for @removed;
 
     return 1;
-}
+};
 
 #------------------------------------------------------------------------------
 
@@ -112,11 +77,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Add - An action to add one archive to the repository
+Pinto::Action::Add - An action to add one distribution to the repository
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

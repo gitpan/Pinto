@@ -1,9 +1,11 @@
 ---
-abstract: 'Perl archive repository manager'
+abstract: 'Perl distribution repository manager'
 author:
   - 'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
 build_requires:
+  ExtUtils::MakeMaker: 6.30
   File::Temp: 0
+  FindBin: 0
   Module::Build: 0.3601
   Test::Exception: 0
   Test::More: 0
@@ -25,116 +27,116 @@ no_index:
 provides:
   App::Pinto:
     file: lib/App/Pinto.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command:
     file: lib/App/Pinto/Command.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::add:
     file: lib/App/Pinto/Command/add.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::clean:
     file: lib/App/Pinto/Command/clean.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::create:
     file: lib/App/Pinto/Command/create.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::list:
     file: lib/App/Pinto/Command/list.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::mirror:
     file: lib/App/Pinto/Command/mirror.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::remove:
     file: lib/App/Pinto/Command/remove.pm
-    version: 0.007
+    version: 0.008
   App::Pinto::Command::verify:
     file: lib/App/Pinto/Command/verify.pm
-    version: 0.007
+    version: 0.008
   Pinto:
     file: lib/Pinto.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Create:
     file: lib/Pinto/Action/Create.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Mirror:
     file: lib/Pinto/Action/Mirror.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Remove:
     file: lib/Pinto/Action/Remove.pm
-    version: 0.007
+    version: 0.008
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.007
+    version: 0.008
   Pinto::ActionBatch:
     file: lib/Pinto/ActionBatch.pm
-    version: 0.007
+    version: 0.008
   Pinto::ActionFactory:
     file: lib/Pinto/ActionFactory.pm
-    version: 0.007
+    version: 0.008
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.007
+    version: 0.008
+  Pinto::Distribution:
+    file: lib/Pinto/Distribution.pm
+    version: 0.008
   Pinto::Index:
     file: lib/Pinto/Index.pm
-    version: 0.007
+    version: 0.008
   Pinto::IndexManager:
     file: lib/Pinto/IndexManager.pm
-    version: 0.007
+    version: 0.008
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.007
+    version: 0.008
   Pinto::Package:
     file: lib/Pinto/Package.pm
-    version: 0.007
-  Pinto::Role::Authored:
-    file: lib/Pinto/Role/Authored.pm
-    version: 0.007
+    version: 0.008
   Pinto::Role::Configurable:
     file: lib/Pinto/Role/Configurable.pm
-    version: 0.007
+    version: 0.008
   Pinto::Role::Loggable:
     file: lib/Pinto/Role/Loggable.pm
-    version: 0.007
+    version: 0.008
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.007
+    version: 0.008
   Pinto::Store::Git:
     file: lib/Pinto/Store/Git.pm
-    version: 0.007
+    version: 0.008
   Pinto::Store::Svn:
     file: lib/Pinto/Store/Svn.pm
-    version: 0.007
+    version: 0.008
   Pinto::Types:
     file: lib/Pinto/Types.pm
-    version: 0.007
+    version: 0.008
   Pinto::UserAgent:
     file: lib/Pinto/UserAgent.pm
-    version: 0.007
+    version: 0.008
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.007
+    version: 0.008
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.007
+    version: 0.008
 requires:
   App::Cmd::Setup: 0
+  CPAN::DistnameInfo: 0
   Carp: 0
-  Compress::Zlib: 0
   Date::Format: 0
   Dist::Metadata: 0
-  Exporter: 0
+  English: 0
   File::Copy: 0
   File::Find: 0
   File::HomeDir: 0
@@ -150,12 +152,14 @@ requires:
   Path::Class: 0
   Path::Class::Dir: 0
   Path::Class::File: 0
+  PerlIO::gzip: 0
   Readonly: 0
   URI: 0
+  autodie: 0
   namespace::autoclean: 0
   overload: 0
-  perl: 5.008
+  perl: 5.006
 resources:
   homepage: https://github.com/thaljef/Pinto
   repository: https://github.com/thaljef/Pinto
-version: 0.007
+version: 0.008

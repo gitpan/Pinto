@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -19,13 +19,17 @@ has idxmgr => (
     required => 1,
 );
 
-
-has message => (
+has store => (
     is       => 'ro',
-    isa      => 'Str',
-    writer   => '_set_message',
-    default  => '',
-    init_arg => undef,
+    isa      => 'Pinto::Store',
+    required => 1,
+);
+
+has messages => (
+    is         => 'ro',
+    isa        => 'ArrayRef[Str]',
+    default    => sub{ [] },
+    init_arg   => undef,
 );
 
 #------------------------------------------------------------------------------
@@ -38,6 +42,8 @@ with qw( Pinto::Role::Configurable
 # Methods
 
 sub execute { return 0 }
+
+sub add_message { push @{ shift()->messages() }, @_ }
 
 #------------------------------------------------------------------------------
 
@@ -59,7 +65,7 @@ Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

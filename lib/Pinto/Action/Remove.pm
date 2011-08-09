@@ -5,7 +5,8 @@ package Pinto::Action::Remove;
 use Moose;
 use MooseX::Types::Moose qw( Str );
 
-use Carp;
+use Pinto::Util;
+use Pinto::Types qw(AuthorID);
 
 extends 'Pinto::Action';
 
@@ -13,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,33 +24,42 @@ has package  => (
     required => 1,
 );
 
+
+has author => (
+    is         => 'ro',
+    isa        => AuthorID,
+    coerce     => 1,
+    lazy_build => 1,
+);
+
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Authored );
+sub _build_author { return shift()->config->author() }
 
 #------------------------------------------------------------------------------
 
-sub execute {
+override execute => sub {
     my ($self) = @_;
 
     my $pkg    = $self->package();
     my $author = $self->author();
-
     my $idxmgr = $self->idxmgr();
-    my $orig_author = $idxmgr->local_author_of(package => $pkg);
 
-    croak "You are $author, but only $orig_author can remove $pkg"
-        if defined $orig_author and $author ne $orig_author;
+    my $dist = $idxmgr->remove_local_package(package => $pkg, author => $author);
+    $self->logger->warn("Package $pkg is not in the local index") && return 0 if not $dist;
+    $self->logger->log(sprintf "Removing $dist with %i packages", $dist->package_count());
 
-    if (my @removed = $idxmgr->remove_local_package(package => $pkg)) {
-        my $message = Pinto::Util::format_message("Removed packages:", sort @removed);
-        $self->_set_message($message);
-        return 1;
-    }
+    my $file = $dist->path( $self->config->local() );
+    $self->config->nocleanup() || $self->store->remove( file => $file );
 
-    $self->logger()->warn("Package $pkg is not in the index");
-    return 0;
-}
+    $self->add_message( Pinto::Util::removed_dist_message( $dist ) );
+
+    return 1;
+};
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +77,7 @@ Pinto::Action::Remove - An action to remove packages from the repository
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

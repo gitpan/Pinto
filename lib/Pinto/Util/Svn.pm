@@ -7,12 +7,12 @@ use warnings;
 
 use Carp qw(croak);
 use IPC::Cmd 0.72 qw(run);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(firstidx);
 use Path::Class;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -20,10 +20,14 @@ our $VERSION = '0.007'; # VERSION
 sub svn_mkdir {
     my %args = @_;
     my $url = $args{url};
+    my $dir = $args{dir};
     my $message = $args{message} || 'NO MESSAGE GIVEN';
 
-    if ( not svn_ls(url => $url) ) {
+    if ( $url && not svn_ls(url => $url) ) {
         return _svn( command => [qw(mkdir --parents -m), $message, $url]);
+    }
+    elsif ($dir and not -e $dir) {
+        return _svn( command => [qw(mkdir --parents), $dir] );
     }
 
     return 1;
@@ -110,22 +114,26 @@ sub svn_add {
 #--------------------------------------------------------------------------
 
 
-sub svn_delete {
+sub svn_remove {
     my %args  = @_;
-    my $path  = file($args{path});
+
+    my $path  = $args{file};
     my $prune = $args{prune};
 
-    _svn( command => ['rm', $path] );
+    return if not -e $path;
+    croak "$path is not a file" if $path->is_dir();
+
+    _svn( command => ['rm', '--force', $path] );
 
     if($prune) {
-        my $dir = $path->dir();
-        if ( _all_scheduled_for_deletion( directory => $dir) ) {
-
-            svn_delete(path => $dir, prune => 1);
+        while (my $dir = $path->parent() ) {
+            last if not _all_scheduled_for_deletion(directory => $dir);
+            _svn( command => ['rm', '--force', $dir] );
+            $path = $dir;
         }
     }
 
-    return 1;
+    return $path;
 }
 
 #--------------------------------------------------------------------------
@@ -203,7 +211,10 @@ sub _svn {
     my $ok = run( command => $command, buffer => $buffer);
 
     if ($croak and not $ok) {
-        my $command_string = join ' ', map { /\s/ ? qq<'$_'> : $_ } @{$command};
+        # Truncate the '-m MESSAGE' arguments, for readability
+        my $dash_m_offset = firstidx {$_ eq '-m'} @{ $command };
+        splice @{ $command }, $dash_m_offset + 1, 1, q{'...'};
+        my $command_string = join ' ', @{ $command };
         croak "Command failed: $command_string\n". ${$buffer};
     }
 
@@ -226,7 +237,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 FUNCTIONS
 
@@ -260,11 +271,11 @@ added, and any missing file is deleted.
 
 Schedules the specified path for addition to the repository.
 
-=head2 svn_delete(path => '/some/path' prune => 1)
+=head2 svn_remove(path => '/some/path' prune => 1)
 
-Schedules the specified path for deletion from the repository.  If the
+Schedules the specified path for remove from the repository.  If the
 C<prune> flag is true, then any ancestors of the path will also be
-deleted if all their contents are scheduled for deletion.
+removed if all their contents are scheduled for removal.
 
 =head2 svn_commit(paths => [@paths], message => 'Commit message')
 

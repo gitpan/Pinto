@@ -6,7 +6,7 @@ use Moose;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -17,10 +17,17 @@ has idxmgr => (
     required => 1,
 );
 
+has store => (
+    is       => 'ro',
+    isa      => 'Pinto::Store',
+    required => 1,
+);
+
 #------------------------------------------------------------------------------
 # Roles
 
-with qw(Pinto::Role::Configurable Pinto::Role::Loggable);
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -34,6 +41,7 @@ sub create_action {
     return $action_class->new( config => $self->config(),
                                logger => $self->logger(),
                                idxmgr => $self->idxmgr(),
+                               store  => $self->store(),
                                %args );
 
 }
@@ -58,7 +66,7 @@ Pinto::ActionFactory - Factory class for making Actions
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

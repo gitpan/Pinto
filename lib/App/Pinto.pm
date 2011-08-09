@@ -9,7 +9,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,9 +17,12 @@ sub global_opt_spec {
 
   return (
 
-      [ "config=s"    => "Path to your pinto profile" ],
+#      [ "config=s"    => "Path to your pinto config file" ],
       [ "local=s"     => "Path to local repository directory"],
-      [ "nocleanup"   => "Do not clean repository after each action" ],
+      [ "nocleanup"   => "Do not remove distribtuions that become outdated" ],
+      [ "nocommit"    => "Do not commit changes to VCS" ],
+      [ "noinit"      => "Skip updating or pulling from VCS" ],
+      [ "notag"       => "Do not make tag after committing to VCS" ],
       [ "quiet|q"     => "Only report fatal errors"],
       [ "verbose|v+"  => "More diagnostic output (repeatable)" ],
   );
@@ -41,7 +44,6 @@ sub pinto {
     require Pinto::Config;
     require Pinto::Logger;
 
-    $DB::single = 1;
     return $self->{pinto} ||= do {
         my %global_options = %{ $self->global_options() };
         my $config = Pinto::Config->new(%global_options, %{$command_options});
@@ -66,7 +68,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 DESCRIPTION
 

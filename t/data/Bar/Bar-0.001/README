@@ -1,8 +1,8 @@
 NAME
-    Pinto - Perl archive repository manager
+    Pinto - Perl distribution repository manager
 
 VERSION
-    version 0.007
+    version 0.008
 
 DESCRIPTION
     You probably want to look at the documentation for pinto. This is a
@@ -47,17 +47,17 @@ TERMINOLOGY
         sometimes, a module may contain many packages with completely
         arbitrary names.
 
-    archive
-        An "archive" is a collection of Perl modules that have been packaged
-        in a particular structure. This is what you get when you run ""make
-        dist"" or "./Build dist". Archives may come from a "mirror", or you
-        may create your own. An archive is the "A" in "CPAN".
+    distribution
+        An "distribution" is a collection of Perl modules that have been
+        packaged in a particular structure. This is what you get when you
+        run ""make dist"" or "./Build dist". Distributions may come from a
+        "mirror", or you may create your own.
 
     repository
-        A "repository" is a collection of archives that are organized in a
-        particular structure, and having an index describing which packages
-        are contained in each archive. This is where cpan and cpanm get the
-        packages from.
+        A "repository" is a collection of distributions that are organized
+        in a particular structure, and having an index describing which
+        packages are contained in each distribution. This is where cpan and
+        cpanm get the packages from.
 
     mirror
         A "mirror" is a copy of a public CPAN repository (e.g.
@@ -72,18 +72,18 @@ RULES
     somewhat like PAUSE does.
 
     A local package always masks a mirrored package, and all other packages
-    that are in the same archive with the mirrored package.
-        This rule is key, so pay attention. If the CPAN mirror has an
-        archive that contains both "Foo" and "Bar" packages, and you add
-        your own archive that contains "Foo" package, then both the "Foo"
-        and "Bar" mirroed packages will be removed from your index. This
-        ensures that anyone pulling packages from your repository will
+    that are in the same distribution with the mirrored package.
+        This rule is key, so pay attention. If the CPAN mirror has a
+        distribution that contains both "Foo" and "Bar" packages, and you
+        add your own distribution that contains "Foo" package, then both the
+        "Foo" and "Bar" mirroed packages will be removed from your index.
+        This ensures that anyone pulling packages from your repository will
         always get *your* version of "Foo". But as a result, they'll never
         be able to get "Bar".
 
-    You can never add an archive with the same name twice.
-        Most archive-building tools will put some kind of version number in
-        the name of the archive, so this is rarely a problem.
+    You can never add an distribution with the same name twice.
+        Most distribtuion-building tools will put some kind of version
+        number in the name of the distribution, so this is rarely a problem.
 
     Only the original author of a local package can add a newer version of
     it.
@@ -112,7 +112,6 @@ TODO
     Automatically fetch dependecies when adding *VERY COOL*
     New command for listing conflicts between local and mirrored index
     Make file/directory permissions configurable
-    Refine terminology: consider "distribution" instead of "archive"
     Need more error checking and logging
     Lots of tests to write
 

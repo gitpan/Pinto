@@ -1,6 +1,6 @@
 package App::Pinto::Command::add;
 
-# ABSTRACT: add your own Perl archives to the repository
+# ABSTRACT: add your own Perl distributions to the repository
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -26,21 +26,21 @@ sub opt_spec {
 sub usage_desc {
     my ($self) = @_;
     my ($command) = $self->command_names();
-    return "%c [global options] $command [command options] ARCHIVE";
+    return "%c [global options] $command [command options] DISTRIBUTION";
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
-    $self->usage_error("Must specify exactly one archive") if @{ $args } != 1;
+    $self->usage_error("Must specify one or more distribution args") if not @{ $args };
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->add( file => $args->[0] );
+    $self->pinto( $opts )->add( file => $args );
     return 0;
 }
 
@@ -56,11 +56,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::add - add your own Perl archives to the repository
+App::Pinto::Command::add - add your own Perl distributions to the repository
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

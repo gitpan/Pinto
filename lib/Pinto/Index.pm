@@ -2,23 +2,24 @@ package Pinto::Index;
 
 # ABSTRACT: Represents an 02packages.details.txt file
 
+use autodie;
+
 use Moose;
 use Moose::Autobox;
 
 use MooseX::Types::Moose qw(HashRef);
+use Pinto::Types qw(File);
 
 use Carp;
-use Compress::Zlib;
+use PerlIO::gzip;
 use Path::Class qw();
 
 use Pinto::Package;
-use Pinto::Types qw(File);
-
-use overload ('+' => '__plus', '-' => '__minus');
+use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -30,11 +31,11 @@ has packages => (
     lazy_build => 1,
 );
 
-has files => (
-    is         => 'ro',
-    isa        => HashRef,
-    init_arg   => undef,
-    lazy_build => 1,
+has distributions => (
+    is          => 'ro',
+    isa         => HashRef,
+    init_arg    => undef,
+    lazy_build  => 1,
 );
 
 has 'file' => (
@@ -50,10 +51,11 @@ has 'file' => (
 with qw(Pinto::Role::Loggable);
 
 #------------------------------------------------------------------------------
+# Moose builders
 
 sub _build_packages { return {} }
 
-sub _build_files    { return {} }
+sub _build_distributions { return {} }
 
 #------------------------------------------------------------------------------
 
@@ -75,12 +77,10 @@ sub load {
     my $file = $self->file();
     $self->logger->debug("Reading index at $file");
 
-    my $fh = $file->openr();
-    my $gz = Compress::Zlib::gzopen($fh, "rb")
-        or croak "Cannot open $file: $Compress::Zlib::gzerrno";
+    open my $fh, '<:gzip', $file;
 
     my $inheader = 1;
-    while ($gz->gzreadline($_) > 0) {
+    while (<$fh>) {
 
         if ($inheader) {
             $inheader = 0 if not /\S/;
@@ -88,14 +88,17 @@ sub load {
         }
 
         chomp;
-        my ($name, $version, $file) = split;
+        my ($name, $version, $location) = split;
 
-        $self->add( Pinto::Package->new( name    => $name,
-                                         file    => $file,
-                                         version => $version ) );
+        my $dist = $self->distributions->{$location}
+          ||= Pinto::Distribution->new(location => $location);
 
+        my $pkg = Pinto::Package->new(name => $name, version => $version, dist => $dist);
+        $self->packages->put($name, $pkg);
+        $dist->add_packages($pkg);
     }
 
+    close $fh;
     return $self;
 }
 
@@ -114,24 +117,24 @@ sub write {
     $self->logger->debug("Writing index at $file");
 
     $file->dir->mkpath(); # TODO: log & error check
-    my $gz = Compress::Zlib::gzopen( $file->openw(), 'wb' );
-    $self->_gz_write_header($gz);
-    $self->_gz_write_packages($gz);
-    $gz->gzclose();
+    open my $fh, '>:gzip', $file;
+    $self->_write_header($fh);
+    $self->_write_packages($fh);
+    close $fh;
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
-sub _gz_write_header {
-    my ($self, $gz) = @_;
+sub _write_header {
+    my ($self, $fh) = @_;
 
     my ($file, $url) = $self->file()
         ? ($self->file->basename(), 'file://' . $self->file->as_foreign('Unix') )
         : ('UNKNOWN', 'UNKNOWN');
 
-    $gz->gzwrite( <<END_PACKAGE_HEADER );
+    print {$fh} <<END_PACKAGE_HEADER;
 File:         $file
 URL:          $url
 Description:  Package names found in directory \$CPAN/authors/id/
@@ -148,45 +151,36 @@ END_PACKAGE_HEADER
 
 #------------------------------------------------------------------------------
 
-sub _gz_write_packages {
-    my ($self, $gz) = @_;
+sub _write_packages {
+    my ($self, $fh) = @_;
 
     my $sorter = sub { $_[0]->{name} cmp $_[1]->{name} };
     my $packages = $self->packages->values->sort($sorter);
     for my $package ( $packages->flatten() ) {
-        $gz->gzwrite($package->to_string() . "\n");
+        print {$fh} $package->to_string() . "\n";
     }
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
-
-
-sub merge {
-    my ($self, @packages) = @_;
-
-    $self->remove( @packages );
-    $self->add( @packages );
-
-    return $self;
-}
-
-#------------------------------------------------------------------------------
-
 
 sub add {
     my ($self, @packages) = @_;
 
-    for my $package (@packages) {
-        my $name = $package->name();
-        $self->packages->put($name, $package);
+    $DB::single = 1;
+    my @removed_dists = $self->remove( @packages );
 
-        my $file = $package->file();
-        ($self->files()->{$file} ||= [] )->push($package);
+    for my $package (@packages) {
+
+        my $name = $package->name();
+        $self->packages->put( $name, $package );
+
+        my $location = $package->dist->location();
+        $self->distributions->put( $location, $package->dist() );
     }
 
-    return $self;
+    return @removed_dists;
 }
 
 #------------------------------------------------------------------------------
@@ -208,7 +202,7 @@ sub clear {
     my ($self) = @_;
 
     $self->clear_packages();
-    $self->clear_files();
+    $self->clear_distributions();
 
     return $self;
 }
@@ -219,22 +213,22 @@ sub clear {
 sub remove {
     my ($self, @packages) = @_;
 
-    my @removed = ();
+    my @removed_dists = ();
     for my $package (@packages) {
 
         $package = $package->name()
             if eval { $package->isa('Pinto::Package') };
 
         if (my $incumbent = $self->packages->at($package)) {
-            # Remove the file that contains the incumbent package and
-            # then remove all packages that were contained in that file
-            my $kin = $self->files->delete( $incumbent->file() );
-            $self->packages->delete($_) for map {$_->name()} @{ $kin };
-            push @removed, @{ $kin };
+            my $location = $incumbent->dist->location();
+            my $dist = $self->distributions->delete( $location );
+            my @package_names = map {$_->name()} $dist->packages()->flatten();
+            $self->packages->delete($_) for @package_names;
+            push @removed_dists, $dist;
         }
 
     }
-    return @removed;
+    return @removed_dists;
 }
 
 #------------------------------------------------------------------------------
@@ -255,8 +249,8 @@ sub find {
         return $self->packages->at($pkg);
     }
     elsif (my $file = $args{file}) {
-        my $pkgs = $self->files->at($file);
-        return $pkgs ? $pkgs->flatten() : ();
+        my $dist = $self->distributions->at($file);
+        return $dist ? $dist->packages->flatten() : ();
     }
     elsif (my $author = $args{author}) {
         my $filter = sub { $_[0]->file() eq $author };
@@ -268,35 +262,7 @@ sub find {
 
 #------------------------------------------------------------------------------
 
-sub __plus {
-    my ($self, $other, $swap) = @_;
-
-    ($self, $other) = ($other, $self) if $swap;
-    my $class = ref $self;
-    my $result = $class->new( logger => $self->logger() );
-    $result->add( $self->packages->values->flatten() );
-    $result->merge( $other->packages->values->flatten() );
-
-    return $result;
-}
-
-#------------------------------------------------------------------------------
-
-sub __minus {
-    my ($self, $other, $swap) = @_;
-
-    ($self, $other) = ($other, $self) if $swap;
-    my $class = ref $self;
-    my $result = $class->new( logger => $self->logger() );
-    $result->add( $self->packages->values->flatten() );
-    $result->remove( $other->packages->values->flatten() );
-
-    return $result;
-}
-
-#------------------------------------------------------------------------------
-
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -314,7 +280,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 DESCRIPTION
 
@@ -336,19 +302,6 @@ F<02packages.details.txt> file.  The file will also be C<gzipped>.  If
 the C<file> argument is not explicitly given here, the name of the
 file is taken from the C<file> attribute for this Index.
 
-=head2 merge( @packages )
-
-Adds a list of L<Pinto::Package> objects to this Index, and removes
-any existing packages that conflict with the added ones.  Use this
-method when combining an Index of private packages with an Index of
-public packages.
-
-=head2 add( @packages)
-
-Unconditionally adds a list of L<Pinto::Package> objects to this
-Index.  If the index already contains packages by the same name, they
-will be overwritten.
-
 =head1 METHODS
 
 =head2 reload()
@@ -363,7 +316,7 @@ Removes all packages from this Index.
 =head2 remove( @packages )
 
 Removes the packages from the index.  Whenever a package is removed, all
-the other packages that belonged in the same archive are also removed.
+the other packages that belonged in the same distribution are also removed.
 Arguments can be L<Pinto::Package> objects or package names as strings.
 
 =head2 package_count()

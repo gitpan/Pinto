@@ -1,6 +1,6 @@
 package App::Pinto::Command::clean;
 
-# ABSTRACT: delete archives that are not in the index
+# ABSTRACT: delete distributions that are not in the index
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -40,11 +40,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::clean - delete archives that are not in the index
+App::Pinto::Command::clean - delete distributions that are not in the index
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

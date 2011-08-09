@@ -1,6 +1,6 @@
 package Pinto;
 
-# ABSTRACT: Perl archive repository manager
+# ABSTRACT: Perl distribution repository manager
 
 use Moose;
 
@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -22,7 +22,7 @@ our $VERSION = '0.007'; # VERSION
 has action_factory => (
     is        => 'ro',
     isa       => 'Pinto::ActionFactory',
-    builder   => '__build_action_factory',
+    builder   => '_build_action_factory',
     handles   => [ qw(create_action) ],
     lazy      => 1,
 );
@@ -32,7 +32,7 @@ has action_factory => (
 has action_batch => (
     is         => 'ro',
     isa        => 'Pinto::ActionBatch',
-    builder    => '__build_action_batch',
+    builder    => '_build_action_batch',
     handles    => [ qw(enqueue run) ],
     lazy       => 1,
 );
@@ -42,49 +42,61 @@ has action_batch => (
 has idxmgr => (
     is       => 'ro',
     isa      => 'Pinto::IndexManager',
-    builder  => '__build_idxmgr',
-    init_arg => undef,
+    builder  => '_build_idxmgr',
+    lazy     => 1,
+);
+
+#------------------------------------------------------------------------------
+
+has store => (
+    is       => 'ro',
+    isa      => 'Pinto::Store',
+    builder  => '_build_store',
     lazy     => 1,
 );
 
 #------------------------------------------------------------------------------
 # Moose roles
 
-with qw(Pinto::Role::Configurable Pinto::Role::Loggable);
-
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 # Builders
 
-sub __build_action_factory {
+sub _build_action_factory {
     my ($self) = @_;
 
     return Pinto::ActionFactory->new( config => $self->config(),
                                       logger => $self->logger(),
-                                      idxmgr => $self->idxmgr() );
+                                      idxmgr => $self->idxmgr(),
+                                      store  => $self->store() );
 }
 
-sub __build_action_batch {
+sub _build_action_batch {
     my ($self) = @_;
 
     return Pinto::ActionBatch->new( config => $self->config(),
                                     logger => $self->logger(),
-                                    idxmgr => $self->idxmgr() );
+                                    idxmgr => $self->idxmgr(),
+                                    store  => $self->store() );
 }
 
-sub __build_idxmgr {
+sub _build_idxmgr {
     my ($self) = @_;
 
     return Pinto::IndexManager->new( config => $self->config(),
                                      logger => $self->logger() );
 }
 
-#------------------------------------------------------------------------------
-# Private methods
-
-sub _should_cleanup {
+sub _build_store {
     my ($self) = @_;
-    return not $self->config->nocleanup();
+
+    my $store_class = $self->config->store();
+    Class::Load::load_class( $store_class );
+
+    return $store_class->new( config => $self->config(),
+                              logger => $self->logger() );
 }
 
 #------------------------------------------------------------------------------
@@ -113,7 +125,6 @@ sub mirror {
     my ($self) = @_;
 
     $self->enqueue( $self->create_action('Mirror') );
-    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
     $self->run();
 
     return $self;
@@ -125,8 +136,10 @@ sub mirror {
 sub add {
     my ($self, %args) = @_;
 
-    $self->enqueue( $self->create_action('Add', %args) );
-    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
+    my $file = $args{file};
+    $file = [$file] if not ref $file;
+
+    $self->enqueue( $self->create_action('Add', file => $_) ) for @{ $file };
     $self->run();
 
     return $self;
@@ -138,8 +151,10 @@ sub add {
 sub remove {
     my ($self, %args) = @_;
 
-    $self->enqueue( $self->create_action('Remove', %args) );
-    $self->enqueue( $self->create_action('Clean') ) if $self->_should_cleanup();
+    my $package = $args{package};
+    $package = [$package] if not ref $package;
+
+    $self->enqueue( $self->create_action('Remove', package => $_) ) for @{ $package };
     $self->run();
 
     return $self;
@@ -198,11 +213,11 @@ placeholders
 
 =head1 NAME
 
-Pinto - Perl archive repository manager
+Pinto - Perl distribution repository manager
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 DESCRIPTION
 
@@ -260,18 +275,18 @@ somewhere.  A module usually contains only one package, and the name
 of the module usually matches the name of the package.  But sometimes,
 a module may contain many packages with completely arbitrary names.
 
-=item archive
+=item distribution 
 
-An "archive" is a collection of Perl modules that have been packaged
+An "distribution" is a collection of Perl modules that have been packaged
 in a particular structure.  This is what you get when you run C<"make
-dist"> or C<"./Build dist">.  Archives may come from a "mirror",
-or you may create your own. An archive is the "A" in "CPAN".
+dist"> or C<"./Build dist">.  Distributions may come from a "mirror",
+or you may create your own.
 
 =item repository
 
-A "repository" is a collection of archives that are organized in a
+A "repository" is a collection of distributions that are organized in a
 particular structure, and having an index describing which packages
-are contained in each archive.  This is where L<cpan> and L<cpanm>
+are contained in each distribution.  This is where L<cpan> and L<cpanm>
 get the packages from.
 
 =item mirror
@@ -293,20 +308,20 @@ somewhat like PAUSE does.
 =over 4
 
 =item A local package always masks a mirrored package, and all other
-packages that are in the same archive with the mirrored package.
+packages that are in the same distribution with the mirrored package.
 
-This rule is key, so pay attention.  If the CPAN mirror has an archive
+This rule is key, so pay attention.  If the CPAN mirror has a distribution
 that contains both C<Foo> and C<Bar> packages, and you add your own
-archive that contains C<Foo> package, then both the C<Foo> and C<Bar>
+distribution that contains C<Foo> package, then both the C<Foo> and C<Bar>
 mirroed packages will be removed from your index.  This ensures that
 anyone pulling packages from your repository will always get *your*
 version of C<Foo>.  But as a result, they'll never be able to get
 C<Bar>.
 
-=item You can never add an archive with the same name twice.
+=item You can never add an distribution with the same name twice.
 
-Most archive-building tools will put some kind of version number in
-the name of the archive, so this is rarely a problem.
+Most distribtuion-building tools will put some kind of version number in
+the name of the distribution, so this is rarely a problem.
 
 =item Only the original author of a local package can add a newer
 version of it.
@@ -350,8 +365,6 @@ Wesley.
 =item New command for listing conflicts between local and mirrored index
 
 =item Make file/directory permissions configurable
-
-=item Refine terminology: consider "distribution" instead of "archive"
 
 =item Need more error checking and logging
 

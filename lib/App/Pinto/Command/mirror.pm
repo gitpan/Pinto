@@ -1,6 +1,6 @@
 package App::Pinto::Command::mirror;
 
-# ABSTRACT: get the latest archives from a CPAN mirror
+# ABSTRACT: get the latest distributions from a CPAN mirror
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -49,11 +49,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::mirror - get the latest archives from a CPAN mirror
+App::Pinto::Command::mirror - get the latest distributions from a CPAN mirror
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 

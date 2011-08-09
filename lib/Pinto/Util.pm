@@ -8,16 +8,11 @@ use warnings;
 use Path::Class;
 use Readonly;
 
-use base 'Exporter';
+use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
-
-#-------------------------------------------------------------------------------
-# TODO: Don't export!
-
-our @EXPORT_OK = qw(directory_for_author is_source_control_file);
+our $VERSION = '0.008'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -26,19 +21,11 @@ Readonly my %SCM_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
 #-------------------------------------------------------------------------------
 
 
-sub directory_for_author {
+sub author_dir {
     my ($author) = pop;
     my @base = @_;
     $author = uc $author;
     return dir(@base, substr($author, 0, 1), substr($author, 0, 2), $author);
-}
-
-#-------------------------------------------------------------------------------
-# TODO: Is this needed?
-
-
-sub index_directory_for_author {
-    return directory_for_author(@_)->as_foreign('Unix');
 }
 
 #-------------------------------------------------------------------------------
@@ -51,19 +38,23 @@ sub is_source_control_file {
 
 #-------------------------------------------------------------------------------
 
-
-sub native_file {
-    my ($file) = pop;
-    my (@base) = @_;
-    return file(@base, split m{/}, $file);
+sub added_dist_message {
+    return _dist_message(@_, 'Added');
 }
 
 #-------------------------------------------------------------------------------
 
+sub removed_dist_message {
+    return _dist_message(@_, 'Removed');
+}
 
-sub format_message {
-    my ($header, @items) = @_;
-    return "$header\n    " . join "\n    ", @items;
+#-------------------------------------------------------------------------------
+
+sub _dist_message {
+    my ($dist, $action) = @_;
+    my @packages = @{ $dist->packages() };
+    my @items = sort map { $_->name() . ' ' . $_->version() } @packages;
+    return "$action distribution $dist providing:\n    " . join "\n    ", @items;
 }
 
 #-------------------------------------------------------------------------------
@@ -81,7 +72,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 DESCRIPTION
 
@@ -90,33 +81,18 @@ you to see here (yet).
 
 =head1 FUNCTIONS
 
-=head2 directory_for_author( @base, $author )
+=head2 author_dir( @base, $author )
 
-Given the name of an C<$author> returns the directory where the
-archives for that author belong (as a L<Path::Class::Dir>).  The
+Given the name of an C<$author>, returns the directory where the
+distributions for that author belong (as a L<Path::Class::Dir>).  The
 optional C<@base> can be a series of L<Path::Class:Dir> or path parts
 (as strings).  If C<@base> is given, it will be prepended to the
 directory that is returned.
-
-=head2 index_directory_for_author()
-
-Same as C<directory_for_author()>, but returns the path as it would appear
-in the F<02packages.details.txt> file.  That is, in Unix format.
 
 =head2 is_source_control_file($path)
 
 Given a path (which may be a file or directory), returns true if that path
 is part of the internals of a source control system (e.g. git, svn, cvs).
-
-=head2 native_file(@base, $file)
-
-Given a Unix path to a file, returns the file in the native OS format
-(as a L<Path::Class::File>);
-
-=head2 format_message($header, @items)
-
-Formats a commit message, consisting of a header followed by a list
-of items.
 
 =head1 AUTHOR
 

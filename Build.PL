@@ -7,7 +7,9 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   'build_requires' => {
+    'ExtUtils::MakeMaker' => '6.30',
     'File::Temp' => '0',
+    'FindBin' => '0',
     'Module::Build' => '0.3601',
     'Test::Exception' => '0',
     'Test::More' => '0'
@@ -15,23 +17,23 @@ my %module_build_args = (
   'configure_requires' => {
     'Module::Build' => '0.3601'
   },
-  'dist_abstract' => 'Perl archive repository manager',
+  'dist_abstract' => 'Perl distribution repository manager',
   'dist_author' => [
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.007',
+  'dist_version' => '0.008',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
   'recursive_test_files' => 1,
   'requires' => {
     'App::Cmd::Setup' => '0',
+    'CPAN::DistnameInfo' => '0',
     'Carp' => '0',
-    'Compress::Zlib' => '0',
     'Date::Format' => '0',
     'Dist::Metadata' => '0',
-    'Exporter' => '0',
+    'English' => '0',
     'File::Copy' => '0',
     'File::Find' => '0',
     'File::HomeDir' => '0',
@@ -47,11 +49,13 @@ my %module_build_args = (
     'Path::Class' => '0',
     'Path::Class::Dir' => '0',
     'Path::Class::File' => '0',
+    'PerlIO::gzip' => '0',
     'Readonly' => '0',
     'URI' => '0',
+    'autodie' => '0',
     'namespace::autoclean' => '0',
     'overload' => '0',
-    'perl' => '5.008'
+    'perl' => '5.006'
   },
   'script_files' => [
     'bin/pinto'

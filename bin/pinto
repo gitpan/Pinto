@@ -8,7 +8,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,19 +29,40 @@ pinto - Command-line utility for Pinto
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 SYNOPSIS
 
+  pinto [global options] COMMAND [command options] [ARG]
+
+  pinto help COMMAND
+
+  pinto help
+
+=head1 DESCRIPTION
+
+C<pinto> is a command line utility for managing a Pinto repository.
+The repository can contain your own private distributions of Perl packages,
+and/or mirror distributions from another repository (such as
+L<http://cpan.perl.org>).  You can also put locally patched versions
+of mirrored distributions in your repository.
+
+You can then point L<cpanm> to your Pinto repository and build and
+install your distributions (and their dependencies).  B<NOTE:> At this
+time, only L<cpanm> will work properly with a Pinto repository.  But
+support for L<cpan> and L<cpanp> is coming real soon!
+
+=head1 TYPICAL USAGE
+
 First, create a configuration file at F<~/.pinto/config.ini>:
 
-  # Required for all commands
+  ; Required. this wil be the path to your repository
   local = /some/directory
 
-  # Optional, defaults to http://cpan.perl.org
+  ; Optional, defaults to http://cpan.perl.org
   mirror = http://some-cpan-mirror
 
-  # Required to add/remove your own archives
+  ; Optional, defaults to your shell user name
   author = MYNAME
 
 Then, run some commands:
@@ -49,34 +70,27 @@ Then, run some commands:
   # Create an empty repository
   $> pinto create
 
-  # Add your own archive to the repository
+  # Add your own distribution to the repository
   $> pinto add Foo-Bar-1.2.tar.gz
 
   # Fill your repository with latest packages from remote mirror
   $> pinto mirror
 
   # Then install stuff from your repository
-  $> cpanm --mirror file:///some/directory --mirror-only Foo
-
-=head1 DESCRIPTION
-
-C<pinto> is a command line utility for managing a Pinto repository.
-The repository can contain your own private archives of Perl packages,
-and/or mirror archives from another repository (such as
-L<http://cpan.perl.org>).  You can also put locally patched versions
-of mirrored archives in your repository.
-
-You can then point L<cpanm> to your Pinto repository and build and
-install your private archives (and their dependencies).  B<NOTE:> At
-this time, only L<cpanm> will work properly with a Pinto repository.
-But support for L<cpan> and L<cpanp> is coming real soon!
+  $> cpanm --mirror-only --mirror file:///some/directory Foo
 
 =head1 CONFIGURATION
 
 The following parameters can be set in your configuration file.  The
-default location of this file is F<~/.pinto/config.ini>.  At the
-moment, you cannot specify an alternative location for your
-configuration file.
+default location of this file is F<~/.pinto/config.ini>.  You may
+specify an alternative location for this file by setting the
+C<PERL_PINTO> environment variable to point to another path.
+
+The configuration file is in the typical INI format.  Parameters are
+C<NAME = VALUE> pairs.  Global parameters (which are all the ones
+described below) are at the top of the file. Blank lines are ignored,
+leading and trailing whitespace is discarded.  Comments start with a
+semi-colon (;).
 
 Almost all configuration parameters can also be specified on the
 command line, either as global options or command options.  To display
@@ -94,18 +108,15 @@ To get a list of options for a particular command:
 
 Your identity as a module author.  This could be your PAUSE ID, but it
 doesn't have to be.  As long as it is just alphanumeric characters.
-This parameter is required for C<add> and C<remove> commands.
+This defaults to your shell username (either C<$ENV{USERNAME}> or
+C<$ENV{USER}> or C<$ENV{LOGNAME}>).
 
 =item local = DIR_PATH
 
 The path to a directory where your repository will be kept.  This
 parameter is required for all commands.  You must be able to read and
-write to this directory.
-
-=item nocleanup = (0|1)
-
-If set to a true value, L<pinto> will not automatically clean up files
-in your repository after most commands.  The default is 0.
+write to this directory.  You may use a tilde (~) as shorthand for
+your home directory.
 
 =item mirror = URL
 
@@ -113,21 +124,47 @@ The URL of a repository that you would like to mirror.  This could
 be a public CPAN mirror, or another Pinto repository.  Defaults
 to L<http://cpan.perl.org>.
 
-=item quiet = (0|1)
+=item nocleanup = 0|1
+
+If true, L<pinto> will not automatically delete distributions that
+become out of date (because you've added your own local version or
+you've pulled a newer one from the mirror).  The default is 0.
+
+=item nocommit = 0|1
+
+If true, L<pinto> will not commit changes in the repository to your
+VCS at the end of each command.  If you're not using a VCS store, then
+this parameter has no effect.  The default is 0.
+
+=item noinit = 0|1
+
+If true, L<pinto> assumes that your repository is up-to-date and will
+not pull/update the repository from your VCS at the beginning of each
+command.  This can save a lot of time, but use with caution. If you're
+not using a VCS store, then this parameter has no effect.  The default
+is 0.
+
+=item notag = 0|1
+
+If true, L<pinto> will not make a tag in your VCS after committing
+changes, even if you've configured a tag name.  If you're not using a
+VCS store, then this parameter has no effect.  The default is 0.
+
+=item quiet = 0|1
 
 If true, then only fatal error messages will be displayed.  This
-option silently overrides any C<verbose> setting.
+parameter silently overrides any C<verbose> setting.
 
 =item store = CLASS_NAME
 
 The name of the class that will handle storage of your repository.
-The default is L<Pinto::Store>, which basically stores your repository
-on the local file system.  Alternatives like L<Pinto::Store::Svn>
-and L<Pinto::Store::Git> allow you to store your repository inside
-a revision control system.  See the documentation for each of those
+The default is L<Pinto::Store>, which only stores your repository on
+the local file system.  Alternatives like L<Pinto::Store::Svn> and
+L<Pinto::Store::Git> allow you to store your repository inside a
+version control system (VCS).  See the documentation for each of those
 modules for additional configuration settings.
 
-=item verbose = (0|1|2)
+=item verbose = 0|1|2
 
 Controls how much noise is made.  Default is 0.
 
@@ -140,18 +177,18 @@ to display a list of options available for C<COMMAND>.
 
 =over 4
 
-=item add Some-Archive-1.2.tar.gz
+=item add Some-Distribution-1.2.tar.gz
 
-Adds the given archive to the Pinto repository.  Any packages
-contained in those archives will override the mirrored packages with
+Adds the given distribution to the Pinto repository.  Any packages
+contained in that distribution will mask the mirrored packages with
 the same name.  See the L<"RULES"> section for more information about
-how locally added archives interact with mirrored ones.
+how locally added distributions interact with mirrored ones.
 
 =item clean
 
-Deletes any archive in the repository that is not currently in
-the master index.  This usually happens automatically, unless
-you've set the C<nocleanup> option.
+Deletes any distribution in the repository that is not currently in
+the master index.  This usually happens automatically, unless you've
+set the C<nocleanup> parameter.
 
 =item create
 
@@ -160,63 +197,71 @@ get a warning if a repository already exists at that location.
 
 =item list
 
-Lists the curent packages and archives that are in the master index of
-your repository.  This is basically just the contents of the
+Lists the curent packages and distributions that are in the master
+index of your repository.  This is basically just the contents of the
 F<02packages.details.txt> file.
 
 =item remove Some::Package
 
-Removes the local archive that contains the given package.  All other
-packages that were contained in the same archive are also removed.
-After removing a package, you will usually want to run C<mirror> to
-pull in any archives that might have been previously blocked by your
-local ones.
+Removes the local distribution that contains the given package.  All
+other packages that were contained in the same distribution are also
+removed.  You can only remove a package that B<YOU> have locally
+added.  You cannot remove packages that come from the mirror (however
+you can mask them by adding your own versions).
 
 =item mirror
 
-Fills your repository with the archives that contain the latest
+Fills your repository with the distributions that contain the latest
 version of all packages on the remote mirror.  See the L<"RULES">
-section for more information about how locally added archives interact
-with mirrored ones.
+section for more information about how locally added distributions
+interact with mirrored ones.
 
 =item verify
 
-Reports any archives that are present in your repository but not
-listed in the master index.  This is usually a sign that something
-has gone wrong.
+Reports any distributions that are present in your repository but not
+listed in the master index.  This is usually a sign that something has
+gone wrong.
 
 =back
 
 =head1 RULES
 
 There are certain rules that govern how the indexes are managed.
-These rules are intended to ensure that clients pulling packages
-from your repository will always get the B<right ones>.  Also,
-the rules attempt to make Pinto behave somewhat like PAUSE does.
+These rules are intended to ensure that clients pulling packages from
+your repository will always get the B<right ones>.  Also, the rules
+attempt to make Pinto behave somewhat like PAUSE does.
 
 =over 4
 
 =item A local package always masks a mirrored package, and all other
-packages that are in the same archive with the mirrored package.
+packages that are in the same distribution with the mirrored package.
 
-This rule is key, so pay attention.  If the remote mirror has an
-archive that contains both C<Foo> and C<Bar> packages, and you add
-your own archive that contains C<Foo> package, then both the C<Foo>
-and C<Bar> mirroed packages will be removed from your index.  This
-ensures that anyone pulling packages from your repository will always
-get B<your> C<Foo>.  But they'll never be able to get C<Bar>.
+This rule is important, so pay attention.  If the remote mirror has a
+distribution that contains both C<Foo> and C<Bar> packages, and you
+add your own distribution that contains C<Foo> package, then both the
+C<Foo> and C<Bar> mirroed packages will be removed from your index.
+This ensures that anyone pulling packages from your repository will
+always get B<your> version of C<Foo>.  But they'll never be able to
+get C<Bar>, because doing so would overwrite your C<Foo>.
 
-=item You can never add an archive with the same name twice.
+=item You can never add a distribution with the same name twice.
 
-Most archive-building tools will put some kind of version number in
-the name of the archive, so this is rarely a problem.
+Most distribution-building tools will put some kind of version number
+in the name of the distribution, so this is rarely a problem.  The
+"name" of a distribution is actually a function of the name of the
+file and the name of the author.  So technically, it is possible for
+two different authors to both add a distribution called
+C<Foo-Bar-1.2.tar.gz>.  But in practice, this rarely happens
+because...
 
-=item Only the original author of a local package can add a newer
-version of it.
+=item Only the original author of a local package can add an
+distribution that contains the same package.
 
 Ownership is given on a first-come basis, just like PAUSE.  So if
-C<SALLY> is the first author to add local package C<Foo::Bar> to the
-repository, then only C<SALLY> can ever add that package again.
+C<SALLY> is the first author to add a distribution to the repository
+with package C<Foo::Bar>, then only C<SALLY> can ever add another
+distribution with that package again.  Unless that package is
+explicitly removed, but...
 
 =item Only the original author of a local package can remove it.
 

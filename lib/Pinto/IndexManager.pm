@@ -5,6 +5,7 @@ package Pinto::IndexManager;
 use Moose;
 use Moose::Autobox;
 
+use Carp;
 use Path::Class;
 
 use Pinto::Util;
@@ -13,7 +14,7 @@ use Pinto::UserAgent;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -57,7 +58,8 @@ has 'master_index'  => (
 #------------------------------------------------------------------------------
 # Roles
 
-with qw(Pinto::Role::Configurable Pinto::Role::Loggable);
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 # Builders
@@ -98,51 +100,31 @@ sub __build_index {
 
 #------------------------------------------------------------------------------
 
-sub rebuild_master_index {
-    my ($self) = @_;
-
-
-    $self->logger()->debug("(Re)building master index");
-
-    $self->master_index()->clear();
-    $self->master_index()->add( $self->mirror_index()->packages()->values()->flatten() );
-    $self->master_index()->merge( $self->local_index()->packages()->values()->flatten() );
-
-    return $self->master_index();
-}
-
-#------------------------------------------------------------------------------
-
 sub update_mirror_index {
     my ($self) = @_;
 
-    $DB::single = 1;
     my $local  = $self->config->local();
     my $mirror = $self->config->mirror();
-
-    # TODO: Make an Index subclass for the mirror index, which knows
-    # how to update itself from a remote source.  Maybe optimize
-    # to reduce the number of times we have to read the index file.
 
     my $mirror_index_uri = URI->new("$mirror/modules/02packages.details.txt.gz");
     my $mirrored_file = Path::Class::file($local, 'modules', '02packages.details.mirror.txt.gz');
     my $file_has_changed = $self->ua->mirror(url => $mirror_index_uri, to => $mirrored_file);
     $self->mirror_index->reload() if $file_has_changed or $self->config->force();
-    $self->rebuild_master_index();
 
-
-    return $file_has_changed;
+    return $file_has_changed or $self->config->force();
 }
 
 #------------------------------------------------------------------------------
 
-sub files_to_mirror {
+sub dists_to_mirror {
     my ($self) = @_;
 
-    return ($self->mirror_index() - $self->local_index())->files()
-                                                         ->keys()
-                                                         ->sort()
-                                                         ->flatten();
+    my $temp_index = Pinto::Index->new();
+    $temp_index->add( $self->mirror_index->packages->values->flatten() );
+    $temp_index->add( $self->local_index->packages->values->flatten() );
+
+    my $sorter = sub { $_[0]->location() cmp $_[1]->location() };
+    return $temp_index->distributions->values->sort($sorter)->flatten();
 }
 
 #------------------------------------------------------------------------------
@@ -152,7 +134,7 @@ sub all_packages {
 
     my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
     return $self->master_index->packages->values->sort($sorter)->flatten();
-}
+  }
 
 #------------------------------------------------------------------------------
 
@@ -167,26 +149,40 @@ sub write_indexes {
 
 #------------------------------------------------------------------------------
 
+sub rebuild_master_index {
+    my ($self) = @_;
+
+    $DB::single = 1;
+    $self->master_index->clear();
+    $self->master_index->add( $self->mirror_index->packages->values->flatten() );
+    $self->master_index->add( $self->local_index->packages->values->flatten() );
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
 sub remove_local_package {
     my ($self, %args) = @_;
 
     my $package = $args{package};
+    my $author  = $args{author};
 
-    my @local_removed = $self->local_index->remove($package);
-    $self->logger->debug("Removed $_ from local index")
-      for @local_removed->map( sub {$_[0]->name()} )->flatten();
+    my $orig_author = $self->local_author_of(package => $package);
+    croak "You are $author, but only $orig_author can remove $package"
+        if defined $orig_author and $author ne $orig_author;
 
-    return if not @local_removed;
+    my $local_dist = ( $self->local_index->remove($package) )[0];
+    return if not $local_dist;
 
-    my @master_removed = $self->master_index->remove($package);
-    $self->logger->debug("Removed $_ from master index")
-      for @master_removed->map( sub {$_[0]->name()} )->flatten();
+    $self->logger->debug("Removed $local_dist from local index");
 
-    # TODO: Sanity check - packages removed from the local and the
-    # master indexes should always be the same.
+    my $master_dist = ( $self->master_index->remove($package) )[0];
+    $self->logger->debug("Removed $master_dist from master index");
 
-    my @sorted = sort map {$_->name()} @local_removed;
-    return @sorted;
+    $self->rebuild_master_index();
+
+    return $local_dist;
 }
 
 #------------------------------------------------------------------------------
@@ -195,36 +191,49 @@ sub local_author_of {
     my ($self, %args) = @_;
 
     my $package = $args{package};
+    $package = $package->name() if eval {$package->isa('Pinto::Package')};
 
     my $pkg = $self->local_index->packages->at($package);
 
-    return $pkg ? $pkg->author() : ();
+    return if not $pkg;
+    return $pkg->dist->author();
 }
-
 
 #------------------------------------------------------------------------------
 
-sub find_file {
+sub add_mirrored_distribution {
     my ($self, %args) = @_;
 
-    my $file   = $args{file};
-    my $author = $args{author};
+    my $dist = $args{dist};
+    my @packages = $dist->packages->flatten();
+    my @removed_dists = $self->master_index->add( @packages );
 
-    my $local         = $self->config->local();
-    my $author_dir    = Pinto::Util::directory_for_author($local, qw(authors id), $author);
-    my $physical_file = Path::Class::file($author_dir, $file->basename());
-    return -e $physical_file ? $physical_file : ();
+    return @removed_dists;
 }
 
 #------------------------------------------------------------------------------
 
-sub add_local_packages {
-    my ($self, @packages) = @_;
+sub add_local_distribution {
+    my ($self, %args) = @_;
 
-    $self->local_index->add(@packages);
-    $self->master_index->merge(@packages);
+    my $dist = $args{dist};
 
-    return $self;
+    croak 'A distribution already exists at ' . $dist->location()
+        if $self->master_index->distributions->at( $dist->location() );
+
+    my @packages = $dist->packages->flatten();
+    for my $pkg ( @packages ) {
+        if ( my $orig_author = $self->local_author_of(package => $pkg) ) {
+            croak sprintf "Package %s is owned by $orig_author", $pkg->name()
+              if $orig_author ne $dist->author();
+        }
+    }
+
+    my @removed_dists = $self->local_index->add(@packages);
+    $self->rebuild_master_index();
+
+    return @removed_dists;
+
 }
 
 #------------------------------------------------------------------------------
@@ -246,7 +255,7 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 ATTRIBUTES
 

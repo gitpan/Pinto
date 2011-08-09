@@ -3,6 +3,7 @@ package Pinto::Store::Svn;
 # ABSTRACT: Store your Pinto repository with Subversion
 
 use Moose;
+use Moose::Autobox;
 
 use Pinto::Util::Svn;
 use Date::Format qw(time2str);
@@ -13,11 +14,21 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #-------------------------------------------------------------------------------
 
-sub initialize {
+override is_initialized => sub {
+    my ($self) = @_;
+
+    # TODO: maybe check last revision # against repos?
+    return -e $self->config->local->file('.svn');
+};
+
+#-------------------------------------------------------------------------------
+
+
+override initialize => sub {
     my ($self) = @_;
 
     my $local = $self->config->local();
@@ -27,26 +38,59 @@ sub initialize {
     Pinto::Util::Svn::svn_checkout(url => $trunk, to => $local);
 
     return 1;
-}
+};
 
 #-------------------------------------------------------------------------------
 
-sub finalize {
+override add => sub {
+    my ($self, %args) = @_;
+    super();
+
+    my $path = $args{file};
+    while (not -e $path->parent->file('.svn') ) {
+        $path = $path->parent();
+    }
+
+    $self->logger->log("Scheduling $path for addition");
+    Pinto::Util::Svn::svn_add(path => $path);
+    $self->added_paths()->push($path);
+
+    return $self;
+};
+
+#-------------------------------------------------------------------------------
+
+override remove => sub {
+    my ($self, %args) = @_;
+
+    my $file  = $args{file};
+    my $prune = $args{prune};
+
+    $self->logger->log("Scheduling $file for removal");
+    my $removed = Pinto::Util::Svn::svn_remove(file => $file, prune => $prune);
+    $self->removed_paths->push($removed);
+
+    return $self;
+};
+
+#-------------------------------------------------------------------------------
+
+override finalize => sub {
     my ($self, %args) = @_;
 
     my $message   = $args{message} || 'NO MESSAGE WAS GIVEN';
-    my $local     = $self->config->local();
 
-    $self->logger->log("Scheduling additions/deletions");
-    Pinto::Util::Svn::svn_schedule(path => $local);
+    my $paths = [ $self->added_paths->flatten(),
+                  $self->removed_paths->flatten(),
+                  $self->modified_paths->flatten() ];
 
     $self->logger->log("Committing changes");
-    Pinto::Util::Svn::svn_commit(paths => $local, message => $message);
+    Pinto::Util::Svn::svn_commit(paths => $paths, message => $message);
 
-    $self->_make_tag() if $self->config->svn_tag();
-
+    $self->_make_tag() if $self->config->svn_tag()
+                          and not $self->config->notag();
     return 1;
-}
+};
 
 #-------------------------------------------------------------------------------
 
@@ -87,17 +131,22 @@ Pinto::Store::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 SYNOPSIS
 
 Add this to your Pinto configuration (usually in F<~/.pinto/config.ini>):
 
-  # ... other global params here ... #
+  ; other global params up here...
+
   store   = Pinto::Store::Svn
 
   [Pinto::Store::Svn]
+
+  ; Required.  URL of repository location where the mainline version will live
   trunk = http://my-repository/trunk/PINTO
+
+  ; Optional.  URL of location where trunk will be copied
   tag   = http://my-repository/tags/PINTO-%Y%m%d.%H%M%S
 
 And then run L<pinto> as you normally would.

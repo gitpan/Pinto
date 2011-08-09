@@ -8,11 +8,14 @@ use MooseX::Configuration;
 use MooseX::Types::Moose qw(Str Bool Int);
 use Pinto::Types qw(AuthorID URI Dir);
 
+use Carp;
+use English qw($REAL_USER_ID);
+
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -40,6 +43,8 @@ has 'author'  => (
     isa       => AuthorID,
     key       => 'author',
     coerce    => 1,
+    lazy      => 1,
+    builder   => '_build_author',
 );
 
 
@@ -47,6 +52,14 @@ has 'nocleanup' => (
     is        => 'ro',
     isa       => Bool,
     key       => 'nocleanup',
+    default   => 0,
+);
+
+
+has 'noinit' => (
+    is        => 'ro',
+    isa       => Bool,
+    key       => 'noinit',
     default   => 0,
 );
 
@@ -72,6 +85,14 @@ has 'nocommit' => (
     isa      => Bool,
     key      => 'nocommit',
     default  => 0,
+);
+
+
+has 'notag' => (
+    is      => 'ro',
+    isa     => 'Bool',
+    key     => 'notag',
+    default => 0,
 );
 
 
@@ -107,21 +128,44 @@ has 'svn_tag' => (
 );
 
 #------------------------------------------------------------------------------
-# Override builder
+# Builders
 
 sub _build_config_file {
 
-    require File::HomeDir;
-    require Path::Class;
+    my $PINTO_ENV_VAR = $ENV{PERL_PINTO};
+    return $PINTO_ENV_VAR if $PINTO_ENV_VAR and -e $PINTO_ENV_VAR;
 
-    # TODO: look at $ENV{PERL_PINTO} first.
-    my $file = Path::Class::file( File::HomeDir->my_home(), qw(.pinto config.ini) );
+    require File::HomeDir;
+    my $home = File::HomeDir->my_home()
+        or croak 'Unable to determine your home directory';
+
+    require Path::Class;
+    my $file = Path::Class::file($home, qw(.pinto config.ini));
+
     return -e $file ? $file : ();
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta()->make_immutable();
+sub _build_author {
+
+    # Look at typical environment variables
+    for my $var ( qw(USERNAME USER LOGNAME) ) {
+        return uc $ENV{$var} if $ENV{$var};
+    }
+
+    # Try using pwent.  Probably only works on *nix
+    if (my $name = getpwuid($REAL_USER_ID)) {
+        return $name;
+    }
+
+    # Otherwise, we are hosed!
+    croak 'Unable to determine your user name';
+
+}
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -139,7 +183,7 @@ Pinto::Config - User configuration for Pinto
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 DESCRIPTION
 

@@ -13,43 +13,48 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.007'; # VERSION
+our $VERSION = '0.008'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub execute {
+override execute => sub {
     my ($self) = @_;
 
     my $local      = $self->config()->local();
     my $search_dir = Path::Class::dir($local, qw(authors id));
     return 0 if not -e $search_dir;
 
-    my @deleted = ();
-    my $wanted = sub {
+    my @removed = ();
+    my $wanted = $self->_make_callback($search_dir, \@removed);
+    File::Find::find($wanted, $search_dir);
+    return 0 if not @removed;
 
-        if (Pinto::Util::is_source_control_file( $_ )) {
+    $self->add_message( "Removed unindexed distribution $_" ) for @removed;
+
+    return 1;
+};
+
+#------------------------------------------------------------------------------
+
+sub _make_callback {
+    my ($self, $search_dir, $deleted) = @_;
+
+    return sub {
+
+        if ( Pinto::Util::is_source_control_file($_) ) {
             $File::Find::prune = 1;
             return;
         }
 
         return if not -f $File::Find::name;
-        my $physical_file = file($File::Find::name);
-        my $index_file  = $physical_file->relative($search_dir)->as_foreign('Unix');
-        return if $self->idxmgr()->master_index()->find( file => $index_file );
 
-        $self->logger()->log("Deleting archive $index_file"); # TODO: report as physical file instead?
-        $physical_file->remove(); # TODO: Error check!
-        push @deleted, $index_file;
+        my $file = file($File::Find::name);
+        my $location  = $file->relative($search_dir)->as_foreign('Unix');
+        return if $self->idxmgr->master_index->distributions->{$location};
+
+        $self->store->remove(file => $file);
+        push @{ $deleted }, $location;
     };
-
-    File::Find::find($wanted, $search_dir);
-
-    return 0 if not @deleted;
-
-    my $message = Pinto::Util::format_message('Deleted archives:', sort @deleted);
-    $self->_set_message($message);
-    return 1;
-
 }
 
 #------------------------------------------------------------------------------
@@ -72,7 +77,7 @@ Pinto::Action::Clean - An action to remove cruft from the repository
 
 =head1 VERSION
 
-version 0.007
+version 0.008
 
 =head1 AUTHOR
 
