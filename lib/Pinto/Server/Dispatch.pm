@@ -1,12 +1,11 @@
-package Pinto::Role::Configurable;
+package Pinto::Server::Dispatch;
 
-# ABSTRACT: Something that has a configuration
+# ABSTRACT: Dispatch table for a Pinto server
 
-use Moose::Role;
+use strict;
+use warnings;
 
-use Pinto::Config;
-
-use namespace::autoclean;
+use base 'CGI::Application::Dispatch';
 
 #-----------------------------------------------------------------------------
 
@@ -14,25 +13,23 @@ our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-has config => (
-    is         => 'ro',
-    isa        => 'Pinto::Config',
-    required   => 1,
-);
+sub dispatch_args {
+    return {
+        table => [ 'add[post]' => {app => 'Pinto::Server', rm => 'add'} ],
+    };
+}
 
-#-----------------------------------------------------------------------------
-
+#----------------------------------------------------------------------------
 1;
 
-
-
+__END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
 
 =head1 NAME
 
-Pinto::Role::Configurable - Something that has a configuration
+Pinto::Server::Dispatch - Dispatch table for a Pinto server
 
 =head1 VERSION
 
@@ -51,5 +48,3 @@ the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-
-__END__

@@ -1,32 +1,32 @@
-package App::Pinto::Command::create;
+package Pinto::Server::Config;
 
-# ABSTRACT: create an empty repository
+# ABSTRACT: Configuration for Pinto::Server
 
-use strict;
-use warnings;
+use Moose;
+use MooseX::Types::Moose qw(Int);
 
-#-----------------------------------------------------------------------------
+use namespace::autoclean;
 
-use base 'App::Pinto::Command';
-
-#------------------------------------------------------------------------------
-
-our $VERSION = '0.008'; # VERSION
+extends 'Pinto::Config';
 
 #------------------------------------------------------------------------------
 
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error('Arguments are not allowed') if @{ $args };
-}
+our $VERSION = '0.009'; # VERSION
+
+#------------------------------------------------------------------------------
+# Moose attributes
+
+has 'port'   => (
+    is        => 'ro',
+    isa       => Int,
+    key       => 'port',
+    section   => 'Pinto::Server',
+    default   => 1973,
+);
 
 #------------------------------------------------------------------------------
 
-sub execute {
-    my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->create();
-    return 0;
-}
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -40,11 +40,16 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::create - create an empty repository
+Pinto::Server::Config - Configuration for Pinto::Server
 
 =head1 VERSION
 
-version 0.008
+version 0.009
+
+=head1 DESCRIPTION
+
+This is a private module for internal use only.  There is nothing for
+you to see here (yet).
 
 =head1 AUTHOR
 
@@ -61,3 +66,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

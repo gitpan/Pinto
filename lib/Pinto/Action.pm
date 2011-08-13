@@ -3,12 +3,15 @@ package Pinto::Action;
 # ABSTRACT: Base class for Actions
 
 use Moose;
+use Moose::Autobox;
+
+use Carp;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -41,9 +44,21 @@ with qw( Pinto::Role::Configurable
 #------------------------------------------------------------------------------
 # Methods
 
-sub execute { return 0 }
+sub execute {
+    my ($self) = @_;
 
-sub add_message { push @{ shift()->messages() }, @_ }
+    croak 'This is an absract method';
+}
+
+#------------------------------------------------------------------------------
+
+sub add_message {
+    my ($self, @messages) = @_;
+
+    $self->messages()->push( @messages );
+
+    return $self;
+}
 
 #------------------------------------------------------------------------------
 
@@ -65,7 +80,7 @@ Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

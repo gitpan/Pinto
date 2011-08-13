@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -50,6 +50,8 @@ has 'file' => (
 
 with qw(Pinto::Role::Loggable);
 
+with qw(Pinto::Role::PathMaker);
+
 #------------------------------------------------------------------------------
 # Moose builders
 
@@ -77,13 +79,25 @@ sub load {
     my $file = $self->file();
     $self->logger->debug("Reading index at $file");
 
+    # TODO: maybe support reading from non-zipped files?
+
     open my $fh, '<:gzip', $file;
+    $self->_load($fh);
+    close $fh;
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
+sub _load {
+    my ($self, $fh) = @_;
 
     my $inheader = 1;
     while (<$fh>) {
 
         if ($inheader) {
-            $inheader = 0 if not /\S/;
+            $inheader = 0 if not m/ \S /x;
             next;
         }
 
@@ -93,19 +107,21 @@ sub load {
         my $dist = $self->distributions->{$location}
           ||= Pinto::Distribution->new(location => $location);
 
-        my $pkg = Pinto::Package->new(name => $name, version => $version, dist => $dist);
+        my $pkg = Pinto::Package->new( name => $name,
+                                       dist => $dist,
+                                       version => $version );
+
         $self->packages->put($name, $pkg);
         $dist->add_packages($pkg);
     }
 
-    close $fh;
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
 
-sub write {
+sub write {                                       ## no critic (BuiltinHomonym)
     my ($self, %args) = @_;
 
     # TODO: Accept a file handle argument
@@ -116,7 +132,7 @@ sub write {
     $file = Path::Class::file($file) unless eval { $file->isa('Path::Class::File') };
     $self->logger->debug("Writing index at $file");
 
-    $file->dir->mkpath(); # TODO: log & error check
+    $self->mkpath( $file->dir() );
     open my $fh, '>:gzip', $file;
     $self->_write_header($fh);
     $self->_write_packages($fh);
@@ -134,7 +150,7 @@ sub _write_header {
         ? ($self->file->basename(), 'file://' . $self->file->as_foreign('Unix') )
         : ('UNKNOWN', 'UNKNOWN');
 
-    print {$fh} <<END_PACKAGE_HEADER;
+    print {$fh} <<"END_PACKAGE_HEADER";
 File:         $file
 URL:          $url
 Description:  Package names found in directory \$CPAN/authors/id/
@@ -157,7 +173,7 @@ sub _write_packages {
     my $sorter = sub { $_[0]->{name} cmp $_[1]->{name} };
     my $packages = $self->packages->values->sort($sorter);
     for my $package ( $packages->flatten() ) {
-        print {$fh} $package->to_string() . "\n";
+        print {$fh} "$package\n";
     }
 
     return $self;
@@ -168,7 +184,6 @@ sub _write_packages {
 sub add {
     my ($self, @packages) = @_;
 
-    $DB::single = 1;
     my @removed_dists = $self->remove( @packages );
 
     for my $package (@packages) {
@@ -280,12 +295,18 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 
-This is a private module for internal use only.  There is nothing for
-you to see here (yet).
+The role of L<Pinto::IndexManager> and L<Pinto::Index> is to create an
+abstraction layer between the rest of the application and the details
+of managing the 02packages index file.  At the moment, we use three
+separate index files: one for locally added packages, one for mirrored
+packages, and a master index that combines the other two according to
+specific rules.  But this file-based design is ugly and doesn't
+perform well.  So in the future, I hope to replace those files with a
+proper database.
 
 =head1 ATTRIBUTES
 

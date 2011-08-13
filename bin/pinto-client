@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+# ABSTRACT: interact with a remote Pinto repository
+# PODNAME: pinto-client
+
+use strict;
+use warnings;
+
+use LWP::UserAgent;
+
+#------------------------------------------------------------------------------
+
+our $VERSION = '0.009'; # VERSION
+
+#------------------------------------------------------------------------------
+
+my ($author, $file) = @ARGV;
+my %args = (
+        Content_Type => 'form-data',
+        Content      => [
+                         filename => $file,
+                         author   => $author,
+                         file     => [$file],
+                        ],
+);
+
+my $ua = LWP::UserAgent->new();
+my $response = $ua->post( 'http://localhost:1973/add', %args );
+print $response->content(), "\n";
+
+__END__
+=pod
+
+=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
+
+=head1 NAME
+
+pinto-client - interact with a remote Pinto repository
+
+=head1 VERSION
+
+version 0.009
+
+=head1 AUTHOR
+
+Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Imaginative Software Systems.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

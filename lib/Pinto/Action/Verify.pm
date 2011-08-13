@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,6 +23,9 @@ sub execute {
     my $local = $self->config()->local();
     my $dists = $self->idxmgr->master_index->distributions->values();
     my $sorter = sub {$_[0]->location() cmp $_[1]->location};
+
+    # TODO: accept an alternative filehandle for output.
+    # TODO: force log_level to quiet when running this action.
 
     for my $dist ( $dists->sort( $sorter )->flatten() ) {
         my $file = $dist->path($local);
@@ -52,7 +55,7 @@ Pinto::Action::Verify - An action to verify all files are present in the reposit
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

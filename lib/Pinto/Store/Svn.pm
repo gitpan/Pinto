@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ override initialize => sub {
     my $local = $self->config->local();
     my $trunk = $self->config->svn_trunk();
 
-    $self->logger->log("Checking out (or updating) working copy");
+    $self->logger->info("Checking out (or updating) working copy");
     Pinto::Util::Svn::svn_checkout(url => $trunk, to => $local);
 
     return 1;
@@ -51,7 +51,7 @@ override add => sub {
         $path = $path->parent();
     }
 
-    $self->logger->log("Scheduling $path for addition");
+    $self->logger->info("Scheduling $path for addition");
     Pinto::Util::Svn::svn_add(path => $path);
     $self->added_paths()->push($path);
 
@@ -66,7 +66,10 @@ override remove => sub {
     my $file  = $args{file};
     my $prune = $args{prune};
 
-    $self->logger->log("Scheduling $file for removal");
+    # HACK: this might be evil!
+    return $self if not -e $file;
+
+    $self->logger->info("Scheduling $file for removal");
     my $removed = Pinto::Util::Svn::svn_remove(file => $file, prune => $prune);
     $self->removed_paths->push($removed);
 
@@ -84,7 +87,7 @@ override finalize => sub {
                   $self->removed_paths->flatten(),
                   $self->modified_paths->flatten() ];
 
-    $self->logger->log("Committing changes");
+    $self->logger->info("Committing changes");
     Pinto::Util::Svn::svn_commit(paths => $paths, message => $message);
 
     $self->_make_tag() if $self->config->svn_tag()
@@ -105,7 +108,7 @@ sub _make_tag {
     my $as_of = time2str('%C', $now);
     my $message  = "Tagging Pinto repository as of $as_of.";
 
-    $self->logger->log("Making tag");
+    $self->logger->info("Making tag");
     Pinto::Util::Svn::svn_tag(from => $trunk, to => $tag, message => $message);
 
     return 1;
@@ -131,7 +134,7 @@ Pinto::Store::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 SYNOPSIS
 
@@ -181,29 +184,30 @@ to the C<tag>. If you do not specify C<tag> then no
 tag is made.
 
 In most situations, you'll want to keep multiple tags that represent
-the state of CPAN at a various points in time.  So the typical
-practice is to put a datestamp in the name of your tag.  To make this
-easy and customizable, you can embed any of the L<Date::Format>
-conversion specifications in your URL.
+the state of CPAN at a various points in time.  The typical practice
+is to put a date stamp in the name of your tag.  Therefore, you can
+embed any of the L<Date::Format> conversion specifications in your
+URL and they will be expanded when the tag is constructed.
 
 For example, if you had this in your F<~/.pinto/config.ini>:
 
  tag = http://my-company/svn/tags/PINTO-%y.%m.%d
 
-and ran C<pinto mirror> on June 17, 2011, then it would produce a tag at this URL:
+and ran C<pinto mirror> on June 17, 2011, then it would produce a tag
+at this URL:
 
  http://my-company/svn/tags/PINTO-11.06.17
 
-Be sure to choose a datestamp with sufficient resolution for your
-needs.  If you are only going to run L<pinto> once a month, then
-you probably only need a year and month to distinguish your tag.  But
-if you are going to run it several times a day, then you'll need day,
+Be sure to choose a date stamp with sufficient resolution for your
+needs.  If you are only going to run L<pinto> once a month, then you
+probably only need a year and month to distinguish your tag.  But if
+you are going to run it several times a day, then you'll need day,
 hours and minutes (and possibly seconds) too.
 
-And if you don't put any datestamp in your C<tag> at all, then
-you're basically limited to running L<pinto> only once, because you
-can't make the same tag more than once (unless you remove the previous
-tag by some other means).
+And if you don't put any date stamp in your C<tag> at all, then you're
+basically limited to running L<pinto> only once, because you can't
+make the same tag more than once (unless you remove the previous tag
+by some other means).
 
 =back
 
@@ -211,9 +215,9 @@ tag by some other means).
 
 =over 4
 
-=item C<svn> client is required.
+=item The C<svn> program is required.
 
-At present, you must have the binary C<svn> client installed somwhere
+At present, you must have the binary C<svn> client installed somewhere
 in your C<$PATH> for this module to work.  In future versions, we may
 try using L<SVN::Client> or some other interface.
 
@@ -224,7 +228,7 @@ the credentials for your repository already cached.  If you cannot or
 will not allow C<svn> to cache your credentials, then this module will
 not work.
 
-=item Subversion does not accurately manage timestamps.
+=item Subversion does not accurately manage time stamps.
 
 This may fool L<Pinto> into making an inaccurate mirror because it
 thinks your local copy is newer than the mirror. As long as

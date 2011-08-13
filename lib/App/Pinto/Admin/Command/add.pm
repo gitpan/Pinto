@@ -1,30 +1,47 @@
-package App::Pinto::Command::clean;
+package App::Pinto::Admin::Command::add;
 
-# ABSTRACT: delete distributions that are not in the index
+# ABSTRACT: add your own Perl distributions to the repository
 
 use strict;
 use warnings;
 
 #-----------------------------------------------------------------------------
 
-use base 'App::Pinto::Command';
+use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
+
+#-----------------------------------------------------------------------------
+
+sub opt_spec {
+    return (
+        [ "author=s"  => 'Your author ID (like a PAUSE ID)' ],
+    );
+}
+
+#------------------------------------------------------------------------------
+
+sub usage_desc {
+    my ($self) = @_;
+    my ($command) = $self->command_names();
+    return "%c [global options] $command [command options] DISTRIBUTION";
+}
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
-    $self->usage_error('Arguments are not allowed') if @{ $args };
+    $self->usage_error("Must specify one or more distribution args") if not @{ $args };
+    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->clean();
+    $self->pinto( $opts )->add( dists => $args );
     return 0;
 }
 
@@ -40,11 +57,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::clean - delete distributions that are not in the index
+App::Pinto::Admin::Command::add - add your own Perl distributions to the repository
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

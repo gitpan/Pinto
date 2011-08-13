@@ -10,12 +10,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
+
+    # TODO: accept an alternative filehandle for output.
+    # TODO: force log_level to quiet when running this action.
 
     for my $package ( $self->idxmgr()->all_packages() ) {
         print $package->to_string(), "\n";
@@ -44,7 +47,7 @@ Pinto::Action::List - An action that lists the contents of a repository
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

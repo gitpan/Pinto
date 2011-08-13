@@ -4,14 +4,50 @@ package Pinto::Store::Git;
 
 use Moose;
 
+use Carp;
+
 extends 'Pinto::Store';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-------------------------------------------------------------------------------
 
+override is_initialized => sub {
+    croak __PACKAGE__ . ' is not implemented yet';
+    # -e .git
+};
+
+#-------------------------------------------------------------------------------
+
+override initialize => sub {
+    croak __PACKAGE__ . 'is not implemented yet';
+    # git clone or git pull
+};
+
+#-------------------------------------------------------------------------------
+
+override finalize => sub {
+    croak __PACKAGE__ . 'is not implemented yet';
+    # git commit and push
+};
+
+#-------------------------------------------------------------------------------
+
+override add => sub {
+    croak __PACKAGE__ . 'is not implemented yet';
+    # git add
+};
+
+#-------------------------------------------------------------------------------
+
+override remove => sub {
+    croak __PACKAGE__ . 'is not implemented yet';
+    # git rm
+};
+
+#-------------------------------------------------------------------------------
 1;
 
 
@@ -26,11 +62,11 @@ Pinto::Store::Git - Store your Pinto repository with Git
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 
-This module is Not yet implimented.
+This module is Not yet implemented.
 
 =head1 AUTHOR
 

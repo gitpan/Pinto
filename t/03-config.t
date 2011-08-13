@@ -5,6 +5,9 @@ use warnings;
 
 use Test::More (tests => 24);
 use Test::Exception;
+
+use Path::Class;
+use File::HomeDir;
 use File::Temp;
 
 use Pinto::Config;
@@ -19,7 +22,7 @@ use Pinto::Config;
 
     my %default_cases = (
         local     => 'nowhere',
-        mirror    => 'http://cpan.perl.org',
+        source    => 'http://cpan.perl.org',
         author    => 'TEST',
         force     => 0,
         verbose   => 0,
@@ -37,14 +40,14 @@ use Pinto::Config;
 
    my %custom_cases = (
         local     => 'nowhere',
-        mirror    => 'http://cpan.perl.org',
+        source    => 'http://cpan.pair.com',
         author    => 'TEST',
-        force     => 0,
-        verbose   => 0,
-        quiet     => 0,
-        store     => 'Pinto::Store',
-        nocleanup => 0,
-        nocommit  => 0,
+        force     => 1,
+        verbose   => 1,
+        quiet     => 1,
+        store     => 'Pinto::Store::Git',
+        nocleanup => 1,
+        nocommit  => 1,
     );
 
     $cfg = Pinto::Config->new(%custom_cases);
@@ -54,7 +57,8 @@ use Pinto::Config;
     }
 
     $cfg = Pinto::Config->new(local => '~/nowhere');
-    is($cfg->local(), "$ENV{HOME}/nowhere", 'Coerced ~/ to my home directory');
+    my $home = dir( File::HomeDir->my_home() );
+    is($cfg->local(), $home->file('nowhere'), 'Expanded ~/ to home directory');
 
     $cfg = Pinto::Config->new(local => 'nowhere', author => 'fooBar');
     is($cfg->author(), 'FOOBAR', 'Coerced author to ALL CAPS');

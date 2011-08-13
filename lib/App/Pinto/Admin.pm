@@ -1,4 +1,4 @@
-package App::Pinto;
+package App::Pinto::Admin;
 
 # ABSTRACT: Command-line driver for Pinto
 
@@ -9,7 +9,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -64,11 +64,11 @@ sub pinto {
 
 =head1 NAME
 
-App::Pinto - Command-line driver for Pinto
+App::Pinto::Admin - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 

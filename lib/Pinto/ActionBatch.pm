@@ -9,7 +9,7 @@ use Pinto::IndexManager;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -68,19 +68,21 @@ sub run {
         push @messages, $action->messages->flatten();
     }
 
-    if ($changes_were_made) {
 
-        $self->idxmgr->write_indexes();
-        # Always put the modules directory on the commit list!
-        my $modules_dir = $self->config->local->subdir('modules');
-        $self->store->modified_paths->push( $modules_dir );
+    $self->logger->info('No changes were made') and return $self
+      unless $changes_were_made;
 
-        return $self if $self->config->nocommit();
 
-        my $batch_message  = join "\n\n", @messages;
-        $self->logger->debug($batch_message);
-        $self->store->finalize(message => $batch_message);
-    }
+    $self->idxmgr->write_indexes();
+    # Always put the modules directory on the commit list!
+    my $modules_dir = $self->config->local->subdir('modules');
+    $self->store->modified_paths->push( $modules_dir );
+
+    return $self if $self->config->nocommit();
+
+    my $batch_message  = join "\n\n", @messages;
+    $self->logger->debug($batch_message);
+    $self->store->finalize(message => $batch_message);
 
     return $self;
 }
@@ -104,7 +106,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 METHODS
 

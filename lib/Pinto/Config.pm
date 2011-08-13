@@ -4,18 +4,19 @@ package Pinto::Config;
 
 use Moose;
 use MooseX::Configuration;
+use MooseX::LazyRequire;
 
 use MooseX::Types::Moose qw(Str Bool Int);
 use Pinto::Types qw(AuthorID URI Dir);
 
 use Carp;
-use English qw($REAL_USER_ID);
+use English qw(-no_match_vars);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -29,10 +30,10 @@ has 'local'   => (
 );
 
 
-has 'mirror'  => (
+has 'source'  => (
     is        => 'ro',
     isa       => URI,
-    key       => 'mirror',
+    key       => 'source',
     default   => 'http://cpan.perl.org',
     coerce    => 1,
 );
@@ -113,10 +114,11 @@ has 'verbose' => (
 
 
 has 'svn_trunk' => (
-    is          => 'ro',
-    isa         => Str,
-    key         => 'trunk',
-    section     => 'Pinto::Store::Svn',
+    is            => 'ro',
+    isa           => Str,
+    key           => 'trunk',
+    section       => 'Pinto::Store::Svn',
+    lazy_required => 1,
 );
 
 
@@ -125,6 +127,7 @@ has 'svn_tag' => (
     isa         => Str,
     key         => 'tag',
     section     => 'Pinto::Store::Svn',
+    default     => '',
 );
 
 #------------------------------------------------------------------------------
@@ -156,7 +159,7 @@ sub _build_author {
 
     # Try using pwent.  Probably only works on *nix
     if (my $name = getpwuid($REAL_USER_ID)) {
-        return $name;
+        return uc $name;
     }
 
     # Otherwise, we are hosed!
@@ -183,7 +186,7 @@ Pinto::Config - User configuration for Pinto
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 

@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -21,10 +21,10 @@ Readonly my %SCM_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
 #-------------------------------------------------------------------------------
 
 
-sub author_dir {
-    my ($author) = pop;
-    my @base = @_;
-    $author = uc $author;
+sub author_dir {                                  ## no critic (ArgUnpacking)
+    my $author = uc pop;
+    my @base =  @_;
+
     return dir(@base, substr($author, 0, 1), substr($author, 0, 2), $author);
 }
 
@@ -39,13 +39,15 @@ sub is_source_control_file {
 #-------------------------------------------------------------------------------
 
 sub added_dist_message {
-    return _dist_message(@_, 'Added');
+    my ($distribution) = @_;
+    return _dist_message($distribution, 'Added');
 }
 
 #-------------------------------------------------------------------------------
 
 sub removed_dist_message {
-    return _dist_message(@_, 'Removed');
+    my ($distribution) = @_;
+    return _dist_message($distribution, 'Removed');
 }
 
 #-------------------------------------------------------------------------------
@@ -72,7 +74,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 
@@ -92,7 +94,7 @@ directory that is returned.
 =head2 is_source_control_file($path)
 
 Given a path (which may be a file or directory), returns true if that path
-is part of the internals of a source control system (e.g. git, svn, cvs).
+is part of the internals of a version control system (e.g. Git, Subversion).
 
 =head1 AUTHOR
 

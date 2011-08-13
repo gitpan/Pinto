@@ -1,52 +1,38 @@
-package App::Pinto::Command;
+#!/usr/bin/perl
 
-# ABSTRACT: Base class for pinto commands
+# ABSTRACT: provide a web interface to a Pinto repository
+# PODNAME: pinto-server
 
 use strict;
 use warnings;
 
-#-----------------------------------------------------------------------------
-
-use App::Cmd::Setup -command;
+use CGI::Application::Dispatch::Server;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
+my $class = 'Pinto::Server::Dispatch';
 
-sub pinto {
-  my ($self, $options) = @_;
-  return $self->app()->pinto($options);
-}
+my $server = CGI::Application::Dispatch::Server->new( class => $class,
+                                                      port  => 1973, );
 
-#-----------------------------------------------------------------------------
+$server->run;
 
-
-1;
-
-
-
+__END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
 
 =head1 NAME
 
-App::Pinto::Command - Base class for pinto commands
+pinto-server - provide a web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.008
-
-=head1 METHODS
-
-=head2 pinto()
-
-Returns the Pinto object for this command.  Basically an alias for
-
-  $self->app();
+version 0.009
 
 =head1 AUTHOR
 
@@ -61,5 +47,3 @@ the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-
-__END__

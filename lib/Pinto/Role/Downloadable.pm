@@ -1,16 +1,18 @@
-package Pinto::UserAgent;
+package Pinto::Role::Downloadable;
 
-# ABSTRACT: Thin wrapper around LWP::UserAgent
+# ABSTRACT: Something that downloads remote files
 
-use Moose;
+use Moose::Role;
 
 use Carp;
 use Path::Class;
 use LWP::UserAgent;
 
+use namespace::autoclean;
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -22,25 +24,26 @@ has _ua => (
     init_arg => undef,
 );
 
+requires 'logger';
+
 #------------------------------------------------------------------------------
 # Roles
 
-#with 'Pinto::Log';
+with qw(Pinto::Role::PathMaker);
 
 #------------------------------------------------------------------------------
 
 
-sub mirror {
+sub fetch {
     my ($self, %args) = @_;
     my $url = $args{url};
     my $to  = $args{to};
-    my $croak = $args{croak} || 0;
 
     $to = file($to) if not eval {$to->isa('Path::Class')};
-    $to->dir()->mkpath();  # TODO: set mode & verbosity
+    $self->mkpath( $to->parent() );
 
-    my $ua = $self->_ua();
-    my $result = $ua->mirror($url, $to);
+    $self->logger->info("Fetching $url");
+    my $result = $self->_ua->mirror($url, $to);
 
     if ($result->is_success()) {
         return 1;
@@ -49,9 +52,7 @@ sub mirror {
         return 0;
     }
     else{
-      my $msg = "Mirror of $url to $to failed with status: " . $result->code();
-      croak $msg if $croak;
-      warn "$msg\n";
+      croak "$url failed with status: " . $result->code();
     }
 }
 
@@ -60,13 +61,11 @@ sub mirror {
 sub _build_ua {
     my ($self) = @_;
 
-    #$DB::single = 1;
+    # TODO: Do we need to make some of this configurable?
     my $agent = sprintf "%s/%s", ref $self, 'VERSION';
-    my $ua = LWP::UserAgent->new(
-        agent      => $agent,
-        env_proxy  => 1,
-        keep_alive => 5,
-    );
+    my $ua = LWP::UserAgent->new( agent      => $agent,
+                                  env_proxy  => 1,
+                                  keep_alive => 5 );
 
     return $ua;
 }
@@ -83,15 +82,15 @@ sub _build_ua {
 
 =head1 NAME
 
-Pinto::UserAgent - Thin wrapper around LWP::UserAgent
+Pinto::Role::Downloadable - Something that downloads remote files
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 METHODS
 
-=head2 mirror(url => 'http://someplace' to => 'some/path')
+=head2 fetch(url => 'http://someplace' to => 'some/path')
 
 Mirrors the file located at the C<url> to the file located at C<to>.
 If the intervening directories do not exist, they will be created for

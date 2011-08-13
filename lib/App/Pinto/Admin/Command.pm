@@ -1,12 +1,13 @@
-package Pinto::Role::Configurable;
+package App::Pinto::Admin::Command;
 
-# ABSTRACT: Something that has a configuration
+# ABSTRACT: Base class for pinto-admin commands
 
-use Moose::Role;
+use strict;
+use warnings;
 
-use Pinto::Config;
+#-----------------------------------------------------------------------------
 
-use namespace::autoclean;
+use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
@@ -14,13 +15,14 @@ our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-has config => (
-    is         => 'ro',
-    isa        => 'Pinto::Config',
-    required   => 1,
-);
+
+sub pinto {
+  my ($self, $options) = @_;
+  return $self->app()->pinto($options);
+}
 
 #-----------------------------------------------------------------------------
+
 
 1;
 
@@ -32,11 +34,19 @@ has config => (
 
 =head1 NAME
 
-Pinto::Role::Configurable - Something that has a configuration
+App::Pinto::Admin::Command - Base class for pinto-admin commands
 
 =head1 VERSION
 
 version 0.009
+
+=head1 METHODS
+
+=head2 pinto()
+
+Returns the Pinto object for this command.  Basically an alias for
+
+  $self->app();
 
 =head1 AUTHOR
 

@@ -4,11 +4,12 @@ author:
   - 'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.30
-  File::Temp: 0
   FindBin: 0
   Module::Build: 0.3601
   Test::Exception: 0
+  Test::File: 0
   Test::More: 0
+  Test::Warn: 0
 configure_requires:
   Module::Build: 0.3601
 dynamic_config: 0
@@ -25,121 +26,139 @@ no_index:
     - examples
     - corpus
 provides:
-  App::Pinto:
-    file: lib/App/Pinto.pm
-    version: 0.008
-  App::Pinto::Command:
-    file: lib/App/Pinto/Command.pm
-    version: 0.008
-  App::Pinto::Command::add:
-    file: lib/App/Pinto/Command/add.pm
-    version: 0.008
-  App::Pinto::Command::clean:
-    file: lib/App/Pinto/Command/clean.pm
-    version: 0.008
-  App::Pinto::Command::create:
-    file: lib/App/Pinto/Command/create.pm
-    version: 0.008
-  App::Pinto::Command::list:
-    file: lib/App/Pinto/Command/list.pm
-    version: 0.008
-  App::Pinto::Command::mirror:
-    file: lib/App/Pinto/Command/mirror.pm
-    version: 0.008
-  App::Pinto::Command::remove:
-    file: lib/App/Pinto/Command/remove.pm
-    version: 0.008
-  App::Pinto::Command::verify:
-    file: lib/App/Pinto/Command/verify.pm
-    version: 0.008
+  App::Pinto::Admin:
+    file: lib/App/Pinto/Admin.pm
+    version: 0.009
+  App::Pinto::Admin::Command:
+    file: lib/App/Pinto/Admin/Command.pm
+    version: 0.009
+  App::Pinto::Admin::Command::add:
+    file: lib/App/Pinto/Admin/Command/add.pm
+    version: 0.009
+  App::Pinto::Admin::Command::clean:
+    file: lib/App/Pinto/Admin/Command/clean.pm
+    version: 0.009
+  App::Pinto::Admin::Command::create:
+    file: lib/App/Pinto/Admin/Command/create.pm
+    version: 0.009
+  App::Pinto::Admin::Command::list:
+    file: lib/App/Pinto/Admin/Command/list.pm
+    version: 0.009
+  App::Pinto::Admin::Command::mirror:
+    file: lib/App/Pinto/Admin/Command/mirror.pm
+    version: 0.009
+  App::Pinto::Admin::Command::remove:
+    file: lib/App/Pinto/Admin/Command/remove.pm
+    version: 0.009
+  App::Pinto::Admin::Command::verify:
+    file: lib/App/Pinto/Admin/Command/verify.pm
+    version: 0.009
   Pinto:
     file: lib/Pinto.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Create:
     file: lib/Pinto/Action/Create.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Mirror:
     file: lib/Pinto/Action/Mirror.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Remove:
     file: lib/Pinto/Action/Remove.pm
-    version: 0.008
+    version: 0.009
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.008
+    version: 0.009
   Pinto::ActionBatch:
     file: lib/Pinto/ActionBatch.pm
-    version: 0.008
+    version: 0.009
   Pinto::ActionFactory:
     file: lib/Pinto/ActionFactory.pm
-    version: 0.008
+    version: 0.009
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.008
+    version: 0.009
   Pinto::Distribution:
     file: lib/Pinto/Distribution.pm
-    version: 0.008
+    version: 0.009
   Pinto::Index:
     file: lib/Pinto/Index.pm
-    version: 0.008
+    version: 0.009
   Pinto::IndexManager:
     file: lib/Pinto/IndexManager.pm
-    version: 0.008
+    version: 0.009
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.008
+    version: 0.009
   Pinto::Package:
     file: lib/Pinto/Package.pm
-    version: 0.008
+    version: 0.009
   Pinto::Role::Configurable:
     file: lib/Pinto/Role/Configurable.pm
-    version: 0.008
+    version: 0.009
+  Pinto::Role::Downloadable:
+    file: lib/Pinto/Role/Downloadable.pm
+    version: 0.009
   Pinto::Role::Loggable:
     file: lib/Pinto/Role/Loggable.pm
-    version: 0.008
+    version: 0.009
+  Pinto::Role::PathMaker:
+    file: lib/Pinto/Role/PathMaker.pm
+    version: 0.009
+  Pinto::Server:
+    file: lib/Pinto/Server.pm
+    version: 0.009
+  Pinto::Server::Config:
+    file: lib/Pinto/Server/Config.pm
+    version: 0.009
+  Pinto::Server::Dispatch:
+    file: lib/Pinto/Server/Dispatch.pm
+    version: 0.009
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.008
+    version: 0.009
   Pinto::Store::Git:
     file: lib/Pinto/Store/Git.pm
-    version: 0.008
+    version: 0.009
   Pinto::Store::Svn:
     file: lib/Pinto/Store/Svn.pm
-    version: 0.008
+    version: 0.009
   Pinto::Types:
     file: lib/Pinto/Types.pm
-    version: 0.008
-  Pinto::UserAgent:
-    file: lib/Pinto/UserAgent.pm
-    version: 0.008
+    version: 0.009
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.008
+    version: 0.009
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.008
+    version: 0.009
 requires:
   App::Cmd::Setup: 0
+  CGI::Application: 0
+  CGI::Application::Dispatch: 0
+  CGI::Application::Dispatch::Server: 0
+  CGI::Application::Plugin::AutoRunmode: 0
   CPAN::DistnameInfo: 0
   Carp: 0
+  Class::Load: 0
   Date::Format: 0
   Dist::Metadata: 0
   English: 0
   File::Copy: 0
   File::Find: 0
   File::HomeDir: 0
+  File::Temp: 0
   IPC::Cmd: 0.72
   LWP::UserAgent: 0
   List::MoreUtils: 0
@@ -147,13 +166,16 @@ requires:
   Moose::Autobox: 0
   Moose::Role: 0
   MooseX::Configuration: 0
+  MooseX::LazyRequire: 0
   MooseX::Types: 0
   MooseX::Types::Moose: 0
   Path::Class: 0
   Path::Class::Dir: 0
   Path::Class::File: 0
   PerlIO::gzip: 0
+  Pinto::UserAgent: 0
   Readonly: 0
+  Try::Tiny: 0
   URI: 0
   autodie: 0
   namespace::autoclean: 0
@@ -162,4 +184,4 @@ requires:
 resources:
   homepage: https://github.com/thaljef/Pinto
   repository: https://github.com/thaljef/Pinto
-version: 0.008
+version: 0.009

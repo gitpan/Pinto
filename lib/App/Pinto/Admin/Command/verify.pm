@@ -1,47 +1,33 @@
-package App::Pinto::Command::add;
+package App::Pinto::Admin::Command::verify;
 
-# ABSTRACT: add your own Perl distributions to the repository
+# ABSTRACT: verify that all the indexed distributions are present
 
 use strict;
 use warnings;
 
 #-----------------------------------------------------------------------------
 
-use base 'App::Pinto::Command';
+use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-sub opt_spec {
-    return (
-        [ "author=s"  => 'Your author ID (like a PAUSE ID)' ],
-    );
-}
-
-#------------------------------------------------------------------------------
-
-sub usage_desc {
-    my ($self) = @_;
-    my ($command) = $self->command_names();
-    return "%c [global options] $command [command options] DISTRIBUTION";
-}
-
-#------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error("Must specify one or more distribution args") if not @{ $args };
+    my ($self, $opt, $args) = @_;
+    $self->usage_error("Arguments are not allowed") if @{ $args };
+    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->add( file => $args );
-    return 0;
+    $self->pinto( $opts )->verify();
+    return 0;  # TODO: exit non-zero if verification fails!
 }
 
 #------------------------------------------------------------------------------
@@ -56,11 +42,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::add - add your own Perl distributions to the repository
+App::Pinto::Admin::Command::verify - verify that all the indexed distributions are present
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

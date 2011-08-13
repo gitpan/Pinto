@@ -5,9 +5,11 @@ package Pinto::Package;
 use Moose;
 use MooseX::Types::Moose qw(Str);
 
+use overload ('""' => 'to_string');
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -66,7 +68,7 @@ Pinto::Package - Represents a single record in the 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 DESCRIPTION
 

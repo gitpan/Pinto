@@ -1,0 +1,67 @@
+=head1 STUFF TODO
+
+In no particular order...
+
+=over 4
+
+=item Enable plugins for visiting and filtering. See CPAN::Mini and
+CPAN::Mini::Visit.
+
+=item Automatically fetch dependecies when adding *VERY COOL*
+
+=item Make file/directory permissions configurable
+
+=item Standardize API, using named parameters except where it makes
+sense not to.
+
+=item Add a lock mechanism, so multiple processes don't mess with the
+same repository at the same time.  See Proc::Pidfile, Proc::Pid::File,
+etc.
+
+=item Replace the IndexManager and Index classes with a proper
+database.  Look at CPANDB for example.
+
+=item Use proper exceptions, instead of just croaking.
+
+=item Consider how we might mirror multiple repositories.
+
+=item Write a tutorial to explain different ways for using Pinto in
+the development/deployment cycle.
+
+=item Add support for cpan[1] clients.  For this I think we just need
+to produce minimal version of the authors and modules index files.
+
+=item Re-think the pinto-admin command line interface.  Should we
+just make all the options global, instead of having options for
+each subcommand?
+
+=item Add feature for listing just the locally added packages.
+
+=item Generate a RECENT file.  This could just contain the files
+added in the last action (if any).
+
+=item Add feature for listing local packages that are outdated
+(i.e. there is a newer mirrored version).
+
+=item Implement Pinto::Store::Git.
+
+=item Improve Perl::Critic compliance.
+
+=item Document, document, document.
+
+=item Tests, tests, tests.
+
+=item Look for better ways to use Moose roles.
+
+=item Daemonize Pinto::Server.  See MooseX::Daemonize
+
+=item Look into using Path::Class::SVN or Alien::SVN instead of using
+my home-grown interface to Subversion.
+
+=item Consider using MooseX::Params::Validate on methods.
+
+=item Profile and look for performance optimizations.
+
+=back
+
+=cut

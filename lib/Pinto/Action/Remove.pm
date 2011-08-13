@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,8 +46,8 @@ override execute => sub {
     my $idxmgr = $self->idxmgr();
 
     my $dist = $idxmgr->remove_local_package(package => $pkg, author => $author);
-    $self->logger->warn("Package $pkg is not in the local index") && return 0 if not $dist;
-    $self->logger->log(sprintf "Removing $dist with %i packages", $dist->package_count());
+    $self->logger->whine("Package $pkg is not in the local index") and return 0 if not $dist;
+    $self->logger->info(sprintf "Removing $dist with %i packages", $dist->package_count());
 
     my $file = $dist->path( $self->config->local() );
     $self->config->nocleanup() || $self->store->remove( file => $file );
@@ -77,7 +77,7 @@ Pinto::Action::Remove - An action to remove packages from the repository
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

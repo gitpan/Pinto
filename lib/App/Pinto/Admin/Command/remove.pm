@@ -1,4 +1,4 @@
-package App::Pinto::Command::remove;
+package App::Pinto::Admin::Command::remove;
 
 # ABSTRACT: remove your own packages from the repository
 
@@ -7,11 +7,11 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-use base 'App::Pinto::Command';
+use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -34,13 +34,14 @@ sub usage_desc {
 sub validate_args {
     my ($self, $opts, $args) = @_;
     $self->usage_error("Must specify one or more package args") if not @{ $args };
+    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->remove( package => $args );
+    $self->pinto( $opts )->remove( packages => $args );
     return 0;
 }
 
@@ -56,11 +57,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::remove - remove your own packages from the repository
+App::Pinto::Admin::Command::remove - remove your own packages from the repository
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

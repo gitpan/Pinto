@@ -10,20 +10,15 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 has logger => (
     is         => 'ro',
     isa        => 'Pinto::Logger',
-    lazy_build => 1,
+    required   => 1,
 );
-
-
-sub _build_logger {
-    return Pinto::Logger->new();
-}
 
 #-----------------------------------------------------------------------------
 
@@ -41,7 +36,7 @@ Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

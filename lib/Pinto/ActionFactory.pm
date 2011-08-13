@@ -4,9 +4,11 @@ package Pinto::ActionFactory;
 
 use Moose;
 
+use Class::Load;
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -66,7 +68,7 @@ Pinto::ActionFactory - Factory class for making Actions
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

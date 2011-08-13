@@ -5,14 +5,14 @@ package Pinto::Util::Svn;
 use strict;
 use warnings;
 
-use Carp qw(croak);
+use Carp qw(carp croak);
 use IPC::Cmd 0.72 qw(run);
 use List::MoreUtils qw(firstidx);
 use Path::Class;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ sub svn_mkdir {
     my $dir = $args{dir};
     my $message = $args{message} || 'NO MESSAGE GIVEN';
 
-    if ( $url && not svn_ls(url => $url) ) {
+    if ( $url and not svn_ls(url => $url) ) {
         return _svn( command => [qw(mkdir --parents -m), $message, $url]);
     }
     elsif ($dir and not -e $dir) {
@@ -71,14 +71,14 @@ sub svn_checkout {
 
 sub svn_schedule {
     my %args = @_;
-    my $path = $args{path};
+    my $starting_path = $args{path};
 
     my $buffer = '';
-    _svn(command => ['status', $path], buffer => \$buffer);
+    _svn(command => ['status', $starting_path], buffer => \$buffer);
 
-    for my $line (split /\n/, $buffer) {
+    for my $line (split / \n /x, $buffer) {
 
-        $line =~ /^(\S)\s+(\S+)$/
+        $line =~ /^ (\S) \s+ (\S+) $/x
             or croak "Unable to parse svn status: $line";
 
         my ($status, $path) = ($1, $2);
@@ -89,12 +89,12 @@ sub svn_schedule {
         elsif ($status eq '!') {
             svn_delete(path => $path, prune => 1);
         }
-        elsif ($status =~ /^[AMD]$/) {
+        elsif ($status =~ /^ [AMD] $/x) {
             # Do nothing!
         }
         else {
             # TODO: Decide how to handle other statuses (e.g. locked).
-            warn "Unexpected status: $status for file $path";
+            carp "Unexpected status: $status for file $path";
         }
     }
 
@@ -169,8 +169,8 @@ sub _url_for_wc_path {
     my $buffer = '';
     _svn( command => ['info', $path], buffer => \$buffer);
 
-    $buffer =~ /^URL:\s+(\S+)$/m
-        or die "Unable to parse svn info: $buffer";
+    $buffer =~ /^ URL: \s+ (\S+) $/xm
+        or croak "Unable to parse svn info: $buffer";
 
     return $1;
 }
@@ -193,7 +193,7 @@ sub _all_scheduled_for_deletion {
     for my $child ($directory->children()) {
         next if $child->basename() eq '.svn';
         _svn(command => ['status', $child], buffer => \my $buffer);
-        return 0 if !$buffer or $buffer =~ m/^[^D]/m;
+        return 0 if not $buffer or $buffer =~ m/^ [^D] /xm;
     }
 
     return 1;
@@ -211,9 +211,12 @@ sub _svn {
     my $ok = run( command => $command, buffer => $buffer);
 
     if ($croak and not $ok) {
+
         # Truncate the '-m MESSAGE' arguments, for readability
-        my $dash_m_offset = firstidx {$_ eq '-m'} @{ $command };
-        splice @{ $command }, $dash_m_offset + 1, 1, q{'...'};
+        if ( (my $dash_m_offset = firstidx {$_ eq '-m'} @{ $command }) > 0 ) {
+            splice @{ $command }, $dash_m_offset + 1, 1, q{'...'};
+        }
+
         my $command_string = join ' ', @{ $command };
         croak "Command failed: $command_string\n". ${$buffer};
     }
@@ -237,15 +240,15 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 FUNCTIONS
 
 =head2 svn_mkdir(url => 'http://somewhere')
 
 Given a URL that is presumed to be a location within a Subversion
-repsitory, creates a directory at that location.  Any intervening
-directories will be created for you.  If the direcory already exists,
+repository, creates a directory at that location.  Any intervening
+directories will be created for you.  If the directory already exists,
 an exception will be thrown.
 
 =head2 svn_ls(url => 'http://somewhere')

@@ -20,7 +20,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -141,6 +141,9 @@ sub new_from_file {
 sub _extract_packages {
     my ($self, %args) = @_;
 
+    # TODO: Throw exception if Dist::Metadata fails or doesn't find
+    # any packages in the dist.
+
     my $file = $args{file};
     my $distmeta = Dist::Metadata->new(file => $file->stringify());
     my $provides = $distmeta->package_versions();
@@ -196,7 +199,7 @@ Pinto::Distribution - Represents a Perl distribution
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

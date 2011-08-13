@@ -1,32 +1,32 @@
-package App::Pinto::Command::verify;
+package App::Pinto::Admin::Command::clean;
 
-# ABSTRACT: verify that all the indexed distributions are present
+# ABSTRACT: remove all distributions that are not in the index
 
 use strict;
 use warnings;
 
 #-----------------------------------------------------------------------------
 
-use base 'App::Pinto::Command';
+use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
-#-----------------------------------------------------------------------------
-
+#------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opt, $args) = @_;
-    $self->usage_error("Arguments are not allowed") if @{ $args };
+    my ($self, $opts, $args) = @_;
+    $self->usage_error('Arguments are not allowed') if @{ $args };
+    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->verify();
-    return 0;  # TODO: exit non-zero if verification fails!
+    $self->pinto( $opts )->clean();
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -41,11 +41,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Command::verify - verify that all the indexed distributions are present
+App::Pinto::Admin::Command::clean - remove all distributions that are not in the index
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

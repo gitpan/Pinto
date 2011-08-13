@@ -17,13 +17,13 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
+our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 subtype AuthorID,
     as Str,
-    where { not /[^A-Z0-9-]/ },
+    where { not m/[^A-Z0-9-]/x },
     message { "The author ($_) must be alphanumeric" };
 
 coerce AuthorID,
@@ -58,7 +58,9 @@ coerce File,
 
 sub expand_tilde {
     my (@paths) = @_;
+
     $paths[0] =~ s|\A ~ (?= \W )|File::HomeDir->my_home()|xe;
+
     return @paths;
 }
 
@@ -78,7 +80,7 @@ Pinto::Types - Moose types used within Pinto
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =head1 AUTHOR
 

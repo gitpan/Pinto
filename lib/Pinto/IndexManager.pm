@@ -12,19 +12,10 @@ use Pinto::Util;
 use Pinto::Index;
 use Pinto::UserAgent;
 
+use namespace::autoclean;
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.008'; # VERSION
-
-#-----------------------------------------------------------------------------
-
-has 'ua'  => (
-    is         => 'ro',
-    isa        => 'Pinto::UserAgent',
-    default    => sub { Pinto::UserAgent->new() },
-    handles    => [qw(mirror)],
-    init_arg   => undef,
-);
+our $VERSION = '0.009'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -60,6 +51,10 @@ has 'master_index'  => (
 
 with qw( Pinto::Role::Configurable
          Pinto::Role::Loggable );
+
+# HACK: I'm not sure why the required method isn't found
+# when I load all my roles at once.
+with qw( Pinto::Role::Downloadable );
 
 #------------------------------------------------------------------------------
 # Builders
@@ -104,14 +99,16 @@ sub update_mirror_index {
     my ($self) = @_;
 
     my $local  = $self->config->local();
-    my $mirror = $self->config->mirror();
+    my $source = $self->config->source();
+    my $force  = $self->config->force();
 
-    my $mirror_index_uri = URI->new("$mirror/modules/02packages.details.txt.gz");
+    my $mirror_index_uri = URI->new("$source/modules/02packages.details.txt.gz");
     my $mirrored_file = Path::Class::file($local, 'modules', '02packages.details.mirror.txt.gz');
-    my $file_has_changed = $self->ua->mirror(url => $mirror_index_uri, to => $mirrored_file);
-    $self->mirror_index->reload() if $file_has_changed or $self->config->force();
+    my $has_changed = $self->fetch(url => $mirror_index_uri, to => $mirrored_file);
+    $self->logger->info("Index from $source is up to date") unless $has_changed or $force;
+    $self->mirror_index->reload() if $has_changed or $force;
 
-    return $file_has_changed or $self->config->force();
+    return $has_changed || $force;
 }
 
 #------------------------------------------------------------------------------
@@ -119,9 +116,9 @@ sub update_mirror_index {
 sub dists_to_mirror {
     my ($self) = @_;
 
-    my $temp_index = Pinto::Index->new();
+    my $temp_index = Pinto::Index->new( logger => $self->logger() );
     $temp_index->add( $self->mirror_index->packages->values->flatten() );
-    $temp_index->add( $self->local_index->packages->values->flatten() );
+    $temp_index->remove( $self->local_index->packages->values->flatten() );
 
     my $sorter = sub { $_[0]->location() cmp $_[1]->location() };
     return $temp_index->distributions->values->sort($sorter)->flatten();
@@ -152,7 +149,6 @@ sub write_indexes {
 sub rebuild_master_index {
     my ($self) = @_;
 
-    $DB::single = 1;
     $self->master_index->clear();
     $self->master_index->add( $self->mirror_index->packages->values->flatten() );
     $self->master_index->add( $self->local_index->packages->values->flatten() );
@@ -205,6 +201,13 @@ sub add_mirrored_distribution {
     my ($self, %args) = @_;
 
     my $dist = $args{dist};
+
+    # Don't add a distribution that already exists in the index.
+    if ( $self->master_index->distributions->at($dist->location) ) {
+        $self->logger->debug("$dist is already in the index");
+        return;
+    }
+
     my @packages = $dist->packages->flatten();
     my @removed_dists = $self->master_index->add( @packages );
 
@@ -255,7 +258,18 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.008
+version 0.009
+
+=head1 DESCRIPTION
+
+The role of L<Pinto::IndexManager> and L<Pinto::Index> is to create an
+abstraction layer between the rest of the application and the details
+of managing the 02packages index file.  At the moment, we use three
+separate index files: one for locally added packages, one for mirrored
+packages, and a master index that combines the other two according to
+specific rules.  But this file-based design is ugly and doesn't
+perform well.  So in the future, I hope to replace those files with a
+proper database.
 
 =head1 ATTRIBUTES
 
@@ -293,3 +307,5 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+
+
