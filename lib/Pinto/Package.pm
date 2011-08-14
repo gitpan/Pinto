@@ -9,7 +9,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -40,12 +40,21 @@ has 'dist'    => (
 sub to_string {
     my ($self) = @_;
 
+    return $self->name();
+}
+
+#------------------------------------------------------------------------------
+
+
+sub to_index_string {
+    my ($self) = @_;
+
     my $fw = 38 - length $self->version();
     $fw = length $self->name() if $fw < length $self->name();
 
-    return sprintf "%-${fw}s %s  %s", $self->name(),
-                                      $self->version(),
-                                      $self->dist->location();
+    return sprintf "%-${fw}s %s  %s\n", $self->name(),
+                                        $self->version(),
+                                        $self->dist->location();
 }
 
 #------------------------------------------------------------------------------
@@ -68,7 +77,7 @@ Pinto::Package - Represents a single record in the 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 DESCRIPTION
 
@@ -79,7 +88,12 @@ you to see here (yet).
 
 =head2 to_string()
 
-Returns this Package object in a format that is suitable for writing
+Returns this Package as a string containing the package name.  This is
+what you get when you evaluate and Package in double quotes.
+
+=head2 to_index_string()
+
+Returns this Package object as a string that is suitable for writing
 to an F<02packages.details.txt> file.
 
 =head1 AUTHOR

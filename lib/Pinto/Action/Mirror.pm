@@ -8,20 +8,19 @@ use URI;
 use Try::Tiny;
 
 use Pinto::Util;
-use Pinto::UserAgent;
-
-extends 'Pinto::Action';
 
 use namespace::autoclean;
 
+extends 'Pinto::Action';
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose Roles
 
-with qw(Pinto::Role::Downloadable);
+with qw(Pinto::Role::UserAgent);
 
 #------------------------------------------------------------------------------
 
@@ -29,29 +28,26 @@ sub execute {
     my ($self) = @_;
 
     my $idxmgr  = $self->idxmgr();
-    my $changes = $idxmgr->update_mirror_index() or return 0;
-    my @dists   = $idxmgr->dists_to_mirror();
+    my $idx_changes = $idxmgr->update_mirror_index();
+    return 0 if not $idx_changes and not $self->config->force();
 
-    for my $dist ( @dists ) {
-        try   { $changes += $self->_do_fetch($dist) }
+    my $dist_changes = 0;
+    for my $dist ( $idxmgr->dists_to_mirror() ) {
+        try   { $dist_changes += $self->_do_mirror($dist) }
         catch { $self->logger->whine("Download of $dist failed: $_") };
     }
 
-    if ($changes) {
-        my $count  = @dists;
-        my $source = $self->config->source();
-        $self->add_message("Mirrored $count distributions from $source");
-    }
+    return 0 if not ($idx_changes + $dist_changes);
 
-    # Don't include an index change, just because --force was on
-    $changes -= $self->config->force();
+    my $source = $self->config->source();
+    $self->add_message("Mirrored $dist_changes distributions from $source");
 
-    return $changes;
+    return 1;
 }
 
 #------------------------------------------------------------------------------
 
-sub _do_fetch {
+sub _do_mirror {
     my ($self, $dist) = @_;
 
     my $local   = $self->config->local();
@@ -62,7 +58,7 @@ sub _do_fetch {
     my $destination = $dist->path($local);
     return 0 if -e $destination;
 
-    $self->fetch(url => $url, to => $destination) or return 0;
+    $self->mirror(url => $url, to => $destination) or return 0;
     $self->store->add(file => $destination);
 
     my @removed = $self->idxmgr->add_mirrored_distribution(dist => $dist);
@@ -91,7 +87,7 @@ Pinto::Action::Mirror - An action to mirror a remote repository into your local 
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 AUTHOR
 

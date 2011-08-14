@@ -15,7 +15,7 @@ use CGI::Application::Plugin::AutoRunmode;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ Pinto::Server - Web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 AUTHOR
 

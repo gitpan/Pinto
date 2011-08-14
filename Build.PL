@@ -23,7 +23,7 @@ my %module_build_args = (
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.009',
+  'dist_version' => '0.010',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
@@ -58,7 +58,6 @@ my %module_build_args = (
     'Path::Class::Dir' => '0',
     'Path::Class::File' => '0',
     'PerlIO::gzip' => '0',
-    'Pinto::UserAgent' => '0',
     'Readonly' => '0',
     'Try::Tiny' => '0',
     'URI' => '0',

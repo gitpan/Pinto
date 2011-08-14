@@ -38,9 +38,9 @@ lib/Pinto/IndexManager.pm
 lib/Pinto/Logger.pm
 lib/Pinto/Package.pm
 lib/Pinto/Role/Configurable.pm
-lib/Pinto/Role/Downloadable.pm
 lib/Pinto/Role/Loggable.pm
 lib/Pinto/Role/PathMaker.pm
+lib/Pinto/Role/UserAgent.pm
 lib/Pinto/Server.pm
 lib/Pinto/Server/Config.pm
 lib/Pinto/Server/Dispatch.pm

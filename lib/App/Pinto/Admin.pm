@@ -9,7 +9,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ App::Pinto::Admin - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 DESCRIPTION
 

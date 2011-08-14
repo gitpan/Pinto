@@ -1,6 +1,6 @@
-package Pinto::Role::Downloadable;
+package Pinto::Role::UserAgent;
 
-# ABSTRACT: Something that downloads remote files
+# ABSTRACT: Something that fetches remote files
 
 use Moose::Role;
 
@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -34,7 +34,7 @@ with qw(Pinto::Role::PathMaker);
 #------------------------------------------------------------------------------
 
 
-sub fetch {
+sub mirror {
     my ($self, %args) = @_;
     my $url = $args{url};
     my $to  = $args{to};
@@ -82,15 +82,15 @@ sub _build_ua {
 
 =head1 NAME
 
-Pinto::Role::Downloadable - Something that downloads remote files
+Pinto::Role::UserAgent - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 METHODS
 
-=head2 fetch(url => 'http://someplace' to => 'some/path')
+=head2 mirror(url => 'http://someplace' to => 'some/path')
 
 Mirrors the file located at the C<url> to the file located at C<to>.
 If the intervening directories do not exist, they will be created for

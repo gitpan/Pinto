@@ -9,7 +9,7 @@ use File::Copy;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -50,18 +50,6 @@ with qw( Pinto::Role::PathMaker );
 # Methods
 
 
-sub initialize {
-    my ($self) = @_;
-
-    my $local = $self->config->local();
-    $self->mkpath($local);
-
-    return 1;
-}
-
-#------------------------------------------------------------------------------
-
-
 sub is_initialized {
     my ($self) = @_;
 
@@ -71,9 +59,25 @@ sub is_initialized {
 #------------------------------------------------------------------------------
 
 
+sub initialize {
+    my ($self) = @_;
+
+    my $local = $self->config->local();
+    $self->mkpath($local);
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
+
 sub finalize {
     my ($self, %args) = @_;
-    return 1;
+
+    my $message = $args{message} || 'Finalizing the store';
+    $self->logger->info($message);
+
+    return $self;
 }
 
 
@@ -113,22 +117,20 @@ sub add {
 sub remove {
     my ($self, %args) = @_;
 
-    my $path  = $args{file};
-    my $prune = $args{prune};  # TODO: prune=1 should be the default
+    my $file  = $args{file};
 
-    return $self if not -e $path;
-    croak "$path is not a file" if $path->is_dir();
+    return $self if not -e $file;
 
-    $self->logger->info("Removing file $path");
-    $path->remove() or croak "Failed to remove $path: $!";
+    croak "$file is not a file" if -d $file;
 
-    if ($prune) {
-        while (my $dir = $path->dir()) {
-            last if $dir->children();
-            $self->logger->debug("Removing empty directory $dir");
-            $dir->remove();
-            $path = $dir;
-        }
+    $self->logger->info("Removing file $file");
+    $file->remove() or croak "Failed to remove $file: $!";
+
+    while (my $dir = $file->parent()) {
+        last if $dir->children();
+        $self->logger->debug("Removing empty directory $dir");
+        $dir->remove();
+        $file = $dir;
     }
 
     return $self;
@@ -150,7 +152,7 @@ Pinto::Store - Back-end storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 DESCRIPTION
 
@@ -161,21 +163,21 @@ example.
 
 =head1 METHODS
 
+=head2 is_initialized()
+
+Returns true if the store appears to be initialized.  In this base
+class, it simply means that the working directory exists.  For other
+derived classes, this could mean that the working copy is up-to-date.
+
 =head2 initialize()
 
 This method is called before each batch of Pinto events, and is
 responsible for doing any setup work that is required by the Store.
 This could include making a directory on the file system, checking out
 or updating a working copy, cloning, or pulling commits.  If the
-initialization fails, an exception should be thrown.
-
-The default implementation simply creates a directory.
-
-=head2 is_initialized()
-
-Returns true if the store appears to be initialized.  In this base
-class, it simply means that the working directory exists.  For other
-derived classes, this could mean that the working copy is up-to-date.
+initialization fails, an exception should be thrown.  The default
+implementation simply creates a directory.  Returns a reference
+to this Store.
 
 =head2 finalize(message => 'what happened')
 
@@ -183,24 +185,26 @@ This method is called after each batch of Pinto events and is
 responsible for doing any work that is required to commit the Store.
 This could include scheduling files for addition/deletion, pushing
 commits to a remote repository, and/or making a tag.  If the
-finalization fails, an exception should be thrown.
+finalization fails, an exception should be thrown.  The default
+implementation merely logs the message.  Returns a reference
+to this Store.
 
 =head2 add( file => $some_file, source => $other_file )
 
 Adds the specified C<file> (as a L<Path::Class::File>) to this Store.
 The path to C<file> is presumed to be somewhere beneath the root
-directory of this Store.  If the optional C<source> is given (as a
-L<Path::Class::File>), then that C<source> is first copied to C<file>.
-If C<source> is not specified, then the C<file> must already exist.
-Returns a reference to this Store.
+directory of this Store.  If the optional C<source> is given (also as
+a L<Path::Class::File>), then that C<source> is first copied to
+C<file>.  If C<source> is not specified, then the C<file> must already
+exist.  Croaks on failure.  Returns a reference to this Store.
 
-=head2 remove( file => $some_file, prune => 1 );
+=head2 remove( file => $some_file )
 
 Removes the specified C<file> (as a L<Path::Class::File>) from this
 Store.  The path to C<file> is presumed to be somewhere beneath the
-root directory of this Store.  If C<prune> is true, then any empty
-directories above C<file> will also be removed.  Returns a reference
-to this Store.
+root directory of this Store.  Any empty directories above C<file>
+will also be removed.  Croaks on failure.  Returns a reference to this
+Store.
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -113,7 +113,7 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 AUTHOR
 

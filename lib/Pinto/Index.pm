@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.009'; # VERSION
+our $VERSION = '0.010'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -172,8 +172,9 @@ sub _write_packages {
 
     my $sorter = sub { $_[0]->{name} cmp $_[1]->{name} };
     my $packages = $self->packages->values->sort($sorter);
+
     for my $package ( $packages->flatten() ) {
-        print {$fh} "$package\n";
+        print {$fh} $package->to_index_string();
     }
 
     return $self;
@@ -295,7 +296,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.009
+version 0.010
 
 =head1 DESCRIPTION
 
