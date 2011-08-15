@@ -9,7 +9,7 @@ use File::Copy;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.010'; # VERSION
+our $VERSION = '0.011'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -104,7 +104,13 @@ sub add {
 
         $self->logger->debug("Copying $source to $file");
 
-        File::Copy::copy($source, $file)
+        # NOTE: We have to force stringification of the arguments to
+        # File::Copy, since older versions don't support Path::Class
+        # objects properly.  File::Copy is part of the CORE, and is
+        # not dual-lifed, so upgrading it requires a whole new Perl.
+        # We're going to be kind and accommodate the old versions.
+
+        File::Copy::copy("$source", "$file")
             or croak "Failed to copy $source to $file: $!";
     }
 
@@ -152,7 +158,7 @@ Pinto::Store - Back-end storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 DESCRIPTION
 

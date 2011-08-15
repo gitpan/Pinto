@@ -86,159 +86,159 @@
    "provides" : {
       "App::Pinto::Admin" : {
          "file" : "lib/App/Pinto/Admin.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command" : {
          "file" : "lib/App/Pinto/Admin/Command.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::add" : {
          "file" : "lib/App/Pinto/Admin/Command/add.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::clean" : {
          "file" : "lib/App/Pinto/Admin/Command/clean.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::create" : {
          "file" : "lib/App/Pinto/Admin/Command/create.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::list" : {
          "file" : "lib/App/Pinto/Admin/Command/list.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::mirror" : {
          "file" : "lib/App/Pinto/Admin/Command/mirror.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::remove" : {
          "file" : "lib/App/Pinto/Admin/Command/remove.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "App::Pinto::Admin::Command::verify" : {
          "file" : "lib/App/Pinto/Admin/Command/verify.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto" : {
          "file" : "lib/Pinto.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action" : {
          "file" : "lib/Pinto/Action.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Add" : {
          "file" : "lib/Pinto/Action/Add.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Clean" : {
          "file" : "lib/Pinto/Action/Clean.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Create" : {
          "file" : "lib/Pinto/Action/Create.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::List" : {
          "file" : "lib/Pinto/Action/List.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Mirror" : {
          "file" : "lib/Pinto/Action/Mirror.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Remove" : {
          "file" : "lib/Pinto/Action/Remove.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Action::Verify" : {
          "file" : "lib/Pinto/Action/Verify.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::ActionBatch" : {
          "file" : "lib/Pinto/ActionBatch.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::ActionFactory" : {
          "file" : "lib/Pinto/ActionFactory.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Config" : {
          "file" : "lib/Pinto/Config.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Distribution" : {
          "file" : "lib/Pinto/Distribution.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Index" : {
          "file" : "lib/Pinto/Index.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::IndexManager" : {
          "file" : "lib/Pinto/IndexManager.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Logger" : {
          "file" : "lib/Pinto/Logger.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Package" : {
          "file" : "lib/Pinto/Package.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Role::Configurable" : {
          "file" : "lib/Pinto/Role/Configurable.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Role::Loggable" : {
          "file" : "lib/Pinto/Role/Loggable.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Role::PathMaker" : {
          "file" : "lib/Pinto/Role/PathMaker.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Role::UserAgent" : {
          "file" : "lib/Pinto/Role/UserAgent.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Server" : {
          "file" : "lib/Pinto/Server.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Server::Config" : {
          "file" : "lib/Pinto/Server/Config.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Server::Dispatch" : {
          "file" : "lib/Pinto/Server/Dispatch.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Store" : {
          "file" : "lib/Pinto/Store.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Store::Git" : {
          "file" : "lib/Pinto/Store/Git.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Store::Svn" : {
          "file" : "lib/Pinto/Store/Svn.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Types" : {
          "file" : "lib/Pinto/Types.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Util" : {
          "file" : "lib/Pinto/Util.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       },
       "Pinto::Util::Svn" : {
          "file" : "lib/Pinto/Util/Svn.pm",
-         "version" : "0.010"
+         "version" : "0.011"
       }
    },
    "release_status" : "stable",
@@ -250,6 +250,6 @@
          "web" : "https://github.com/thaljef/Pinto"
       }
    },
-   "version" : "0.010"
+   "version" : "0.011"
 }
 

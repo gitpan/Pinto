@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.010'; # VERSION
+our $VERSION = '0.011'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ App::Pinto::Admin::Command::mirror - get all the latest distributions from a rem
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 AUTHOR
 

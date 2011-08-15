@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.010'; # VERSION
+our $VERSION = '0.011'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ Pinto::Action::Remove - An action to remove packages from the repository
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 AUTHOR
 
