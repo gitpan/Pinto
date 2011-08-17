@@ -43,23 +43,19 @@
             "English" : 0,
             "File::Copy" : 0,
             "File::Find" : 0,
-            "File::HomeDir" : 0,
-            "IO::File" : 0,
-            "IO::Handle" : 0,
-            "IO::String" : 0,
             "LWP::UserAgent" : 0,
             "List::MoreUtils" : 0,
             "Moose" : 0,
             "Moose::Autobox" : 0,
             "Moose::Role" : 0,
-            "MooseX::Configuration" : 0,
-            "MooseX::LazyRequire" : 0,
-            "MooseX::Types" : 0,
             "MooseX::Types::Moose" : 0,
             "Path::Class" : 0,
-            "Path::Class::Dir" : 0,
-            "Path::Class::File" : 0,
             "PerlIO::gzip" : 0,
+            "Pinto::Config" : 0,
+            "Pinto::Logger" : 0,
+            "Pinto::Role::Configurable" : "0.013",
+            "Pinto::Role::Loggable" : "0.013",
+            "Pinto::Types" : 0,
             "Proc::Reliable" : 0,
             "Readonly" : 0,
             "Try::Tiny" : 0,
@@ -85,147 +81,127 @@
    "provides" : {
       "App::Pinto::Admin" : {
          "file" : "lib/App/Pinto/Admin.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command" : {
          "file" : "lib/App/Pinto/Admin/Command.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::add" : {
          "file" : "lib/App/Pinto/Admin/Command/add.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::clean" : {
          "file" : "lib/App/Pinto/Admin/Command/clean.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::create" : {
          "file" : "lib/App/Pinto/Admin/Command/create.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::list" : {
          "file" : "lib/App/Pinto/Admin/Command/list.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::mirror" : {
          "file" : "lib/App/Pinto/Admin/Command/mirror.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::remove" : {
          "file" : "lib/App/Pinto/Admin/Command/remove.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "App::Pinto::Admin::Command::verify" : {
          "file" : "lib/App/Pinto/Admin/Command/verify.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto" : {
          "file" : "lib/Pinto.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action" : {
          "file" : "lib/Pinto/Action.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Add" : {
          "file" : "lib/Pinto/Action/Add.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Clean" : {
          "file" : "lib/Pinto/Action/Clean.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Create" : {
          "file" : "lib/Pinto/Action/Create.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::List" : {
          "file" : "lib/Pinto/Action/List.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Mirror" : {
          "file" : "lib/Pinto/Action/Mirror.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Remove" : {
          "file" : "lib/Pinto/Action/Remove.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Action::Verify" : {
          "file" : "lib/Pinto/Action/Verify.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::ActionBatch" : {
          "file" : "lib/Pinto/ActionBatch.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::ActionFactory" : {
          "file" : "lib/Pinto/ActionFactory.pm",
-         "version" : "0.012"
-      },
-      "Pinto::Config" : {
-         "file" : "lib/Pinto/Config.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Distribution" : {
          "file" : "lib/Pinto/Distribution.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Index" : {
          "file" : "lib/Pinto/Index.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::IndexManager" : {
          "file" : "lib/Pinto/IndexManager.pm",
-         "version" : "0.012"
-      },
-      "Pinto::Logger" : {
-         "file" : "lib/Pinto/Logger.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Package" : {
          "file" : "lib/Pinto/Package.pm",
-         "version" : "0.012"
-      },
-      "Pinto::Role::Configurable" : {
-         "file" : "lib/Pinto/Role/Configurable.pm",
-         "version" : "0.012"
-      },
-      "Pinto::Role::Loggable" : {
-         "file" : "lib/Pinto/Role/Loggable.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Role::PathMaker" : {
          "file" : "lib/Pinto/Role/PathMaker.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Role::UserAgent" : {
          "file" : "lib/Pinto/Role/UserAgent.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Store" : {
          "file" : "lib/Pinto/Store.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Store::Git" : {
          "file" : "lib/Pinto/Store/Git.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Store::Svn" : {
          "file" : "lib/Pinto/Store/Svn.pm",
-         "version" : "0.012"
-      },
-      "Pinto::Types" : {
-         "file" : "lib/Pinto/Types.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Util" : {
          "file" : "lib/Pinto/Util.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       },
       "Pinto::Util::Svn" : {
          "file" : "lib/Pinto/Util/Svn.pm",
-         "version" : "0.012"
+         "version" : "0.014"
       }
    },
    "release_status" : "stable",
@@ -237,6 +213,6 @@
          "web" : "https://github.com/thaljef/Pinto"
       }
    },
-   "version" : "0.012"
+   "version" : "0.014"
 }
 

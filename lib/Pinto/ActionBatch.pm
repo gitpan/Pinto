@@ -9,7 +9,7 @@ use Pinto::IndexManager;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.012'; # VERSION
+our $VERSION = '0.014'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -64,6 +64,7 @@ sub run {
     my @messages;
     my $changes_were_made;
     while ( my $action = $self->actions->shift() ) {
+        # TODO: Trap exceptions here?
         $changes_were_made += $action->execute();
         push @messages, $action->messages->flatten();
     }
@@ -106,18 +107,18 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.012
+version 0.014
 
 =head1 METHODS
 
 =head2 enqueue($some_action)
 
 Adds C<$some_action> to the end of the queue of L<Pinto::Action>s that will be
-run.
+run.  Returns a reference to this C<ActionBatch>.
 
 =head2 run()
 
-Runs all the actions in this Batch.
+Runs all the actions in this Batch.  Returns a reference to this C<ActionBatch>.
 
 =head1 AUTHOR
 

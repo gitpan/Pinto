@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.012'; # VERSION
+our $VERSION = '0.014'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -263,7 +263,7 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.012
+version 0.014
 
 =head1 DESCRIPTION
 

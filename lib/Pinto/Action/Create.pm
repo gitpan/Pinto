@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.012'; # VERSION
+our $VERSION = '0.014'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Pinto::Action::Create - An action to create a new repository
 
 =head1 VERSION
 
-version 0.012
+version 0.014
 
 =head1 AUTHOR
 

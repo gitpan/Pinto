@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.012'; # VERSION
+our $VERSION = '0.014'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attrbutes
@@ -80,7 +80,7 @@ Pinto::Action::Add - An action to add one distribution to the repository
 
 =head1 VERSION
 
-version 0.012
+version 0.014
 
 =head1 AUTHOR
 

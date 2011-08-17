@@ -1,4 +1,15 @@
->> 0.012     2011-08-17 09:10:25 America/Los_Angeles
+>> 0.014     2011-08-17 16:09:48 America/Los_Angeles
+
+    * No interface changes or bug fixes.
+
+    * Internal Changes:
+
+    Several modules have been moved out to the Pinto-Common
+    distribution.  This is to allow sharing between Pinto,
+    Pinto::Server, and Pinto::Remote without requiring direct
+    dependency on all of Pinto (including it's dependencies).
+
+0.012     2011-08-17 09:10:25 America/Los_Angeles
 
     * Bug Fixes:
 

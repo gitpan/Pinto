@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.012'; # VERSION
+our $VERSION = '0.014'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ App::Pinto::Admin::Command::add - add your own Perl distributions to the reposit
 
 =head1 VERSION
 
-version 0.012
+version 0.014
 
 =head1 AUTHOR
 
