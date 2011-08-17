@@ -8,6 +8,7 @@ use Module::Build 0.3601;
 my %module_build_args = (
   'build_requires' => {
     'ExtUtils::MakeMaker' => '6.30',
+    'File::Temp' => '0',
     'FindBin' => '0',
     'Module::Build' => '0.3601',
     'Test::Exception' => '0',
@@ -23,17 +24,13 @@ my %module_build_args = (
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.011',
+  'dist_version' => '0.012',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
   'recursive_test_files' => 1,
   'requires' => {
     'App::Cmd::Setup' => '0',
-    'CGI::Application' => '0',
-    'CGI::Application::Dispatch' => '0',
-    'CGI::Application::Dispatch::Server' => '0',
-    'CGI::Application::Plugin::AutoRunmode' => '0',
     'CPAN::DistnameInfo' => '0',
     'Carp' => '0',
     'Class::Load' => '0',
@@ -43,8 +40,9 @@ my %module_build_args = (
     'File::Copy' => '0',
     'File::Find' => '0',
     'File::HomeDir' => '0',
-    'File::Temp' => '0',
-    'IPC::Cmd' => '0.72',
+    'IO::File' => '0',
+    'IO::Handle' => '0',
+    'IO::String' => '0',
     'LWP::UserAgent' => '0',
     'List::MoreUtils' => '0',
     'Moose' => '0',
@@ -58,6 +56,7 @@ my %module_build_args = (
     'Path::Class::Dir' => '0',
     'Path::Class::File' => '0',
     'PerlIO::gzip' => '0',
+    'Proc::Reliable' => '0',
     'Readonly' => '0',
     'Try::Tiny' => '0',
     'URI' => '0',
@@ -68,8 +67,7 @@ my %module_build_args = (
   },
   'script_files' => [
     'bin/pinto-admin',
-    'bin/pinto-client',
-    'bin/pinto-server'
+    'bin/pinto-client'
   ]
 );
 

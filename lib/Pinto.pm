@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -189,9 +189,9 @@ sub clean {
 
 
 sub list {
-    my ($self) = @_;
+    my ($self, %args) = @_;
 
-    $self->enqueue( $self->create_action('List') );
+    $self->enqueue( $self->create_action('List', %args) );
     $self->run();
 
     return $self;
@@ -231,7 +231,7 @@ Pinto - Perl distribution repository manager
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 SYNOPSIS
 

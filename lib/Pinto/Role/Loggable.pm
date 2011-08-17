@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 AUTHOR
 

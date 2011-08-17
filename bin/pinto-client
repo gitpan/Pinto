@@ -10,22 +10,18 @@ use LWP::UserAgent;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #------------------------------------------------------------------------------
 
-my ($author, $file) = @ARGV;
+my ($author, $dist) = @ARGV;
 my %args = (
-        Content_Type => 'form-data',
-        Content      => [
-                         filename => $file,
-                         author   => $author,
-                         file     => [$file],
-                        ],
+    Content_Type => 'form-data',
+    Content      => [ author => $author, dist => [$dist], ],
 );
 
 my $ua = LWP::UserAgent->new();
-my $response = $ua->post( 'http://localhost:1973/add', %args );
+my $response = $ua->post( 'http://localhost:5000/add', %args );
 print $response->content(), "\n";
 
 __END__
@@ -39,7 +35,7 @@ pinto-client - interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 AUTHOR
 

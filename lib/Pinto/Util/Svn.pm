@@ -6,13 +6,13 @@ use strict;
 use warnings;
 
 use Carp qw(carp croak);
-use IPC::Cmd 0.72 qw(run);
 use List::MoreUtils qw(firstidx);
+use Proc::Reliable;
 use Path::Class;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ sub svn_schedule {
             svn_add(path => $path);
         }
         elsif ($status eq '!') {
-            svn_delete(path => $path, prune => 1);
+            svn_delete(path => $path);
         }
         elsif ($status =~ /^ [AMD] $/x) {
             # Do nothing!
@@ -198,11 +198,13 @@ sub _all_scheduled_for_deletion {
 sub _svn {
     my %args = @_;
     my $command = $args{command};
-    my $buffer  = $args{buffer} || \my $anon;
+    my $buffer  = $args{buffer} || \(my $anon = '');
     my $croak   = defined $args{croak} ? $args{croak} : 1;
 
     unshift @{$command}, 'svn';
-    my $ok = run( command => $command, buffer => $buffer);
+    my $proc = Proc::Reliable->new();
+    $proc->run($command);
+    my $ok = not $proc->status();
 
     if ($croak and not $ok) {
 
@@ -212,9 +214,10 @@ sub _svn {
         }
 
         my $command_string = join ' ', @{ $command };
-        croak "Command failed: $command_string\n". ${$buffer};
+        croak "Command failed: $command_string\n" . $proc->stdout();
     }
 
+    ${ $buffer } = $proc->stdout();
     return $ok;
 }
 
@@ -234,7 +237,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 FUNCTIONS
 

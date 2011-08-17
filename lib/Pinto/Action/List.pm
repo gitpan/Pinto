@@ -3,6 +3,7 @@ package Pinto::Action::List;
 # ABSTRACT: An action that lists the contents of a repository
 
 use Moose;
+use Pinto::Types qw(IO);
 
 extends 'Pinto::Action';
 
@@ -10,18 +11,27 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
+
+#------------------------------------------------------------------------------
+# TODO: default this to STDOUT.  Not sure how to to do this with an IO type.
+
+has out => (
+    is      => 'ro',
+    isa     => IO,
+    coerce  => 1,
+    default => sub { [fileno(STDOUT), '>'] },
+);
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    # TODO: accept an alternative filehandle for output.
     # TODO: force log_level to quiet when running this action.
 
     for my $package ( $self->idxmgr()->all_packages() ) {
-        print $package->to_string(), "\n";
+        print { $self->out() } $package->to_index_string();
     }
 
     return 0;
@@ -47,7 +57,7 @@ Pinto::Action::List - An action that lists the contents of a repository
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 AUTHOR
 

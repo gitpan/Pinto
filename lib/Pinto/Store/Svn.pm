@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ Pinto::Store::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 SYNOPSIS
 

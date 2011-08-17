@@ -8,7 +8,7 @@ use Class::Load;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -68,7 +68,7 @@ Pinto::ActionFactory - Factory class for making Actions
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 AUTHOR
 

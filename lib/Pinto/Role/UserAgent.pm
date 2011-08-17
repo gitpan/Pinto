@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -42,7 +42,7 @@ sub mirror {
     $to = file($to) if not eval {$to->isa('Path::Class')};
     $self->mkpath( $to->parent() );
 
-    $self->logger->info("Fetching $url");
+    $self->logger->info("Mirroring $url");
     my $result = $self->_ua->mirror($url, $to);
 
     if ($result->is_success()) {
@@ -86,7 +86,7 @@ Pinto::Role::UserAgent - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 METHODS
 

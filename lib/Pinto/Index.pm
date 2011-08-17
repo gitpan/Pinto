@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.011'; # VERSION
+our $VERSION = '0.012'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 DESCRIPTION
 
