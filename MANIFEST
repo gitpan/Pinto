@@ -33,6 +33,7 @@ lib/Pinto/ActionFactory.pm
 lib/Pinto/Distribution.pm
 lib/Pinto/Index.pm
 lib/Pinto/IndexManager.pm
+lib/Pinto/Locker.pm
 lib/Pinto/Package.pm
 lib/Pinto/Role/PathMaker.pm
 lib/Pinto/Role/UserAgent.pm
@@ -47,6 +48,7 @@ t/01-index.t
 t/02-package.t
 t/04-distribution.t
 t/05-util.t
+t/06-locking.t
 t/10-functional.t
 t/data/Bar/Bar-0.001.tar.gz
 t/data/Bar/Bar-0.001/LICENSE
@@ -58,6 +60,7 @@ t/data/Bar/Bar-0.001/dist.ini
 t/data/Bar/Bar-0.001/lib/Bar.pm
 t/data/Bar/dist.ini
 t/data/Bar/lib/Bar.pm
+t/lib/Pinto/TestAction.pm
 t/lib/Pinto/TestConfig.pm
 t/lib/Pinto/TestLogger.pm
 weaver.ini

@@ -10,12 +10,13 @@ use Path::Class;
 
 use Pinto::ActionFactory;
 use Pinto::ActionBatch;
+use Pinto::IndexManager;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -231,7 +232,7 @@ Pinto - Perl distribution repository manager
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 SYNOPSIS
 

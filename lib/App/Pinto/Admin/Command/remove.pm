@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ App::Pinto::Admin::Command::remove - remove your own packages from the repositor
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 AUTHOR
 

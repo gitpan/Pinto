@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #------------------------------------------------------------------------------
 # TODO: default this to STDOUT.  Not sure how to to do this with an IO type.
@@ -57,7 +57,7 @@ Pinto::Action::List - An action that lists the contents of a repository
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 AUTHOR
 

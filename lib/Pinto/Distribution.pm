@@ -8,7 +8,7 @@ use Moose::Autobox;
 
 use URI;
 use Carp;
-use Dist::Metadata;
+use Dist::Metadata 0.920; # supports .zip
 use CPAN::DistnameInfo;
 use Path::Class qw();
 
@@ -16,11 +16,12 @@ use Pinto::Util;
 use Pinto::Package;
 use Pinto::Types qw(AuthorID File);
 
+
 use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -75,8 +76,6 @@ sub _build__path {
 
     return Path::Class::file( split '/', $self->location() );
 }
-
-#------------------------------------------------------------------------------
 
 sub _build_author {
     my ($self) = @_;
@@ -141,13 +140,11 @@ sub new_from_file {
 sub _extract_packages {
     my ($self, %args) = @_;
 
-    # TODO: Throw exception if Dist::Metadata fails or doesn't find
-    # any packages in the dist.
-
     my $file = $args{file};
+
     my $distmeta = Dist::Metadata->new(file => $file->stringify());
     my $provides = $distmeta->package_versions();
-    return $self if not %{ $provides };
+    croak "$file contains no packages" if not %{ $provides };
 
     my @packages = ();
     for my $package_name (sort keys %{ $provides }) {
@@ -199,7 +196,7 @@ Pinto::Distribution - Represents a Perl distribution
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 AUTHOR
 

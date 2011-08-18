@@ -5,11 +5,15 @@ package Pinto::ActionBatch;
 use Moose;
 use Moose::Autobox;
 
-use Pinto::IndexManager;
+use Carp;
+use Try::Tiny;
+use Path::Class;
+
+use Pinto::Locker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -32,6 +36,21 @@ has idxmgr => (
     required => 1,
 );
 
+has message => (
+    is       => 'ro',
+    isa      => 'Str',
+    writer   => '_set_message',
+    default  => '',
+);
+
+has _locker  => (
+    is       => 'ro',
+    isa      => 'Pinto::Locker',
+    builder  => '_build__locker',
+    init_arg =>  undef,
+    lazy     => 1,
+);
+
 #-----------------------------------------------------------------------------
 # Moose roles
 
@@ -39,6 +58,17 @@ with qw( Pinto::Role::Loggable
          Pinto::Role::Configurable );
 
 #-----------------------------------------------------------------------------
+# Builders
+
+sub _build__locker {
+    my ($self) = @_;
+
+    return Pinto::Locker->new( config => $self->config(),
+                               logger => $self->logger() );
+}
+
+#-----------------------------------------------------------------------------
+# Public methods
 
 
 sub enqueue {
@@ -50,10 +80,21 @@ sub enqueue {
 }
 
 #-----------------------------------------------------------------------------
-# TODO: Trap exceptions here...
 
 
 sub run {
+    my ($self) = @_;
+
+    $self->_locker->lock();
+    $self->_run_actions();
+    $self->_locker->unlock();
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _run_actions {
     my ($self) = @_;
 
     $self->store->initialize()
@@ -61,29 +102,58 @@ sub run {
            and $self->config->noinit();
 
 
-    my @messages;
     my $changes_were_made;
     while ( my $action = $self->actions->shift() ) {
-        # TODO: Trap exceptions here?
-        $changes_were_made += $action->execute();
-        push @messages, $action->messages->flatten();
+        $changes_were_made += $self->_run_one_action($action);
     }
-
 
     $self->logger->info('No changes were made') and return $self
       unless $changes_were_made;
 
-
     $self->idxmgr->write_indexes();
+
+    return $self if $self->config->nocommit();
+
     # Always put the modules directory on the commit list!
     my $modules_dir = $self->config->local->subdir('modules');
     $self->store->modified_paths->push( $modules_dir );
 
-    return $self if $self->config->nocommit();
-
-    my $batch_message  = join "\n\n", @messages;
+    my $batch_message = $self->message();
     $self->logger->debug($batch_message);
     $self->store->finalize(message => $batch_message);
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _run_one_action {
+    my ($self, $action) = @_;
+
+    my $changes_were_made = 0;
+
+    try {
+        $changes_were_made += $action->execute();
+        my @messages, $action->messages->flatten();
+        $self->_append_messages(@messages);
+    }
+    catch {
+        $self->logger->whine($_);
+    };
+
+    return $changes_were_made;
+}
+
+
+#-----------------------------------------------------------------------------
+
+sub _append_messages {
+    my ($self, @messages) = @_;
+
+    my $current_message = $self->message();
+    $current_message .= "\n\n" if $current_message;
+    my $new_message = join "\n\n", @messages;
+    $self->_set_message($new_message);
 
     return $self;
 }
@@ -107,7 +177,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 METHODS
 

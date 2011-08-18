@@ -10,7 +10,7 @@ extends 'Pinto::Store';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.014'; # VERSION
+our $VERSION = '0.015'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Pinto::Store::Git - Store your Pinto repository with Git
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 DESCRIPTION
 
