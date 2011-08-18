@@ -7,7 +7,6 @@ META.json
 META.yml
 Todo
 bin/pinto-admin
-bin/pinto-client
 dist.ini
 example/config.ini
 lib/App/Pinto/Admin.pm

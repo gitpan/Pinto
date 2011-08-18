@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.015'; # VERSION
+our $VERSION = '0.016'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -232,7 +232,7 @@ Pinto - Perl distribution repository manager
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 SYNOPSIS
 

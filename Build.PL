@@ -24,7 +24,7 @@ my %module_build_args = (
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.015',
+  'dist_version' => '0.016',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
@@ -63,8 +63,7 @@ my %module_build_args = (
     'perl' => '5.006'
   },
   'script_files' => [
-    'bin/pinto-admin',
-    'bin/pinto-client'
+    'bin/pinto-admin'
   ]
 );
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.015'; # VERSION
+our $VERSION = '0.016'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ App::Pinto::Admin::Command::verify - verify that all the indexed distributions a
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 AUTHOR
 

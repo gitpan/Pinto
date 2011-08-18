@@ -9,7 +9,7 @@ use File::Copy;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.015'; # VERSION
+our $VERSION = '0.016'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -158,7 +158,7 @@ Pinto::Store - Back-end storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 DESCRIPTION
 
