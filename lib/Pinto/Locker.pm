@@ -4,51 +4,76 @@ package Pinto::Locker;
 
 use Moose;
 
-use Carp;
 use Path::Class;
 use LockFile::Simple;
+
+use Pinto::Exception::Lock qw(throw_lock);
+use Pinto::Types 0.017 qw(Dir);
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
 
+has repos => (
+    is        => 'ro',
+    isa       => Dir,
+    coerce    => 1,
+    required  => 1,
+);
+
 has _lock => (
-    is       => 'rw',
-    isa      => 'LockFile::Lock',
-    init_arg => undef,
+    is         => 'rw',
+    isa        => 'LockFile::Lock',
+    init_arg   => undef,
+);
+
+has _lockmgr => (
+    is         => 'ro',
+    isa        => 'LockFile::Simple',
+    init_arg   => undef,
+    lazy_build => 1,
+
 );
 
 #-----------------------------------------------------------------------------
 # Moose roles
 
-with qw ( Pinto::Role::Configurable
-          Pinto::Role::Loggable );
+with qw ( Pinto::Role::Loggable );
 
 #-----------------------------------------------------------------------------
+# Builders
+
+sub _build__lockmgr {
+    my ($self) = @_;
+
+    my $wfunc = sub { $self->logger->debug(@_) };
+    my $efunc = sub { $self->logger->fatal(@_) };
+
+    return LockFile::Simple->make( -autoclean => 1,
+                                   -efunc     => $efunc,
+                                   -wfunc     => $wfunc,
+                                   -stale     => 1,
+                                   -nfs       => 1 );
+}
+
+#-----------------------------------------------------------------------------
+# Methods
 
 
 sub lock {                                             ## no critic (Homonym)
     my ($self) = @_;
 
-    my $local = $self->config->local();
-    my $wfunc = sub { $self->logger->debug(@_) };
-    my $efunc = sub { $self->logger->fatal(@_) };
+    my $repos = $self->repos();
 
-    my $lockmgr = LockFile::Simple->make( -autoclean => 1,
-                                          -efunc     => $efunc,
-                                          -wfunc     => $wfunc,
-                                          -stale     => 1,
-                                          -nfs       => 1 );
+    my $lock = $self->_lockmgr->lock( $repos . '/' )
+        or throw_lock 'Unable to lock the repository -- please try later';
 
-    my $lock = $lockmgr->lock( $local . '/' )
-        or croak 'Unable to lock the repository.  Please try later.';
-
-    $self->logger->debug("Process $$ got the lock for $local");
+    $self->logger->debug("Process $$ got the lock on $repos");
     $self->_lock($lock);
 
     return $self;
@@ -60,8 +85,10 @@ sub lock {                                             ## no critic (Homonym)
 sub unlock {
     my ($self) = @_;
 
-    $self->_lock->release()
-        or croak 'Unable to unlock the repository';
+    $self->_lock->release() or throw_lock 'Unable to unlock repository';
+
+    my $repos = $self->repos();
+    $self->logger->debug("Process $$ released the lock on $repos");
 
     return $self;
 }
@@ -85,7 +112,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 
@@ -93,7 +120,7 @@ version 0.016
 
 =head2 lock()
 
-Attempts to get a lock on the Pinto repository.  If the repository is already
+Attempts to get a lock on a Pinto repository.  If the repository is already
 locked, we will attempt to contact the current lock holder and make sure they
 are really alive.  If not, then we will steal the lock.  If they are, then
 we patiently wait until we timeout, which is about 60 seconds.

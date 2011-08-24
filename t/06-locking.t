@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Test::More (tests => 2);
-use Test::Exception;
 
 use File::Temp;
 use Path::Class;
@@ -15,16 +14,14 @@ use Pinto::Store;
 use Pinto::ActionBatch;
 use Pinto::IndexManager;
 
-use Pinto::TestLogger;
-use Pinto::TestConfig;
 use Pinto::TestAction;
 
 #------------------------------------------------------------------------------
 # Ugh, this is a lot of setup.
 
 my $repos  = File::Temp::tempdir(CLEANUP => 1);
-my $config = Pinto::TestConfig->new(local => $repos);
-my $logger = Pinto::TestLogger->new(config => $config, out => \my $buffer);
+my $config = Pinto::Config->new(repos => $repos);
+my $logger = Pinto::Logger->new(verbose => 3, out => \my $buffer);
 my %config_and_logger = (config => $config, logger => $logger);
 
 my $idxmgr = Pinto::IndexManager->new(%config_and_logger);
@@ -48,17 +45,20 @@ if ($pid) {
     # parent
     sleep 10; # Let the child get started
     print "Starting: $$\n";
-    throws_ok{ $batch->enqueue($competitor)->run() }
-      qr/Unable to lock/, 'Repository is locked by sleeper';
+    $batch->enqueue($competitor);
+    $batch->run();
+    like($buffer, qr/Unable to lock/, 'Repository is locked by sleeper');
 
     wait; # Let the child finish
-    lives_ok { $batch->enqueue($competitor)->run() }
-      'Got lock after the sleeper died';
+    $batch->enqueue($competitor);
+    $batch->run();
+    like($buffer, qr/got the lock/, 'Got lock after the sleeper died');
 }
 else {
     # child
     print "Starting: $$\n";
-    $batch->enqueue($sleeper)->run();
+    $batch->enqueue($sleeper);
+    $batch->run();
     exit 0;
 }
 

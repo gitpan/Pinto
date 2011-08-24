@@ -1,9 +1,9 @@
 package Pinto::Action::List;
 
-# ABSTRACT: An action that lists the contents of a repository
+# ABSTRACT: An abstract action for listing packages in a repository
 
 use Moose;
-use Pinto::Types qw(IO);
+use Pinto::Types 0.017 qw(IO);
 
 extends 'Pinto::Action';
 
@@ -11,10 +11,9 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
-# TODO: default this to STDOUT.  Not sure how to to do this with an IO type.
 
 has out => (
     is      => 'ro',
@@ -22,20 +21,6 @@ has out => (
     coerce  => 1,
     default => sub { [fileno(STDOUT), '>'] },
 );
-
-#------------------------------------------------------------------------------
-
-sub execute {
-    my ($self) = @_;
-
-    # TODO: force log_level to quiet when running this action.
-
-    for my $package ( $self->idxmgr()->all_packages() ) {
-        print { $self->out() } $package->to_index_string();
-    }
-
-    return 0;
-}
 
 #------------------------------------------------------------------------------
 
@@ -53,11 +38,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::List - An action that lists the contents of a repository
+Pinto::Action::List - An abstract action for listing packages in a repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

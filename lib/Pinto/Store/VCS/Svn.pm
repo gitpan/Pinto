@@ -1,20 +1,19 @@
-package Pinto::Store::Svn;
+package Pinto::Store::VCS::Svn;
 
 # ABSTRACT: Store your Pinto repository with Subversion
 
 use Moose;
-use Moose::Autobox;
 
 use Pinto::Util::Svn;
 use Date::Format qw(time2str);
 
-extends 'Pinto::Store';
+extends 'Pinto::Store::VCS';
 
 use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -22,7 +21,7 @@ override is_initialized => sub {
     my ($self) = @_;
 
     # TODO: maybe check last revision # against repos?
-    return -e $self->config->local->file('.svn');
+    return -e $self->config->repos->file('.svn');
 };
 
 #-------------------------------------------------------------------------------
@@ -31,11 +30,11 @@ override is_initialized => sub {
 override initialize => sub {
     my ($self) = @_;
 
-    my $local = $self->config->local();
+    my $repos = $self->config->repos();
     my $trunk = $self->config->svn_trunk();
 
     $self->logger->info("Checking out (or updating) working copy");
-    Pinto::Util::Svn::svn_checkout(url => $trunk, to => $local);
+    Pinto::Util::Svn::svn_checkout(url => $trunk, to => $repos);
 
     return 1;
 };
@@ -49,11 +48,11 @@ override add => sub {
     # the file into place for us (if needed).
     super();
 
-    # Now search the file path backwards until we find the first
-    # parent directory that is an svn working copy.  The directory
-    # or file that is immediately below that directory is the one
-    # we should schedule for addition.  Subversion will recursively
-    # add any directories and files below that point for us.
+    # Now search the path backwards until we find the first parent
+    # directory that is an svn working copy.  The directory or file
+    # that is immediately below that directory is the one we should
+    # schedule for addition.  Subversion will recursively add any
+    # directories and files below that point for us.
 
     my $path = $args{file};
     my $original_path = $path;
@@ -64,7 +63,7 @@ override add => sub {
 
     $self->logger->info("Scheduling $original_path for addition");
     Pinto::Util::Svn::svn_add(path => $path);
-    $self->added_paths()->push($path);
+    $self->mark_path_as_added($path);
 
     return $self;
 };
@@ -79,7 +78,7 @@ override remove => sub {
 
     $self->logger->info("Scheduling $file for removal");
     my $removed = Pinto::Util::Svn::svn_remove(path => $file);
-    $self->removed_paths->push($removed);
+    $self->mark_path_as_removed($removed);
 
     return $self;
 };
@@ -88,18 +87,19 @@ override remove => sub {
 
 override finalize => sub {
     my ($self, %args) = @_;
+    super();
 
     my $message   = $args{message} || 'NO MESSAGE WAS GIVEN';
 
-    my $paths = [ $self->added_paths->flatten(),
-                  $self->removed_paths->flatten(),
-                  $self->modified_paths->flatten() ];
+    my $paths = [ $self->added_paths(),
+                  $self->removed_paths(),
+                  $self->modified_paths() ];
 
     $self->logger->info("Committing changes");
     Pinto::Util::Svn::svn_commit(paths => $paths, message => $message);
 
-    $self->_make_tag() if $self->config->svn_tag()
-                          and not $self->config->notag();
+    #$self->_make_tag() if $self->config->svn_tag();
+
     return 1;
 };
 
@@ -138,11 +138,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Store::Svn - Store your Pinto repository with Subversion
+Pinto::Store::VCS::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 SYNOPSIS
 
@@ -150,9 +150,9 @@ Add this to your Pinto configuration (usually in F<~/.pinto/config.ini>):
 
   ; other global params up here...
 
-  store   = Pinto::Store::Svn
+  store   = Pinto::Store::VCS::Svn
 
-  [Pinto::Store::Svn]
+  [Pinto::Store::VCS::Svn]
 
   ; Required.  URL of repository location where the mainline version will live
   trunk = http://my-repository/trunk/PINTO
@@ -164,7 +164,7 @@ And then run L<pinto> as you normally would.
 
 =head1 DESCRIPTION
 
-L<Pinto::Store::Svn> is a back-end for L<Pinto> that stores the
+L<Pinto::Store::VCS::Svn> is a back-end for L<Pinto> that stores the
 repository inside Subversion.
 
 =head1 CONFIGURATION

@@ -13,15 +13,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
 override execute => sub {
     my ($self) = @_;
 
-    my $local      = $self->config()->local();
-    my $search_dir = Path::Class::dir($local, qw(authors id));
+    my $repos      = $self->config()->repos();
+    my $search_dir = Path::Class::dir($repos, qw(authors id));
     return 0 if not -e $search_dir;
 
     my @removed = ();
@@ -29,7 +29,7 @@ override execute => sub {
     File::Find::find($wanted, $search_dir);
     return 0 if not @removed;
 
-    $self->add_message( "Removed unindexed distribution $_" ) for @removed;
+    $self->add_message( "Removed distribution $_" ) for @removed;
 
     return 1;
 };
@@ -77,7 +77,7 @@ Pinto::Action::Clean - An action to remove cruft from the repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

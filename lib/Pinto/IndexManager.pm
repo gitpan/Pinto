@@ -5,17 +5,20 @@ package Pinto::IndexManager;
 use Moose;
 use Moose::Autobox;
 
-use Carp;
 use Path::Class;
+use File::Compare;
 
 use Pinto::Util;
 use Pinto::Index;
+use Pinto::Exception::Unauthorized;
+use Pinto::Exception::DuplicateDist;
+use Pinto::Exception::IllegalDist;
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -86,8 +89,8 @@ sub __build_master_index {
 sub __build_index {
     my ($self, %args) = @_;
 
-    my $local = $self->config->local();
-    my $index_file = Path::Class::file($local, 'modules', $args{file});
+    my $repos = $self->config->repos();
+    my $index_file = Path::Class::file($repos, 'modules', $args{file});
 
     return Pinto::Index->new( logger => $self->logger(),
                               file   => $index_file );
@@ -96,15 +99,15 @@ sub __build_index {
 #------------------------------------------------------------------------------
 
 sub update_mirror_index {
-    my ($self) = @_;
+    my ($self, %args) = @_;
 
-    my $local  = $self->config->local();
+    my $repos  = $self->config->repos();
     my $source = $self->config->source();
-    my $force  = $self->config->force();
+    my $force  = $args{force};
 
     my $remote_url = URI->new("$source/modules/02packages.details.txt.gz");
-    my $local_file = file($local, 'modules', '02packages.details.mirror.txt.gz');
-    my $has_changed = $self->mirror(url => $remote_url, to => $local_file);
+    my $repos_file = file($repos, 'modules', '02packages.details.mirror.txt.gz');
+    my $has_changed = $self->fetch(url => $remote_url, to => $repos_file);
     $self->logger->info("Index from $source is up to date") unless $has_changed or $force;
     $self->mirror_index->reload() if $has_changed or $force;
 
@@ -133,7 +136,51 @@ sub all_packages {
     my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
 
     return $self->master_index->packages->values->sort($sorter)->flatten();
-  }
+}
+
+
+#------------------------------------------------------------------------------
+
+sub local_packages {
+    my ($self) = @_;
+
+    my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
+
+    return $self->local_index->packages->values->sort($sorter)->flatten();
+}
+
+
+#------------------------------------------------------------------------------
+
+sub foreign_packages {
+    my ($self) = @_;
+
+    my $foreigners = [];
+    for my $package ( $self->master_index->packages->values->flatten() ) {
+        my $name = $package->name();
+        $foreigners->push($package) if not $self->local_index->packages->at($name);
+    }
+
+    my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
+    return $foreigners->sort($sorter)->flatten();
+
+}
+
+
+#------------------------------------------------------------------------------
+
+sub conflict_packages {
+    my ($self) = @_;
+
+    my $conflicts = [];
+    for my $local_package ( $self->local_index->packages->values->flatten() ) {
+        my $name = $local_package->name();
+        $conflicts->push($local_package) if $self->mirror_index->packages->at($name);
+    }
+
+    my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
+    return $conflicts->sort($sorter)->flatten();
+}
 
 #------------------------------------------------------------------------------
 
@@ -167,8 +214,10 @@ sub remove_local_package {
     my $author  = $args{author};
 
     my $orig_author = $self->local_author_of(package => $package);
-    croak "Only author $orig_author can remove $package"
-        if defined $orig_author and $author ne $orig_author;
+    if (defined $orig_author and $author ne $orig_author) {
+        my $msg = "Only author $orig_author can remove $package";
+        Pinto::Exception::Unauthorized->throw($msg);
+    }
 
     my $local_dist = ( $self->local_index->remove($package) )[0];
     return if not $local_dist;
@@ -222,18 +271,20 @@ sub add_local_distribution {
     my ($self, %args) = @_;
 
     my $dist = $args{dist};
+    my $file = $args{file};
 
-    croak "A distribution already exists as $dist"
-        if $self->master_index->distributions->at( $dist );
+    $self->_distribution_check($dist, $file);
 
     my @packages = $dist->packages->flatten();
 
     for my $pkg ( @packages ) {
 
-        if ( my $orig_author = $self->local_author_of(package => $pkg) ) {
+        my $orig_author = $self->local_author_of(package => $pkg);
+        next if not $orig_author;
 
-            croak "Only author $orig_author can update $pkg"
-                if $orig_author ne $dist->author();
+        if ( $orig_author ne $dist->author() ) {
+            my $msg = "Only author $orig_author can update $pkg";
+            Pinto::Exception::Unauthorized->throw($msg);
         }
     }
 
@@ -242,6 +293,35 @@ sub add_local_distribution {
 
     return @removed_dists;
 
+}
+
+sub _distribution_check {
+    my ($self, $new_dist, $new_file) = @_;
+
+    my $location = $new_dist->location();
+    my $existing_dist = $self->master_index->distributions->at($location);
+    return 1 if not $existing_dist;
+
+    my $existing_path = $existing_dist->path( $self->config->repos() );
+    return 1 if not -e $existing_path;
+
+    my $is_same = !compare($existing_path, $new_file);
+
+    # TODO: One of these situations is a lot more important than the
+    # other, so we need to trap the exceptions and handle them
+    # accordingly.  A different dist warrants a loud warning.  But the
+    # same dist only needs a whimper.
+
+    if (not $is_same) {
+        my $msg = "A different distribution already exists as $location";
+        Pinto::Exception::IllegalDist->throw($msg);
+    }
+    else {
+        my $msg = "The same distribution already exists at $location";
+        Pinto::Exception::DuplicateDist->throw($msg);
+    }
+
+    return 1;  # should never get here
 }
 
 #------------------------------------------------------------------------------
@@ -263,7 +343,7 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 

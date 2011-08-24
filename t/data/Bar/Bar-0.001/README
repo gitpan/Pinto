@@ -2,64 +2,19 @@ NAME
     Pinto - Perl distribution repository manager
 
 VERSION
-    version 0.016
+    version 0.017
 
 SYNOPSIS
-    You probably want to look at the documentation for pinto-admin. All the
-    modules in this distribution are private (for now). So the API
-    documentation is purely for my own reference. But this document does
-    explain what Pinto does and why it exists, so feel free to read on
-    anyway.
+    There is nothing for you to see here. Instead, please look at one or
+    more of the following:
 
-METHODS
-  create()
-    Creates a new empty repository.
+    See Pinto::Manual for broad information about the Pinto tools.
 
-  mirror()
-    Populates your repository with the latest version of all distributions
-    found in the foreign repository (which is usually a CPAN mirror). Your
-    locally added distributions will always mask those mirrored from the
-    remote repository.
+    See pinto-admin to create and manage your Pinto repository.
 
-  add(dists => ['YourDist.tar.gz'], author => 'SOMEONE')
-  remove(packages => ['Some::Package'], author => 'SOMEONE')
-  clean()
-  list()
-  verify()
-DISCUSSION
-    Pinto is a set of tools for creating and managing a CPAN-style
-    repository. This repository can contain just your own private
-    distributions, or you can fill it with the latest ones from a CPAN
-    mirror, or both. You can then use your favorite CPAN client to fetch
-    distributions from your repository and install them as you normally
-    would.
+    See pinto-server to allow remote access to your Pinto repository.
 
-    Pinto shares a lot of DNA with CPAN::Site, CPAN::Mini, and
-    CPAN::Mini::Inject. But I wasn't entirely satisfied with those, so I
-    built a (hopefully better) mousetrap.
-
-    Pinto is not magic pixie dust though. It does not guarantee that you
-    will always have a working stack of distributions. It is still up to you
-    to figure out what to put in your repository. Pinto just gives you a set
-    of tools for doing that in a controlled manner.
-
-    This is a work in progress. Comments, criticisms, and suggestions are
-    always welcome. Feel free to contact "thaljef@cpan.org".
-
-WHY IS IT CALLED "Pinto"
-    The term "CPAN" is heavily overloaded. In some contexts, it means the
-    CPAN module or the cpan utility. In other contexts, it means a mirror
-    like <http://cpan.perl.org> or a web site like <http://search.cpan.org>.
-
-    I wanted to avoid all that confusion, so I picked a name that has no
-    connection to "CPAN" at all. "Pinto" is a nickname that I sometimes call
-    my son, Wesley.
-
-THANKS
-    Randal Schwartz - for pioneering the first mini CPAN back in 2002
-    Ricardo Signes - for creating CPAN::Mini, which inspired much of Pinto
-    Shawn Sorichetti & Christian Walde - for creating CPAN::Mini::Inject
-    George Hartzell @ Genentech - for sponsoring this project
+    See pinto-remote to interact with a remote Pinto repository.
 
 SUPPORT
   Perldoc

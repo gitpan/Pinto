@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -60,6 +60,23 @@ sub _dist_message {
 }
 
 #-------------------------------------------------------------------------------
+
+sub args_from_fh {
+    my ($fh) = @_;
+
+    my @args;
+    while (my $line = <$fh>) {
+        chomp $line;
+        next if not length $line;
+        next if $line =~ m/^ \s* [;#]/x;
+        next if $line !~ m/\S/x;
+        push @args, $line;
+    }
+
+    return @args;
+}
+
+#-------------------------------------------------------------------------------
 1;
 
 
@@ -74,7 +91,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 

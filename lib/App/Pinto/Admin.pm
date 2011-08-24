@@ -9,7 +9,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,12 +17,8 @@ sub global_opt_spec {
 
   return (
 
-#      [ "config=s"    => "Path to your pinto config file" ],
-      [ "local=s"     => "Path to local repository directory"],
-      [ "nocleanup"   => "Do not remove distribtuions that become outdated" ],
-      [ "nocommit"    => "Do not commit changes to VCS" ],
-      [ "noinit"      => "Skip updating or pulling from VCS" ],
-      [ "notag"       => "Do not make tag after committing to VCS" ],
+      [ "repos|r=s"   => "Path to your repository directory"],
+      [ "nocolor"     => "Do not colorize diagnostic messages" ],
       [ "quiet|q"     => "Only report fatal errors"],
       [ "verbose|v+"  => "More diagnostic output (repeatable)" ],
   );
@@ -31,24 +27,24 @@ sub global_opt_spec {
 #------------------------------------------------------------------------------
 
 sub usage_desc {
-    return '%c [global options] <command>';
+    return '%c [global options] <command> [command options]';
 }
 
 #------------------------------------------------------------------------------
 
 
 sub pinto {
-    my ($self, $command_options) = @_;
-
-    require Pinto;
-    require Pinto::Config;
-    require Pinto::Logger;
+    my ($self) = @_;
 
     return $self->{pinto} ||= do {
+
         my %global_options = %{ $self->global_options() };
-        my $config = Pinto::Config->new(%global_options, %{$command_options});
-        my $logger = Pinto::Logger->new(config => $config);
-        my $pinto  = Pinto->new(config => $config, logger => $logger);
+
+        $global_options{repos}
+            or $self->usage_error('Must specify a repository');
+
+        require Pinto;
+        my $pinto  = Pinto->new(%global_options);
     };
 }
 
@@ -68,7 +64,7 @@ App::Pinto::Admin - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 
@@ -77,10 +73,10 @@ documentation for L<pinto> instead.
 
 =head1 METHODS
 
-=head2 pinto( $command_options )
+=head2 pinto()
 
 Returns a reference to the L<Pinto> object.  If it does not already
-exist, one will be created using the global and command options.
+exist, one will be created using the global options.
 
 =head1 AUTHOR
 

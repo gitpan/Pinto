@@ -1,48 +1,44 @@
 package App::Pinto::Admin::Command::add;
 
-# ABSTRACT: add your own Perl distributions to the repository
+# ABSTRACT: add your own distributions to the repository
 
 use strict;
 use warnings;
 
-#-----------------------------------------------------------------------------
+use Pinto::Util;
+
+#------------------------------------------------------------------------------
 
 use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
     return (
-        [ "author=s"  => 'Your author ID (like a PAUSE ID)' ],
+        [ 'author=s'  => 'Your (alphanumeric) author ID' ],
+        [ 'message=s' => 'Prepend a message to the VCS log'],
+        [ 'nocommit'  => 'Do not commit changes to VCS'],
+# TODO       [ 'notag'     => 'Do not create any tag in VCS'],
+# TODO       [ 'tag=s'     => 'Specify an alternate tag name' ],
     );
-}
-
-#------------------------------------------------------------------------------
-
-sub usage_desc {
-    my ($self) = @_;
-    my ($command) = $self->command_names();
-    return "%c [global options] $command [command options] DISTRIBUTION";
-}
-
-#------------------------------------------------------------------------------
-
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error("Must specify one or more distribution args") if not @{ $args };
-    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->add( dists => $args );
-    return 0;
+
+    my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
+    die "Nothing to do\n" if not @args;
+
+    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->add_action('Add', %{$opts}, dist => $_) for @{ $args };
+    my $result = $self->pinto->run_actions();
+    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -57,11 +53,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::add - add your own Perl distributions to the repository
+App::Pinto::Admin::Command::add - add your own distributions to the repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

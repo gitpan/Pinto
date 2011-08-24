@@ -5,13 +5,15 @@ package App::Pinto::Admin::Command::create;
 use strict;
 use warnings;
 
+use Path::Class;
+
 #-----------------------------------------------------------------------------
 
 use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,8 +27,17 @@ sub validate_args {
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->create();
-    return 0;
+
+    # HACK...I want to do this before checking out from VCS
+    my $repos = $self->pinto->config->repos();
+    die "A repository already exists at $repos\n"
+        if -e file($repos, qw(modules 02packages.details.txt.gz));
+
+
+    $self->pinto->new_action_batch( %{$opts}, nolock => 1 );
+    $self->pinto->add_action('Create', %{$opts});
+    my $result = $self->pinto->run_actions();
+    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -45,7 +56,7 @@ App::Pinto::Admin::Command::create - create an empty repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

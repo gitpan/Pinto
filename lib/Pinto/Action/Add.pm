@@ -4,9 +4,12 @@ package Pinto::Action::Add;
 
 use Moose;
 
+use Path::Class;
+use File::Temp;
+
 use Pinto::Util;
 use Pinto::Distribution;
-use Pinto::Types qw(File AuthorID);
+use Pinto::Types 0.017 qw(StrOrFileOrURI);
 
 extends 'Pinto::Action';
 
@@ -14,52 +17,74 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attrbutes
 
 has dist => (
     is       => 'ro',
-    isa      => File,
+    isa      => StrOrFileOrURI,
     required => 1,
-    coerce   => 1,
-);
-
-
-has author => (
-    is         => 'ro',
-    isa        => AuthorID,
-    coerce     => 1,
-    lazy_build => 1,
 );
 
 #------------------------------------------------------------------------------
+# Roles
 
-sub _build_author { return shift()->config->author() }
+with qw( Pinto::Role::UserAgent
+         Pinto::Role::Authored );
 
 #------------------------------------------------------------------------------
 
 override execute => sub {
     my ($self) = @_;
 
-    my $local     = $self->config->local();
+    my $repos     = $self->config->repos();
     my $cleanup   = not $self->config->nocleanup();
     my $author    = $self->author();
-    my $dist_file = $self->dist();
+    my $dist      = $self->dist();
 
+    # TODO: Consider moving Distribution construction to the index manager
+    my $dist_file = _is_url($dist) ? $self->_dist_from_url($dist) : Path::Class::file($dist);
     my $added   = Pinto::Distribution->new_from_file(file => $dist_file, author => $author);
-    my @removed = $self->idxmgr->add_local_distribution(dist => $added);
+
+    my @removed = $self->idxmgr->add_local_distribution(dist => $added, file => $dist_file);
     $self->logger->info(sprintf "Adding $added with %i packages", $added->package_count());
 
-    $self->store->add( file => $added->path($local), source => $dist_file );
-    $cleanup && $self->store->remove( file => $_->path($local) ) for @removed;
+    $self->store->add( file => $added->path($repos), source => $dist_file );
+    $cleanup && $self->store->remove( file => $_->path($repos) ) for @removed;
 
     $self->add_message( Pinto::Util::added_dist_message($added) );
     $self->add_message( Pinto::Util::removed_dist_message($_) ) for @removed;
 
     return 1;
 };
+
+#------------------------------------------------------------------------------
+
+sub _is_url {
+    my ($string) = @_;
+
+    return $string =~ m/^ (?: http|ftp|file|) : /x;
+}
+
+#------------------------------------------------------------------------------
+
+sub _dist_from_url {
+    my ($self, $dist) = @_;
+
+    my $url = URI->new($dist)->canonical();
+    my $path = Path::Class::file( $url->path() );
+    return $path if $url->scheme() eq 'file';
+
+    my $base     = $path->basename();
+    my $tempdir  = File::Temp::tempdir(CLEANUP => 1);
+    my $tempfile = Path::Class::file($tempdir, $base);
+
+    $self->fetch(url => $url, to => $tempfile);
+
+    return Path::Class::file($tempfile);
+}
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +105,7 @@ Pinto::Action::Add - An action to add one distribution to the repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

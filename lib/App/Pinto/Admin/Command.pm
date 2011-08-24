@@ -11,14 +11,14 @@ use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 
 sub pinto {
-  my ($self, $options) = @_;
-  return $self->app()->pinto($options);
+    my ($self) = @_;
+    return $self->app->pinto();
 }
 
 #-----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ App::Pinto::Admin::Command - Base class for pinto-admin commands
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 METHODS
 

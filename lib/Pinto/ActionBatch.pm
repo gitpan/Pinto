@@ -3,31 +3,33 @@ package Pinto::ActionBatch;
 # ABSTRACT: Runs a series of actions
 
 use Moose;
-use Moose::Autobox;
 
-use Carp;
 use Try::Tiny;
 use Path::Class;
 
 use Pinto::Locker;
+use Pinto::BatchResult;
+
+use Pinto::Types 0.017 qw(Dir);
+use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
 
-has 'store' => (
+has config    => (
+    is        => 'ro',
+    isa       => 'Pinto::Config',
+    required => 1,
+);
+
+has store    => (
     is       => 'ro',
     isa      => 'Pinto::Store',
     required => 1
-);
-
-has actions => (
-    is       => 'ro',
-    isa      => 'ArrayRef[Pinto::Action]',
-    default  => sub { [] },
 );
 
 has idxmgr => (
@@ -36,11 +38,32 @@ has idxmgr => (
     required => 1,
 );
 
+has actions => (
+    is       => 'ro',
+    isa      => 'ArrayRef[Pinto::Action]',
+    traits   => [ 'Array' ],
+    default  => sub { [] },
+    handles  => {enqueue => 'push', dequeue => 'shift'},
+);
+
 has message => (
     is       => 'ro',
-    isa      => 'Str',
-    writer   => '_set_message',
+    isa      => Str,
+    traits   => [ 'String' ],
+    handles  => {append_message => 'append'},
     default  => '',
+);
+
+has nocommit => (
+    is       => 'ro',
+    isa      => Bool,
+    default  => 0,
+);
+
+has nolock => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 
 has _locker  => (
@@ -49,6 +72,13 @@ has _locker  => (
     builder  => '_build__locker',
     init_arg =>  undef,
     lazy     => 1,
+);
+
+has _result => (
+    is       => 'ro',
+    isa      => 'Pinto::BatchResult',
+    builder  => '_build__result',
+    init_arg => undef,
 );
 
 #-----------------------------------------------------------------------------
@@ -63,33 +93,38 @@ with qw( Pinto::Role::Loggable
 sub _build__locker {
     my ($self) = @_;
 
-    return Pinto::Locker->new( config => $self->config(),
+    return Pinto::Locker->new( repos  => $self->config->repos(),
                                logger => $self->logger() );
+}
+
+#-----------------------------------------------------------------------------
+# TODO: I don't like having the result as an attribute.  I would prefer
+# to keep it transient, so that it doesn't survive beyond each run().
+
+sub _build__result {
+    my ($self) = @_;
+
+    return Pinto::BatchResult->new();
 }
 
 #-----------------------------------------------------------------------------
 # Public methods
 
 
-sub enqueue {
-    my ($self, @actions) = @_;
-
-    $self->actions()->push( @actions );
-
-    return $self;
-}
-
-#-----------------------------------------------------------------------------
-
-
 sub run {
     my ($self) = @_;
 
-    $self->_locker->lock();
-    $self->_run_actions();
-    $self->_locker->unlock();
+    try {
+        $self->_locker->lock() unless $self->nolock();
+        $self->_run_actions();
+        $self->_locker->unlock() unless $self->nolock();
+    }
+    catch {
+        $self->logger->whine($_);
+        $self->_result->add_exception($_);
+    };
 
-    return $self;
+    return $self->_result();
 }
 
 #-----------------------------------------------------------------------------
@@ -101,26 +136,23 @@ sub _run_actions {
         unless $self->store->is_initialized()
            and $self->config->noinit();
 
-
-    my $changes_were_made;
-    while ( my $action = $self->actions->shift() ) {
-        $changes_were_made += $self->_run_one_action($action);
+    while ( my $action = $self->dequeue() ) {
+        $self->_run_one_action($action);
     }
 
-    $self->logger->info('No changes were made') and return $self
-      unless $changes_were_made;
+    $self->logger->debug('No changes were made') and return $self
+      unless $self->_result->changes_made();
 
     $self->idxmgr->write_indexes();
 
-    return $self if $self->config->nocommit();
+    return $self if $self->nocommit();
 
-    # Always put the modules directory on the commit list!
-    my $modules_dir = $self->config->local->subdir('modules');
-    $self->store->modified_paths->push( $modules_dir );
+    if ( $self->store->isa('Pinto::Store::VCS') ) {
+        my $modules_dir = $self->config->repos->subdir('modules');
+        $self->store->mark_path_as_modified($modules_dir);
+    }
 
-    my $batch_message = $self->message();
-    $self->logger->debug($batch_message);
-    $self->store->finalize(message => $batch_message);
+    $self->store->finalize( message => $self->message() );
 
     return $self;
 }
@@ -130,33 +162,28 @@ sub _run_actions {
 sub _run_one_action {
     my ($self, $action) = @_;
 
-    my $changes_were_made = 0;
-
-    try {
-        $changes_were_made += $action->execute();
-        my @messages, $action->messages->flatten();
-        $self->_append_messages(@messages);
+    try   {
+        my $changes = $action->execute();
+        $self->_result->made_changes() if $changes;
     }
     catch {
+        # Collect unhandled exceptions
         $self->logger->whine($_);
+        $self->_result->add_exception($_);
+    }
+    finally {
+        # Collect handled exceptions
+        $self->_result->add_exception($_) for $action->exceptions();
     };
 
-    return $changes_were_made;
-}
-
-
-#-----------------------------------------------------------------------------
-
-sub _append_messages {
-    my ($self, @messages) = @_;
-
-    my $current_message = $self->message();
-    $current_message .= "\n\n" if $current_message;
-    my $new_message = join "\n\n", @messages;
-    $self->_set_message($new_message);
+    for my $msg ( $action->messages() ) {
+        $self->message() and $self->append_message("\n\n");
+        $self->append_message($msg);
+    }
 
     return $self;
 }
+
 
 #-----------------------------------------------------------------------------
 
@@ -177,14 +204,9 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 METHODS
-
-=head2 enqueue($some_action)
-
-Adds C<$some_action> to the end of the queue of L<Pinto::Action>s that will be
-run.  Returns a reference to this C<ActionBatch>.
 
 =head2 run()
 

@@ -6,7 +6,7 @@ use Moose;
 use MooseX::Types::Moose qw( Str );
 
 use Pinto::Util;
-use Pinto::Types qw(AuthorID);
+use Pinto::Exception;
 
 extends 'Pinto::Action';
 
@@ -14,9 +14,10 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
+# Attributes
 
 has package  => (
     is       => 'ro',
@@ -24,33 +25,28 @@ has package  => (
     required => 1,
 );
 
+#------------------------------------------------------------------------------
 
-has author => (
-    is         => 'ro',
-    isa        => AuthorID,
-    coerce     => 1,
-    lazy_build => 1,
-);
+with qw( Pinto::Role::Authored );
 
 #------------------------------------------------------------------------------
 
-sub _build_author { return shift()->config->author() }
-
-#------------------------------------------------------------------------------
 
 override execute => sub {
     my ($self) = @_;
 
-    my $pkg    = $self->package();
-    my $author = $self->author();
-    my $idxmgr = $self->idxmgr();
+    my $pkg     = $self->package();
+    my $author  = $self->author();
+    my $idxmgr  = $self->idxmgr();
+    my $cleanup = not $self->config->nocleanup();
 
-    my $dist = $idxmgr->remove_local_package(package => $pkg, author => $author);
-    $self->logger->whine("Package $pkg is not in the local index") and return 0 if not $dist;
+    my $dist = $idxmgr->remove_local_package(package => $pkg, author => $author)
+        or Pinto::Exception->throw("Package $pkg is not in the local index");
+
     $self->logger->info(sprintf "Removing $dist with %i packages", $dist->package_count());
 
-    my $file = $dist->path( $self->config->local() );
-    $self->config->nocleanup() || $self->store->remove( file => $file );
+    my $file = $dist->path( $self->config->repos() );
+    $self->store->remove( file => $file ) if $cleanup;
 
     $self->add_message( Pinto::Util::removed_dist_message( $dist ) );
 
@@ -77,7 +73,7 @@ Pinto::Action::Remove - An action to remove packages from the repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

@@ -11,14 +11,17 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     return (
-        [ 'force'     => 'Force action, even if indexes appear unchanged' ],
-        [ 'source=s'  => 'URL of a CPAN mirror (or another Pinto repository)' ],
+        [ 'force' => 'Force action, even if indexes appear unchanged' ],
+        [ 'message=s' => 'Prepend a message to the VCS log'],
+        [ 'nocommit'  => 'Do not commit changes to VCS'],
+# TODO       [ 'notag'     => 'Do not create any tag in VCS'],
+# TODO       [ 'tag=s'     => 'Specify an alternate tag name' ],
     );
 }
 
@@ -34,8 +37,11 @@ sub validate_args {
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->mirror();
-    return 0;
+
+    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->add_action('Mirror', %{$opts});
+    my $result = $self->pinto->run_actions();
+    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -54,7 +60,7 @@ App::Pinto::Admin::Command::mirror - get all the latest distributions from a rem
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

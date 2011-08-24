@@ -4,15 +4,16 @@ package Pinto::Role::UserAgent;
 
 use Moose::Role;
 
-use Carp;
 use Path::Class;
 use LWP::UserAgent;
+
+use Pinto::Exception::IO qw(throw_io);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -34,7 +35,7 @@ with qw(Pinto::Role::PathMaker);
 #------------------------------------------------------------------------------
 
 
-sub mirror {
+sub fetch {
     my ($self, %args) = @_;
     my $url = $args{url};
     my $to  = $args{to};
@@ -42,7 +43,7 @@ sub mirror {
     $to = file($to) if not eval {$to->isa('Path::Class')};
     $self->mkpath( $to->parent() );
 
-    $self->logger->info("Mirroring $url");
+    $self->logger->info("Fetching $url");
     my $result = $self->_ua->mirror($url, $to);
 
     if ($result->is_success()) {
@@ -52,8 +53,10 @@ sub mirror {
         return 0;
     }
     else{
-      croak "$url failed with status: " . $result->code();
+      throw_io "$url failed with status: " . $result->code();
     }
+
+    return 1;  # Should probably never get here
 }
 
 #------------------------------------------------------------------------------
@@ -86,11 +89,11 @@ Pinto::Role::UserAgent - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 METHODS
 
-=head2 mirror(url => 'http://someplace' to => 'some/path')
+=head2 fetch(url => 'http://someplace' to => 'some/path')
 
 Mirrors the file located at the C<url> to the file located at C<to>.
 If the intervening directories do not exist, they will be created for

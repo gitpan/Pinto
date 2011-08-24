@@ -1,42 +1,19 @@
 package Pinto::Store;
 
-# ABSTRACT: Back-end storage for a Pinto repository
+# ABSTRACT: Storage for a Pinto repository
 
 use Moose;
 
-use Carp;
 use File::Copy;
 
+use Pinto::Exception::Args qw(throw_args);
+use Pinto::Exception::IO qw(throw_io);
+
+use namespace::autoclean;
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
-
-#------------------------------------------------------------------------------
-# Moose attributes
-
-# TODO: Do we really need three different lists of paths, or can we just have
-# one that represents all the paths that need to be committed?
-
-has added_paths => (
-    is          => 'ro',
-    isa         => 'ArrayRef[Path::Class]',
-    init_arg    => undef,
-    default     => sub { [] },
-);
-
-has removed_paths => (
-    is          => 'ro',
-    isa         => 'ArrayRef[Path::Class]',
-    init_arg    => undef,
-    default     => sub { [] },
-);
-
-has modified_paths => (
-    is          => 'ro',
-    isa         => 'ArrayRef[Path::Class]',
-    init_arg    => undef,
-    default     => sub { [] },
-);
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose roles
@@ -53,7 +30,7 @@ with qw( Pinto::Role::PathMaker );
 sub is_initialized {
     my ($self) = @_;
 
-    return -e $self->config->local();
+    return -e $self->config->repos();
 }
 
 #------------------------------------------------------------------------------
@@ -62,8 +39,8 @@ sub is_initialized {
 sub initialize {
     my ($self) = @_;
 
-    my $local = $self->config->local();
-    $self->mkpath($local);
+    my $repos = $self->config->repos();
+    $self->mkpath($repos);
 
     return $self;
 }
@@ -75,7 +52,7 @@ sub finalize {
     my ($self, %args) = @_;
 
     my $message = $args{message} || 'Finalizing the store';
-    $self->logger->info($message);
+    $self->logger->debug($message);
 
     return $self;
 }
@@ -90,10 +67,10 @@ sub add {
     my $file   = $args{file};
     my $source = $args{source};
 
-    croak "$file does not exist and no source was specified"
+    throw_args "$file does not exist and no source was specified"
         if not -e $file and not defined $source;
 
-    croak "$source is not a file"
+    throw_args "$source is not a file"
         if $source and $source->is_dir();
 
     if ($source) {
@@ -111,7 +88,7 @@ sub add {
         # We're going to be kind and accommodate the old versions.
 
         File::Copy::copy("$source", "$file")
-            or croak "Failed to copy $source to $file: $!";
+            or throw_io "Failed to copy $source to $file: $!";
     }
 
     return $self;
@@ -127,10 +104,10 @@ sub remove {
 
     return $self if not -e $file;
 
-    croak "$file is not a file" if -d $file;
+    throw_args "$file is not a file" if -d $file;
 
     $self->logger->info("Removing file $file");
-    $file->remove() or croak "Failed to remove $file: $!";
+    $file->remove() or throw_io "Failed to remove $file: $!";
 
     while (my $dir = $file->parent()) {
         last if $dir->children();
@@ -154,18 +131,18 @@ sub remove {
 
 =head1 NAME
 
-Pinto::Store - Back-end storage for a Pinto repository
+Pinto::Store - Storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 
 L<Pinto::Store> is the default back-end for a Pinto repository.  It
 basically just represents files on disk.  You should look at
-L<Pinto::Store::Svn> or L<Pinto::Store::Git> for a more interesting
-example.
+L<Pinto::Store::VCS::Svn> or L<Pinto::Store::VCS::Git> for a more
+interesting example.
 
 =head1 METHODS
 
@@ -202,15 +179,16 @@ The path to C<file> is presumed to be somewhere beneath the root
 directory of this Store.  If the optional C<source> is given (also as
 a L<Path::Class::File>), then that C<source> is first copied to
 C<file>.  If C<source> is not specified, then the C<file> must already
-exist.  Croaks on failure.  Returns a reference to this Store.
+exist.  Throws an exception on failure.  Returns a reference to this
+Store.
 
 =head2 remove( file => $some_file )
 
 Removes the specified C<file> (as a L<Path::Class::File>) from this
 Store.  The path to C<file> is presumed to be somewhere beneath the
 root directory of this Store.  Any empty directories above C<file>
-will also be removed.  Croaks on failure.  Returns a reference to this
-Store.
+will also be removed.  Throws an exception on failure.  Returns a
+reference to this Store.
 
 =head1 AUTHOR
 

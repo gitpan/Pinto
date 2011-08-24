@@ -1,4 +1,4 @@
-package Pinto::Store::Git;
+package Pinto::Store::VCS::Git;
 
 # ABSTRACT: Store your Pinto repository with Git
 
@@ -6,11 +6,11 @@ use Moose;
 
 use Carp;
 
-extends 'Pinto::Store';
+extends 'Pinto::Store::VCS';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -58,11 +58,11 @@ override remove => sub {
 
 =head1 NAME
 
-Pinto::Store::Git - Store your Pinto repository with Git
+Pinto::Store::VCS::Git - Store your Pinto repository with Git
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 

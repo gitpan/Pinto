@@ -7,21 +7,21 @@ use MooseX::Types::Moose qw(Str);
 use Moose::Autobox;
 
 use URI;
-use Carp;
 use Dist::Metadata 0.920; # supports .zip
 use CPAN::DistnameInfo;
 use Path::Class qw();
 
 use Pinto::Util;
 use Pinto::Package;
-use Pinto::Types qw(AuthorID File);
-
+use Pinto::Types 0.017 qw(AuthorID File);
+use Pinto::Exception::Args qw(throw_args);
+use Pinto::Exception::IO qw(throw_io);
 
 use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -113,17 +113,17 @@ sub new_from_file {
     my ($class, %args) = @_;
 
     my $file = $args{file}
-        or croak 'Must specify a file';
+        or throw_args 'Must specify a file';
 
     my $author = $args{author}
-        or croak 'Must specify an author';
+        or throw_args 'Must specify an author';
 
     $file = Path::Class::file($file)
         if not eval {$file->isa('Path::Class::File')};
 
-    croak "$file does not exist"  if not -e $file;
-    croak "$file is not readable" if not -r $file;
-    croak "$file is not a file"   if not -f $file;
+    throw_io "$file does not exist"  if not -e $file;
+    throw_io "$file is not readable" if not -r $file;
+    throw_io "$file is not a file"   if not -f $file;
 
     my $basename = $file->basename();
     my $author_dir = Pinto::Util::author_dir($author);
@@ -144,7 +144,7 @@ sub _extract_packages {
 
     my $distmeta = Dist::Metadata->new(file => $file->stringify());
     my $provides = $distmeta->package_versions();
-    croak "$file contains no packages" if not %{ $provides };
+    throw_io "$file contains no packages" if not %{ $provides };
 
     my @packages = ();
     for my $package_name (sort keys %{ $provides }) {
@@ -196,7 +196,7 @@ Pinto::Distribution - Represents a Perl distribution
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

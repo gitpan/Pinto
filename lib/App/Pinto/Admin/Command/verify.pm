@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -26,8 +26,11 @@ sub validate_args {
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->verify();
-    return 0;  # TODO: exit non-zero if verification fails!
+
+    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->add_action('Verify', %{$opts});
+    my $result = $self->pinto->run_actions();
+    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -46,7 +49,7 @@ App::Pinto::Admin::Command::verify - verify that all the indexed distributions a
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

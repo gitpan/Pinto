@@ -5,19 +5,25 @@ package App::Pinto::Admin::Command::remove;
 use strict;
 use warnings;
 
+use Pinto::Util;
+
 #-----------------------------------------------------------------------------
 
 use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     return (
-        [ "author=s"  => 'Your author ID (like a PAUSE ID)' ],
+        [ 'author=s'  => 'Your (alphanumeric) author ID' ],
+        [ 'message=s' => 'Prepend a message to the VCS log'],
+        [ 'nocommit'  => 'Do not commit changes to VCS'],
+# TODO       [ 'notag'     => 'Do not create any tag in VCS'],
+# TODO       [ 'tag=s'     => 'Specify an alternate tag name' ],
     );
 }
 
@@ -25,24 +31,24 @@ sub opt_spec {
 
 sub usage_desc {
     my ($self) = @_;
+
     my ($command) = $self->command_names();
+
     return "%c [global options] $command [command options] PACKAGE";
-}
-
-#------------------------------------------------------------------------------
-
-sub validate_args {
-    my ($self, $opts, $args) = @_;
-    $self->usage_error("Must specify one or more package args") if not @{ $args };
-    return 1;
 }
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self, $opts, $args) = @_;
-    $self->pinto( $opts )->remove( packages => $args );
-    return 0;
+
+    my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
+    return 0 if not @args;
+
+    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->add_action('Remove', %{$opts}, package => $_) for @{ $args };
+    my $result = $self->pinto->run_actions();
+    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -61,7 +67,7 @@ App::Pinto::Admin::Command::remove - remove your own packages from the repositor
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 AUTHOR
 

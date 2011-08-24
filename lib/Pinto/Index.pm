@@ -8,7 +8,7 @@ use Moose;
 use Moose::Autobox;
 
 use MooseX::Types::Moose qw(HashRef);
-use Pinto::Types qw(File);
+use Pinto::Types 0.017 qw(File);
 
 use Carp;
 use PerlIO::gzip;
@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 DESCRIPTION
 
