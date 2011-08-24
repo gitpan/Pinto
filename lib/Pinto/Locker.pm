@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -70,7 +70,9 @@ sub lock {                                             ## no critic (Homonym)
 
     my $repos = $self->repos();
 
-    my $lock = $self->_lockmgr->lock( $repos . '/' )
+    # TODO: make sure the lock directory actually exists!
+
+    my $lock = $self->_lockmgr->lock( $repos->file('')->stringify() )
         or throw_lock 'Unable to lock the repository -- please try later';
 
     $self->logger->debug("Process $$ got the lock on $repos");
@@ -112,7 +114,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 DESCRIPTION
 

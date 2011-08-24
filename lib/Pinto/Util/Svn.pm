@@ -12,7 +12,7 @@ use IPC::Run;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -202,7 +202,12 @@ sub _svn {
     my $croak   = defined $args{croak} ? $args{croak} : 1;
 
     unshift @{$command}, 'svn';
-    my $ok = not IPC::Run::run($command, \my($in), $buffer, $buffer);
+    my $ok = IPC::Run::run($command, \my($in), $buffer, $buffer);
+
+    # HACK: IPC::Run flips the return value when it thinks it is not
+    # connected to an interactive terminal.  So when running in
+    # pinto-server, we have to flip it back to get the right answer.
+    $ok = not $ok if not -t STDIN;  ## no critic (InteractiveTest)
 
     if ($croak and not $ok) {
 
@@ -234,7 +239,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 FUNCTIONS
 

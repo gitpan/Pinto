@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ sub execute {
     return 0 if not @args;
 
     $self->pinto->new_action_batch( %{$opts} );
-    $self->pinto->add_action('Remove', %{$opts}, package => $_) for @{ $args };
+    $self->pinto->add_action('Remove', %{$opts}, package => $_) for @args;
     my $result = $self->pinto->run_actions();
     return $result->is_success() ? 0 : 1;
 }
@@ -67,7 +67,7 @@ App::Pinto::Admin::Command::remove - remove your own packages from the repositor
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 AUTHOR
 

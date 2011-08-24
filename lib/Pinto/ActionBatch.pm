@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -38,6 +38,7 @@ has idxmgr => (
     required => 1,
 );
 
+# TODO: make private?
 has actions => (
     is       => 'ro',
     isa      => 'ArrayRef[Pinto::Action]',
@@ -135,6 +136,10 @@ sub run {
 sub _run_actions {
     my ($self) = @_;
 
+    # TODO: I'm not sure we is_initialized() is really necessary.  But
+    # we probably do need to make sure that the repos actually is a
+    # repository.
+
     $self->store->initialize()
         unless $self->store->is_initialized()
            and $self->config->noinit();
@@ -143,7 +148,7 @@ sub _run_actions {
         $self->_run_one_action($action);
     }
 
-    $self->logger->debug('No changes were made') and return $self
+    $self->logger->info('No changes were made') and return $self
       unless $self->_result->changes_made();
 
     $self->idxmgr->write_indexes();
@@ -151,6 +156,8 @@ sub _run_actions {
     return $self if $self->nocommit();
 
     if ( $self->store->isa('Pinto::Store::VCS') ) {
+        # TODO: make the module dir an attribute of something.
+        # Maybe on Config, or Pinto itself?
         my $modules_dir = $self->config->repos->subdir('modules');
         $self->store->mark_path_as_modified($modules_dir);
     }
@@ -180,7 +187,7 @@ sub _run_one_action {
     };
 
     for my $msg ( $action->messages() ) {
-        $self->message() and $self->append_message("\n\n");
+        $self->append_message("\n\n") if length $self->message();
         $self->append_message($msg);
     }
 
@@ -207,7 +214,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 METHODS
 

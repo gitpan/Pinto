@@ -14,7 +14,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ App::Pinto::Admin::Command::list - list the contents of the repository
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 AUTHOR
 

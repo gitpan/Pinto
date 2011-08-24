@@ -17,7 +17,7 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose Attributes
@@ -103,7 +103,7 @@ Pinto::Action::Mirror - An action to mirror a remote repository into your local 
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 AUTHOR
 

@@ -6,9 +6,11 @@ use Moose;
 
 use MooseX::Types::Moose qw(Bool ArrayRef);
 
+use overload ('""' => 'to_string');
+
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -53,6 +55,17 @@ sub made_changes {
 
 #-----------------------------------------------------------------------------
 
+sub to_string {
+    my ($self) = @_;
+
+    my $string = join "\n", map { "$_" } $self->exceptions();
+    $string .= "\n" unless $string =~ m/\n $/x;
+
+    return $string;
+}
+
+#-----------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable();
 
 #-----------------------------------------------------------------------------
@@ -70,7 +83,7 @@ Pinto::BatchResult - Accumulates exceptions and status from an ActionBatch
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 AUTHOR
 

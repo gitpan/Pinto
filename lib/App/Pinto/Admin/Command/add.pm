@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.018'; # VERSION
+our $VERSION = '0.019'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -33,10 +33,10 @@ sub execute {
     my ($self, $opts, $args) = @_;
 
     my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
-    die "Nothing to do\n" if not @args;
+    return 0 if not @args;
 
     $self->pinto->new_action_batch( %{$opts} );
-    $self->pinto->add_action('Add', %{$opts}, dist => $_) for @{ $args };
+    $self->pinto->add_action('Add', %{$opts}, dist => $_) for @args;
     my $result = $self->pinto->run_actions();
     return $result->is_success() ? 0 : 1;
 }
@@ -57,7 +57,7 @@ App::Pinto::Admin::Command::add - add your own distributions to the repository
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 AUTHOR
 
