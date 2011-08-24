@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.017'; # VERSION
+our $VERSION = '0.018'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -117,11 +117,14 @@ sub run {
     try {
         $self->_locker->lock() unless $self->nolock();
         $self->_run_actions();
-        $self->_locker->unlock() unless $self->nolock();
     }
     catch {
         $self->logger->whine($_);
         $self->_result->add_exception($_);
+    }
+    finally {
+        # TODO: do we first need to check if it actually is locked?
+        $self->_locker->unlock() unless $self->nolock();
     };
 
     return $self->_result();
@@ -204,13 +207,13 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.017
+version 0.018
 
 =head1 METHODS
 
 =head2 run()
 
-Runs all the actions in this Batch.  Returns a reference to this C<ActionBatch>.
+Runs all the actions in this Batch.  Returns a L<BatchResult>.
 
 =head1 AUTHOR
 

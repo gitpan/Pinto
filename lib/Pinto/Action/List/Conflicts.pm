@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.017'; # VERSION
+our $VERSION = '0.018'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ Pinto::Action::List::Conflicts - Action that lists conflicted packages in a repo
 
 =head1 VERSION
 
-version 0.017
+version 0.018
 
 =head1 AUTHOR
 
