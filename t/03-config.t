@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More (tests => 12);
+use Test::More (tests => 11);
 use Test::Exception;
 
 use Path::Class;
@@ -16,9 +16,6 @@ use Pinto::Config;
 #------------------------------------------------------------------------------
 
 {
-    no warnings 'redefine';
-    local *Pinto::Config::_build_config_file = sub{};
-
     my %default_cases = (
         repos     => 'nowhere',
         source    => 'http://cpan.perl.org',
@@ -36,7 +33,7 @@ use Pinto::Config;
    my %custom_cases = (
         repos     => 'nowhere',
         source    => 'http://cpan.pair.com',
-        store     => 'Pinto::Store::Git',
+        store     => 'Pinto::Store::VCS::Git',
         nocleanup => 1,
         noinit    => 1,
     );
@@ -51,8 +48,6 @@ use Pinto::Config;
     my $home = dir( File::HomeDir->my_home() );
     is($cfg->repos(), $home->file('nowhere'), 'Expanded ~/ to home directory');
 
-    throws_ok { Pinto::Config->new()->repos() }
-        qr/is required at constructor/, 'repos parameter is required';
 }
 
 

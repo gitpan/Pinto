@@ -1,6 +1,6 @@
 package Pinto::Action::Mirror;
 
-# ABSTRACT: An action to mirror a remote repository into your local one
+# ABSTRACT: An action to mirror another repository into yours
 
 use Moose;
 
@@ -17,7 +17,7 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose Attributes
@@ -40,6 +40,7 @@ sub execute {
 
     my $idxmgr  = $self->idxmgr();
     my $idx_changes = $idxmgr->update_mirror_index( force => $self->force() );
+    $self->store->add(file => $idxmgr->mirror_index->file());
     return 0 if not $idx_changes and not $self->force();
 
     my $dist_changes = 0;
@@ -99,11 +100,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Mirror - An action to mirror a remote repository into your local one
+Pinto::Action::Mirror - An action to mirror another repository into yours
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

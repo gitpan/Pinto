@@ -21,7 +21,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ Pinto::Distribution - Represents a Perl distribution
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

@@ -14,7 +14,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,9 +25,12 @@ Readonly my $DEFAULT_LIST_TYPE => 'all';
 #------------------------------------------------------------------------------
 
 sub opt_spec {
+    my ($self, $app) = @_;
 
-    return (
-        [ 'type=s'  => "One of: ( $LIST_TYPES_STRING )"],
+    return ( $self->SUPER::opt_spec(),
+
+        [ 'noinit'  => 'Do not pull/update from VCS' ],
+        [ 'type=s'  => "One of: ( $LIST_TYPES_STRING )" ],
     );
 }
 
@@ -35,6 +38,8 @@ sub opt_spec {
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
+
+    $self->SUPER::validate_args($opts, $args);
 
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
@@ -73,7 +78,7 @@ App::Pinto::Admin::Command::list - list the contents of the repository
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

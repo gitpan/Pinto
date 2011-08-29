@@ -13,17 +13,21 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    return (
+    my ($self, $app) = @_;
+
+    return ( $self->SUPER::opt_spec(),
+
         [ 'author=s'  => 'Your (alphanumeric) author ID' ],
-        [ 'message=s' => 'Prepend a message to the VCS log'],
-        [ 'nocommit'  => 'Do not commit changes to VCS'],
-# TODO       [ 'notag'     => 'Do not create any tag in VCS'],
-# TODO       [ 'tag=s'     => 'Specify an alternate tag name' ],
+        [ 'message=s' => 'Prepend a message to the VCS log' ],
+        [ 'nocommit'  => 'Do not commit changes to VCS' ],
+        [ 'noinit'    => 'Do not pull/update from VCS' ],
+        [ 'notag'     => 'Do not create any tag in VCS' ],
+        [ 'tag=s'     => 'Specify an alternate tag name' ],
     );
 }
 
@@ -34,8 +38,15 @@ sub usage_desc {
 
     my ($command) = $self->command_names();
 
-    return "%c [global options] $command [command options] PACKAGE";
+ my $usage =  <<"END_USAGE";
+%c --repos=PATH $command [OPTIONS] PACKAGE1 [PACKAGE2 ...]
+%c --repos=PATH $command [OPTIONS] < LIST_OF_PACKAGES
+END_USAGE
+
+    chomp $usage;
+    return $usage;
 }
+
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +78,7 @@ App::Pinto::Admin::Command::remove - remove your own packages from the repositor
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

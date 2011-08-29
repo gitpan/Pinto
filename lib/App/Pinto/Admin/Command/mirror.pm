@@ -11,17 +11,21 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    return (
+    my ($self, $app) = @_;
+
+    return ( $self->SUPER::opt_spec(),
+
         [ 'force' => 'Force action, even if indexes appear unchanged' ],
-        [ 'message=s' => 'Prepend a message to the VCS log'],
-        [ 'nocommit'  => 'Do not commit changes to VCS'],
-# TODO       [ 'notag'     => 'Do not create any tag in VCS'],
-# TODO       [ 'tag=s'     => 'Specify an alternate tag name' ],
+        [ 'message=s' => 'Prepend a message to the VCS log' ],
+        [ 'nocommit'  => 'Do not commit changes to VCS' ],
+        [ 'noinit'    => 'Do not pull/update from VCS' ],
+        [ 'notag'     => 'Do not create any tag in VCS' ],
+        [ 'tag=s'     => 'Specify an alternate tag name' ],
     );
 }
 
@@ -29,7 +33,11 @@ sub opt_spec {
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
+
+    $self->SUPER::validate_args($opts, $args);
+
     $self->usage_error('Arguments are not allowed') if @{ $args };
+
     return 1;
 }
 
@@ -60,7 +68,7 @@ App::Pinto::Admin::Command::mirror - get all the latest distributions from a rem
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

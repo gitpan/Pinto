@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose roles
@@ -27,18 +27,10 @@ with qw( Pinto::Role::PathMaker );
 # Methods
 
 
-sub is_initialized {
-    my ($self) = @_;
-
-    return -e $self->config->repos();
-}
-
-#------------------------------------------------------------------------------
-
-
 sub initialize {
     my ($self) = @_;
 
+    $self->logger->debug('Initializing the store');
     my $repos = $self->config->repos();
     $self->mkpath($repos);
 
@@ -48,15 +40,23 @@ sub initialize {
 #------------------------------------------------------------------------------
 
 
-sub finalize {
+sub commit {
     my ($self, %args) = @_;
 
-    my $message = $args{message} || 'Finalizing the store';
+    my $message = $args{message} || 'Committing the store';
     $self->logger->debug($message);
 
     return $self;
 }
 
+#------------------------------------------------------------------------------
+
+
+sub tag {
+    my ($self, %args) = @_;
+
+    return $self;
+}
 
 #------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ Pinto::Store - Storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 
@@ -145,12 +145,6 @@ L<Pinto::Store::VCS::Svn> or L<Pinto::Store::VCS::Git> for a more
 interesting example.
 
 =head1 METHODS
-
-=head2 is_initialized()
-
-Returns true if the store appears to be initialized.  In this base
-class, it simply means that the working directory exists.  For other
-derived classes, this could mean that the working copy is up-to-date.
 
 =head2 initialize()
 
@@ -162,15 +156,20 @@ initialization fails, an exception should be thrown.  The default
 implementation simply creates a directory.  Returns a reference
 to this Store.
 
-=head2 finalize(message => 'what happened')
+=head2 commit(message => 'what happened')
 
 This method is called after each batch of Pinto events and is
 responsible for doing any work that is required to commit the Store.
 This could include scheduling files for addition/deletion, pushing
-commits to a remote repository, and/or making a tag.  If the
-finalization fails, an exception should be thrown.  The default
-implementation merely logs the message.  Returns a reference
-to this Store.
+commits to a remote repository.  If the commit fails, an exception
+should be thrown.  The default implementation merely logs the message.
+Returns a reference to this Store.
+
+=head2 tag( tag => $tag_name )
+
+Tags the store.  For some subclasses, this means performing some kind
+of "tag" operations.  For others, it could mean doing a copy
+operation.  The default implementation does nothing.
 
 =head2 add( file => $some_file, source => $other_file )
 

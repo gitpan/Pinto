@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -23,7 +23,7 @@ our $VERSION = '0.019'; # VERSION
 has config    => (
     is        => 'ro',
     isa       => 'Pinto::Config',
-    required => 1,
+    required  => 1,
 );
 
 has store    => (
@@ -36,15 +36,6 @@ has idxmgr => (
     is       => 'ro',
     isa      => 'Pinto::IndexManager',
     required => 1,
-);
-
-# TODO: make private?
-has actions => (
-    is       => 'ro',
-    isa      => 'ArrayRef[Pinto::Action]',
-    traits   => [ 'Array' ],
-    default  => sub { [] },
-    handles  => {enqueue => 'push', dequeue => 'shift'},
 );
 
 has message => (
@@ -61,10 +52,40 @@ has nocommit => (
     default  => 0,
 );
 
+has noinit   => (
+    is       => 'ro',
+    isa      => Bool,
+    builder  => '_build_noinit',
+    lazy     => 1,
+);
+
 has nolock => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
+);
+
+has notag => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+has tag => (
+    is      => 'ro',
+    isa     => Str,
+    default => '',
+);
+
+#-----------------------------------------------------------------------------
+# Private attributes
+
+has _actions => (
+    is       => 'ro',
+    isa      => 'ArrayRef[Pinto::Action]',
+    traits   => [ 'Array' ],
+    default  => sub { [] },
+    handles  => {enqueue => 'push', dequeue => 'shift'},
 );
 
 has _locker  => (
@@ -109,6 +130,15 @@ sub _build__result {
 }
 
 #-----------------------------------------------------------------------------
+
+sub _build_noinit {
+    my ($self) = @_;
+
+    return $self->config->noinit();
+}
+
+
+#-----------------------------------------------------------------------------
 # Public methods
 
 
@@ -124,7 +154,6 @@ sub run {
         $self->_result->add_exception($_);
     }
     finally {
-        # TODO: do we first need to check if it actually is locked?
         $self->_locker->unlock() unless $self->nolock();
     };
 
@@ -136,13 +165,7 @@ sub run {
 sub _run_actions {
     my ($self) = @_;
 
-    # TODO: I'm not sure we is_initialized() is really necessary.  But
-    # we probably do need to make sure that the repos actually is a
-    # repository.
-
-    $self->store->initialize()
-        unless $self->store->is_initialized()
-           and $self->config->noinit();
+    $self->store->initialize() unless $self->noinit();
 
     while ( my $action = $self->dequeue() ) {
         $self->_run_one_action($action);
@@ -162,7 +185,9 @@ sub _run_actions {
         $self->store->mark_path_as_modified($modules_dir);
     }
 
-    $self->store->finalize( message => $self->message() );
+    $self->store->commit( message => $self->message() );
+
+    $self->store->tag( tag => $self->tag() ) unless $self->notag();
 
     return $self;
 }
@@ -214,7 +239,7 @@ Pinto::ActionBatch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 METHODS
 

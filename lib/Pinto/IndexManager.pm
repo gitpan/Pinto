@@ -18,7 +18,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -92,8 +92,9 @@ sub __build_index {
     my $repos = $self->config->repos();
     my $index_file = Path::Class::file($repos, 'modules', $args{file});
 
-    return Pinto::Index->new( logger => $self->logger(),
-                              file   => $index_file );
+    return Pinto::Index->new( noclobber => $self->config->noclobber(),
+                              logger    => $self->logger(),
+                              file      => $index_file );
 }
 
 #------------------------------------------------------------------------------
@@ -180,6 +181,17 @@ sub conflict_packages {
 
     my $sorter = sub { $_[0]->name() cmp $_[1]->name() };
     return $conflicts->sort($sorter)->flatten();
+}
+
+#------------------------------------------------------------------------------
+
+sub load_indexes {
+    my ($self) = @_;
+
+    $self->local_index->load();
+    $self->master_index->load();
+
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -343,7 +355,7 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

@@ -7,14 +7,14 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   'build_requires' => {
-    'ExtUtils::MakeMaker' => '6.30',
     'File::HomeDir' => '0',
     'FindBin' => '0',
     'Module::Build' => '0.3601',
+    'MooseX::NonMoose' => '0',
+    'Test::Builder::Module' => '0',
     'Test::Exception' => '0',
     'Test::File' => '0',
-    'Test::More' => '0',
-    'Test::Warn' => '0'
+    'Test::More' => '0'
   },
   'configure_requires' => {
     'Module::Build' => '0.3601'
@@ -24,7 +24,7 @@ my %module_build_args = (
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.019',
+  'dist_version' => '0.020',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
@@ -56,6 +56,7 @@ my %module_build_args = (
     'Path::Class' => '0',
     'PerlIO::gzip' => '0',
     'Pinto::Types' => '0.017',
+    'Pod::Usage' => '0',
     'Readonly' => '0',
     'Term::ANSIColor' => '2.02',
     'Try::Tiny' => '0',

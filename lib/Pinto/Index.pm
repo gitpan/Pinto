@@ -7,7 +7,7 @@ use autodie;
 use Moose;
 use Moose::Autobox;
 
-use MooseX::Types::Moose qw(HashRef);
+use MooseX::Types::Moose qw(HashRef Bool);
 use Pinto::Types 0.017 qw(File);
 
 use Carp;
@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,19 +38,23 @@ has distributions => (
     lazy_build  => 1,
 );
 
-has 'file' => (
+has file  => (
     is        => 'ro',
     isa       => File,
     predicate => 'has_file',
     coerce    => 1,
 );
 
+has noclobber => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
 #------------------------------------------------------------------------------
 # Moose roles
 
 with qw(Pinto::Role::Loggable);
-
-with qw(Pinto::Role::PathMaker);
 
 #------------------------------------------------------------------------------
 # Moose builders
@@ -132,7 +136,6 @@ sub write {                                       ## no critic (BuiltinHomonym)
     $file = Path::Class::file($file) unless eval { $file->isa('Path::Class::File') };
     $self->logger->debug("Writing index at $file");
 
-    $self->mkpath( $file->dir() );
     open my $fh, '>:gzip', $file;
     $self->_write_header($fh);
     $self->_write_packages($fh);
@@ -150,13 +153,15 @@ sub _write_header {
         ? ($self->file->basename(), 'file://' . $self->file->as_foreign('Unix') )
         : ('UNKNOWN', 'UNKNOWN');
 
+    my $version = $Pinto::Index::VERSION || 'UNKNOWN VERSION';
+
     print {$fh} <<"END_PACKAGE_HEADER";
 File:         $file
 URL:          $url
 Description:  Package names found in directory \$CPAN/authors/id/
 Columns:      package name, version, path
 Intended-For: Automated fetch routines, namespace documentation.
-Written-By:   Pinto::Index 0.01
+Written-By:   Pinto::Index $version
 Line-Count:   @{[ $self->package_count() ]}
 Last-Updated: @{[ scalar localtime() ]}
 
@@ -185,7 +190,8 @@ sub _write_packages {
 sub add {
     my ($self, @packages) = @_;
 
-    my @removed_dists = $self->remove( @packages );
+    my @removed_dists;
+    @removed_dists = $self->remove( @packages ) unless $self->noclobber();
 
     for my $package (@packages) {
 
@@ -296,7 +302,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

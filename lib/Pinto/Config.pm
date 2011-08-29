@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -26,13 +26,38 @@ has repos   => (
 );
 
 
-has source  => (
+has authors_dir => (
     is        => 'ro',
-    isa       => URI,
-    key       => 'source',
-    default   => 'http://cpan.perl.org',
-    coerce    => 1,
-    documentation => 'URL of a CPAN mirror (or Pinto repository) where foreign dists will be pulled from',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->repos->subdir('authors') },
+    lazy      => 1,
+);
+
+
+has modules_dir => (
+    is        => 'ro',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->repos->subdir('modules') },
+    lazy      => 1,
+);
+
+
+has config_dir => (
+    is        => 'ro',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->repos->subdir('config') },
+    lazy      => 1,
+);
+
+
+has basename => (
+    is        => 'ro',
+    isa       => Str,
+    init_arg  => undef,
+    default   => 'pinto.ini',
 );
 
 
@@ -54,12 +79,22 @@ has noclobber => (
 );
 
 
-has noinit   => (
+has noinit => (
     is       => 'ro',
     isa      => Bool,
     key      => 'noinit',
     default  => 0,
-    documentation => 'If true, then Pinto will not update/pull the repository from VCS before each action',
+    documentation => 'If true, then Pinto will not pull/update from VCS before each operation',
+);
+
+
+has source  => (
+    is        => 'ro',
+    isa       => URI,
+    key       => 'source',
+    default   => 'http://cpan.perl.org',
+    coerce    => 1,
+    documentation => 'URL of a CPAN mirror (or Pinto repository) where foreign dists will be pulled from',
 );
 
 
@@ -71,6 +106,7 @@ has store => (
     documentation => 'Name of the class that will handle storage of your repository',
 );
 
+# TODO: Consider moving VCS-related config to a separate Config class.
 
 has svn_trunk => (
     is        => 'ro',
@@ -93,9 +129,7 @@ has svn_tag => (
 sub _build_config_file {
     my ($self) = @_;
 
-    my $repos = $self->repos();
-
-    my $config_file = Path::Class::file($repos, qw(config pinto.ini) );
+    my $config_file = $self->config_dir->file( $self->basename() );
 
     return -e $config_file ? $config_file : ();
 }
@@ -120,7 +154,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

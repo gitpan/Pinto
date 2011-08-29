@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -29,6 +29,7 @@ has repos => (
 has _lock => (
     is         => 'rw',
     isa        => 'LockFile::Lock',
+    predicate  => '_has_lock',
     init_arg   => undef,
 );
 
@@ -87,6 +88,8 @@ sub lock {                                             ## no critic (Homonym)
 sub unlock {
     my ($self) = @_;
 
+    return $self if not $self->_has_lock();
+
     $self->_lock->release() or throw_lock 'Unable to unlock repository';
 
     my $repos = $self->repos();
@@ -114,7 +117,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

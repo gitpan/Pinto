@@ -10,14 +10,7 @@ extends 'Pinto::Store::VCS';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
-
-#-------------------------------------------------------------------------------
-
-override is_initialized => sub {
-    croak __PACKAGE__ . ' is not implemented yet';
-    # -e .git
-};
+our $VERSION = '0.020'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -28,9 +21,16 @@ override initialize => sub {
 
 #-------------------------------------------------------------------------------
 
-override finalize => sub {
+override commit => sub {
     croak __PACKAGE__ . 'is not implemented yet';
     # git commit and push
+};
+
+#-------------------------------------------------------------------------------
+
+override tag => sub {
+    croak __PACKAGE__ . 'is not implemented yet';
+    # git tag
 };
 
 #-------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ Pinto::Store::VCS::Git - Store your Pinto repository with Git
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

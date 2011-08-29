@@ -11,13 +11,26 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #-----------------------------------------------------------------------------
 
+sub opt_spec {
+    my ($self, $app) = @_;
+
+    return ( $self->SUPER::opt_spec(),
+
+        [ 'noinit'    => 'Do not pull/update from VCS' ],
+    );
+}
+
+#-----------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opt, $args) = @_;
+    my ($self, $opts, $args) = @_;
+
+    $self->SUPER::validate_args($opts, $args);
+
     $self->usage_error("Arguments are not allowed") if @{ $args };
     return 1;
 }
@@ -49,7 +62,7 @@ App::Pinto::Admin::Command::verify - verify that all the indexed distributions a
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 AUTHOR
 

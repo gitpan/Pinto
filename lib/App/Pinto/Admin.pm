@@ -9,18 +9,17 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub global_opt_spec {
 
   return (
-
-      [ "repos|r=s"   => "Path to your repository directory"],
-      [ "nocolor"     => "Do not colorize diagnostic messages" ],
-      [ "quiet|q"     => "Only report fatal errors"],
-      [ "verbose|v+"  => "More diagnostic output (repeatable)" ],
+      [ 'repos|r=s'   => 'Path to your repository directory' ],
+      [ 'nocolor'     => 'Do not colorize diagnostic messages' ],
+      [ 'quiet|q'     => 'Only report fatal errors' ],
+      [ 'verbose|v+'  => 'More diagnostic output (repeatable)' ],
   );
 }
 
@@ -64,7 +63,7 @@ App::Pinto::Admin - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 DESCRIPTION
 

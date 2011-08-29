@@ -18,6 +18,7 @@ __DATA__
 VCS
 PASSed
 ActionBatch
+subclasses
 Jeffrey
 Ryan
 Thalhammer
