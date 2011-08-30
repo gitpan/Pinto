@@ -13,7 +13,7 @@ use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.020'; # VERSION
+our $VERSION = '0.021'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -62,12 +62,10 @@ sub show_manual_and_exit {
     (my $relative_path = $class) =~ s< :: ></>xmsg;
     $relative_path .= '.pm';
 
-    my $absolute_path = $INC{$relative_path};
-    die "No manual available for $class" if not $absolute_path;  ## no critic qw(Carping)
+    my $absolute_path = $INC{$relative_path}
+      or die "No manual available for $class";  ## no critic qw(Carping)
 
     pod2usage(-verbose => 2, -input => $absolute_path, -exitval => 0);
-
-    return 1;
 }
 
 #-----------------------------------------------------------------------------
@@ -87,7 +85,7 @@ App::Pinto::Admin::Command - Base class for pinto-admin commands
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 METHODS
 

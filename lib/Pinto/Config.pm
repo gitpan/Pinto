@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.020'; # VERSION
+our $VERSION = '0.021'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -121,6 +121,7 @@ has svn_tag => (
     isa       => Str,
     key       => 'tag',
     section   => 'Pinto::Store::VCS::Svn',
+    default   => '',
 );
 
 #------------------------------------------------------------------------------
@@ -154,7 +155,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 DESCRIPTION
 

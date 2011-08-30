@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.020'; # VERSION
+our $VERSION = '0.021'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -117,7 +117,7 @@ Pinto::Store::VCS - Base class for VCS-backed Stores
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 AUTHOR
 

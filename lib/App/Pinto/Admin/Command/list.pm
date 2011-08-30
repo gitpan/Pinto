@@ -8,29 +8,28 @@ use warnings;
 use Readonly;
 use List::MoreUtils qw(none);
 
+use Pinto::Constants qw(:list);
+
 #-----------------------------------------------------------------------------
 
 use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.020'; # VERSION
-
-#------------------------------------------------------------------------------
-
-Readonly my @LIST_TYPES => qw(local foreign conflicts all);
-Readonly my $LIST_TYPES_STRING => join ' | ', sort @LIST_TYPES;
-Readonly my $DEFAULT_LIST_TYPE => 'all';
+our $VERSION = '0.021'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     my ($self, $app) = @_;
 
+    # TODO: Use the "one_of" feature of Getopt::Long::Descriptive to
+    # define and validate the different types of lists.
+
     return ( $self->SUPER::opt_spec(),
 
         [ 'noinit'  => 'Do not pull/update from VCS' ],
-        [ 'type=s'  => "One of: ( $LIST_TYPES_STRING )" ],
+        [ 'type:s'  => "One of: ( $PINTO_LIST_TYPES_STRING )" ],
     );
 }
 
@@ -43,8 +42,8 @@ sub validate_args {
 
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
-    $opts->{type} ||= $DEFAULT_LIST_TYPE;
-    $self->usage_error('Invalid type') if none { $opts->{type} eq $_ } @LIST_TYPES;
+    $opts->{type} ||= $PINTO_DEFAULT_LIST_TYPE;
+    $self->usage_error('Invalid type') if none { $opts->{type} eq $_ } @PINTO_LIST_TYPES;
 
     return 1;
 }
@@ -78,7 +77,7 @@ App::Pinto::Admin::Command::list - list the contents of the repository
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 AUTHOR
 

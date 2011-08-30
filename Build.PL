@@ -24,7 +24,7 @@ my %module_build_args = (
     'Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>'
   ],
   'dist_name' => 'Pinto',
-  'dist_version' => '0.020',
+  'dist_version' => '0.021',
   'license' => 'perl',
   'module_name' => 'Pinto',
   'recommends' => {},
@@ -55,6 +55,7 @@ my %module_build_args = (
     'MooseX::Types::Moose' => '0',
     'Path::Class' => '0',
     'PerlIO::gzip' => '0',
+    'Pinto::Constants' => '0',
     'Pinto::Types' => '0.017',
     'Pod::Usage' => '0',
     'Readonly' => '0',
