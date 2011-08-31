@@ -19,6 +19,8 @@ VCS
 PASSed
 ActionBatch
 subclasses
+noinit
+nocommit
 Jeffrey
 Ryan
 Thalhammer

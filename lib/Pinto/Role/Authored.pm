@@ -10,7 +10,7 @@ use Pinto::Exception::NoAuthor;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ Pinto::Role::Authored - Something that has an author
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 AUTHOR
 

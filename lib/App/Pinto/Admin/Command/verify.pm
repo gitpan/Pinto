@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -62,7 +62,37 @@ App::Pinto::Admin::Command::verify - report distributions that are missing
 
 =head1 VERSION
 
-version 0.022
+version 0.023
+
+=head1 SYNOPSIS
+
+  pinto-admin --repos=/some/dir verify
+
+=head1 DESCRIPTION
+
+This command reports distributions that are listed in the index of
+your repository, but are not actually present.  This can occur when
+L<Pinto> aborts unexpectedly due to an exception or you terminate a
+command before it completes.  It can also happen when the index of
+your source repository contains distributions that aren't present in
+that repository (CPAN mirrors are known to do this occasionally).
+
+If some foreign distributions are missing from your repository, then
+running a C<update> command will usually fix things.  If local
+distributions are missing, then you need to get a copy of that
+distribution use the C<add> command to put it back in the repository.
+Or, you can just use the C<remove> command to delete the local
+distribution from the index if you no longer care about it.
+
+Note this command never changes the state of your repository.
+
+=head1 COMMAND ARGUMENTS
+
+None
+
+=head1 COMMAND OPTIONS
+
+None
 
 =head1 AUTHOR
 
@@ -79,3 +109,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

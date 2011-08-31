@@ -18,7 +18,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -219,29 +219,21 @@ sub rebuild_master_index {
 
 #------------------------------------------------------------------------------
 
-sub remove_local_package {
+sub remove_local_distribution_at {
     my ($self, %args) = @_;
 
-    my $package = $args{package};
-    my $author  = $args{author};
+    my $location = $args{location};
 
-    my $orig_author = $self->local_author_of(package => $package);
-    if (defined $orig_author and $author ne $orig_author) {
-        my $msg = "Only author $orig_author can remove $package";
-        Pinto::Exception::Unauthorized->throw($msg);
-    }
+    my $dist = $self->local_index->distributions->at($location);
+    return if not $dist;
 
-    my $local_dist = ( $self->local_index->remove($package) )[0];
-    return if not $local_dist;
+    $self->local_index->remove_dist($dist);
+    $self->logger->debug("Removed $dist from local index");
 
-    $self->logger->debug("Removed $local_dist from local index");
+    $self->master_index->remove_dist($dist);
+    $self->logger->debug("Removed $dist from master index");
 
-    my $master_dist = ( $self->master_index->remove($package) )[0];
-    $self->logger->debug("Removed $master_dist from master index");
-
-    $self->rebuild_master_index();
-
-    return $local_dist;
+    return $dist;
 }
 
 #------------------------------------------------------------------------------
@@ -307,6 +299,8 @@ sub add_local_distribution {
 
 }
 
+#------------------------------------------------------------------------------
+
 sub _distribution_check {
     my ($self, $new_dist, $new_file) = @_;
 
@@ -355,7 +349,7 @@ Pinto::IndexManager - Manages the indexes of a Pinto repository
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 DESCRIPTION
 

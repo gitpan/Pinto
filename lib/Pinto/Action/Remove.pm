@@ -1,6 +1,6 @@
 package Pinto::Action::Remove;
 
-# ABSTRACT: An action to remove packages from the repository
+# ABSTRACT: An action to remove one local distribution from the repository
 
 use Moose;
 use MooseX::Types::Moose qw( Str );
@@ -14,12 +14,12 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
 
-has package  => (
+has dist_name  => (
     is       => 'ro',
     isa      => Str,
     required => 1,
@@ -35,13 +35,20 @@ with qw( Pinto::Role::Authored );
 override execute => sub {
     my ($self) = @_;
 
-    my $pkg     = $self->package();
-    my $author  = $self->author();
-    my $idxmgr  = $self->idxmgr();
-    my $cleanup = not $self->config->nocleanup();
+    my $dist_name  = $self->dist_name();
+    my $author     = $self->author();
+    my $idxmgr     = $self->idxmgr();
+    my $cleanup    = not $self->config->nocleanup();
 
-    my $dist = $idxmgr->remove_local_package(package => $pkg, author => $author)
-        or Pinto::Exception->throw("Package $pkg is not in the local index");
+    # If the $dist_name looks like a precise location (i.e. it has
+    # slashes), then use it as such.  But if not, then use the author
+    # attribute to construct the precise location.
+    my $location = $dist_name =~ m{/}mx ?
+      $dist_name : Pinto::Util::author_dir($author)->file($dist_name)->as_foreign('Unix');
+
+    # TODO: throw a more specialized exception.
+    my $dist = $idxmgr->remove_local_distribution_at(location => $location)
+        or Pinto::Exception->throw("Distribution $location is not in the local index");
 
     $self->logger->info(sprintf "Removing $dist with %i packages", $dist->package_count());
 
@@ -69,11 +76,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Remove - An action to remove packages from the repository
+Pinto::Action::Remove - An action to remove one local distribution from the repository
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 AUTHOR
 

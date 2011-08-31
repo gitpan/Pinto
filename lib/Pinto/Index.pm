@@ -19,7 +19,7 @@ use Pinto::Distribution;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -244,13 +244,29 @@ sub remove {
         if (my $incumbent = $self->packages->at($package)) {
             my $location = $incumbent->dist->location();
             my $dist = $self->distributions->delete( $location );
-            my @package_names = map {$_->name()} $dist->packages()->flatten();
+            my @package_names = map {$_->name()} $dist->packages();
             $self->packages->delete($_) for @package_names;
             push @removed_dists, $dist;
         }
 
     }
     return @removed_dists;
+}
+
+#------------------------------------------------------------------------------
+
+sub remove_dist {
+    my ($self, $dist) = @_;
+
+    $dist = $dist->location()
+        if eval { $dist->isa('Pinto::Distribution') };
+
+    my $deleted = $self->distributions->delete( $dist );
+    return $self if not $deleted;
+
+    $self->packages->delete($_) for $deleted->packages();
+
+    return $deleted;
 }
 
 #------------------------------------------------------------------------------
@@ -302,7 +318,7 @@ Pinto::Index - Represents an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 DESCRIPTION
 

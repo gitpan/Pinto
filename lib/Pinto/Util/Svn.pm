@@ -12,7 +12,7 @@ use IPC::Run;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 FUNCTIONS
 

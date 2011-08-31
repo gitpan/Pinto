@@ -7,7 +7,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.022'; # VERSION
+our $VERSION = '0.023'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ Pinto::Exception::Unauthorized - Exception class used by Pinto
 
 =head1 VERSION
 
-version 0.022
+version 0.023
 
 =head1 AUTHOR
 
