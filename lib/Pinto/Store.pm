@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose roles
@@ -135,7 +135,7 @@ Pinto::Store - Storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 DESCRIPTION
 
@@ -153,8 +153,8 @@ responsible for doing any setup work that is required by the Store.
 This could include making a directory on the file system, checking out
 or updating a working copy, cloning, or pulling commits.  If the
 initialization fails, an exception should be thrown.  The default
-implementation simply creates a directory.  Returns a reference
-to this Store.
+implementation simply creates the repository directory, if it isn't
+already there.  Returns a reference to this Store.
 
 =head2 commit(message => 'what happened')
 

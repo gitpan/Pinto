@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,11 +20,10 @@ sub opt_spec {
 
     return ( $self->SUPER::opt_spec(),
 
-        [ 'message=s' => 'Prepend a message to the VCS log' ],
+        [ 'message|m=s' => 'Prepend a message to the VCS log' ],
         [ 'nocommit'  => 'Do not commit changes to VCS' ],
         [ 'noinit'    => 'Do not pull/update from VCS' ],
-        [ 'notag'     => 'Do not create any tag in VCS' ],
-        [ 'tag=s'     => 'Specify an alternate tag name' ],
+        [ 'tag=s'     => 'Specify a VCS tag name' ],
     );
 }
 
@@ -68,7 +67,7 @@ App::Pinto::Admin::Command::rebuild - rebuild the repository index
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 AUTHOR
 

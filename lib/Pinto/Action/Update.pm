@@ -17,7 +17,7 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose Attributes
@@ -39,8 +39,11 @@ sub execute {
     my ($self) = @_;
 
     my $idxmgr  = $self->idxmgr();
+    my $idx_file = $idxmgr->mirror_index->file();
+    my $idx_already_exists = -e $idx_file;  # HACK!
+
     my $idx_changes = $idxmgr->update_mirror_index( force => $self->force() );
-    $self->store->add(file => $idxmgr->mirror_index->file());
+    $self->store->add(file => $idx_file) if not $idx_already_exists;
     return 0 if not $idx_changes and not $self->force();
 
     my $dist_changes = 0;
@@ -104,7 +107,7 @@ Pinto::Action::Update - An action to pull all the latest distributions into your
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,12 +20,11 @@ sub opt_spec {
 
     return ( $self->SUPER::opt_spec(),
 
-        [ 'force'     => 'Force action, even if indexes appear unchanged' ],
-        [ 'message=s' => 'Prepend a message to the VCS log' ],
-        [ 'nocommit'  => 'Do not commit changes to VCS' ],
-        [ 'noinit'    => 'Do not pull/update from VCS' ],
-        [ 'notag'     => 'Do not create any tag in VCS' ],
-        [ 'tag=s'     => 'Specify an alternate tag name' ],
+        [ 'force'       => 'Force action, even if indexes appear unchanged' ],
+        [ 'message|m=s' => 'Prepend a message to the VCS log' ],
+        [ 'nocommit'    => 'Do not commit changes to VCS' ],
+        [ 'noinit'      => 'Do not pull/update from VCS' ],
+        [ 'tag=s'       => 'Specify a VCS tag name' ],
     );
 }
 
@@ -47,7 +46,7 @@ sub execute {
     my ($self, $opts, $args) = @_;
 
     $self->pinto->new_action_batch( %{$opts} );
-    $self->pinto->add_action('Mirror', %{$opts});
+    $self->pinto->add_action('Update', %{$opts});
     my $result = $self->pinto->run_actions();
     return $result->is_success() ? 0 : 1;
 }
@@ -68,7 +67,7 @@ App::Pinto::Admin::Command::update - get all the latest distributions from anoth
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 AUTHOR
 

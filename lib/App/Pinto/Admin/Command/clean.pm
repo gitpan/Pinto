@@ -13,16 +13,20 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     my ($self, $app) = @_;
 
+    # TODO: add option to prompt before cleaning each dist
+
     return ( $self->SUPER::opt_spec(),
 
-        [ 'noinit'    => 'Do not pull/update from VCS' ],
+        [ 'message|m=s' => 'Prepend a message to the VCS log' ],
+        [ 'noinit'      => 'Do not pull/update from VCS' ],
+        [ 'tag=s'       => 'Specify a VCS tag name' ]
     );
 }
 
@@ -95,7 +99,7 @@ App::Pinto::Admin::Command::clean - remove all distributions that are not in the
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 AUTHOR
 

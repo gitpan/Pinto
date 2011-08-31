@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -34,8 +34,8 @@ sub execute {
 
     # HACK...I want to do this before checking out from VCS
     my $repos = $self->pinto->config->repos();
-    die "A repository already exists at $repos\n"
-        if -e file($repos, qw(modules 02packages.details.txt.gz));
+    die "Directory $repos is not empty\n"
+        if -e $repos and $repos->children();
 
 
     $self->pinto->new_action_batch( %{$opts}, nolock => 1 );
@@ -60,7 +60,7 @@ App::Pinto::Admin::Command::create - create an empty repository
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 AUTHOR
 

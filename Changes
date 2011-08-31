@@ -1,10 +1,34 @@
+0.022     2011-08-31 01:31:04 America/Los_Angeles
+
+     * Interface Changes:
+
+     You no longer need to specify the Subversion trunk in your
+     pinto.ini (if you were using Pinto::Store::VCS::Svn).  The
+     location of your Pinto repository in subversion is implicit in
+     the `svn info` of the working copy.  Secondly, the "create"
+     action no longer takes care of making a location in Subversion
+     for you.  So you now have to do a little more work to setup Pinto
+     with Subversion.  See the POD in Pinto::Store::VCS::Svn for
+     step-by-step instructions.
+
+     You can no longer specify a VCS tag in your pinto.ini.  Making
+     a tag after every commit doesn't make sense.  So now, a tag
+     is only made if you explicitly set a --tag on the command line.
+     Likewise, the --notag command line switch has been removed,
+     since the absence of a --tag is equivalent to --notag.
+
+     * Bug Fixes:
+
+     The "update" command was broken, following rename from "mirror".
+     Doh!
+
 0.021     2011-08-30 01:16:55 America/Los_Angeles
 
      * Interface Changes:
 
-     The "mirror" command is now called "update".  I feel this
-     more accurately reflects what is going on, since a Pinto
-     repository isn't really a "mirror" of anything.
+     The "mirror" command is now called "update".  I feel this more
+     accurately reflects what is going on, since a Pinto repository
+     isn't really a "mirror" of anything.
    
      * Bug Fixes:
 
@@ -16,22 +40,21 @@
 
      * Enhancements:
 
-     Added the "rebuild" command, which reconstructs the master
-     index from the current local and mirrored indexes.  This
-     is useful if your master index somehow gets screwed.  Note
-     this is not the same as actually re-indexing the distributions
-     (that's a feature I might add later).
+     Added the "rebuild" command, which reconstructs the master index
+     from the current local and mirrored indexes.  This is useful if
+     your master index somehow gets screwed.  Note this is not the
+     same as actually re-indexing the distributions (that's a feature
+     I might add later).
 
-     All commands for pinto-admin[1] now support a --man option,
-     which shows you the full documentation for a commmand.  But
-     at this point, I haven't written the documentation for all
-     the commands.
+     All commands for pinto-admin[1] now support a --man option, which
+     shows you the full documentation for a commmand.  But at this
+     point, I haven't written the documentation for all the commands.
 
      Several of the commands for pinto-admin[1] now support a --tag
      option that allows you to specify an alternative tag.  The
      semantics of the tag will depend on which type of VCS you are
-     using.  Likewise, you can now specify --notag to disable
-     tagging completely.
+     using.  Likewise, you can now specify --notag to disable tagging
+     completely.
     
 
 0.019     2011-08-24 04:09:41 America/Los_Angeles

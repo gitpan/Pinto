@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -66,7 +66,7 @@ has nocleanup => (
     isa       => Bool,
     key       => 'nocleanup',
     default   => 0,
-    documentation => 'If true, then Pinto will not delete older distributions when newer versions are added',
+    documentation => 'Do not delete distributions when they become outdated',
 );
 
 
@@ -75,7 +75,7 @@ has noclobber => (
     isa       => Bool,
     key       => 'noclobber',
     default   => 0,
-    documentation => 'If true, then Pinto will not clobber existing packages when adding new ones',
+    documentation => 'Do not clobber existing packages when adding new ones',
 );
 
 
@@ -84,7 +84,7 @@ has noinit => (
     isa      => Bool,
     key      => 'noinit',
     default  => 0,
-    documentation => 'If true, then Pinto will not pull/update from VCS before each operation',
+    documentation => 'Do not pull/update from VCS before each operation',
 );
 
 
@@ -94,7 +94,7 @@ has source  => (
     key       => 'source',
     default   => 'http://cpan.perl.org',
     coerce    => 1,
-    documentation => 'URL of a CPAN mirror (or Pinto repository) where foreign dists will be pulled from',
+    documentation => 'URL of repository where foreign dists will come from',
 );
 
 
@@ -103,25 +103,7 @@ has store => (
     isa       => Str,
     key       => 'store',
     default   => 'Pinto::Store',
-    documentation => 'Name of the class that will handle storage of your repository',
-);
-
-# TODO: Consider moving VCS-related config to a separate Config class.
-
-has svn_trunk => (
-    is        => 'ro',
-    isa       => Str,
-    key       => 'trunk',
-    section   => 'Pinto::Store::VCS::Svn',
-);
-
-
-has svn_tag => (
-    is        => 'ro',
-    isa       => Str,
-    key       => 'tag',
-    section   => 'Pinto::Store::VCS::Svn',
-    default   => '',
+    documentation => 'Name of class that handles storage of your repository',
 );
 
 #------------------------------------------------------------------------------
@@ -155,7 +137,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 DESCRIPTION
 

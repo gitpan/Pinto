@@ -12,93 +12,16 @@ use IPC::Run;
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.021'; # VERSION
+our $VERSION = '0.022'; # VERSION
 
 #--------------------------------------------------------------------------
 
 
-sub svn_mkdir {
+sub svn_update {
     my %args = @_;
-    my $url = $args{url};
-    my $dir = $args{dir};
-    my $message = $args{message} || 'NO MESSAGE GIVEN';
+    my $dir  = $args{dir};
 
-    if ( $url and not svn_ls(url => $url) ) {
-        return _svn( command => [qw(mkdir --parents -m), $message, $url]);
-    }
-    elsif ($dir and not -e $dir) {
-        return _svn( command => [qw(mkdir --parents), $dir] );
-    }
-
-    return 1;
-}
-
-#--------------------------------------------------------------------------
-
-
-sub svn_ls {
-    my %args = @_;
-    my $url  = $args{url};
-
-    return _svn( command => ['ls', $url], croak => 0 );
-}
-
-#--------------------------------------------------------------------------
-
-
-sub svn_checkout {
-    my %args = @_;
-    my $url  = $args{url};
-    my $to   = $args{to};
-
-    return _svn( command => ['co', $url, $to] )
-        if not -e $to and svn_mkdir(url => $url);
-
-    croak "$to already exists but is not an svn working copy. ",
-        "Perhaps you should delete $to first or use a different directory"
-            if not _is_svn_working_copy(directory => $to);
-
-    my $wc_url = _url_for_wc_path(path => $to);
-
-    croak "$to should be a working copy of $url but is actually of $wc_url"
-            if $url ne $wc_url;
-
-    return _svn( command => ['up', $to] );
-}
-
-#--------------------------------------------------------------------------
-
-
-sub svn_schedule {
-    my %args = @_;
-    my $starting_path = $args{path};
-
-    my $buffer = '';
-    _svn(command => ['status', $starting_path], buffer => \$buffer);
-
-    for my $line (split / \n /x, $buffer) {
-
-        $line =~ /^ (\S) \s+ (\S+) $/x
-            or croak "Unable to parse svn status: $line";
-
-        my ($status, $path) = ($1, $2);
-
-        if ($status eq '?') {
-            svn_add(path => $path);
-        }
-        elsif ($status eq '!') {
-            svn_delete(path => $path);
-        }
-        elsif ($status =~ /^ [AMD] $/x) {
-            # Do nothing!
-        }
-        else {
-            # TODO: Decide how to handle other statuses (e.g. locked).
-            carp "Unexpected status: $status for file $path";
-        }
-    }
-
-    return 1;
+    return _svn( command => ['up', $dir] );
 }
 
 #--------------------------------------------------------------------------
@@ -157,7 +80,8 @@ sub svn_tag {
 
 #--------------------------------------------------------------------------
 
-sub _url_for_wc_path {
+
+sub location {
     my %args = @_;
     my $path = $args{path};
 
@@ -168,15 +92,6 @@ sub _url_for_wc_path {
         or croak "Unable to parse svn info: $buffer";
 
     return $1;
-}
-
-#--------------------------------------------------------------------------
-
-sub _is_svn_working_copy {
-    my %args = @_;
-    my $directory = $args{directory};
-
-    return -e dir($directory, '.svn');
 }
 
 #--------------------------------------------------------------------------
@@ -209,7 +124,7 @@ sub _svn {
         # IPC::Run.  So we need to set it back here.
 
         local $SIG{CHLD} = 'DEFAULT';
-        unshift @{$command}, 'svn';
+        unshift @{$command}, _svn_exe();
         $ok = IPC::Run::run($command, \my($in), $buffer, $buffer);
     }
 
@@ -229,6 +144,10 @@ sub _svn {
 
 #--------------------------------------------------------------------------
 
+sub _svn_exe { return 'svn' }
+
+#--------------------------------------------------------------------------
+
 1;
 
 
@@ -243,35 +162,13 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.021
+version 0.022
 
 =head1 FUNCTIONS
 
-=head2 svn_mkdir(url => 'http://somewhere')
+=head2 svn_update(dir => '/some/path')
 
-Given a URL that is presumed to be a location within a Subversion
-repository, creates a directory at that location.  Any intervening
-directories will be created for you.  If the directory already exists,
-an exception will be thrown.
-
-=head2 svn_ls(url => 'http://somewhere')
-
-Given a URL that is presumed to be a location within a Subversion
-repository, returns true if that location actually exists.
-
-=head2 svn_checkout(url => 'http://somewhere' to => '/some/path')
-
-Checks out the specified URL to the specified path.  If the URL does
-not exist in the repository, it will be created for you.  If the path
-already exists and it is a working copy for URL, an update will be
-performed instead.
-
-=head2 svn_schedule(path => '/some/path')
-
-Given a path to a directory or file within a Subversion working copy,
-recursively scans the directory for new or missing files and schedules
-them or addition or deletion from the repository.  Any new file is
-added, and any missing file is deleted.
+Updates the working copy at the specified directory to the HEAD revision.
 
 =head2 svn_add(path => '/some/path')
 
@@ -291,7 +188,12 @@ Commits all the changes to the specified C<@paths>.
 =head2 svn_tag(from => 'http://here', to => 'http://there')
 
 Creates a tag by copying from one URL to another.  Note this is a
-server-side copy and does no affect on any working copy.
+server-side copy and does not affect on any working copy.
+
+=head2 location(path => '/some/path')
+
+Returns the repository URL for the corresponding working copy path.  If
+the path is not part of a working copy, an exception will be thrown.
 
 =head1 AUTHOR
 
