@@ -1,6 +1,6 @@
 package App::Pinto::Admin::Command::create;
 
-# ABSTRACT: create an empty repository
+# ABSTRACT: create a new empty repository
 
 use strict;
 use warnings;
@@ -13,14 +13,16 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
+
+#------------------------------------------------------------------------------
+
+sub command_names { return qw( create new ) }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
-
-    $self->SUPER::validate_args($opts, $args);
 
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
@@ -32,15 +34,15 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
 
-    # HACK...I want to do this before checking out from VCS
+    # HACK...do this before checking out VCS
     my $repos = $self->pinto->config->repos();
     die "Directory $repos is not empty\n"
         if -e $repos and $repos->children();
 
-
     $self->pinto->new_action_batch( %{$opts}, nolock => 1 );
     $self->pinto->add_action('Create', %{$opts});
     my $result = $self->pinto->run_actions();
+
     return $result->is_success() ? 0 : 1;
 }
 
@@ -56,11 +58,11 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::create - create an empty repository
+App::Pinto::Admin::Command::create - create a new empty repository
 
 =head1 VERSION
 
-version 0.023
+version 0.024
 
 =head1 SYNOPSIS
 

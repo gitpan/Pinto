@@ -1,15 +1,17 @@
 package App::Pinto::Admin;
 
-# ABSTRACT: Command-line driver for pinto-admin
+# ABSTRACT: Command-line driver for Pinto::Admin
 
 use strict;
 use warnings;
+
+use Class::Load qw();
 
 use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,27 +27,25 @@ sub global_opt_spec {
 
 #------------------------------------------------------------------------------
 
-sub usage_desc {
-    return '%c [global options] <command> [command options]';
-}
-
-#------------------------------------------------------------------------------
-
 
 sub pinto {
     my ($self) = @_;
 
     return $self->{pinto} ||= do {
-
         my %global_options = %{ $self->global_options() };
 
         $global_options{repos}
-            or $self->usage_error('Must specify a repository');
+            or $self->usage_error('Must specify a repository directory');
 
-        require Pinto;
-        my $pinto  = Pinto->new(%global_options);
+        my $pinto_class = $self->pinto_class();
+        Class::Load::load_class($pinto_class);
+        my $pinto = $pinto_class->new(%global_options);
     };
 }
+
+#------------------------------------------------------------------------------
+
+sub pinto_class { return 'Pinto' }
 
 #------------------------------------------------------------------------------
 
@@ -59,23 +59,18 @@ sub pinto {
 
 =head1 NAME
 
-App::Pinto::Admin - Command-line driver for pinto-admin
+App::Pinto::Admin - Command-line driver for Pinto::Admin
 
 =head1 VERSION
 
-version 0.023
-
-=head1 DESCRIPTION
-
-There is nothing to see here.  You probably should look at the
-documentation for L<pinto> instead.
+version 0.024
 
 =head1 METHODS
 
 =head2 pinto()
 
-Returns a reference to the L<Pinto> object.  If it does not already
-exist, one will be created using the global options.
+Returns a reference to a L<Pinto> object that has been constructed for
+this application.
 
 =head1 AUTHOR
 
@@ -92,4 +87,3 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
-

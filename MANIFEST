@@ -15,11 +15,13 @@ lib/App/Pinto/Admin/Command/add.pm
 lib/App/Pinto/Admin/Command/clean.pm
 lib/App/Pinto/Admin/Command/create.pm
 lib/App/Pinto/Admin/Command/list.pm
+lib/App/Pinto/Admin/Command/manual.pm
 lib/App/Pinto/Admin/Command/nop.pm
 lib/App/Pinto/Admin/Command/rebuild.pm
 lib/App/Pinto/Admin/Command/remove.pm
 lib/App/Pinto/Admin/Command/update.pm
 lib/App/Pinto/Admin/Command/verify.pm
+lib/App/Pinto/Admin/Command/version.pm
 lib/Pinto.pm
 lib/Pinto/Action.pm
 lib/Pinto/Action/Add.pm

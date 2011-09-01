@@ -13,15 +13,18 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
+
+#------------------------------------------------------------------------------
+
+sub command_names { return qw( remove rm delete del ) }
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     my ($self, $app) = @_;
 
-    return ( $self->SUPER::opt_spec(),
-
+    return (
         [ 'author=s'    => 'Your (alphanumeric) author ID' ],
         [ 'message|m=s' => 'Prepend a message to the VCS log' ],
         [ 'nocommit'    => 'Do not commit changes to VCS' ],
@@ -58,6 +61,7 @@ sub execute {
     $self->pinto->new_action_batch( %{$opts} );
     $self->pinto->add_action('Remove', %{$opts}, dist_name => $_) for @args;
     my $result = $self->pinto->run_actions();
+
     return $result->is_success() ? 0 : 1;
 }
 
@@ -77,7 +81,7 @@ App::Pinto::Admin::Command::remove - remove local distributions from the reposit
 
 =head1 VERSION
 
-version 0.023
+version 0.024
 
 =head1 SYNOPSIS
 

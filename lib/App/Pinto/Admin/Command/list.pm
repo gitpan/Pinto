@@ -16,7 +16,11 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
+
+#------------------------------------------------------------------------------
+
+sub command_names { return qw( list ls ) }
 
 #------------------------------------------------------------------------------
 
@@ -26,8 +30,7 @@ sub opt_spec {
     # TODO: Use the "one_of" feature of Getopt::Long::Descriptive to
     # define and validate the different types of lists.
 
-    return ( $self->SUPER::opt_spec(),
-
+    return (
         [ 'noinit'  => 'Do not pull/update from VCS' ],
         [ 'type:s'  => "One of: ( $PINTO_LIST_TYPES_STRING )" ],
     );
@@ -37,8 +40,6 @@ sub opt_spec {
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
-
-    $self->SUPER::validate_args($opts, $args);
 
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
@@ -57,6 +58,7 @@ sub execute {
     my $list_class = 'List::' . ucfirst $opts->{type};
     $self->pinto->add_action($list_class, %{$opts});
     my $result = $self->pinto->run_actions();
+
     return $result->is_success() ? 0 : 1;
 
 }
@@ -77,7 +79,7 @@ App::Pinto::Admin::Command::list - list the contents of the repository
 
 =head1 VERSION
 
-version 0.023
+version 0.024
 
 =head1 SYNOPSIS
 

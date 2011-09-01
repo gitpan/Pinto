@@ -13,15 +13,18 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
+
+#-----------------------------------------------------------------------------
+
+sub command_names { return qw( add inject ) }
 
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
     my ($self, $app) = @_;
 
-    return ( $self->SUPER::opt_spec(),
-
+    return (
         [ 'author=s'    => 'Your (alphanumeric) author ID' ],
         [ 'message|m=s' => 'Prepend a message to the VCS log' ],
         [ 'nocommit'    => 'Do not commit changes to VCS' ],
@@ -77,7 +80,7 @@ App::Pinto::Admin::Command::add - add local distributions to the repository
 
 =head1 VERSION
 
-version 0.023
+version 0.024
 
 =head1 SYNOPSIS
 

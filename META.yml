@@ -29,169 +29,175 @@ no_index:
 provides:
   App::Pinto::Admin:
     file: lib/App/Pinto/Admin.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command:
     file: lib/App/Pinto/Admin/Command.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::add:
     file: lib/App/Pinto/Admin/Command/add.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::clean:
     file: lib/App/Pinto/Admin/Command/clean.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::create:
     file: lib/App/Pinto/Admin/Command/create.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::list:
     file: lib/App/Pinto/Admin/Command/list.pm
-    version: 0.023
+    version: 0.024
+  App::Pinto::Admin::Command::manual:
+    file: lib/App/Pinto/Admin/Command/manual.pm
+    version: 0.024
   App::Pinto::Admin::Command::nop:
     file: lib/App/Pinto/Admin/Command/nop.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::rebuild:
     file: lib/App/Pinto/Admin/Command/rebuild.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::remove:
     file: lib/App/Pinto/Admin/Command/remove.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::update:
     file: lib/App/Pinto/Admin/Command/update.pm
-    version: 0.023
+    version: 0.024
   App::Pinto::Admin::Command::verify:
     file: lib/App/Pinto/Admin/Command/verify.pm
-    version: 0.023
+    version: 0.024
+  App::Pinto::Admin::Command::version:
+    file: lib/App/Pinto/Admin/Command/version.pm
+    version: 0.024
   Pinto:
     file: lib/Pinto.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Create:
     file: lib/Pinto/Action/Create.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::List::All:
     file: lib/Pinto/Action/List/All.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::List::Conflicts:
     file: lib/Pinto/Action/List/Conflicts.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::List::Foreign:
     file: lib/Pinto/Action/List/Foreign.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::List::Local:
     file: lib/Pinto/Action/List/Local.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Nop:
     file: lib/Pinto/Action/Nop.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Rebuild:
     file: lib/Pinto/Action/Rebuild.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Remove:
     file: lib/Pinto/Action/Remove.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Update:
     file: lib/Pinto/Action/Update.pm
-    version: 0.023
+    version: 0.024
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.023
+    version: 0.024
   Pinto::ActionBatch:
     file: lib/Pinto/ActionBatch.pm
-    version: 0.023
+    version: 0.024
   Pinto::BatchResult:
     file: lib/Pinto/BatchResult.pm
-    version: 0.023
+    version: 0.024
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.023
+    version: 0.024
   Pinto::Distribution:
     file: lib/Pinto/Distribution.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception:
     file: lib/Pinto/Exception.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::Args:
     file: lib/Pinto/Exception/Args.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::DuplicateDist:
     file: lib/Pinto/Exception/DuplicateDist.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::IO:
     file: lib/Pinto/Exception/IO.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::IllegalDist:
     file: lib/Pinto/Exception/IllegalDist.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::Loader:
     file: lib/Pinto/Exception/Loader.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::Lock:
     file: lib/Pinto/Exception/Lock.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::NoAuthor:
     file: lib/Pinto/Exception/NoAuthor.pm
-    version: 0.023
+    version: 0.024
   Pinto::Exception::Unauthorized:
     file: lib/Pinto/Exception/Unauthorized.pm
-    version: 0.023
+    version: 0.024
   Pinto::Index:
     file: lib/Pinto/Index.pm
-    version: 0.023
+    version: 0.024
   Pinto::IndexManager:
     file: lib/Pinto/IndexManager.pm
-    version: 0.023
+    version: 0.024
   Pinto::Locker:
     file: lib/Pinto/Locker.pm
-    version: 0.023
+    version: 0.024
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.023
+    version: 0.024
   Pinto::Package:
     file: lib/Pinto/Package.pm
-    version: 0.023
+    version: 0.024
   Pinto::Role::Authored:
     file: lib/Pinto/Role/Authored.pm
-    version: 0.023
+    version: 0.024
   Pinto::Role::Configurable:
     file: lib/Pinto/Role/Configurable.pm
-    version: 0.023
+    version: 0.024
   Pinto::Role::Loggable:
     file: lib/Pinto/Role/Loggable.pm
-    version: 0.023
+    version: 0.024
   Pinto::Role::PathMaker:
     file: lib/Pinto/Role/PathMaker.pm
-    version: 0.023
+    version: 0.024
   Pinto::Role::UserAgent:
     file: lib/Pinto/Role/UserAgent.pm
-    version: 0.023
+    version: 0.024
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.023
+    version: 0.024
   Pinto::Store::VCS:
     file: lib/Pinto/Store/VCS.pm
-    version: 0.023
+    version: 0.024
   Pinto::Store::VCS::Git:
     file: lib/Pinto/Store/VCS/Git.pm
-    version: 0.023
+    version: 0.024
   Pinto::Store::VCS::Svn:
     file: lib/Pinto/Store/VCS/Svn.pm
-    version: 0.023
+    version: 0.024
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.023
+    version: 0.024
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.023
+    version: 0.024
 requires:
   App::Cmd::Setup: 0
   CPAN::DistnameInfo: 0
@@ -232,4 +238,4 @@ requires:
 resources:
   homepage: https://github.com/thaljef/Pinto
   repository: https://github.com/thaljef/Pinto
-version: 0.023
+version: 0.024

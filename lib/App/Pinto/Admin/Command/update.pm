@@ -11,15 +11,14 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.023'; # VERSION
+our $VERSION = '0.024'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     my ($self, $app) = @_;
 
-    return ( $self->SUPER::opt_spec(),
-
+    return (
         [ 'force'       => 'Force action, even if indexes appear unchanged' ],
         [ 'message|m=s' => 'Prepend a message to the VCS log' ],
         [ 'nocommit'    => 'Do not commit changes to VCS' ],
@@ -32,8 +31,6 @@ sub opt_spec {
 
 sub validate_args {
     my ($self, $opts, $args) = @_;
-
-    $self->SUPER::validate_args($opts, $args);
 
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
@@ -48,6 +45,7 @@ sub execute {
     $self->pinto->new_action_batch( %{$opts} );
     $self->pinto->add_action('Update', %{$opts});
     my $result = $self->pinto->run_actions();
+
     return $result->is_success() ? 0 : 1;
 }
 
@@ -67,7 +65,7 @@ App::Pinto::Admin::Command::update - get all the latest distributions from anoth
 
 =head1 VERSION
 
-version 0.023
+version 0.024
 
 =head1 SYNOPSIS
 
