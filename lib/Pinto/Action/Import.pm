@@ -19,7 +19,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_001'; # VERSION
+our $VERSION = '0.025_002'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -117,7 +117,7 @@ sub _find_or_import {
         $self->debug("Found package $pkg_vname or newer in $dist_url");
 
         if ( Pinto::Util::isa_perl($dist_url) ) {
-            $self->info("Distribution $dist_url is a perl.  Skipping it.");
+            $self->debug("Distribution $dist_url is a perl.  Skipping it.");
             return;
         }
 
@@ -240,7 +240,7 @@ Pinto::Action::Import - Import a distribution (and dependencies) into the local 
 
 =head1 VERSION
 
-version 0.025_001
+version 0.025_002
 
 =head1 AUTHOR
 
