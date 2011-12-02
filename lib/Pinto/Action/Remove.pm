@@ -1,25 +1,28 @@
 package Pinto::Action::Remove;
 
-# ABSTRACT: An action to remove one local distribution from the repository
+# ABSTRACT: Remove one distribution from the repository
 
 use Moose;
 use MooseX::Types::Moose qw( Str );
 
 use Pinto::Util;
-use Pinto::Exception;
-
-extends 'Pinto::Action';
+use Pinto::Exceptions qw(throw_error);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
+
+#------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 # Attributes
 
-has dist_name  => (
+has path  => (
     is       => 'ro',
     isa      => Str,
     required => 1,
@@ -27,7 +30,7 @@ has dist_name  => (
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Authored );
+with qw( Pinto::Interface::Authorable );
 
 #------------------------------------------------------------------------------
 
@@ -35,27 +38,21 @@ with qw( Pinto::Role::Authored );
 override execute => sub {
     my ($self) = @_;
 
-    my $dist_name  = $self->dist_name();
-    my $author     = $self->author();
-    my $idxmgr     = $self->idxmgr();
-    my $cleanup    = not $self->config->nocleanup();
+    my $path    = $self->path();
+    my $author  = $self->author();
 
-    # If the $dist_name looks like a precise location (i.e. it has
-    # slashes), then use it as such.  But if not, then use the author
-    # attribute to construct the precise location.
-    my $location = $dist_name =~ m{/}mx ?
-      $dist_name : Pinto::Util::author_dir($author)->file($dist_name)->as_foreign('Unix');
+    $path = $path =~ m{/}mx ? $path
+                            : Pinto::Util::author_dir($author)->file($path)->as_foreign('Unix');
 
-    # TODO: throw a more specialized exception.
-    my $dist = $idxmgr->remove_local_distribution_at(location => $location)
-        or Pinto::Exception->throw("Distribution $location is not in the local index");
+    my $where = {path => $path};
+    my $dist  = $self->repos->select_distributions( $where )->single();
+    throw_error "Distribution $path does not exist" if not $dist;
 
-    $self->logger->info(sprintf "Removing $dist with %i packages", $dist->package_count());
+    $self->info(sprintf "Removing distribution $dist with %d packages", $dist->package_count());
 
-    my $file = $dist->path( $self->config->repos() );
-    $self->store->remove( file => $file ) if $cleanup;
+    $self->repos->remove_distribution($dist);
 
-    $self->add_message( Pinto::Util::removed_dist_message( $dist ) );
+    $self->add_message( Pinto::Util::removed_dist_message($dist) );
 
     return 1;
 };
@@ -76,11 +73,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Remove - An action to remove one local distribution from the repository
+Pinto::Action::Remove - Remove one distribution from the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

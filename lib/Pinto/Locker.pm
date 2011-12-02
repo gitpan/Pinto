@@ -7,24 +7,16 @@ use Moose;
 use Path::Class;
 use LockFile::Simple;
 
-use Pinto::Exception::Lock qw(throw_lock);
-use Pinto::Types 0.017 qw(Dir);
+use Pinto::Types qw(Dir);
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
-
-has repos => (
-    is        => 'ro',
-    isa       => Dir,
-    coerce    => 1,
-    required  => 1,
-);
 
 has _lock => (
     is         => 'rw',
@@ -44,7 +36,8 @@ has _lockmgr => (
 #-----------------------------------------------------------------------------
 # Moose roles
 
-with qw ( Pinto::Role::Loggable );
+with qw ( Pinto::Interface::Configurable
+          Pinto::Interface::Loggable );
 
 #-----------------------------------------------------------------------------
 # Builders
@@ -52,8 +45,8 @@ with qw ( Pinto::Role::Loggable );
 sub _build__lockmgr {
     my ($self) = @_;
 
-    my $wfunc = sub { $self->logger->debug(@_) };
-    my $efunc = sub { $self->logger->fatal(@_) };
+    my $wfunc = sub { $self->debug(@_) };
+    my $efunc = sub { $self->fatal(@_) };
 
     return LockFile::Simple->make( -autoclean => 1,
                                    -efunc     => $efunc,
@@ -69,14 +62,17 @@ sub _build__lockmgr {
 sub lock {                                             ## no critic (Homonym)
     my ($self) = @_;
 
-    my $repos = $self->repos();
+    my $root_dir = $self->config->root_dir();
 
-    # TODO: make sure the lock directory actually exists!
+    # If by chance, the directory we are trying to lock does not exist,
+    # then LockFile::Simple will wait (a while) until it does.  To
+    # avoid this extra delay, just make sure the directory exists now.
+    $self->fatal("Repository $root_dir does not exist") if not -e $root_dir;
 
-    my $lock = $self->_lockmgr->lock( $repos->file('')->stringify() )
-        or throw_lock 'Unable to lock the repository -- please try later';
+    my $lock = $self->_lockmgr->lock( $root_dir->file('')->stringify() )
+        or $self->fatal('Unable to lock the repository -- please try later');
 
-    $self->logger->debug("Process $$ got the lock on $repos");
+    $self->debug("Process $$ got the lock on $root_dir");
     $self->_lock($lock);
 
     return $self;
@@ -90,10 +86,10 @@ sub unlock {
 
     return $self if not $self->_has_lock();
 
-    $self->_lock->release() or throw_lock 'Unable to unlock repository';
+    $self->_lock->release() or $self->fatal('Unable to unlock repository');
 
-    my $repos = $self->repos();
-    $self->logger->debug("Process $$ released the lock on $repos");
+    my $root_dir = $self->config->root_dir();
+    $self->debug("Process $$ released the lock on $root_dir");
 
     return $self;
 }
@@ -117,7 +113,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 DESCRIPTION
 

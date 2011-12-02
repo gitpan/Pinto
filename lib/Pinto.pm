@@ -1,6 +1,6 @@
 package Pinto;
 
-# ABSTRACT: Perl distribution repository manager
+# ABSTRACT: Curate your own CPAN-like repository
 
 use Moose;
 
@@ -8,51 +8,50 @@ use Class::Load;
 
 use Pinto::Config;
 use Pinto::Logger;
-use Pinto::ActionBatch;
-use Pinto::IndexManager;
-
-use Pinto::Exception::Loader qw(throw_load);
-use Pinto::Exception::Args qw(throw_args);
+use Pinto::Locker;
+use Pinto::Batch;
+use Pinto::Repository;
+use Pinto::Exceptions qw(throw_fatal);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
 
-has _action_batch => (
-    is         => 'ro',
-    isa        => 'Pinto::ActionBatch',
-    writer     => '_set_action_batch',
-    init_arg   => undef,
-);
-
 #------------------------------------------------------------------------------
 
-has _idxmgr => (
-    is          => 'ro',
-    isa         => 'Pinto::IndexManager',
-    init_arg    => undef,
-    lazy_build  => 1,
-);
-
-#------------------------------------------------------------------------------
-
-has _store => (
+has repos   => (
     is         => 'ro',
-    isa        => 'Pinto::Store',
-    init_arg   => undef,
+    isa        => 'Pinto::Repository',
     lazy_build => 1,
 );
+
+
+has locker  => (
+    is         => 'ro',
+    isa        => 'Pinto::Locker',
+    init_arg   =>  undef,
+    lazy_build => 1,
+);
+
+
+has _batch => (
+    is         => 'ro',
+    isa        => 'Pinto::Batch',
+    writer     => '_set_batch',
+    init_arg   => undef,
+);
+
 
 #------------------------------------------------------------------------------
 # Moose roles
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
+with qw( Pinto::Interface::Configurable
+         Pinto::Interface::Loggable );
 
 #------------------------------------------------------------------------------
 # Construction
@@ -70,40 +69,34 @@ sub BUILDARGS {
 #------------------------------------------------------------------------------
 # Builders
 
-sub _build__idxmgr {
+sub _build_repos {
     my ($self) = @_;
 
-    return Pinto::IndexManager->new( config => $self->config(),
-                                     logger => $self->logger() );
+    return Pinto::Repository->new( config => $self->config(),
+                                   logger => $self->logger() );
 }
 
 #------------------------------------------------------------------------------
 
-sub _build__store {
+sub _build_locker {
     my ($self) = @_;
 
-    my $store_class = $self->config->store();
-
-    eval { Class::Load::load_class( $store_class ); 1 }
-        or throw_load "Unable to load store class $store_class: $@";
-
-    return $store_class->new( config => $self->config(),
-                              logger => $self->logger() );
+    return Pinto::Locker->new( config => $self->config(),
+                               logger => $self->logger() );
 }
 
 #------------------------------------------------------------------------------
 # Public methods
 
-sub new_action_batch {
+sub new_batch {
     my ($self, %args) = @_;
 
-    my $batch = Pinto::ActionBatch->new( config => $self->config(),
-                                         logger => $self->logger(),
-                                         store  => $self->_store(),
-                                         idxmgr => $self->_idxmgr(),
-                                         %args );
+    my $batch = Pinto::Batch->new( config => $self->config(),
+                                   logger => $self->logger(),
+                                   repos  => $self->repos(),
+                                   %args );
 
-   $self->_set_action_batch( $batch );
+   $self->_set_batch( $batch );
 
    return $self;
 }
@@ -116,15 +109,14 @@ sub add_action {
     my $action_class = "Pinto::Action::$action_name";
 
     eval { Class::Load::load_class($action_class); 1 }
-        or throw_load "Unable to load action class $action_class: $@";
+        or throw_fatal "Unable to load action class $action_class: $@";
 
     my $action =  $action_class->new( config => $self->config(),
                                       logger => $self->logger(),
-                                      idxmgr => $self->_idxmgr(),
-                                      store  => $self->_store(),
+                                      repos  => $self->repos(),
                                       %args );
 
-    $self->_action_batch->enqueue($action);
+    $self->_batch->enqueue($action);
 
     return $self;
 }
@@ -134,10 +126,19 @@ sub add_action {
 sub run_actions {
     my ($self) = @_;
 
-    my $action_batch = $self->_action_batch()
-      or throw_args 'You must create an action batch first';
+    my $batch = $self->_batch()
+        or throw_fatal 'You must create a batch first';
 
-    return $self->_action_batch->run();
+    # Divert any warnings to our logger
+    local $SIG{__WARN__} = sub { $self->whine(@_) };
+
+    # Shit happens here!
+    $self->locker->lock();
+    my $r = $self->_batch->run();
+    $self->locker->unlock();
+
+    return $r;
+
 }
 
 #------------------------------------------------------------------------------
@@ -152,30 +153,93 @@ __PACKAGE__->meta->make_immutable();
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems PASSed cpan testmatrix
-url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
+=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems cpan testmatrix url
+annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
 placeholders
 
 =head1 NAME
 
-Pinto - Perl distribution repository manager
+Pinto - Curate your own CPAN-like repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
-There is nothing for you to see here. Instead, please look at one or
-more of the following:
+See L<pinto-admin> to create and manage a Pinto repository.
 
-See L<Pinto::Manual> for broad information about the Pinto tools.
-
-See L<pinto-admin> to create and manage your Pinto repository.
-
-See L<pinto-server> to allow remote access to your Pinto repository.
+See L<pinto-server> to open remote access to a Pinto repository.
 
 See L<pinto-remote> to interact with a remote Pinto repository.
+
+See L<Pinto::Manual> for more information about the Pinto tools.
+
+=head1 DESCRIPTION
+
+L<Pinto> is a suite of tools for creating and managing a CPAN-like
+repository of Perl archives.  Pinto is inspired by L<CPAN::Mini>,
+L<CPAN::Mini::Inject>, and L<MyCPAN::App::DPAN>, but adds a few
+interesting features:
+
+=over 4
+
+=item * Pinto supports several usage patterns
+
+With L<Pinto>, you can create a repository to mirror the latest
+distributions from another repository.  Or you can create a "sparse
+repository" with just your own private distributions.  Or you can
+create a "project repository" that has all the distributions required
+for a particular project.  Or you can combine all of the above in some
+way.
+
+=item * Pinto supports adding AND removing archives from the repository.
+
+L<Pinto> gives you the power to precisely tune the contents of your
+repository.  So you can be sure that your downstream clients get
+exactly the stack of dependencies that you want them to have.
+
+=item * Pinto can be integrated with your version control system.
+
+L<Pinto> can automatically commit to your version control system
+whenever the contents of the repository changes.  This gives you
+repeatable and identifiable snapshots of your dependencies, and a
+mechanism for rollback when things go wrong.
+
+=item * Pinto makes it easier to build several local repositories.
+
+Creating new L<Pinto> repositories is easy, and each has its own
+configuration.  So you can have different repositories for each
+department, or each project, or each version of perl, or each
+customer, or whatever you want.
+
+=item * Pinto can pull archives from multiple remote repositories.
+
+L<Pinto> can mirror or import distributions from multiple sources, so
+you can create private (or public) networks of repositories that
+enable separate teams or individuals to collaborate and share
+distributions.
+
+=item * Pinto supports team development.
+
+L<Pinto> is suitable for small to medium-sized development teams,
+where several developers might contribute new distributions at the
+same time.
+
+=item * Pinto has a robust command line interface.
+
+The L<pinto-admin> and L<pinto-remote> command line tools have options
+to control every aspect of your L<Pinto> repository.  They are well
+documented and behave in a DWIM fashion.
+
+=item * Pinto can be extended.
+
+You can extend L<Pinto> by creating L<Pinto::Action> subclasses to
+perform new operations on your repository, such as extracting
+documentation from a distribution, or grepping the source code of
+several distributions.
+
+=back
 
 =head1 SUPPORT
 
@@ -199,14 +263,6 @@ Search CPAN
 The default CPAN search engine, useful to view POD in HTML format.
 
 L<http://search.cpan.org/dist/Pinto>
-
-=item *
-
-RT: CPAN's Bug Tracker
-
-The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Pinto>
 
 =item *
 
@@ -244,16 +300,14 @@ L<http://deps.cpantesters.org/?module=Pinto>
 
 =head2 Bugs / Feature Requests
 
-Please report any bugs or feature requests by email to C<bug-pinto at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Pinto>. You will be automatically notified of any
-progress on the request by the system.
+L<https://github.com/thaljef/Pinto/issues>
 
 =head2 Source Code
 
 
 L<https://github.com/thaljef/Pinto>
 
-  git clone https://github.com/thaljef/Pinto
+  git clone git://github.com/thaljef/Pinto.git
 
 =head1 AUTHOR
 

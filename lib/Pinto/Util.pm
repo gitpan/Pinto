@@ -4,19 +4,24 @@ package Pinto::Util;
 
 use strict;
 use warnings;
+use version;
 
+use Carp;
+use Try::Tiny;
 use Path::Class;
 use Readonly;
+
+use Pinto::Exceptions qw(throw_version throw_error);
 
 use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-------------------------------------------------------------------------------
 
-Readonly my %SCM_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
+Readonly my %VCS_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
 
 #-------------------------------------------------------------------------------
 
@@ -30,16 +35,57 @@ sub author_dir {                                  ## no critic (ArgUnpacking)
 
 #-------------------------------------------------------------------------------
 
+sub parse_dist_url {
+    my ($url, $base_dir) = @_;
 
-sub is_source_control_file {
+    my $path = $url->path();  # '/yadda/yadda/authors/id/A/AU/AUTHOR/Foo-1.2.tar.gz'
+
+    $path =~ s{^ (.*) /authors/id/(.*) $}{$2}mx       # 'A/AU/AUTHOR/Foo-1.2.tar.gz'
+        or throw_error 'Unable to parse url: $url';
+
+    my $source     = $url->isa('URI::file') ? $1 : $url->authority();
+    my @path_parts = split m{ / }mx, $path; # qw( A AU AUTHOR Foo-1.2.tar.gz )
+    my $archive    = file($base_dir, qw(authors id), @path_parts);
+    my $author     = $path_parts[2];
+
+    return ($source, $path, $author, $archive);
+}
+
+#-------------------------------------------------------------------------------
+
+
+sub is_vcs_file {
     my ($file) = @_;
-    return exists $SCM_FILES{$file};
+
+    $file = file($file) unless eval { $file->isa('Path::Class::File') };
+
+    return exists $VCS_FILES{ $file->basename() };
+}
+
+#-------------------------------------------------------------------------------
+
+sub isa_perl {
+    my ($path_or_url) = @_;
+
+    return $path_or_url =~ m{ / perl-[\d.]+ \.tar \.gz $ }mx;
+}
+
+#-------------------------------------------------------------------------------
+
+sub mtime {
+    my ($file) = @_;
+
+    croak 'Must supply a file' if not $file;
+    croak "$file does not exist" if not -e $file;
+
+    return (stat $file)[9];
 }
 
 #-------------------------------------------------------------------------------
 
 sub added_dist_message {
     my ($distribution) = @_;
+
     return _dist_message($distribution, 'Added');
 }
 
@@ -47,16 +93,26 @@ sub added_dist_message {
 
 sub removed_dist_message {
     my ($distribution) = @_;
+
     return _dist_message($distribution, 'Removed');
+}
+
+#-------------------------------------------------------------------------------
+
+sub reindexed_dist_message {
+    my ($distribution) = @_;
+
+    return _dist_message($distribution, 'Reindexed');
 }
 
 #-------------------------------------------------------------------------------
 
 sub _dist_message {
     my ($dist, $action) = @_;
-    my @packages = @{ $dist->packages() };
-    my @items = sort map { $_->name() . ' ' . $_->version() } @packages;
-    return "$action distribution $dist providing:\n    " . join "\n    ", @items;
+
+    my $vnames = join "\n    ", sort map { $_->vname() } $dist->packages();
+
+    return "$action distribution $dist providing:\n    $vnames";
 }
 
 #-------------------------------------------------------------------------------
@@ -91,7 +147,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 DESCRIPTION
 
@@ -108,7 +164,7 @@ optional C<@base> can be a series of L<Path::Class:Dir> or path parts
 (as strings).  If C<@base> is given, it will be prepended to the
 directory that is returned.
 
-=head2 is_source_control_file($path)
+=head2 is_vcs_file($path)
 
 Given a path (which may be a file or directory), returns true if that path
 is part of the internals of a version control system (e.g. Git, Subversion).

@@ -4,24 +4,24 @@ package Pinto::Store;
 
 use Moose;
 
+use Try::Tiny;
 use File::Copy;
+use CPAN::Checksums;
 
-use Pinto::Exception::Args qw(throw_args);
-use Pinto::Exception::IO qw(throw_io);
+use Pinto::Exceptions qw(throw_fatal throw_error);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
-# Moose roles
+# Roles
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
-
-with qw( Pinto::Role::PathMaker );
+with qw( Pinto::Interface::Configurable
+         Pinto::Interface::Loggable
+         Pinto::Role::PathMaker );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -30,9 +30,9 @@ with qw( Pinto::Role::PathMaker );
 sub initialize {
     my ($self) = @_;
 
-    $self->logger->debug('Initializing the store');
-    my $repos = $self->config->repos();
-    $self->mkpath($repos);
+    $self->debug('Initializing the store');
+    my $root_dir = $self->config->root_dir();
+    $self->mkpath($root_dir); # Why?
 
     return $self;
 }
@@ -42,9 +42,6 @@ sub initialize {
 
 sub commit {
     my ($self, %args) = @_;
-
-    my $message = $args{message} || 'Committing the store';
-    $self->logger->debug($message);
 
     return $self;
 }
@@ -59,36 +56,75 @@ sub tag {
 }
 
 #------------------------------------------------------------------------------
+# TODO: Use named arguments here...
 
+sub add_archive {
 
-sub add {
+    my ($self, $archive_file) = @_;
+
+    throw_fatal "$archive_file does not exist"
+        if not -e $archive_file;
+
+    throw_fatal "$archive_file is not a file"
+        if not -f $archive_file;
+
+    $self->add_file( file => $archive_file );
+    $self->update_checksums( directory => $archive_file->parent() );
+
+    return $self;
+
+}
+
+#------------------------------------------------------------------------------
+# TODO: Use named arguments here...
+
+sub remove_archive {
+    my ($self, $archive_file) = @_;
+
+    $self->remove_file( file => $archive_file );
+
+    $self->update_checksums( directory => $archive_file->parent() );
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
+sub add_file {
     my ($self, %args) = @_;
 
     my $file   = $args{file};
-    my $source = $args{source};
 
-    throw_args "$file does not exist and no source was specified"
-        if not -e $file and not defined $source;
+    throw_fatal "$file does not exist"
+        if not -e $file;
 
-    throw_args "$source is not a file"
-        if $source and $source->is_dir();
+    throw_fatal "$file is not a file"
+        if not -f $file;
 
-    if ($source) {
+    return $self;
+}
 
-        if ( not -e (my $parent = $file->parent()) ) {
-          $self->mkpath($parent);
-        }
+#------------------------------------------------------------------------------
 
-        $self->logger->debug("Copying $source to $file");
+sub remove_file {
+    my ($self, %args) = @_;
 
-        # NOTE: We have to force stringification of the arguments to
-        # File::Copy, since older versions don't support Path::Class
-        # objects properly.  File::Copy is part of the CORE, and is
-        # not dual-lifed, so upgrading it requires a whole new Perl.
-        # We're going to be kind and accommodate the old versions.
+    my $file = $args{file};
 
-        File::Copy::copy("$source", "$file")
-            or throw_io "Failed to copy $source to $file: $!";
+    throw_fatal "$file does not exist"
+        if not -e $file;
+
+    throw_fatal "$file is not a file"
+        if not -f $file;
+
+    $file->remove()
+        or throw_fatal "Failed to remove file $file: $!";
+
+    while (my $dir = $file->parent()) {
+        last if $dir->children();
+        $self->debug("Removing empty directory $dir");
+        $dir->remove() or throw_fatal "Failed to remove directory $dir: $!";
+        $file = $dir;
     }
 
     return $self;
@@ -96,25 +132,28 @@ sub add {
 
 #------------------------------------------------------------------------------
 
-
-sub remove {
+sub update_checksums {
     my ($self, %args) = @_;
+    my $dir = $args{directory};
 
-    my $file  = $args{file};
+    #return 0 if not -e $dir;  # Smells fishy
 
-    return $self if not -e $file;
+    my @children = grep { ! Pinto::Util::is_vcs_file($_) } $dir->children();
+    return 0 if not @children;
 
-    throw_args "$file is not a file" if -d $file;
+    my $cs_file = $dir->file('CHECKSUMS');
 
-    $self->logger->info("Removing file $file");
-    $file->remove() or throw_io "Failed to remove $file: $!";
-
-    while (my $dir = $file->parent()) {
-        last if $dir->children();
-        $self->logger->debug("Removing empty directory $dir");
-        $dir->remove();
-        $file = $dir;
+    if ( -e $cs_file && @children == 1 ) {
+        $self->remove_file(file => $cs_file);
+        return 0;
     }
+
+    $self->debug("Generating $cs_file");
+
+    try   { CPAN::Checksums::updatedir($dir) }
+    catch { throw_error "CHECKSUM generation failed for $dir: $_" };
+
+    $self->add_file(file => $cs_file);
 
     return $self;
 }
@@ -135,7 +174,7 @@ Pinto::Store - Storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 DESCRIPTION
 
@@ -162,32 +201,14 @@ This method is called after each batch of Pinto events and is
 responsible for doing any work that is required to commit the Store.
 This could include scheduling files for addition/deletion, pushing
 commits to a remote repository.  If the commit fails, an exception
-should be thrown.  The default implementation merely logs the message.
-Returns a reference to this Store.
+should be thrown.  The default implementation does nothing.  Returns a
+reference to this Store.
 
 =head2 tag( tag => $tag_name )
 
 Tags the store.  For some subclasses, this means performing some kind
 of "tag" operations.  For others, it could mean doing a copy
 operation.  The default implementation does nothing.
-
-=head2 add( file => $some_file, source => $other_file )
-
-Adds the specified C<file> (as a L<Path::Class::File>) to this Store.
-The path to C<file> is presumed to be somewhere beneath the root
-directory of this Store.  If the optional C<source> is given (also as
-a L<Path::Class::File>), then that C<source> is first copied to
-C<file>.  If C<source> is not specified, then the C<file> must already
-exist.  Throws an exception on failure.  Returns a reference to this
-Store.
-
-=head2 remove( file => $some_file )
-
-Removes the specified C<file> (as a L<Path::Class::File>) from this
-Store.  The path to C<file> is presumed to be somewhere beneath the
-root directory of this Store.  Any empty directories above C<file>
-will also be removed.  Throws an exception on failure.  Returns a
-reference to this Store.
 
 =head1 AUTHOR
 

@@ -1,22 +1,25 @@
 package Pinto::Action::Verify;
 
-# ABSTRACT: An action to verify all files are present in the repository
+# ABSTRACT: Verify all distributions are present in the repository
 
 use Moose;
-use Moose::Autobox;
 
 use Pinto::Util;
-use Pinto::Types 0.017 qw(IO);
-
-extends 'Pinto::Action';
+use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Action';
+
+#------------------------------------------------------------------------------
+# Attributes
 
 has out => (
     is       => 'ro',
@@ -26,17 +29,16 @@ has out => (
 );
 
 #------------------------------------------------------------------------------
+# Methods
 
 sub execute {
     my ($self) = @_;
 
-    my $repos   = $self->config()->repos();
-    my $dists   = $self->idxmgr->master_index->distributions->values();
-    my $sorter  = sub {$_[0]->location() cmp $_[1]->location};
+    my $rs    = $self->repos->select_distributions();
 
-    for my $dist ( $dists->sort( $sorter )->flatten() ) {
-        my $file = $dist->path($repos);
-        print { $self->out } "Missing distribution $file\n" if not -e $file;
+    while ( my $dist = $rs->next() ) {
+        my $archive = $dist->archive( $self->repos->root_dir() );
+        print { $self->out } "Missing distribution $archive\n" if not -e $archive;
     }
 
     return 0;
@@ -58,11 +60,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Verify - An action to verify all files are present in the repository
+Pinto::Action::Verify - Verify all distributions are present in the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

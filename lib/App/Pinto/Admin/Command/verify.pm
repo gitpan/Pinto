@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
 
-    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->new_batch( %{$opts} );
     $self->pinto->add_action('Verify', %{$opts});
     my $result = $self->pinto->run_actions();
 
@@ -61,7 +61,7 @@ App::Pinto::Admin::Command::verify - report distributions that are missing
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
@@ -70,14 +70,15 @@ version 0.024
 =head1 DESCRIPTION
 
 This command reports distributions that are listed in the index of
-your repository, but are not actually present.  This can occur when
-L<Pinto> aborts unexpectedly due to an exception or you terminate a
-command before it completes.  It can also happen when the index of
-your source repository contains distributions that aren't present in
-that repository (CPAN mirrors are known to do this occasionally).
+your repository, but the archives are not actually present.  This can
+occur when L<Pinto> aborts unexpectedly due to an exception or you
+terminate a command prematurely.  It can also happen when the index of
+the source repository contains distributions that aren't actually
+present in that repository (CPAN mirrors are known to do this
+occasionally).
 
 If some foreign distributions are missing from your repository, then
-running a C<update> command will usually fix things.  If local
+running a C<mirror> command will usually fix things.  If local
 distributions are missing, then you need to get a copy of that
 distribution use the C<add> command to put it back in the repository.
 Or, you can just use the C<remove> command to delete the local

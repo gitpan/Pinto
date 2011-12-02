@@ -3,57 +3,55 @@
 use strict;
 use warnings;
 
-use Test::More (tests => 17);
-use Test::Exception;
-use FindBin qw($Bin);
+use Test::More (tests => 25);
+
 use Path::Class;
 
-use Pinto::Distribution;
+use Pinto::Tester::Util qw(make_dist);
 
 #-----------------------------------------------------------------------------
 
-my $dist;
+my $dist = make_dist(path => 'F/FO/FOO/Bar-1.2.tar.gz');
+
+is($dist->source(), 'LOCAL', 'Source defaults to q{LOCAL}');
+is($dist->name(), 'Bar', 'dist name');
+is($dist->vname(), 'Bar-1.2', 'dist name');
+is($dist->version(), '1.2', 'dist version');
+is($dist->is_local(), 1, 'is_local is true when origin eq q{LOCAL}');
+is($dist->is_devel(), q{}, 'this is not a devel dist');
+is($dist->path(), 'F/FO/FOO/Bar-1.2.tar.gz', 'Logical dist path');
+is($dist->archive(), file( qw(authors id F FO FOO Bar-1.2.tar.gz) ), 'Physical archive path');
+is($dist->archive('here'), file( qw(here authors id F FO FOO Bar-1.2.tar.gz) ), 'Physical archive path, with base');
+is("$dist", 'F/FO/FOO/Bar-1.2.tar.gz', 'Stringifies to path');
 
 #-----------------------------------------------------------------------------
-# Constructing from an index record...
 
-$dist = Pinto::Distribution->new(location => 'F/FO/FOO/Bar-1.2.tar.gz');
+$dist = make_dist(path => 'F/FO/FOO/Bar-4.3_34.tgz', source => 'http://remote');
 
-is($dist->version(), '1.2', 'Dist version from location');
-is($dist->name(), 'Bar', 'Dist name from location');
-is($dist->author(), 'FOO', 'Dist author from location');
-is($dist->location(), 'F/FO/FOO/Bar-1.2.tar.gz', 'Dist name from location');
+is($dist->source(), 'http://remote', 'Non-local source');
+is($dist->name(), 'Bar', 'dist name');
+is($dist->vname(), 'Bar-4.3_34', 'dist vname');
+is($dist->version(), '4.3_34', 'dist version');
+is($dist->is_local(), q{}, 'is_local is false when dist is remote');
+is($dist->is_devel(), 1, 'this is a devel dist');
 
-is($dist->path(), 'authors/id/F/FO/FOO/Bar-1.2.tar.gz', 'Dist path');
-is($dist->path('here'), 'here/authors/id/F/FO/FOO/Bar-1.2.tar.gz', 'Dist path, with base');
+#------------------------------------------------------------------------------
 
-is("$dist", $dist->location(), 'Stringification returns location of dist');
+$dist = make_dist(path => 'A/AU/AUTHOR/Foo-2.0.tar.gz');
 
-#-----------------------------------------------------------------------------
-# Constructing from a dist file...
+my %formats = (
+    'm' => 'R',
+    'p' => 'A/AU/AUTHOR/Foo-2.0.tar.gz',
+    's' => 'L',
+    'S' => 'LOCAL',
+    'a' => 'AUTHOR',
+    'd' => 'Foo',
+    'D' => 'Foo-2.0',
+    'w' => '2.0',
+    'u' => 'UNKNOWN',
+);
 
-my $dist_file = file( $Bin, qw(data fakes authors id L LO LOCAL FooOnly-0.01.tar.gz) );
-$dist = Pinto::Distribution->new_from_file(author => 'AUTHOR', file => $dist_file);
-
-is($dist->version(), '0.01', 'Dist version from file');
-is($dist->name(), 'FooOnly', 'Dist name from file');
-is($dist->author(), 'AUTHOR', 'Dist author from file');
-is($dist->location(), 'A/AU/AUTHOR/FooOnly-0.01.tar.gz', 'Dist name from file');
-
-my @packages = @{ $dist->packages() };
-is(scalar @packages, 1, 'Dist had one package');
-
-my $pkg = $packages[0];
-is($pkg->name(), 'Foo', 'Extracted package name');
-is($pkg->version(), '0.01', 'Extracted package version');
-
-throws_ok { Pinto::Distribution->new_from_file() }
-          qr/Must specify a file/, 'No arguments';
-
-throws_ok { Pinto::Distribution->new_from_file(file => 'whatever') }
-          qr/Must specify an author/, 'Only file argument';
-
-throws_ok { Pinto::Distribution->new_from_file(file => 'foo.tar.gz', author => 'ME') }
-          qr/does not exist/, 'a bogus file';
-
-#-----------------------------------------------------------------------------
+while ( my ($placeholder, $expected) = each %formats ) {
+    my $got = $dist->to_formatted_string("%$placeholder");
+    is($got, $expected, "Placeholder: %$placeholder");
+}

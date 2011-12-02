@@ -4,56 +4,51 @@ package Pinto::Store::VCS::Svn;
 
 use Moose;
 
+use DateTime;
 use Pinto::Util::Svn;
-use Pinto::Types qw(URI);
-use Date::Format qw(time2str);
-
-extends 'Pinto::Store::VCS';
+use Pinto::Types qw(Uri);
 
 use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Store::VCS';
+
+#-------------------------------------------------------------------------------
+# Attributes
 
 has svn_location => (
     is       => 'ro',
-    isa      => URI,
+    isa      => Uri,
     init_arg => undef,
-    default  => sub { Pinto::Util::Svn::location( path => $_[0]->config->repos() ) },
+    default  => sub { Pinto::Util::Svn::location( path => $_[0]->config->root_dir() ) },
     coerce   => 1,
     lazy     => 1,
 );
 
 
 #-------------------------------------------------------------------------------
+# Methods
 
 override initialize => sub {
     my ($self) = @_;
 
-    my $repos = $self->config->repos();
-    $self->logger->info('Updating working copy');
-    Pinto::Util::Svn::svn_update(dir => $repos);
+    my $root_dir = $self->config->root_dir();
+    $self->info('Updating working copy');
+    Pinto::Util::Svn::svn_update(dir => $root_dir);
 
     return 1;
 };
 
 #-------------------------------------------------------------------------------
 
-override add => sub {
+override add_file => sub {
     my ($self, %args) = @_;
-
-    # Were going to let the superclass validate the arguments and copy
-    # the file into place for us (if needed).
-    super();
-
-    # Now search the path backwards until we find the first parent
-    # directory that is an svn working copy.  The directory or file
-    # that is immediately below that directory is the one we should
-    # schedule for addition.  Subversion will recursively add any
-    # directories and files below that point for us.
 
     my $path = $args{file};
     my $original_path = $path;
@@ -62,7 +57,7 @@ override add => sub {
         $path = $path->parent();
     }
 
-    $self->logger->info("Scheduling $original_path for addition");
+    $self->info("Scheduling $original_path for addition");
     Pinto::Util::Svn::svn_add(path => $path);
     $self->mark_path_as_added($path);
 
@@ -71,13 +66,13 @@ override add => sub {
 
 #-------------------------------------------------------------------------------
 
-override remove => sub {
+override remove_file => sub {
     my ($self, %args) = @_;
 
     my $file  = $args{file};
     return $self if not -e $file;
 
-    $self->logger->info("Scheduling $file for removal");
+    $self->info("Scheduling $file for removal");
     my $removed = Pinto::Util::Svn::svn_remove(path => $file);
     $self->mark_path_as_removed($removed);
 
@@ -96,27 +91,27 @@ override commit => sub {
                   $self->removed_paths(),
                   $self->modified_paths() ];
 
-    $self->logger->info("Committing changes");
+    $self->info("Committing changes");
     Pinto::Util::Svn::svn_commit(paths => $paths, message => $message);
 
-    return 1;
+    return $self;
 };
 
 #-------------------------------------------------------------------------------
+# TODO: allow users to specify a tag template.
 
 override tag => sub {
     my ($self, %args) = @_;
 
-    my $now = time;
+    my $now = DateTime->now();
+    my $tag = $now->strftime( $args{tag} );
 
     my $origin = $self->svn_location();
-    my $tag    = time2str( $args{tag}, $now );
 
-    my $as_of   = time2str('%C', $now);
-    my $message = "Tagging Pinto repository as of $as_of.";
+    $self->info("Tagging at $tag");
 
-    $self->logger->info("Making tag");
-    Pinto::Util::Svn::svn_tag(from => $origin, to => $tag, message => $message);
+    my $msg = sprintf 'Tagging Pinto repository as of %s.', $now->datetime();
+    Pinto::Util::Svn::svn_tag(from => $origin, to => $tag, message => $msg);
 
     return 1;
 };
@@ -141,18 +136,18 @@ Pinto::Store::VCS::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
-  # Create Pinto a repository if you don't already have one
-  $> pinto-admin --repos=~/tmp/PINTO create
+  # If you don't already have a Pinto repository, create one (notice the --store option here)
+  $> pinto-admin --repos=~/tmp/PINTO create --store=Pinto::Store::VCS::Svn
 
-  # Edit Pinto configuration ay ~/tmp/PINTO/config/pinto.ini
+  # If you do already have a repository, edit its config (at $REPOS/.pinto/config/pinto.ini)
   store = Pinto::Store::VCS::Svn
 
   # Import Pinto repository into Subversion
-  $> svn import ~/tmp/PINTO http://my.company.com/svn/trunk/PINTO
+  $> svn import ~/tmp/PINTO http://my.company.com/svn/trunk/PINTO -m 'Import new Pinto repos'
 
   # Checkout working copy of the Pinto repository
   $> svn co http://my.company.com/svn/trunk/PINTO ~/srv/PINTO

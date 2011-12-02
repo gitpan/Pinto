@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -41,8 +41,8 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
     my $usage =  <<"END_USAGE";
-%c --repos=PATH $command [OPTIONS] DISTRIBUTION_FILE_OR_URL ...
-%c --repos=PATH $command [OPTIONS] < LIST_OF_DISTRIBUTION_FILES_OR_URLS
+%c --repos=PATH $command [OPTIONS] ARCHIVE_FILE_OR_URL ...
+%c --repos=PATH $command [OPTIONS] < LIST_OF_ARCHIVE_FILES_OR_URLS
 END_USAGE
 
     chomp $usage;
@@ -57,8 +57,8 @@ sub execute {
     my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
     return 0 if not @args;
 
-    $self->pinto->new_action_batch( %{$opts} );
-    $self->pinto->add_action('Add', %{$opts}, dist_file => $_) for @args;
+    $self->pinto->new_batch(%{$opts});
+    $self->pinto->add_action('Add', %{$opts}, archive => $_) for @args;
     my $result = $self->pinto->run_actions();
 
     return $result->is_success() ? 0 : 1;
@@ -80,22 +80,24 @@ App::Pinto::Admin::Command::add - add local distributions to the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir add [OPTIONS] DISTRIBUTION_FILE_OR_URL ...
-  pinto-admin --repos=/some/dir add [OPTIONS] < LIST_OF_DISTRIBUTION_FILES_OR_URLS
+  pinto-admin --repos=/some/dir add [OPTIONS] ARCHIVE_FILE_OR_URL ...
+  pinto-admin --repos=/some/dir add [OPTIONS] < LIST_OF_ARCHIVE_FILES_OR_URLS
 
 =head1 DESCRIPTION
 
-This command adds a local distribution to the repository.  Packages in
-local distributions always mask packages in foreign distributions.
+This command adds a local distribution archive and all its packages to
+the repository and recomputes the 'latest' version of the packages
+that were in that distribution.
+
 When a distribution is first added to the repository, the author
-becomes the owner of the distribution Thereafter, only the same author
-can add a new version of that distribution. [Technically speaking, the
-author really owns the *packages* in the distribution, not the
-distribution itself.]
+becomes the owner of the distribution (actually, the packages).
+Thereafter, only the same author can add new versions or remove those
+packages.  However, this is not strongly enforced -- you can change
+your author identity at any time using the C<--author> option.
 
 =head1 COMMAND ARGUMENTS
 
@@ -150,6 +152,19 @@ This is only relevant if you are using a VCS-based storage mechanism.
 The syntax of the NAME depends on the type of VCS you are using.
 
 =back
+
+=head1 DISCUSSION
+
+Using the 'add' command on a distribution you got from another
+repository (such as CPAN mirror) effectively makes that distribution
+local.  So you become the owner of that distribution, even if the
+repository already contains a foreign distribution that was pulled
+from another repository by the C<mirror> or C<import> command.
+
+Local packages are always considered 'later' then any foreign package
+with the same name, even if the foreign package has a higher version
+number.  This allows you to mask a foreign package with your own
+locally patched version.
 
 =head1 AUTHOR
 

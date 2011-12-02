@@ -3,15 +3,22 @@ package Pinto::Action::List;
 # ABSTRACT: An abstract action for listing packages in a repository
 
 use Moose;
-use Pinto::Types 0.017 qw(IO);
 
-extends 'Pinto::Action';
+use Carp qw(croak);
+
+use MooseX::Types::Moose qw(Bool Str);
+use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
+
+#------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
@@ -21,6 +28,36 @@ has out => (
     coerce  => 1,
     default => sub { [fileno(STDOUT), '>'] },
 );
+
+
+has format => (
+    is      => 'ro',
+    isa     => Str,
+    default => '',
+);
+
+#------------------------------------------------------------------------------
+
+sub package_rs {
+    my ($self) = @_;
+
+    my $attrs = { order_by => 'name',  prefetch => 'distribution' };
+    return $self->repos->db->select_packages(undef, $attrs);
+}
+
+#------------------------------------------------------------------------------
+
+override execute => sub {
+    my ($self) = @_;
+
+    my $rs = $self->package_rs();
+    my $format = $self->format();
+    while( my $package = $rs->next() ) {
+        print { $self->out() } $package->to_formatted_string($format);
+    }
+
+    return 0;
+};
 
 #------------------------------------------------------------------------------
 
@@ -42,7 +79,7 @@ Pinto::Action::List - An abstract action for listing packages in a repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ override execute => sub {
     my ($self) = @_;
 
     if ( my $sleep = $self->sleep() ) {
-        $self->logger->debug("Process $$ sleeping for $sleep seconds");
+        $self->debug("Process $$ sleeping for $sleep seconds");
         sleep $self->sleep();
     }
 
@@ -56,7 +56,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 DESCRIPTION
 

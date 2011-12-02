@@ -8,7 +8,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ pinto-admin - administer a Pinto repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
@@ -38,23 +38,26 @@ version 0.024
 =head1 DESCRIPTION
 
 C<pinto-admin> is a command line utility for creating and managing a
-Pinto repository.  The repository can contain your own distributions
-and/or foreign distributions from another repository (such as a CPAN
-mirror like L<http://cpan.perl.org>).  You can also put patched
-versions of foreign distributions in your repository.
-
-You can then point L<cpanm> to your Pinto repository and install your
-distributions (with their dependencies).  B<NOTE:> At this time, only
-L<cpanm> will work properly with a Pinto repository.  But support for
-L<cpan> and L<cpanp> is coming real soon!
+local Pinto repository.  The repository can contain your own
+distributions and/or foreign distributions from another repository
+(such as a CPAN mirror).  You can also put locally patched versions of
+foreign distributions in your repository.  Then you can then point
+L<cpan> (or L<cpanm> or L<cpanp>) at your Pinto repository and
+build/install your distributions.
 
 =head1 BASIC USAGE
 
-  # Create an empty repository
+  # Create an empty repository at /some/dir
   pinto-admin --repos=/some/dir create
 
   # Add your own distribution to the repository
   pinto-admin --repos=/some/dir add Foo-Bar-1.2.tar.gz
+
+  # Fetch a module and all its dependencies
+  pinto-admin --repos=/some/dir import Plack
+
+  # Fetch the latest version of all modules
+  pinto-admin --repos=/some/dir mirror
 
   # Then install stuff, forcing everything to come from your repository
   cpanm --mirror-only --mirror file:///some/dir Foo::Bar
@@ -71,7 +74,8 @@ The following options are available for all commands.
 =item --repos=/path/to/your/repository
 
 Specifies the path to the root directory of your repository.  This is
-mandatory for all commands.
+mandatory for all commands unless you've set the C<PINTO_REPOSITORY>
+environment variable to point to your repository.
 
 =item --nocolor
 
@@ -79,7 +83,7 @@ Do not colorize diagnostic messages according to severity.
 
 =item --quiet | -q
 
-Report only fatal errors.  This option siletly overrides the
+Report only fatal errors.  This option silently overrides the
 C<--verbose> options.
 
 =item --verbose | -v
@@ -91,62 +95,57 @@ times for greater effect.
 
 =head1 COMMANDS
 
-L<pinto-admin> supports several commands that perform various operations
-on your repository, or report information about your repository.  To
-get a listing of all the available commands:
+L<pinto-admin> supports several commands that perform various
+operations on your repository, or report information about your
+repository.  To get a listing of all the available commands:
 
   $> pinto-admin commands
 
-Each command has its own options and arguments.  To get a brief summary:
+Each command has its own options and arguments.  To get a brief
+summary:
 
   $> pinto-admin help COMMAND
 
 To see the complete manual for a command:
 
-  $> pinto-admin COMMAND --man
+  $> pinto-admin manual COMMAND
 
 =head1 CONFIGURATION
 
-The F<config> directory in the root of every repository contains a
+The F<.pinto/config> directory of every repository contains a
 configuration file named F<pinto.ini>.  This file will be generated
-for you (with default values) whenever you create a new repository.
-Thereafter, it is up to you to manually adjust the configuration file
-as you see fit.
+for you whenever you create a new repository.  Thereafter, it is up to
+you to manually adjust the configuration file as you see fit.
 
-The configuration file is in the typical INI format.  Parameters are
-C<NAME = VALUE> pairs.  Global parameters (which are all the ones
-described below) are at the top of the file. Blank lines are ignored,
-leading and trailing whitespace is discarded.  Comments start with a
-semi-colon (;).
+The configuration file is in the typical INI-file format.  Parameters
+are C<NAME = VALUE> pairs.  Blank lines are ignored, leading and
+trailing whitespace is discarded.  Comments start with a semi-colon
+(;).
 
 =over 4
 
-=item source = URL
+=item devel = 0|1
 
-The URL of a repository that you would like L<Pinto> to pull foreign
-distributions from.  This could be a public CPAN mirror, or another
-Pinto repository.  Defaults to L<http://cpan.perl.org>.  This
-parameter is only relevant to the C<update> command.
+If true, L<Pinto> will allow development releases to appear in the
+index when they are the "latest" version.  Otherwise, development
+releases are accepted into the repository but never included in the
+index.  Defaults to 0.
 
-=item nocleanup = 0|1
+=item sources = URL [ URL URL ... ]
 
-If true, L<Pinto> will not automatically delete distributions that
-become out of date (either because you've added your own local version
-or you've pulled a newer one from a remote repository).  The default
-is 0, which means you won't be able to install older versions of a
-distribution from your repository.  But if you set <nocleanup> to 1,
-then you can still get older distributions in the usual way:
+A space-delimited list of the URLs of the repositories that L<Pinto>
+will pull foreign distributions from.  These could be public CPAN
+mirrors, a private L<CPAN::Mini> mirror, or other Pinto repositories.
+Defaults to L<http://cpan.perl.org>.
 
-  $> cpanm A/AU/AUTHOR/Older-Dist-1.2.tar gz
+=item noinit = 0|1
 
-=item noclobber = 0|1
-
-Normally, L<Pinto> favors removing "old" distributions when new ones
-are added (see L<"BEHAVIOR">).  But if C<noclobber> is true, L<Pinto>
-will not remove (from the index) every package in an existing
-distribution whenever you add a distribution that contains one or more
-of the packges that were in the existing distribution.  Setting this
-to true make Pinto behave more like PAUSE.  TODO: explain this better!
+If true, L<Pinto> will not pull/update the repository from the VCS
+before each operation.  This is only relevant if you are using a
+VCS‐based storage mechanism.  This can speed up operations
+considerably, but should only be used if you *know* that your working
+copy is up‐to‐date and you are going to be the only actor touching the
+Pinto repository within the VCS.  Defaults to 0.
 
 =item store = CLASS_NAME
 
@@ -160,67 +159,9 @@ L<Pinto> with a VCS.
 
 =back
 
-=head1 BEHAVIOR
-
-There are certain rules that govern how a Pinto repository behaves.
-These rules are intended to ensure that clients installing
-distributions from your repository will always get the B<right ones>,
-regardless of what happens on the public CPAN or what order they
-install things.
-
-=over 4
-
-=item A local package always masks a foreign package, and all other
-packages that are in the same distribution with the foreign package.
-
-This is important, so pay attention.  If you C<update> or C<add> a
-distribution that contains both C<Foo> and C<Bar> packages, and you
-C<add> another distribution that contains just the C<Foo> package,
-then both the C<Foo> and C<Bar> packages from the prior distribution
-will be removed from your index.  This ensures that anyone installing
-packages from your repository will always get B<your latest> version of
-C<Foo>.  But they'll never be able to get C<Bar>, because doing so
-would leave them with the older C<Foo>.
-
-However, you can disable this behavior with the C<noclobber>
-configuration parameter.
-
-=item You can never add a distribution with the same name twice.
-
-Most distribution-building tools will put some kind of version number
-in the name of the distribution, so this is rarely a problem.  The
-"name" of a distribution is actually a function of the name of the
-file and the name of the author.  So technically, it is possible for
-two different authors to both add a distribution called
-F<Foo-Bar-1.2.tar.gz>.  But in practice, this almost never happens
-because...
-
-=item Only the original author of a local package can add a
-distribution that contains the same package.
-
-Ownership is given on a first-come basis, just like PAUSE.  So if
-C<SALLY> is the first author to add a distribution to the repository
-with package C<Foo::Bar>, then only C<SALLY> can ever add another
-distribution with that package again.  Unless that package is
-explicitly removed, but...
-
-=item Only the original author of a local package can remove it.
-
-Just like when adding new versions of a local package, only the
-original author can remove it.  Yes, you can just change the C<author>
-parameter in your configuration, but C<SALLY> probably wouldn't
-appreciate you messing with her releases (unless C<SALLY> no longer
-works here).
-
-So if you're working as part of a team and everyone is allowed to
-make releases of the same packages, then conisder having everyone
-use the same C<author> parameter.
-
-=back
-
 =head1 SEE ALSO
 
-L<Pinto::Manual> for broad information about using the Pinto tools.
+L<Pinto::Manual> for detailed information on using the Pinto tools.
 
 L<pinto-server> to allow remote access to your Pinto repository.
 

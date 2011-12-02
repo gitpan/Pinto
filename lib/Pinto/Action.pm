@@ -10,20 +10,14 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
 
-has idxmgr => (
+has repos => (
     is       => 'ro',
-    isa      => 'Pinto::IndexManager',
-    required => 1,
-);
-
-has store => (
-    is       => 'ro',
-    isa      => 'Pinto::Store',
+    isa      => 'Pinto::Repository',
     required => 1,
 );
 
@@ -31,9 +25,9 @@ has messages => (
     is         => 'ro',
     isa        => 'ArrayRef[Str]',
     traits     => [ 'Array' ],
+    handles    => {add_message => 'push'},
     default    => sub{ [] },
     init_arg   => undef,
-    handles    => {add_message => 'push'},
     auto_deref => 1,
 );
 
@@ -50,8 +44,8 @@ has exceptions => (
 #------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
+with qw( Pinto::Interface::Configurable
+         Pinto::Interface::Loggable );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -81,7 +75,7 @@ Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

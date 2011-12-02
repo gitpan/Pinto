@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -45,6 +45,18 @@ has _mods => (
 
 #------------------------------------------------------------------------------
 # Methods
+
+#------------------------------------------------------------------------------
+
+override commit => sub {
+    my ($self);
+
+    $self->mark_path_as_modified( $self->config->pinto_dir() );
+
+    return $self;
+};
+
+#------------------------------------------------------------------------------
 
 sub mark_path_as_added {
     my ($self, $path) = @_;
@@ -117,7 +129,7 @@ Pinto::Store::VCS - Base class for VCS-backed Stores
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

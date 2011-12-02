@@ -1,33 +1,53 @@
+=head1 PRIORITIZE...
+
+=over 4
+
+=item Support dist path and dist URL targets for Import action
+
+=item Support --fallback on Package::Locator
+
+=item Support --latest option on Import action
+
+=item Exception hierarchy/handling
+
+
+
+
+=item Documentation review
+
+=item API documentation
+
+=item Support target_perl option
+
+=item Use standard logging module
+
+=item More robust list action
+
+=item Query language?
+
+
+
+=back
+
+
 =head1 STUFF TODO
 
 In no particular order...
 
 =over 4
 
-=item Command line switch Specify alternative tag name.
+=item Implement --force option for the update command.
 
 =item Enable plugins for visiting and filtering. See CPAN::Mini and
 CPAN::Mini::Visit.
-
-=item Automatically fetch dependecies when adding *VERY COOL*
 
 =item Make file/directory permissions configurable. Not sure this is needed.
 
 =item Standardize API, using named parameters except where it makes
 sense not to.
 
-=item Replace the IndexManager and Index classes with a proper
-database.  Look at CPANDB for example.  Estimate benefits for George.  ??
-
-=item Use proper exceptions, instead of just croaking.  ++
-
-=item Consider how we might mirror multiple repositories.
-
 =item Write a tutorial to explain different ways for using Pinto in
 the development/deployment cycle. ++
-
-=item Add support for cpan[1] clients.  For this I think we just need
-to produce minimal version of the authors and modules index files. ++
 
 =item Generate a RECENT file.  This could just contain the files
 added in the last action (if any).

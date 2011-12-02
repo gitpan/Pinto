@@ -1,6 +1,6 @@
 package App::Pinto::Admin::Command::remove;
 
-# ABSTRACT: remove local distributions from the repository
+# ABSTRACT: remove distributions from the repository
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -41,8 +41,8 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
  my $usage =  <<"END_USAGE";
-%c --repos=PATH $command [OPTIONS] DISTRIBUTION_NAME ...
-%c --repos=PATH $command [OPTIONS] < LIST_OF_DISTRIBUTION_NAMES
+%c --repos=PATH $command [OPTIONS] DISTRIBUTION_PATH ...
+%c --repos=PATH $command [OPTIONS] < LIST_OF_DISTRIBUTION_PATHS
 END_USAGE
 
     chomp $usage;
@@ -58,8 +58,8 @@ sub execute {
     my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
     return 0 if not @args;
 
-    $self->pinto->new_action_batch( %{$opts} );
-    $self->pinto->add_action('Remove', %{$opts}, dist_name => $_) for @args;
+    $self->pinto->new_batch( %{$opts} );
+    $self->pinto->add_action('Remove', %{$opts}, path => $_) for @args;
     my $result = $self->pinto->run_actions();
 
     return $result->is_success() ? 0 : 1;
@@ -77,37 +77,36 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::remove - remove local distributions from the repository
+App::Pinto::Admin::Command::remove - remove distributions from the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir remove [OPTIONS] DISTRIBUTION_NAME ...
-  pinto-admin --repos=/some/dir remove [OPTIONS] < LIST_OF_DISTRIBUTION_NAMES
+  pinto-admin --repos=/some/dir remove [OPTIONS] ARCHIVE_PATH ...
+  pinto-admin --repos=/some/dir remove [OPTIONS] < LIST_OF_ARCHIVE_PATHS
 
 =head1 DESCRIPTION
 
-This command removes a local distribution from the repository.  You
-cannot remove foreign distributions that were pulled in from another
-repository using the C<update> command (however you can mask them by
-adding your own versions).
+This command removes a distribution archive and all its packages from
+the repository and recomputes the 'latest' version of the packages
+that were in that distribution.
 
 =head1 COMMAND ARGUMENTS
 
-Arguments to this command are the names of the distributions you wish
-to remove.  You must specify the complete distribution name, including
-version number and extension.  The precise identity of the
-distribution that will be removed depends on who you are.  So if you
-are C<JOE> and you ask to remove C<Foo-1.0.tar.gz> then you are really
-asking to remove F<J/JO/JOE/Foo-1.0.tar.gz>.
+Arguments to this command are the paths to the distribution archives
+you wish to remove.  The precise archive that will be removed depends
+on who you are.  So if you are C<JOE> and you ask to remove
+C<Foo-1.0.tar.gz> then you are really asking to remove
+F<J/JO/JOE/Foo-1.0.tar.gz>.
 
-To remove a distribution that was added by another author, use the
-C<--author> option to change who you are.  Or you can just
-explicitly specify the full identity of the distribution.  So the
-following two examples are equivalent:
+To remove an archive that is owned by another author, use the
+C<--author> option to change your identity.  Or you can just
+explicitly specify the full path of the archive (note that paths are
+always expressed with forward slashes).  So the following two examples
+are equivalent:
 
   $> pinto-admin --repos=/some/dir remove --author=SUSAN Foo-1.0.tar.gz
   $> pinto-admin --repos=/some/dir remove S/SU/SUSAN/Foo-1.0.tar.gz
@@ -157,6 +156,28 @@ This is only relevant if you are using a VCS-based storage mechanism.
 The syntax of the NAME depends on the type of VCS you are using.
 
 =back
+
+=head1 DISCUSSION
+
+Local packages are always considered 'later' then any foreign package
+with the same name, even if the foreign package has a higher version
+number.  So a foreign package will not become 'latest' until all
+versions of the local package with that name have been removed.
+
+Removing the latest version of local package generally works as you
+would expect.  That is, the package with the next highest version (if
+it exists) will take its place in the 02packages.details file.  But
+when removing the latest version of a foreign package, the next
+'latest' version may not always appear in the 02packages.details file,
+or it may not be the version you were expecting.
+
+This is because Pinto does not examine the contents of a foreign
+distribution, so it only knows about the packages listed in the
+foreign index.  This may not actually represent all the packages in
+that distribution.  Moreover, the completeness of the history of a
+foreign package depends on how often you update your repository.  So
+if you update infrequently, there may be large gaps between the
+package versions that your Pinto repository knows about.
 
 =head1 AUTHOR
 

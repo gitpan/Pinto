@@ -5,14 +5,15 @@ package Pinto::Util::Svn;
 use strict;
 use warnings;
 
-use Carp qw(carp croak);
 use List::MoreUtils qw(firstidx);
 use Path::Class;
 use IPC::Run;
 
+use Pinto::Exceptions qw(throw_fatal);
+
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -63,7 +64,9 @@ sub svn_commit {
     my $message  = $args{message} || 'NO MESSAGE GIVEN';
 
     my @paths = ref $paths eq 'ARRAY' ? @{ $paths } : ($paths);
-    return _svn(command => [qw(commit -m), $message, @paths] );
+    my @args  = @paths < 128 ? @paths : ('--targets', _make_targets_file($paths));
+
+    return _svn(command => [qw(commit -m), $message, @args] );
 }
 
 #--------------------------------------------------------------------------
@@ -89,9 +92,9 @@ sub location {
     _svn( command => ['info', $path], buffer => \$buffer);
 
     $buffer =~ /^ URL: \s+ (\S+) $/xm
-        or croak "Unable to parse svn info: $buffer";
+        or throw_fatal "Unable to parse svn info: $buffer";
 
-    return $1;
+    return $1; ## no critic qw(Capture)
 }
 
 #--------------------------------------------------------------------------
@@ -106,6 +109,20 @@ sub _all_scheduled_for_deletion {
     }
 
     return 1;
+}
+
+#--------------------------------------------------------------------------
+
+sub _make_targets_file {
+    my ($args) = @_;
+
+    my $tempdir = File::Temp::tempdir(CLEANUP => 1);
+    my $file    = dir( $tempdir )->file('args');
+    my $fh      = $file->openw();
+    print {$fh} "$_\n" for @{$args};
+    close $fh;
+
+    return $file;
 }
 
 #--------------------------------------------------------------------------
@@ -136,7 +153,7 @@ sub _svn {
         }
 
         my $command_string = join ' ', @{ $command };
-        croak "Command failed: $command_string\n" . ${ $buffer };
+        throw_fatal "Command failed: $command_string\n" . ${ $buffer };
     }
 
     return $ok;
@@ -162,7 +179,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 FUNCTIONS
 

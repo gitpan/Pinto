@@ -1,91 +1,118 @@
 package Pinto::Action::Add;
 
-# ABSTRACT: An action to add one local distribution to the repository
+# ABSTRACT: Add one local distribution to the repository
 
 use Moose;
 
 use Path::Class;
-use File::Temp;
 
 use Pinto::Util;
-use Pinto::Distribution;
-use Pinto::Types 0.017 qw(StrOrFileOrURI);
-
-extends 'Pinto::Action';
+use Pinto::Types qw(File);
+use Pinto::PackageExtractor;
+use Pinto::Exceptions qw(throw_error);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
+
+#------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 # Attrbutes
 
-has dist_file => (
+has archive => (
     is       => 'ro',
-    isa      => StrOrFileOrURI,
+    isa      => File,
     required => 1,
+    coerce   => 1,
+);
+
+
+has extractor => (
+    is         => 'ro',
+    isa        => 'Pinto::PackageExtractor',
+    lazy_build => 1,
 );
 
 #------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Role::UserAgent
-         Pinto::Role::Authored );
+with qw( Pinto::Interface::Authorable
+         Pinto::Role::FileFetcher );
 
 #------------------------------------------------------------------------------
+# Builders
+
+sub _build_extractor {
+    my ($self) = @_;
+
+    return Pinto::PackageExtractor->new( config => $self->config(),
+                                         logger => $self->logger() );
+}
+
+#------------------------------------------------------------------------------
+# Public methods
 
 override execute => sub {
     my ($self) = @_;
 
-    my $repos     = $self->config->repos();
-    my $cleanup   = not $self->config->nocleanup();
-    my $author    = $self->author();
-    my $dist_file = $self->dist_file();
+    my $archive = $self->archive();
+    my $author  = $self->author();
 
-    # TODO: Consider moving Distribution construction to the index manager
-    $dist_file = _is_url($dist_file) ? $self->_dist_from_url($dist_file) : file($dist_file);
-    my $added = Pinto::Distribution->new_from_file(file => $dist_file, author => $author);
+    throw_error "Archive $archive does not exist"  if not -e $archive;
+    throw_error "Archive $archive is not readable" if not -r $archive;
 
-    my @removed = $self->idxmgr->add_local_distribution(dist => $added, file => $dist_file);
-    $self->logger->info(sprintf "Adding $added with %i packages", $added->package_count());
+    my $root_dir   = $self->config->root_dir();
+    my $basename   = $archive->basename();
+    my $author_dir = Pinto::Util::author_dir($author);
+    my $path       = $author_dir->file($basename)->as_foreign('Unix')->stringify();
 
-    $self->store->add( file => $added->path($repos), source => $dist_file );
-    $cleanup && $self->store->remove( file => $_->path($repos) ) for @removed;
+    my $where    = {path => $path};
+    my $existing = $self->repos->select_distributions( $where )->single();
+    throw_error "Distribution $path already exists" if $existing;
 
-    $self->add_message( Pinto::Util::added_dist_message($added) );
-    $self->add_message( Pinto::Util::removed_dist_message($_) ) for @removed;
+    my $destination = $self->repos->root_dir->file( qw(authors id), $author_dir, $basename );
+    $self->fetch(from => $archive, to => $destination);
+
+    my @pkg_specs = $self->_extract_packages_and_check_authorship($archive);
+    $self->info(sprintf "Adding distribution $path with %d packages", scalar @pkg_specs);
+
+    # TODO: must copy archive into the repository.  But I'm not sure where that code should go.
+
+    my $struct = { path     => $path,
+                   source   => 'LOCAL',
+                   mtime    => Pinto::Util::mtime($archive),
+                   packages => \@pkg_specs };
+
+    my $dist = $self->repos->add_distribution($struct);
+
+    $self->add_message( Pinto::Util::added_dist_message($dist) );
 
     return 1;
 };
 
 #------------------------------------------------------------------------------
 
-sub _is_url {
-    my ($it) = @_;
+sub _extract_packages_and_check_authorship {
+    my ($self, $archive, $author) = @_;
 
-    return 1 if eval { $it->isa('URI') };
-    return 0 if eval { $it->isa('Path::Class::File') };
-    return $it =~ m/^ (?: http|ftp|file|) : /x;
-}
+    my @pkg_specs = $self->extractor->provides( archive => $archive );
 
-#------------------------------------------------------------------------------
+    for my $pkg (@pkg_specs) {
+        my $attrs = { prefetch => 'distribution' };
+        my $where = { name => $pkg->{name}, 'distribution.source' => 'LOCAL'};
+        my $incumbent = $self->repos->select_packages($where, $attrs)->first() or next;
+        if ( (my $incumbent_author = $incumbent->distribution->author()) ne $author ) {
+            throw_error "Only author $incumbent_author can update package $pkg->{name}";
+        }
+    }
 
-sub _dist_from_url {
-    my ($self, $dist_url) = @_;
-
-    my $url = URI->new($dist_url)->canonical();
-    my $path = Path::Class::file( $url->path() );
-    return $path if $url->scheme() eq 'file';
-
-    my $base     = $path->basename();
-    my $tempdir  = File::Temp::tempdir(CLEANUP => 1);
-    my $tempfile = Path::Class::file($tempdir, $base);
-
-    $self->fetch(url => $url, to => $tempfile);
-
-    return Path::Class::file($tempfile);
+    return @pkg_specs;
 }
 
 #------------------------------------------------------------------------------
@@ -103,11 +130,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Add - An action to add one local distribution to the repository
+Pinto::Action::Add - Add one local distribution to the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

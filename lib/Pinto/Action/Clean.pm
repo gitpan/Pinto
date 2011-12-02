@@ -1,60 +1,89 @@
 package Pinto::Action::Clean;
 
-# ABSTRACT: An action to remove cruft from the repository
+# ABSTRACT: Remove all outdated distributions from the repository
 
 use Moose;
 
-use File::Find;
-use Path::Class;
+use MooseX::Types::Moose qw(Bool);
 
-extends 'Pinto::Action';
+use IO::Interactive;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
+# ISA
+
+extends 'Pinto::Action';
+
+#------------------------------------------------------------------------------
+
+has confirm => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+#------------------------------------------------------------------------------
+# Methods
 
 override execute => sub {
     my ($self) = @_;
 
-    my $repos      = $self->config()->repos();
-    my $search_dir = Path::Class::dir($repos, qw(authors id));
-    return 0 if not -e $search_dir;
+    my $outdated = $self->_select_outdated_distributions();
 
-    my @removed = ();
-    my $wanted = $self->_make_callback($search_dir, \@removed);
-    File::Find::find($wanted, $search_dir);
-    return 0 if not @removed;
+    my $removed  = 0;
+    while ( my $dist = $outdated->next() ) {
+        my $path = $dist->path();
+        my $archive = $dist->archive( $self->config->root_dir() );
 
-    $self->add_message( "Removed distribution $_" ) for @removed;
+        if ( $self->confirm() && IO::Interactive::is_interactive() ) {
+            next if not $self->_prompt_for_confirmation($archive);
+        }
 
-    return 1;
+        $self->repos->remove_distribution(path => $dist);
+        $self->add_message( "Removed distribution $path" );
+        $removed++;
+    }
+
+    return $removed;
 };
 
 #------------------------------------------------------------------------------
 
-sub _make_callback {
-    my ($self, $search_dir, $deleted) = @_;
+sub _select_outdated_distributions {
+    my ($self) = @_;
 
-    return sub {
+    my $attrs = { prefetch => 'packages', order_by => {-asc => 'path'} };
+    my $rs = $self->db->select_distributions(undef, $attrs);
 
-        if ( Pinto::Util::is_source_control_file($_) ) {
-            $File::Find::prune = 1;
-            return;
-        }
+    my @outdated;
+    while ( my $dist = $rs->next() ) {
+        push @outdated, $dist if none { $_->is_latest() } $dist->packages();
+    }
 
-        return if not -f $File::Find::name;
+    my $new_rs = $self->result_source->resultset();
+    $new_rs->set_cache(\@outdated);
 
-        my $file = file($File::Find::name);
-        my $location  = $file->relative($search_dir)->as_foreign('Unix');
-        return if $self->idxmgr->master_index->distributions->{$location};
+    return $new_rs;
 
-        $self->store->remove(file => $file);
-        push @{ $deleted }, $location;
-    };
+}
+
+#------------------------------------------------------------------------------
+
+sub _prompt_for_confirmation {
+    my ($self, $archive) = @_;
+
+    my $answer = '';
+    until ($answer =~ m/^[yn]$/ix) {
+        print "Remove distribution $archive? [Y/N]: ";
+        chomp( $answer = uc <STDIN> );
+    }
+
+    return $answer eq 'Y';
 }
 
 #------------------------------------------------------------------------------
@@ -73,11 +102,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Clean - An action to remove cruft from the repository
+Pinto::Action::Clean - Remove all outdated distributions from the repository
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 AUTHOR
 

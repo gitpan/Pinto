@@ -5,21 +5,20 @@ package Pinto::Role::PathMaker;
 use Moose::Role;
 
 use Path::Class;
-use English qw(-no_match_vars);
+use Try::Tiny;
 
-use Pinto::Exception::IO qw(throw_io);
-use Pinto::Exception::Args qw(throw_args);
+use Pinto::Exceptions qw(throw_fatal);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
-# Required attributes
+# Roles
 
-requires 'logger';
+with qw(Pinto::Interface::Loggable);
 
 #------------------------------------------------------------------------------
 
@@ -29,15 +28,15 @@ sub mkpath {
 
     $path = dir($path) if not eval {$path->isa('Path::Class')};
 
-    throw_args "$path is not a Path::Class::Dir" if not $path->is_dir();
-    throw_args "$path is an existing file" if -f $path;
+    throw_fatal "$path is not a Path::Class::Dir" if not $path->is_dir();
+    throw_fatal "$path is an existing file" if -f $path;
 
     return 0 if -e $path;
 
-    $self->logger->debug("Making directory $path");
+    $self->debug("Making directory $path");
 
-    eval { $path->mkpath(); 1}
-        or throw_io "Failed to make directory $path: $EVAL_ERROR";
+    try   { $path->mkpath() }
+    catch { throw_fatal "Failed to make directory $path: $_" };
 
     return 1;
 }
@@ -58,7 +57,7 @@ Pinto::Role::PathMaker - Something that makes directory paths
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 METHODS
 

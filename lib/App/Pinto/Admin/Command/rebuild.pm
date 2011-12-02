@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,9 +20,10 @@ sub opt_spec {
 
     return (
         [ 'message|m=s' => 'Prepend a message to the VCS log' ],
-        [ 'nocommit'  => 'Do not commit changes to VCS' ],
-        [ 'noinit'    => 'Do not pull/update from VCS' ],
-        [ 'tag=s'     => 'Specify a VCS tag name' ],
+        [ 'nocommit'    => 'Do not commit changes to VCS' ],
+        [ 'noinit'      => 'Do not pull/update from VCS' ],
+        [ 'recompute'   => 'Also recompute latest versions' ],
+        [ 'tag=s'       => 'Specify a VCS tag name' ],
     );
 }
 
@@ -41,7 +42,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
 
-    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->new_batch( %{$opts} );
     $self->pinto->add_action('Rebuild', %{$opts});
     my $result = $self->pinto->run_actions();
 
@@ -50,7 +51,6 @@ sub execute {
 }
 
 #------------------------------------------------------------------------------
-
 1;
 
 
@@ -65,7 +65,7 @@ App::Pinto::Admin::Command::rebuild - rebuild the repository index
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 
@@ -78,6 +78,11 @@ use this command to rebuild it.  Note this is not the same as
 re-indexing all your distributions.  Rebuilding the index simply means
 regenerating the index file from the information that L<Pinto> already
 has about your distributions.
+
+You might also want to rebuild the index after upgrading to a new
+version of L<Pinto>.  Newer versions may correct or improve the way
+the latest version of a package is calculated.  See the C<--recompute>
+option below.
 
 =head1 COMMAND ARGUMENTS
 
@@ -96,11 +101,11 @@ for L<Pinto>.
 =item --nocommit
 
 Prevents L<Pinto> from committing changes in the repository to the VCS
-after the operation.  This is only relevant if you are
-using a VCS-based storage mechanism.  Beware this will leave your
-working copy out of sync with the VCS.  It is up to you to then commit
-or rollback the changes using your VCS tools directly.  Pinto will not
-commit old changes that were left from a previous operation.
+after the operation.  This is only relevant if you are using a
+VCS-based storage mechanism.  Beware this will leave your working copy
+out of sync with the VCS.  It is up to you to then commit or rollback
+the changes using your VCS tools directly.  Pinto will not commit old
+changes that were left from a previous operation.
 
 =item --noinit
 
@@ -110,6 +115,19 @@ VCS-based storage mechanism.  This can speed up operations
 considerably, but should only be used if you *know* that your working
 copy is up-to-date and you are going to be the only actor touching the
 Pinto repository within the VCS.
+
+=item --recompute
+
+Instructs L<Pinto> to also recompute what it thinks is the 'latest'
+version of each package in the repository.  This is useful if you've
+upgraded to a newer version of Pinto that has different (hopefully
+better) logic for determining the 'latest' version.
+
+Beware that the C<--recompute> option could change the contents of the
+index file, thereby affecting which packages clients will pull from
+the repository.  And if you subsequently run the C<clean> command, you
+will loose the distributions that were in the old index, but are not
+in the new one.
 
 =item --tag=NAME
 

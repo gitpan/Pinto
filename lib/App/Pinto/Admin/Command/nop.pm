@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.024'; # VERSION
+our $VERSION = '0.025_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -31,7 +31,11 @@ sub opt_spec {
 sub validate_args {
     my ($self, $opts, $args) = @_;
 
-    $self->usage_error('Arguments are not allowed') if @{ $args };
+    $self->usage_error('Arguments are not allowed')
+      if @{ $args };
+
+    $self->usage_error('Sleep time must be positive integer')
+      if defined $opts->{sleep} && $opts->{sleep} < 1;
 
     return 1;
 }
@@ -41,7 +45,7 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
 
-    $self->pinto->new_action_batch( %{$opts} );
+    $self->pinto->new_batch( %{$opts} );
     $self->pinto->add_action('Nop', %{$opts} );
     my $result = $self->pinto->run_actions();
 
@@ -64,7 +68,7 @@ App::Pinto::Admin::Command::nop - initialize Pinto and exit
 
 =head1 VERSION
 
-version 0.024
+version 0.025_001
 
 =head1 SYNOPSIS
 

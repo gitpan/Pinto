@@ -1,20 +1,78 @@
 NAME
-    Pinto - Perl distribution repository manager
+    Pinto - Curate your own CPAN-like repository
 
 VERSION
-    version 0.024
+    version 0.025_001
 
 SYNOPSIS
-    There is nothing for you to see here. Instead, please look at one or
-    more of the following:
+    See pinto-admin to create and manage a Pinto repository.
 
-    See Pinto::Manual for broad information about the Pinto tools.
-
-    See pinto-admin to create and manage your Pinto repository.
-
-    See pinto-server to allow remote access to your Pinto repository.
+    See pinto-server to open remote access to a Pinto repository.
 
     See pinto-remote to interact with a remote Pinto repository.
+
+    See Pinto::Manual for more information about the Pinto tools.
+
+DESCRIPTION
+    Pinto is a suite of tools for creating and managing a CPAN-like
+    repository of Perl archives. Pinto is inspired by CPAN::Mini,
+    CPAN::Mini::Inject, and MyCPAN::App::DPAN, but adds a few interesting
+    features:
+
+    *   Pinto supports several usage patterns
+
+        With Pinto, you can create a repository to mirror the latest
+        distributions from another repository. Or you can create a "sparse
+        repository" with just your own private distributions. Or you can
+        create a "project repository" that has all the distributions
+        required for a particular project. Or you can combine all of the
+        above in some way.
+
+    *   Pinto supports adding AND removing archives from the repository.
+
+        Pinto gives you the power to precisely tune the contents of your
+        repository. So you can be sure that your downstream clients get
+        exactly the stack of dependencies that you want them to have.
+
+    *   Pinto can be integrated with your version control system.
+
+        Pinto can automatically commit to your version control system
+        whenever the contents of the repository changes. This gives you
+        repeatable and identifiable snapshots of your dependencies, and a
+        mechanism for rollback when things go wrong.
+
+    *   Pinto makes it easier to build several local repositories.
+
+        Creating new Pinto repositories is easy, and each has its own
+        configuration. So you can have different repositories for each
+        department, or each project, or each version of perl, or each
+        customer, or whatever you want.
+
+    *   Pinto can pull archives from multiple remote repositories.
+
+        Pinto can mirror or import distributions from multiple sources, so
+        you can create private (or public) networks of repositories that
+        enable separate teams or individuals to collaborate and share
+        distributions.
+
+    *   Pinto supports team development.
+
+        Pinto is suitable for small to medium-sized development teams, where
+        several developers might contribute new distributions at the same
+        time.
+
+    *   Pinto has a robust command line interface.
+
+        The pinto-admin and pinto-remote command line tools have options to
+        control every aspect of your Pinto repository. They are well
+        documented and behave in a DWIM fashion.
+
+    *   Pinto can be extended.
+
+        You can extend Pinto by creating Pinto::Action subclasses to perform
+        new operations on your repository, such as extracting documentation
+        from a distribution, or grepping the source code of several
+        distributions.
 
 SUPPORT
   Perldoc
@@ -32,13 +90,6 @@ SUPPORT
         The default CPAN search engine, useful to view POD in HTML format.
 
         <http://search.cpan.org/dist/Pinto>
-
-    *   RT: CPAN's Bug Tracker
-
-        The RT ( Request Tracker ) website is the default bug/issue tracking
-        system for CPAN.
-
-        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Pinto>
 
     *   CPAN Ratings
 
@@ -69,15 +120,12 @@ SUPPORT
         <http://deps.cpantesters.org/?module=Pinto>
 
   Bugs / Feature Requests
-    Please report any bugs or feature requests by email to "bug-pinto at
-    rt.cpan.org", or through the web interface at
-    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Pinto>. You will be
-    automatically notified of any progress on the request by the system.
+    <https://github.com/thaljef/Pinto/issues>
 
   Source Code
     <https://github.com/thaljef/Pinto>
 
-      git clone https://github.com/thaljef/Pinto
+      git clone git://github.com/thaljef/Pinto.git
 
 AUTHOR
     Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
