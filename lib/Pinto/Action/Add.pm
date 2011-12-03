@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_002'; # VERSION
+our $VERSION = '0.025_003'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -134,7 +134,7 @@ Pinto::Action::Add - Add one local distribution to the repository
 
 =head1 VERSION
 
-version 0.025_002
+version 0.025_003
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_002'; # VERSION
+our $VERSION = '0.025_003'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -44,7 +44,7 @@ sub execute {
 
         my $path = $dist_spec->{path};
         if ( Pinto::Util::isa_perl($path) ) {
-            $self->info("Distribution $path is a perl.  Skipping it.");
+            $self->debug("Distribution $path is a perl.  Skipping it.");
             next;
         }
 
@@ -155,7 +155,7 @@ Pinto::Action::Mirror - Pull all the latest distributions into your repository
 
 =head1 VERSION
 
-version 0.025_002
+version 0.025_003
 
 =head1 AUTHOR
 

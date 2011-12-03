@@ -24,7 +24,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.025_002",
+  "dist_version" => "0.025_003",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -40,7 +40,7 @@ my %module_build_args = (
     "DBIx::Class::Schema" => 0,
     "DateTime" => 0,
     "Dist::Metadata" => "0.922",
-    "Dist::Requires" => 0,
+    "Dist::Requires" => "0.004",
     "Exception::Class" => 0,
     "Exporter" => 0,
     "File::Copy" => 0,

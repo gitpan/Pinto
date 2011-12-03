@@ -6,8 +6,8 @@ use Moose;
 use MooseX::Types::Moose qw(Bool);
 
 use Try::Tiny;
-use Dist::Requires;
-use Dist::Metadata 0.922;
+use Dist::Requires 0.004;  # Bug fixes
+use Dist::Metadata 0.922;  # Supports zip
 
 use Pinto::Exceptions qw(throw_error);
 
@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.025_002'; # VERSION
+our $VERSION = '0.025_003'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Attributes
@@ -75,7 +75,7 @@ sub requires {
 
     $self->debug("Extracting prerequisites from $archive");
 
-    my %prereqs =   try { Dist::Requires->new()->requires(dist => $archive)               }
+    my %prereqs =   try { Dist::Requires->new()->prerequisites(dist => $archive)          }
                   catch { throw_error "Unable to extract prerequisites from $archive: $_" };
 
     my @prereqs;
@@ -135,7 +135,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.025_002
+version 0.025_003
 
 =head1 AUTHOR
 

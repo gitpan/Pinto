@@ -66,7 +66,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_002'; # VERSION
+our $VERSION = '0.025_003'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -99,6 +99,10 @@ sub vname {
 sub to_string {
     my ($self) = @_;
 
+    # Some attributes are just undefined, usually because of
+    # oddly named distributions and other old stuff on CPAN.
+    no warnings 'uninitialized';  ## no critic qw(NoWarnings);
+
     return sprintf '%s/%s/%s', $self->distribution->author(),
                                $self->distribution->vname(),
                                $self->vname();
@@ -126,6 +130,10 @@ sub to_formatted_string {
          'w' => sub { $self->distribution->version()                  },
          'u' => sub { $self->distribution->url()                      },
     );
+
+    # Some attributes are just undefined, usually because of
+    # oddly named distributions and other old stuff on CPAN.
+    no warnings 'uninitialized';  ## no critic qw(NoWarnings);
 
     $format ||= $self->default_format();
     return String::Format::stringf($format, %fspec);
@@ -179,7 +187,7 @@ Pinto::Schema::Result::Package - Represents a package in a Distribution
 
 =head1 VERSION
 
-version 0.025_002
+version 0.025_003
 
 =head1 NAME
 
