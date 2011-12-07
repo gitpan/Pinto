@@ -14,14 +14,15 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 Readonly my $LEVEL_QUIET => -1;
 Readonly my $LEVEL_WARN  =>  0;
 Readonly my $LEVEL_INFO  =>  1;
-Readonly my $LEVEL_DEBUG =>  2;
+Readonly my $LEVEL_NOTE  =>  2;
+Readonly my $LEVEL_DEBUG =>  3;
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -29,7 +30,7 @@ Readonly my $LEVEL_DEBUG =>  2;
 has verbose  => (
     is       => 'ro',
     isa      => Int,
-    default  => $LEVEL_WARN,
+    default  => $LEVEL_INFO,
 );
 
 has out => (
@@ -73,6 +74,18 @@ sub debug {
 
     chomp $message;
     $self->_logit($message) if $self->verbose() >= $LEVEL_DEBUG;
+
+    return 1;
+}
+
+#-----------------------------------------------------------------------------
+
+
+sub note {
+    my ($self, $message) = @_;
+
+    chomp $message;
+    $self->_logit($message) if $self->verbose() >= $LEVEL_NOTE;
 
     return 1;
 }
@@ -154,13 +167,17 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 METHODS
 
 =head2 debug( $message )
 
 Logs a message if C<verbose> is 1 or higher.
+
+=head2 note( $message )
+
+Logs a message if C<verbose> is 2 or higher.
 
 =head2 info( $message )
 

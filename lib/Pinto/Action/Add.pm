@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -79,10 +79,8 @@ override execute => sub {
     my $destination = $self->repos->root_dir->file( qw(authors id), $author_dir, $basename );
     $self->fetch(from => $archive, to => $destination);
 
-    my @pkg_specs = $self->_extract_packages_and_check_authorship($archive);
+    my @pkg_specs = $self->_extract_packages_and_check_authorship();
     $self->info(sprintf "Adding distribution $path with %d packages", scalar @pkg_specs);
-
-    # TODO: must copy archive into the repository.  But I'm not sure where that code should go.
 
     my $struct = { path     => $path,
                    source   => 'LOCAL',
@@ -99,7 +97,10 @@ override execute => sub {
 #------------------------------------------------------------------------------
 
 sub _extract_packages_and_check_authorship {
-    my ($self, $archive, $author) = @_;
+    my ($self) = @_;
+
+    my $archive = $self->archive();
+    my $author  = $self->author();
 
     my @pkg_specs = $self->extractor->provides( archive => $archive );
 
@@ -134,7 +135,7 @@ Pinto::Action::Add - Add one local distribution to the repository
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 AUTHOR
 

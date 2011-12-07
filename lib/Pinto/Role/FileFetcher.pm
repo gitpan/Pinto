@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -72,7 +72,7 @@ sub fetch_temporary {
 sub _fetch {
     my ($self, $url, $to) = @_;
 
-    $self->info("Fetching $url");
+    $self->note("Fetching $url");
 
     my $result = eval { $self->ua->mirror($url, $to) } or throw_fatal $@;
 
@@ -136,7 +136,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 METHODS
 

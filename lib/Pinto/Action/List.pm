@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -41,7 +41,8 @@ has format => (
 sub package_rs {
     my ($self) = @_;
 
-    my $attrs = { order_by => 'name',  prefetch => 'distribution' };
+    my $attrs = { order_by => [ qw(name version path) ],
+                  prefetch => 'distribution' };
 
     return $self->repos->db->select_packages(undef, $attrs);
 }
@@ -80,7 +81,7 @@ Pinto::Action::List - An abstract action for listing packages in a repository
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 AUTHOR
 

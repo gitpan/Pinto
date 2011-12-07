@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -101,7 +101,7 @@ sub run {
     }
 
     if ( not  $self->_result->changes_made() ) {
-        $self->debug('No changes were made');
+        $self->note('No changes were made');
         return $self->_result();
     }
 
@@ -175,7 +175,7 @@ Pinto::Batch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 METHODS
 

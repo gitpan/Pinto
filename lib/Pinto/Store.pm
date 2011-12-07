@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -169,7 +169,7 @@ Pinto::Store - Storage for a Pinto repository
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 DESCRIPTION
 

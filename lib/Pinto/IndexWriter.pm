@@ -10,7 +10,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -33,7 +33,7 @@ sub write {                                       ## no critic (BuiltinHomonym)
     my ($self, %args) = @_;
 
     my $file = $args{file};
-    $self->info("Writing index at $file");
+    $self->note("Writing index at $file");
 
     open my $fh, '>:gzip', $file or throw_fatal "Cannot open $file: $!";
     $self->_write_header($fh, $file);
@@ -129,7 +129,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 AUTHOR
 

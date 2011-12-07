@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,18 +38,6 @@ sub validate_args {
 }
 
 #------------------------------------------------------------------------------
-
-sub execute {
-    my ($self, $opts, $args) = @_;
-
-    $self->pinto->new_batch( %{$opts} );
-    $self->pinto->add_action('Clean', %{$opts});
-    my $result = $self->pinto->run_actions();
-
-    return $result->is_success() ? 0 : 1;
-}
-
-#------------------------------------------------------------------------------
 1;
 
 
@@ -64,7 +52,7 @@ App::Pinto::Admin::Command::clean - remove all distributions that are not in the
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 SYNOPSIS
 

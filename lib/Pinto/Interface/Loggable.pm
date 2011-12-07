@@ -8,14 +8,14 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 has logger => (
     is         => 'ro',
     isa        => 'Pinto::Logger',
-    handles    => [ qw(debug info whine fatal) ],
+    handles    => [ qw(debug note info whine fatal) ],
     required   => 1,
 );
 
@@ -35,7 +35,7 @@ Pinto::Interface::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 AUTHOR
 

@@ -1,0 +1,15 @@
+#!/bin/bash -x
+
+# Run this command from the root directory of the distribution.  You
+# must install DBIx::Class::Schema::Loader first.
+
+rm -rf sql/pinto.db
+
+sqlite3 sql/pinto.db < sql/pinto.sql
+
+dbicdump -Ilib \
+         -o dump_directory=lib \
+         -o 'relationship_attrs={ has_many => {cascade_delete => 1} }' \
+         Pinto::Schema \
+         dbi:SQLite:sql/pinto.db
+

@@ -20,9 +20,11 @@ lib/App/Pinto/Admin/Command/list.pm
 lib/App/Pinto/Admin/Command/manual.pm
 lib/App/Pinto/Admin/Command/mirror.pm
 lib/App/Pinto/Admin/Command/nop.pm
+lib/App/Pinto/Admin/Command/pin.pm
 lib/App/Pinto/Admin/Command/purge.pm
 lib/App/Pinto/Admin/Command/rebuild.pm
 lib/App/Pinto/Admin/Command/remove.pm
+lib/App/Pinto/Admin/Command/unpin.pm
 lib/App/Pinto/Admin/Command/verify.pm
 lib/App/Pinto/Admin/Command/version.pm
 lib/Pinto.pm
@@ -33,9 +35,11 @@ lib/Pinto/Action/Import.pm
 lib/Pinto/Action/List.pm
 lib/Pinto/Action/Mirror.pm
 lib/Pinto/Action/Nop.pm
+lib/Pinto/Action/Pin.pm
 lib/Pinto/Action/Purge.pm
 lib/Pinto/Action/Rebuild.pm
 lib/Pinto/Action/Remove.pm
+lib/Pinto/Action/Unpin.pm
 lib/Pinto/Action/Verify.pm
 lib/Pinto/Batch.pm
 lib/Pinto/Config.pm
@@ -66,6 +70,7 @@ lib/Pinto/Tester/Util.pm
 lib/Pinto/Util.pm
 lib/Pinto/Util/Svn.pm
 perlcritic.ini
+sql/mkdbic
 sql/pinto.sql
 t/00-compile.t
 t/02-config.t
@@ -81,6 +86,9 @@ t/21-remove.t
 t/22-mirror.t
 t/23-import.t
 t/24-import-multi.t
+t/26-purge.t
+t/27-rebuild.t
+t/28-pin.t
 t/40-locking.t
 t/data/fakepan/makefakes
 t/data/fakepan/repos/a/authors/01mailrc.txt.gz

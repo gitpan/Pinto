@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -99,10 +99,10 @@ sub removed_dist_message {
 
 #-------------------------------------------------------------------------------
 
-sub reindexed_dist_message {
+sub imported_dist_message {
     my ($distribution) = @_;
 
-    return _dist_message($distribution, 'Reindexed');
+    return _dist_message($distribution, 'Imported');
 }
 
 #-------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 DESCRIPTION
 

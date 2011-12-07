@@ -1,8 +1,11 @@
-package Pinto::Action::Purge;
+package Pinto::Action::Unpin;
 
-# ABSTRACT: Remove all distributions from the repository
+# ABSTRACT: Loosen a package that has been pinned
 
 use Moose;
+use MooseX::Types::Moose qw(Str);
+
+use Pinto::Types qw(Vers);
 
 use namespace::autoclean;
 
@@ -16,21 +19,36 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-override execute => sub {
+has package => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
+);
+
+#------------------------------------------------------------------------------
+
+sub execute {
     my ($self) = @_;
 
-    my $dists = $self->repos->db->select_distributions();
+    my $name  =  $self->package();
+    my $where = { name => $name, is_pinned => 1 };
+    my $pkg   = $self->repos->select_packages($where)->first();
 
-    my $removed = 0;
-    while ( my $dist = $dists->next() ) {
-        $self->repos->remove_distribution($dist);
-        $removed++
+    if (not $pkg) {
+        $self->whine("Package $name does not exist in the repository, or is not pinned");
+        return 0;
     }
 
-    $self->add_message("Purged all $removed distributions" ) if $removed;
+    $self->info("Unpinning package $pkg");
 
-    return $removed;
-};
+    $pkg->is_pinned(undef);
+    $pkg->update();
+    my $latest = $self->repos->db->mark_latest($pkg);
+
+    $self->add_message("Unpinned package $name. Latest is now $latest");
+
+    return 1;
+}
 
 #------------------------------------------------------------------------------
 
@@ -48,7 +66,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Purge - Remove all distributions from the repository
+Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 

@@ -23,6 +23,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "is_latest",
   { data_type => "boolean", default_value => \"null", is_nullable => 1 },
+  "is_pinned",
+  { data_type => "boolean", default_value => \"null", is_nullable => 1 },
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -37,6 +39,9 @@ __PACKAGE__->add_unique_constraint("name_distribution_unique", ["name", "distrib
 __PACKAGE__->add_unique_constraint("name_is_latest_unique", ["name", "is_latest"]);
 
 
+__PACKAGE__->add_unique_constraint("name_is_pinned_unique", ["name", "is_pinned"]);
+
+
 __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
@@ -45,8 +50,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07014 @ 2011-11-30 13:16:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6f7L4ua8o3VAsv189eFVZQ
+# Created by DBIx::Class::Schema::Loader v0.07014 @ 2011-12-06 11:04:23
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xCWTZGqBqsFQCU96vVWt7w
 
 #------------------------------------------------------------------------------
 
@@ -66,7 +71,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -117,14 +122,14 @@ sub to_formatted_string {
          'n' => sub { $self->name()                                   },
          'N' => sub { $self->vname()                                  },
          'v' => sub { $self->version->stringify()                     },
-         'x' => sub { $self->is_latest()                ? '*' : ' '   },
-         'm' => sub { $self->distribution->is_devel()   ? 'D' : 'R'   },
+         'x' => sub { $self->is_latest()                ? '@' : ' '   },
+         'y' => sub { $self->is_pinned()                ? '+' : ' '   },
+         'm' => sub { $self->distribution->is_devel()   ? 'd' : 'r'   },
          'p' => sub { $self->distribution->path()                     },
          'P' => sub { $self->distribution->archive()                  },
-         's' => sub { $self->distribution->is_local()   ? 'L' : 'F'   },
+         's' => sub { $self->distribution->is_local()   ? 'l' : 'f'   },
          'S' => sub { $self->distribution->source()                   },
          'a' => sub { $self->distribution->author()                   },
- #TODO:  'b' => sub { $self->is_blocked() ? 'B' : ' '                     },
          'd' => sub { $self->distribution->name()                     },
          'D' => sub { $self->distribution->vname()                    },
          'w' => sub { $self->distribution->version()                  },
@@ -162,9 +167,10 @@ sub compare_version {
     croak "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
         if $pkg_a->name() ne $pkg_b->name();
 
-    my $r =   ( $pkg_a->distribution->is_local() <=> $pkg_b->distribution->is_local() )
-           || ( $pkg_a->version()                <=> $pkg_b->version()                )
-           || ( $pkg_a->distribution->mtime()    <=> $pkg_b->distribution->mtime()    );
+    my $r =   ( ($pkg_a->is_pinned() || 0)        <=> ($pkg_b->is_pinned() || 0)        )
+           || ( $pkg_a->distribution->is_local()  <=> $pkg_b->distribution->is_local()  )
+           || ( $pkg_a->version()                 <=> $pkg_b->version()                 )
+           || ( $pkg_a->distribution->mtime()     <=> $pkg_b->distribution->mtime()     );
 
     # No two packages can be considered equal!
     throw_error "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
@@ -187,7 +193,7 @@ Pinto::Schema::Result::Package - Represents a package in a Distribution
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 NAME
 
@@ -214,6 +220,12 @@ Pinto::Schema::Result::Package
   is_nullable: 0
 
 =head2 is_latest
+
+  data_type: 'boolean'
+  default_value: null
+  is_nullable: 1
+
+=head2 is_pinned
 
   data_type: 'boolean'
   default_value: null
@@ -252,6 +264,16 @@ Pinto::Schema::Result::Package
 =item * L</name>
 
 =item * L</is_latest>
+
+=back
+
+=head2 C<name_is_pinned_unique>
+
+=over 4
+
+=item * L</name>
+
+=item * L</is_pinned>
 
 =back
 

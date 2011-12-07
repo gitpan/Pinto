@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_003'; # VERSION
+our $VERSION = '0.025_004'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +22,6 @@ sub opt_spec {
         [ 'message|m=s' => 'Prepend a message to the VCS log' ],
         [ 'nocommit'    => 'Do not commit changes to VCS' ],
         [ 'noinit'      => 'Do not pull/update from VCS' ],
-        [ 'soft'        => 'Skip loading of remote indexes' ],
         [ 'tag=s'       => 'Specify a VCS tag name' ],
     );
 }
@@ -35,19 +34,6 @@ sub validate_args {
     $self->usage_error('Arguments are not allowed') if @{ $args };
 
     return 1;
-}
-
-#------------------------------------------------------------------------------
-
-sub execute {
-    my ($self, $opts, $args) = @_;
-
-    $self->pinto->new_batch( %{$opts} );
-    my @sources = $self->pinto->config->sources_list();
-    $self->pinto->add_action('Mirror', %{$opts}, source => $_) for @sources;
-    my $result = $self->pinto->run_actions();
-
-    return $result->is_success() ? 0 : 1;
 }
 
 #------------------------------------------------------------------------------
@@ -66,7 +52,7 @@ App::Pinto::Admin::Command::mirror - get all the latest distributions from anoth
 
 =head1 VERSION
 
-version 0.025_003
+version 0.025_004
 
 =head1 SYNOPSIS
 
@@ -121,13 +107,6 @@ VCS-based storage mechanism.  This can speed up operations
 considerably, but should only be used if you *know* that your working
 copy is up-to-date and you are going to be the only actor touching the
 Pinto repository within the VCS.
-
-=item --soft
-
-Directs L<Pinto> to not load the indexes of the source repositories
-and just fetch the archives for any distributions that have already
-been loaded.  This is helpful if the C<verify> command shows that some
-foreign distribution archives have gone missing from your repository.
 
 =item --tag=NAME
 
