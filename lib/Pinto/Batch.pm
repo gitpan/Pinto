@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.025_004'; # VERSION
+our $VERSION = '0.026'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -175,7 +175,7 @@ Pinto::Batch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.025_004
+version 0.026
 
 =head1 METHODS
 

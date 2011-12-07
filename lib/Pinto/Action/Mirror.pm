@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_004'; # VERSION
+our $VERSION = '0.026'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -157,7 +157,7 @@ Pinto::Action::Mirror - Pull all the latest distributions into your repository
 
 =head1 VERSION
 
-version 0.025_004
+version 0.026
 
 =head1 AUTHOR
 

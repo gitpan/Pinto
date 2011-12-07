@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_004'; # VERSION
+our $VERSION = '0.026'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ App::Pinto::Admin::Command::unpin - loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.025_004
+version 0.026
 
 =head1 SYNOPSIS
 
@@ -86,7 +86,7 @@ version 0.025_004
 
 This command unpins a package from the index, so that the latest
 version will appear in the index.  Note that local packages still have
-prededence over foreign packages.
+precedence over foreign packages.
 
 =head1 COMMAND ARGUMENTS
 

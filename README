@@ -2,7 +2,7 @@ NAME
     Pinto - Curate your own CPAN-like repository
 
 VERSION
-    version 0.025_004
+    version 0.026
 
 SYNOPSIS
     See pinto-admin to create and manage a Pinto repository.
@@ -91,20 +91,20 @@ DESCRIPTION
 
         PAUSE has a system of assigning ownership and co-maintenance
         permission to individuals or groups. But Pinto only has a basic
-        "first-come" system of ownership. The ownerhsip controls are only
+        "first-come" system of ownership. The ownership controls are only
         advisory and can easily be bypassed (see next item below).
 
     *   Pinto is not secure
 
         PAUSE requires authors to authenticate themselves before they can
         upload or remove distributions. However, Pinto does not authenticate
-        and permits users masquarade as anybody they want to be. This is
+        and permits users masquerade as anybody they want to be. This is
         actually intentional and designed to encourage collaboration among
         developers.
 
 BUT WHERE IS THE API?
     For now, the Pinto API is private, undocumented, and subject to radical
-    change without notice. In the meantime, the command line utilties
+    change without notice. In the meantime, the command line utilities
     mentioned in the "/SYNOPSIS" are your public interface.
 
 SUPPORT

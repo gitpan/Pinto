@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.025_004'; # VERSION
+our $VERSION = '0.026'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -178,7 +178,7 @@ Pinto - Curate your own CPAN-like repository
 
 =head1 VERSION
 
-version 0.025_004
+version 0.026
 
 =head1 SYNOPSIS
 
@@ -274,14 +274,14 @@ applications.
 
 PAUSE has a system of assigning ownership and co-maintenance
 permission to individuals or groups.  But Pinto only has a basic
-"first-come" system of ownership.  The ownerhsip controls are only
+"first-come" system of ownership.  The ownership controls are only
 advisory and can easily be bypassed (see next item below).
 
 =item * Pinto is not secure
 
 PAUSE requires authors to authenticate themselves before they can
 upload or remove distributions.  However, Pinto does not authenticate
-and permits users masquarade as anybody they want to be.  This is
+and permits users masquerade as anybody they want to be.  This is
 actually intentional and designed to encourage collaboration among
 developers.
 
@@ -291,7 +291,7 @@ developers.
 
 For now, the Pinto API is private, undocumented, and subject to
 radical change without notice.  In the meantime, the command line
-utilties mentioned in the C</SYNOPSIS> are your public interface.
+utilities mentioned in the C</SYNOPSIS> are your public interface.
 
 =head1 SUPPORT
 
