@@ -7,13 +7,13 @@ use Moose;
 use Path::Class;
 use LockFile::Simple;
 
-use Pinto::Types qw(Dir);
+use Pinto::Types qw(File);
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -21,7 +21,7 @@ our $VERSION = '0.026'; # VERSION
 has _lock => (
     is         => 'rw',
     isa        => 'LockFile::Lock',
-    predicate  => '_has_lock',
+    predicate  => 'is_locked',
     init_arg   => undef,
 );
 
@@ -30,7 +30,6 @@ has _lockmgr => (
     isa        => 'LockFile::Simple',
     init_arg   => undef,
     lazy_build => 1,
-
 );
 
 #-----------------------------------------------------------------------------
@@ -84,7 +83,7 @@ sub lock {                                             ## no critic (Homonym)
 sub unlock {
     my ($self) = @_;
 
-    return $self if not $self->_has_lock();
+    return $self if not $self->is_locked();
 
     $self->_lock->release() or $self->fatal('Unable to unlock repository');
 
@@ -94,7 +93,7 @@ sub unlock {
     return $self;
 }
 
-#-----------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 __PACKAGE__->meta->make_immutable();
 
@@ -113,7 +112,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 DESCRIPTION
 

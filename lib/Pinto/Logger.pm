@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 METHODS
 

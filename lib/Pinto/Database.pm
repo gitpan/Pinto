@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -155,7 +155,7 @@ sub write_index {
     my $writer = Pinto::IndexWriter->new( logger => $self->logger(),
                                           db     => $self );
 
-    my $index_file = $self->config->packages_details_file();
+    my $index_file = $self->config->index_file();
     $writer->write(file => $index_file);
 
     return $self;
@@ -193,7 +193,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 AUTHOR
 

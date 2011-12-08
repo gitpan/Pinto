@@ -1,3 +1,21 @@
+0.027     2011-12-08 15:23:00 America/Los_Angeles
+
+     The 'list' command now has options to filter the output
+     to either packages or distributions that contain some
+     substring.  This is not as powerful as a regex, and you
+     can only filter on the package name or dist path.  But
+     this will make things go much faster.
+
+     Fixed numerous bugs in the VCS integration.  This was totally
+     broken.  That's what I get for not writing regression tests
+     in that area.
+
+     Fixed compatibility issue with Pinto::Remote.
+
+     Added or improved some log messages.
+
+     Revised some documentation.
+
 0.026     2011-12-07 11:47:27 America/Los_Angeles
 
 

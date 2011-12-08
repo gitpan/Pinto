@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,6 +20,9 @@ override execute => sub {
     my ($self) = @_;
 
     my $dists = $self->repos->db->select_distributions();
+
+    my $count = $dists->count();
+    $self->info("Removing all $count distributions from the repository");
 
     my $removed = 0;
     while ( my $dist = $dists->next() ) {
@@ -52,7 +55,7 @@ Pinto::Action::Purge - Remove all distributions from the repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 AUTHOR
 

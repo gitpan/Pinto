@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -58,6 +58,9 @@ with qw( Pinto::Interface::Configurable
 
 sub BUILDARGS {
     my ($class, %args) = @_;
+
+    # For compatibility with Pinto::Remote API
+    $args{root_dir} ||= delete $args{repos};
 
     $args{logger} ||= Pinto::Logger->new( %args );
     $args{config} ||= Pinto::Config->new( %args );
@@ -178,7 +181,7 @@ Pinto - Curate your own CPAN-like repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 SYNOPSIS
 

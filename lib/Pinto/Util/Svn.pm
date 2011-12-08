@@ -13,7 +13,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ sub svn_add {
     my %args = @_;
     my $path = $args{path};
 
-    return _svn( command => ['add', $path] );
+    return _svn( command => ['add', '--force', $path] );
 }
 
 #--------------------------------------------------------------------------
@@ -179,7 +179,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 FUNCTIONS
 

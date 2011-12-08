@@ -1,12 +1,10 @@
-package Pinto::Action::Nop;
+package Pinto::Store::File;
 
-# ABSTRACT: A no-op action
+# ABSTRACT: Store a Pinto repository on the local filesystem
 
 use Moose;
 
-use MooseX::Types::Moose qw(Int);
-
-extends 'Pinto::Action';
+use Pinto::Exceptions qw(throw_fatal);
 
 use namespace::autoclean;
 
@@ -15,33 +13,30 @@ use namespace::autoclean;
 our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
+# ISA
 
-has sleep => (
-    is      => 'ro',
-    isa     => Int,
-    default => 0,
-);
+extends qw( Pinto::Store );
 
 #------------------------------------------------------------------------------
+# Methods
 
-override execute => sub {
-    my ($self) = @_;
+augment remove_path => sub {
+    my ($self, %args) = @_;
 
-    if ( my $sleep = $self->sleep() ) {
-        $self->debug("Process $$ sleeping for $sleep seconds");
-        sleep $self->sleep();
+    my $path = $args{path};
+    $path->remove() or throw_fatal "Failed to remove path $path: $!";
+
+    while (my $dir = $path->parent()) {
+        last if $dir->children();
+        $self->debug("Removing empty directory $dir");
+        $dir->remove() or throw_fatal "Failed to remove directory $dir: $!";
+        $path = $dir;
     }
 
-    return 0;
+    return $self;
 };
 
 #------------------------------------------------------------------------------
-
-__PACKAGE__->meta->make_immutable();
-
-#------------------------------------------------------------------------------
-
-
 1;
 
 
@@ -52,7 +47,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Nop - A no-op action
+Pinto::Store::File - Store a Pinto repository on the local filesystem
 
 =head1 VERSION
 
@@ -60,9 +55,10 @@ version 0.027
 
 =head1 DESCRIPTION
 
-This action does nothing.  It can be used to get Pinto to initialize
-the store and load the indexes without performing any real operations
-on them.
+L<Pinto::Store::File> is the default back-end for a Pinto repository.
+It basically just represents files on disk.  You should look at
+L<Pinto::Store::VCS::Svn> or L<Pinto::Store::VCS::Git> for a more
+interesting example.
 
 =head1 AUTHOR
 
@@ -79,3 +75,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

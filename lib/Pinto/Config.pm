@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -45,7 +45,7 @@ has modules_dir => (
 );
 
 
-has packages_details_file => (
+has index_file => (
     is        => 'ro',
     isa       => File,
     init_arg  => undef,
@@ -148,7 +148,7 @@ has store => (
     is        => 'ro',
     isa       => Str,
     key       => 'store',
-    default   => 'Pinto::Store',
+    default   => 'Pinto::Store::File',
     documentation => 'Name of class that handles storage of your repository',
 );
 
@@ -194,7 +194,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 DESCRIPTION
 

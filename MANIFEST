@@ -62,6 +62,7 @@ lib/Pinto/Schema.pm
 lib/Pinto/Schema/Result/Distribution.pm
 lib/Pinto/Schema/Result/Package.pm
 lib/Pinto/Store.pm
+lib/Pinto/Store/File.pm
 lib/Pinto/Store/VCS.pm
 lib/Pinto/Store/VCS/Git.pm
 lib/Pinto/Store/VCS/Svn.pm

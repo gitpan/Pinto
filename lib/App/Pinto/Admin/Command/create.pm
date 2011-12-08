@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -47,14 +47,16 @@ sub validate_args {
 sub execute {
     my ($self, $opts, $args) = @_;
 
-    my $root_dir = $self->app->global_options()->{repos}
+    my $global_opts = $self->app->global_options();
+
+    my $root_dir = delete $global_opts->{repos}
         or die 'Must specify a repository directory';    ## no critic qw(Carp)
 
     # Combine repeatable "source" options into one space-delimited "sources" option.
     # TODO: Use a config file format that allows multiple values per key (MVP perhaps?).
     $opts->{sources} = join ' ', @{ delete $opts->{source} } if defined $opts->{source};
 
-    my $creator = Pinto::Creator->new( root_dir => $root_dir );
+    my $creator = Pinto::Creator->new( root_dir => $root_dir, %{$global_opts} );
     $creator->create( %{$opts} );
     return 0;
 }
@@ -75,7 +77,7 @@ App::Pinto::Admin::Command::create - create a new empty repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 SYNOPSIS
 

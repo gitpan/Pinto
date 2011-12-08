@@ -2,7 +2,7 @@ NAME
     Pinto - Curate your own CPAN-like repository
 
 VERSION
-    version 0.026
+    version 0.027
 
 SYNOPSIS
     See pinto-admin to create and manage a Pinto repository.

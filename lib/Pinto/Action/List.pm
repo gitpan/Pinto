@@ -6,14 +6,14 @@ use Moose;
 
 use Carp qw(croak);
 
-use MooseX::Types::Moose qw(Bool Str);
+use MooseX::Types::Moose qw(Str HashRef);
 use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -36,23 +36,25 @@ has format => (
     default => '',
 );
 
-#------------------------------------------------------------------------------
 
-sub package_rs {
-    my ($self) = @_;
-
-    my $attrs = { order_by => [ qw(name version path) ],
-                  prefetch => 'distribution' };
-
-    return $self->repos->db->select_packages(undef, $attrs);
-}
+has where => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub { {} },
+);
 
 #------------------------------------------------------------------------------
 
 override execute => sub {
     my ($self) = @_;
 
-    my $rs = $self->package_rs();
+    my $where = $self->where();
+
+    my $attrs = { order_by => [ qw(name version path) ],
+                  prefetch => 'distribution' };
+
+    my $rs = $self->repos->db->select_packages($where, $attrs);
+
     my $format = $self->format();
     while( my $package = $rs->next() ) {
         print { $self->out() } $package->to_formatted_string($format);
@@ -81,7 +83,7 @@ Pinto::Action::List - An abstract action for listing packages in a repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 AUTHOR
 

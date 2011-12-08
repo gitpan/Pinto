@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -84,6 +84,8 @@ sub create {
 
     # Write authors index
     $self->_write_mailrc();
+
+    $self->info("Created new repository at directory $root_dir");
 
     return $self;
 }
@@ -182,7 +184,7 @@ Pinto::Creator - Creates a new Pinto repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 AUTHOR
 

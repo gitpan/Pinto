@@ -1,11 +1,10 @@
 package Pinto::Store;
 
-# ABSTRACT: Storage for a Pinto repository
+# ABSTRACT: Base class for storage of a Pinto repository
 
 use Moose;
 
 use Try::Tiny;
-use File::Copy;
 use CPAN::Checksums;
 
 use Pinto::Exceptions qw(throw_fatal throw_error);
@@ -14,14 +13,13 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.026'; # VERSION
+our $VERSION = '0.027'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
 
 with qw( Pinto::Interface::Configurable
-         Pinto::Interface::Loggable
-         Pinto::Role::PathMaker );
+         Pinto::Interface::Loggable );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -30,9 +28,7 @@ with qw( Pinto::Interface::Configurable
 sub initialize {
     my ($self) = @_;
 
-    $self->debug('Initializing the store');
-    my $root_dir = $self->config->root_dir();
-    $self->mkpath($root_dir); # Why?
+    inner();
 
     return $self;
 }
@@ -41,7 +37,12 @@ sub initialize {
 
 
 sub commit {
-    my ($self, %args) = @_;
+    my ($self) = @_;
+
+    $self->add_path( path => $self->config->pinto_dir() );
+    $self->add_path( path => $self->config->modules_dir() );
+
+    inner();
 
     return $self;
 }
@@ -50,7 +51,9 @@ sub commit {
 
 
 sub tag {
-    my ($self, %args) = @_;
+    my ($self) = @_;
+
+    inner();
 
     return $self;
 }
@@ -59,16 +62,12 @@ sub tag {
 # TODO: Use named arguments here...
 
 sub add_archive {
-
     my ($self, $archive_file) = @_;
-
-    throw_fatal "$archive_file does not exist"
-        if not -e $archive_file;
 
     throw_fatal "$archive_file is not a file"
         if not -f $archive_file;
 
-    $self->add_file( file => $archive_file );
+    $self->add_path( path => $archive_file );
     $self->update_checksums( directory => $archive_file->parent() );
 
     return $self;
@@ -81,7 +80,7 @@ sub add_archive {
 sub remove_archive {
     my ($self, $archive_file) = @_;
 
-    $self->remove_file( file => $archive_file );
+    $self->remove_path( path => $archive_file );
 
     $self->update_checksums( directory => $archive_file->parent() );
 
@@ -90,37 +89,29 @@ sub remove_archive {
 
 #------------------------------------------------------------------------------
 
-sub add_file {
+sub add_path {
     my ($self, %args) = @_;
 
-    my $file   = $args{file};
+    my $path = $args{path};
+    throw_fatal "Must specify a path" if not $path;
+    throw_fatal "Path $path does not exist" if not -e $path;
 
-    throw_fatal "$file does not exist"
-        if not -e $file;
-
-    throw_fatal "$file is not a file"
-        if not -f $file;
+    inner();
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
-sub remove_file {
+sub remove_path {
     my ($self, %args) = @_;
 
-    my $file = $args{file};
+    my $path = $args{path};
+    throw_fatal "Must specify a path" if not $path;
 
-    if ( -e $file ) {
-        $file->remove() or throw_fatal "Failed to remove file $file: $!";
-    }
+    return if not -e $path;
 
-    while (my $dir = $file->parent()) {
-        last if $dir->children();
-        $self->debug("Removing empty directory $dir");
-        $dir->remove() or throw_fatal "Failed to remove directory $dir: $!";
-        $file = $dir;
-    }
+    inner();
 
     return $self;
 }
@@ -139,7 +130,7 @@ sub update_checksums {
     my $cs_file = $dir->file('CHECKSUMS');
 
     if ( -e $cs_file && @children == 1 ) {
-        $self->remove_file(file => $cs_file);
+        $self->remove_path(path => $cs_file);
         return 0;
     }
 
@@ -148,7 +139,7 @@ sub update_checksums {
     try   { CPAN::Checksums::updatedir($dir) }
     catch { throw_error "CHECKSUM generation failed for $dir: $_" };
 
-    $self->add_file(file => $cs_file);
+    $self->add_path(path => $cs_file);
 
     return $self;
 }
@@ -165,18 +156,18 @@ sub update_checksums {
 
 =head1 NAME
 
-Pinto::Store - Storage for a Pinto repository
+Pinto::Store - Base class for storage of a Pinto repository
 
 =head1 VERSION
 
-version 0.026
+version 0.027
 
 =head1 DESCRIPTION
 
-L<Pinto::Store> is the default back-end for a Pinto repository.  It
-basically just represents files on disk.  You should look at
-L<Pinto::Store::VCS::Svn> or L<Pinto::Store::VCS::Git> for a more
-interesting example.
+L<Pinto::Store> is the base class for Pinto Stores.  It provides the
+basic API for adding/removing distribution archives to the store.
+Subclasses implement the underlying logic by augmenting the methods
+declared here.
 
 =head1 METHODS
 
