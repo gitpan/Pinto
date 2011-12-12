@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -39,6 +39,15 @@ with qw(Pinto::Role::FileFetcher);
 sub execute {
     my ($self) = @_;
 
+    # For speed, we're going to just make a hash table of all the dist
+    # paths in the database.  Then we'll use the hash to decide which
+    # dists we need to import and which ones we already have.  This is
+    # a lot faster than querying the database for each and every path.
+    my $attrs = {select => 'path'};
+    my $rs    = $self->repos->select_distributions(undef, $attrs);
+    my %seen  = map { $_ => 1 } $rs->all();
+
+
     my $count = 0;
     for my $dist_spec ( $self->repos->cache->contents() ) {
 
@@ -48,8 +57,7 @@ sub execute {
             next;
         }
 
-        my $where = { path => $path };
-        if ( $self->repos->db->select_distributions( $where )->count() ) {
+        if ($seen{$path}) {
             $self->debug("Already have distribution $path.  Skipping it.");
             next;
         }
@@ -157,7 +165,7 @@ Pinto::Action::Mirror - Pull all the latest distributions into your repository
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

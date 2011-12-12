@@ -14,15 +14,15 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-Readonly my $LEVEL_QUIET => -1;
-Readonly my $LEVEL_WARN  =>  0;
-Readonly my $LEVEL_INFO  =>  1;
-Readonly my $LEVEL_NOTE  =>  2;
-Readonly my $LEVEL_DEBUG =>  3;
+Readonly my $LEVEL_QUIET => -2;
+Readonly my $LEVEL_WARN  => -1;
+Readonly my $LEVEL_INFO  =>  0;
+Readonly my $LEVEL_NOTE  =>  1;
+Readonly my $LEVEL_DEBUG =>  2;
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -167,7 +167,7 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 METHODS
 

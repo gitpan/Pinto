@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,11 +38,14 @@ sub execute {
     my ($self) = @_;
 
     my $pkg = $self->_get_package() or return 0;
-    $self->whine("Package $pkg is already pinned") and return 0 if $pkg->is_pinned();
-    $self->_do_pin($pkg);
 
-    my $name = $pkg->name();
-    $self->add_message("Pinned package $name. Latest is now $pkg");
+    $self->whine("Package $pkg is already pinned")
+        and return 0 if $pkg->is_pinned();
+
+    $self->whine("This repository does not permit pinning developer packages")
+        and return 0 if $pkg->distribution->is_devel() and not $self->config->devel();
+
+    $self->_do_pin($pkg);
 
     return 1;
 }
@@ -99,6 +102,9 @@ sub _do_pin {
     # Finally, remark the latest version of the package
     $self->repos->db->mark_latest($pkg);
 
+    my $name = $pkg->name();
+    $self->add_message("Pinned package $name. Latest is now $pkg");
+
     return 1;
 }
 
@@ -122,7 +128,7 @@ Pinto::Action::Pin - Force a package into the index
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

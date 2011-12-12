@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -64,7 +64,7 @@ Pinto::Action::Verify - Verify all distributions are present in the repository
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

@@ -2,7 +2,7 @@ NAME
     Pinto - Curate your own CPAN-like repository
 
 VERSION
-    version 0.027
+    version 0.028
 
 SYNOPSIS
     See pinto-admin to create and manage a Pinto repository.
@@ -105,7 +105,7 @@ DESCRIPTION
 BUT WHERE IS THE API?
     For now, the Pinto API is private, undocumented, and subject to radical
     change without notice. In the meantime, the command line utilities
-    mentioned in the "/SYNOPSIS" are your public interface.
+    mentioned in the "SYNOPSIS" are your public interface.
 
 SUPPORT
   Perldoc

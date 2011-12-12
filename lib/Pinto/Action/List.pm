@@ -1,6 +1,6 @@
 package Pinto::Action::List;
 
-# ABSTRACT: An abstract action for listing packages in a repository
+# ABSTRACT: An action for listing contents of a repository
 
 use Moose;
 
@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -79,11 +79,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::List - An abstract action for listing packages in a repository
+Pinto::Action::List - An action for listing contents of a repository
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

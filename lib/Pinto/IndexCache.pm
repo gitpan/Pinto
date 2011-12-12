@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -85,7 +85,7 @@ Pinto::IndexCache - Manages indexes files from remote repositories
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

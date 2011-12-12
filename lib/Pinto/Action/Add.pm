@@ -1,6 +1,6 @@
 package Pinto::Action::Add;
 
-# ABSTRACT: Add one local distribution to the repository
+# ABSTRACT: Add one distribution to the repository
 
 use Moose;
 
@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -131,11 +131,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Add - Add one local distribution to the repository
+Pinto::Action::Add - Add one distribution to the repository
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

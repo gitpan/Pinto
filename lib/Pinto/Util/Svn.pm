@@ -13,7 +13,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -30,9 +30,16 @@ sub svn_update {
 
 sub svn_add {
     my %args = @_;
+
     my $path = $args{path};
 
-    return _svn( command => ['add', '--force', $path] );
+    while (not _is_known_to_svn( $path->parent() ) ) {
+        $path = $path->parent();
+    }
+
+    _svn( command => ['add', '--force', $path] );
+
+    return $path;
 }
 
 #--------------------------------------------------------------------------
@@ -95,6 +102,18 @@ sub location {
         or throw_fatal "Unable to parse svn info: $buffer";
 
     return $1; ## no critic qw(Capture)
+}
+
+#--------------------------------------------------------------------------
+
+sub _is_known_to_svn {
+    my ($path) = @_;
+
+    my $buffer = '';
+    _svn( command => ['status', '--depth=empty', $path], buffer => \$buffer);
+
+    return if $buffer  =~ m/is not a working copy/m;
+    return not $buffer =~ m/^\? /mx;
 }
 
 #--------------------------------------------------------------------------
@@ -179,7 +198,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 FUNCTIONS
 

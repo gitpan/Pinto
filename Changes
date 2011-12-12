@@ -1,3 +1,28 @@
+0.028     2011-12-12 01:22:02 America/Los_Angeles
+
+     I discovered that Subversion 1.7 changed the working copy layout
+     in a way that caused Pinto to run exponentially slower as the
+     repository got bigger (like when mirroring the CPAN).  I've fixed
+     this now.
+
+     pinto-admin now has a 'statistics' command that will report
+     some basic stats about your repository.  I plan to add more
+     stats in the future.
+
+     You can now store your repository with Git using either
+     Pinto::Store::VCS::Git or Pinto::Store::VCS::Git::Remote.
+     These are both experimental, so use with caution.
+
+     Mirror actions are now a bit faster, espeically when you
+     already have most of the distributions in the source
+     repository.
+
+     The VCS log message used for the commit is now also used
+     as the message for the tag operation.
+
+     Pinning a devel package is only allowed if this repository
+     is configured to index devel packages.
+
 0.027     2011-12-08 15:23:00 America/Los_Angeles
 
      The 'list' command now has options to filter the output

@@ -15,7 +15,7 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -111,9 +111,9 @@ sub run {
 
     return $self->_result() if $self->nocommit();
 
-    $self->repos->commit( message => $self->message_string() );
-
-    $self->repos->tag( tag => $self->tag() ) if $self->has_tag();
+    my $msg = $self->message_string();
+    $self->repos->commit( message => $msg );
+    $self->repos->tag( tag => $self->tag(), message => $msg ) if $self->has_tag();
 
     return $self->_result();
 }
@@ -175,7 +175,7 @@ Pinto::Batch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 METHODS
 

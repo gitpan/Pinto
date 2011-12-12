@@ -1,10 +1,11 @@
-package Pinto::Action::Rebuild;
+package Pinto::Action::Statistics;
 
-# ABSTRACT: Rebuild the index file for the repository
+# ABSTRACT: Report statistics about the repository
 
 use Moose;
 
-use MooseX::Types::Moose qw(Bool);
+use Pinto::Statistics;
+use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
@@ -13,15 +14,18 @@ use namespace::autoclean;
 our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
+# ISA
 
 extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
+# Attributes
 
-has recompute => (
+has out => (
     is      => 'ro',
-    isa     => Bool,
-    default => 0,
+    isa     => IO,
+    coerce  => 1,
+    default => sub { [fileno(STDOUT), '>'] },
 );
 
 #------------------------------------------------------------------------------
@@ -29,32 +33,10 @@ has recompute => (
 sub execute {
     my ($self) = @_;
 
-    $self->_recompute() if $self->recompute();
+    my $stats = Pinto::Statistics->new( db => $self->repos->db() );
+    print { $self->out() } $stats->to_formatted_string();
 
-    $self->add_message('Rebuilt the index');
-
-    return 1;
-}
-
-#------------------------------------------------------------------------------
-
-sub _recompute {
-    my ($self) = @_;
-
-    # Gotta be a better way to to do this...
-    my $attrs  = {select => ['name'], distinct => 1};
-    my $cursor = $self->repos->select_packages(undef, $attrs)->cursor();
-
-    while (my ($name) = $cursor->next()) {
-        my $rs  = $self->repos->select_packages( {name => $name} );
-        next if $rs->count() == 1;  # Only need to recompute if more than 1
-        $self->debug("Recomputing latest version of package $name");
-        $self->repos->db->mark_latest( $rs->first() );
-    }
-
-    $self->add_message('Recalculated the latest version of all packages');
-
-    return $self;
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -73,7 +55,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Rebuild - Rebuild the index file for the repository
+Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 

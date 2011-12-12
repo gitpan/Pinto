@@ -1,11 +1,9 @@
-package App::Pinto::Admin::Command::nop;
+package App::Pinto::Admin::Command::statistics;
 
-# ABSTRACT: initialize Pinto and exit
+# ABSTRACT: report statistics about the repository
 
 use strict;
 use warnings;
-
-use Pinto::Util;
 
 #-----------------------------------------------------------------------------
 
@@ -17,30 +15,36 @@ our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 
+sub command_names { return qw( statistics stats ) }
+
+#------------------------------------------------------------------------------
+
 sub opt_spec {
     my ($self, $app) = @_;
 
     return (
-        [ 'noinit'  => 'Do not pull/update from VCS' ],
-        [ 'sleep=i' => 'seconds to sleep before exiting' ],
+        [ 'noinit'      => 'Do not pull/update from VCS' ],
     );
 }
 
 #------------------------------------------------------------------------------
 
-sub validate_args {
-    my ($self, $opts, $args) = @_;
+sub usage_desc {
+    my ($self) = @_;
 
-    $self->usage_error('Arguments are not allowed')
-      if @{ $args };
+    my ($command) = $self->command_names();
 
-    $self->usage_error('Sleep time must be positive integer')
-      if defined $opts->{sleep} && $opts->{sleep} < 1;
+ my $usage =  <<"END_USAGE";
+%c --repos=PATH $command [OPTIONS]
+END_USAGE
 
-    return 1;
+    chomp $usage;
+    return $usage;
 }
 
+
 #------------------------------------------------------------------------------
+
 1;
 
 
@@ -51,7 +55,7 @@ sub validate_args {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::nop - initialize Pinto and exit
+App::Pinto::Admin::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
@@ -59,19 +63,15 @@ version 0.028
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir nop [OPTIONS]
+  pinto-admin --repos=/some/dir statistics [OPTIONS]
 
 =head1 DESCRIPTION
 
-This command is a no-operation.  It locks and initializes the
-repository, but does not perform any operations.  This is really only
-used for diagnostic purposes.  So don't worry about it too much.
-
-Note this command never changes the state of your repository.
+This command reports some statistics about the repository
 
 =head1 COMMAND ARGUMENTS
 
-None.
+None
 
 =head1 COMMAND OPTIONS
 
@@ -85,11 +85,6 @@ VCS-based storage mechanism.  This can speed up operations
 considerably, but should only be used if you *know* that your working
 copy is up-to-date and you are going to be the only actor touching the
 Pinto repository within the VCS.
-
-=item --sleep=N
-
-Directs L<Pinto> to sleep for N seconds before releasing the lock and
-exiting.  Default is 0.
 
 =back
 

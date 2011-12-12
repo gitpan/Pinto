@@ -19,7 +19,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -91,7 +91,18 @@ sub execute {
     my $archive = $dist->archive( $self->repos->root_dir() );
     $self->_descend_into_prerequisites($archive) unless $self->norecurse();
 
-    return 1;
+    # HACK: We need to return true only if we actually imported
+    # something.  If we didn't import anything (i.e. couldn't find
+    # anything or we already have everything) then we must return
+    # false so that we don't cause an unnecessary VCS commit.
+    # Checking the message count is a sleazy way of figuring out how
+    # many distributions we actually imported.  TODO: consider using a
+    # counter attribute, or refactor _find_or_import so that it can
+    # tell you whether or not it actually imported something.
+
+    $DB::single = 1;
+    my @msgs = $self->messages();
+    return scalar @msgs;
 }
 
 #------------------------------------------------------------------------------
@@ -102,11 +113,13 @@ sub _find_or_import {
     my ($pkg_name, $pkg_ver) = ($pkg_spec->{name}, $pkg_spec->{version});
     my $pkg_vname = "$pkg_name-$pkg_ver";
 
+    $self->note("Looking for package $pkg_vname");
+
     my $where   = {name => $pkg_name, is_latest => 1};
     my $got_pkg = $self->repos->select_packages( $where )->single();
 
     if ($got_pkg and $got_pkg->version() >= $pkg_ver) {
-        $self->debug("Already have package $pkg_vname or newer as $got_pkg");
+        $self->note("Already have package $pkg_vname or newer as $got_pkg");
         return $got_pkg->distribution();
     }
 
@@ -242,7 +255,7 @@ Pinto::Action::Import - Import a distribution (and dependencies) into the local 
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

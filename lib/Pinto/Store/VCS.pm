@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -29,8 +29,46 @@ has _paths => (
 #------------------------------------------------------------------------------
 # Methods
 
+augment initialize => sub {
+    my ($self) = @_;
+
+    $self->note('Updating working copy');
+
+    inner();
+
+    return $self;
+};
+
+#------------------------------------------------------------------------------
+
+augment add_path => sub {
+    my ($self, %args) = @_;
+
+    $self->debug("Scheduling $args{path} for addition to VCS");
+
+    inner();
+
+    return $self;
+};
+
+#------------------------------------------------------------------------------
+
+augment remove_path => sub {
+    my ($self, %args) = @_;
+
+    $self->debug("Scheduling $args{path} for removal from VCS");
+
+    inner();
+
+    return $self;
+};
+
+#------------------------------------------------------------------------------
+
 augment commit => sub {
     my ($self) = @_;
+
+    $self->info('Committing changes to VCS');
 
     inner();
 
@@ -54,6 +92,9 @@ sub mark_path_for_commit {
 sub paths_to_commit {
     my ($self) = @_;
 
+    # TODO: consider reducing this to the shortest list of stems, then
+    # just allow the VCS to descend into those paths recursively.
+
     return [ sort values %{ $self->_paths() } ];
 }
 
@@ -76,7 +117,7 @@ Pinto::Store::VCS - Base class for VCS-backed Stores
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 AUTHOR
 

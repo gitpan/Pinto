@@ -24,7 +24,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.027",
+  "dist_version" => "0.028",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -43,6 +43,7 @@ my %module_build_args = (
     "Dist::Requires" => "0.004",
     "Exception::Class" => 0,
     "Exporter" => 0,
+    "Git::Repository" => 0,
     "IO::Interactive" => 0,
     "IO::String" => 0,
     "IPC::Run" => 0,

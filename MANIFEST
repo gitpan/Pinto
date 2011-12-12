@@ -24,6 +24,7 @@ lib/App/Pinto/Admin/Command/pin.pm
 lib/App/Pinto/Admin/Command/purge.pm
 lib/App/Pinto/Admin/Command/rebuild.pm
 lib/App/Pinto/Admin/Command/remove.pm
+lib/App/Pinto/Admin/Command/statistics.pm
 lib/App/Pinto/Admin/Command/unpin.pm
 lib/App/Pinto/Admin/Command/verify.pm
 lib/App/Pinto/Admin/Command/version.pm
@@ -39,6 +40,7 @@ lib/Pinto/Action/Pin.pm
 lib/Pinto/Action/Purge.pm
 lib/Pinto/Action/Rebuild.pm
 lib/Pinto/Action/Remove.pm
+lib/Pinto/Action/Statistics.pm
 lib/Pinto/Action/Unpin.pm
 lib/Pinto/Action/Verify.pm
 lib/Pinto/Batch.pm
@@ -61,10 +63,12 @@ lib/Pinto/Role/PathMaker.pm
 lib/Pinto/Schema.pm
 lib/Pinto/Schema/Result/Distribution.pm
 lib/Pinto/Schema/Result/Package.pm
+lib/Pinto/Statistics.pm
 lib/Pinto/Store.pm
 lib/Pinto/Store/File.pm
 lib/Pinto/Store/VCS.pm
 lib/Pinto/Store/VCS/Git.pm
+lib/Pinto/Store/VCS/Git/Remote.pm
 lib/Pinto/Store/VCS/Svn.pm
 lib/Pinto/Tester.pm
 lib/Pinto/Tester/Util.pm

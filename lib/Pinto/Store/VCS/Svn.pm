@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.027'; # VERSION
+our $VERSION = '0.028'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -39,7 +39,6 @@ augment initialize => sub {
     my ($self) = @_;
 
     my $root_dir = $self->config->root_dir();
-    $self->note('Updating working copy');
     Pinto::Util::Svn::svn_update(dir => $root_dir);
 
     return $self;
@@ -50,16 +49,8 @@ augment initialize => sub {
 augment add_path => sub {
     my ($self, %args) = @_;
 
-    my $path = $args{path};
-    my $original_path = $path;
-
-    while (not -e $path->parent->file('.svn') ) {
-        $path = $path->parent();
-    }
-
-    $self->debug("Scheduling $original_path for addition to VCS");
-    Pinto::Util::Svn::svn_add(path => $path);
-    $self->mark_path_for_commit($path);
+    my $added = Pinto::Util::Svn::svn_add(path => $args{path});
+    $self->mark_path_for_commit($added);
 
     return $self;
 };
@@ -69,9 +60,8 @@ augment add_path => sub {
 augment remove_path => sub {
     my ($self, %args) = @_;
 
-    my $path  = $args{path};
-    $self->debug("Scheduling $path for removal from VCS");
-    my $removed = Pinto::Util::Svn::svn_remove(path => $path);
+
+    my $removed = Pinto::Util::Svn::svn_remove(path => $args{path});
     $self->mark_path_for_commit($removed);
 
     return $self;
@@ -85,7 +75,6 @@ augment commit => sub {
     my $message = $args{message} || 'NO MESSAGE WAS GIVEN';
     my $paths   = $self->paths_to_commit();
 
-    $self->info("Committing changes");
     Pinto::Util::Svn::svn_commit(paths => $paths, message => $message);
 
     return $self;
@@ -97,14 +86,13 @@ augment commit => sub {
 augment tag => sub {
     my ($self, %args) = @_;
 
-    my $now = DateTime->now();
-    my $tag = $now->strftime( $args{tag} );
-
+    my $now    = DateTime->now();
+    my $tag    = $now->strftime( $args{tag} );
+    my $msg    = $args{mmessage};
     my $origin = $self->svn_location();
 
     $self->info("Tagging at $tag");
 
-    my $msg = sprintf 'Tagging Pinto repository as of %s.', $now->datetime();
     Pinto::Util::Svn::svn_tag(from => $origin, to => $tag, message => $msg);
 
     return $self;
@@ -130,7 +118,7 @@ Pinto::Store::VCS::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.027
+version 0.028
 
 =head1 SYNOPSIS
 
@@ -158,7 +146,7 @@ F<~/srv/PINTO> in the example above).
 L<Pinto::Store::VCS::Svn> is a back-end for L<Pinto> that stores the
 repository inside Subversion.  Before you can effectively use this
 Store, you must first place your Pinto repository somewhere in
-Subversion (see L</"SYNOPSIS"> for the typical procedure).
+Subversion (see L</SYNOPSIS> for the typical procedure).
 
 =head1 CAVEATS
 
@@ -167,7 +155,7 @@ Subversion (see L</"SYNOPSIS"> for the typical procedure).
 =item The C<svn> program is required.
 
 At present, you must have the binary C<svn> client installed somewhere
-in your C<$PATH> for this module to work.  In future versions, we may
+in your C<$PATH> for this Store to work.  In future versions, we may
 try using L<SVN::Client> or some other interface.
 
 =item No built-in support for authentication.
