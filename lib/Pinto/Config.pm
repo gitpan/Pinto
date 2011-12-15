@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -50,6 +50,15 @@ has index_file => (
     isa       => File,
     init_arg  => undef,
     default   => sub { return $_[0]->modules_dir->file('02packages.details.txt.gz') },
+    lazy      => 1,
+);
+
+
+has mailrc_file => (
+    is        => 'ro',
+    isa       => File,
+    init_arg  => undef,
+    default   => sub { return $_[0]->authors_dir->file('01mailrc.txt.gz') },
     lazy      => 1,
 );
 
@@ -194,7 +203,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 DESCRIPTION
 

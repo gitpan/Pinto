@@ -7,7 +7,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ Pinto::Exceptions - Exception classes for Pinto
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 AUTHOR
 

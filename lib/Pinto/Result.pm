@@ -10,7 +10,7 @@ use overload ('""' => 'to_string');
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -82,7 +82,7 @@ Pinto::Result - The result from running a Batch of Actions
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 AUTHOR
 

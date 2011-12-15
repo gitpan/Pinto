@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -32,9 +32,20 @@ has _git => (
 sub _build__git {
     my ($self) = @_;
 
-    my $root_dir = $self->config->root_dir();
+    my $root = $self->config->root_dir();
+    my $dir  = $root;
+    my $work_tree;
 
-    return Git::Repository->new( work_tree => $root_dir );
+    for ( 0..3 ) {
+        $work_tree = $dir if -e $dir->subdir('.git');
+        last if $work_tree;
+        $dir = $dir->parent();
+    }
+
+    $self->fatal("Could not find .git directory within 4 directories above $root")
+        if not $work_tree;
+
+    return Git::Repository->new( work_tree => $work_tree );
 }
 
 #-------------------------------------------------------------------------------
@@ -44,7 +55,7 @@ augment add_path => sub {
     my ($self, %args) = @_;
 
     # With git, all paths must be relative to the top of the work tree
-    my $path = $args{path}->relative( $self->config->root_dir() );
+    my $path = $args{path}->relative( $self->_git->work_tree() );
     $self->_git->run( 'add' => $path->stringify() );
     $self->mark_path_for_commit($path);
 
@@ -59,7 +70,7 @@ augment remove_path => sub {
     my ($self, %args) = @_;
 
     # With git, all paths must be relative to the top of the work tree
-    my $path = $args{path}->relative( $self->config->root_dir() );
+    my $path = $args{path}->relative( $self->_git->work_tree() );
     $self->_git->run( rm => '-f',  $path->stringify() );
     $self->mark_path_for_commit($path);
 
@@ -125,7 +136,7 @@ Pinto::Store::VCS::Git - Store your Pinto repository locally with Git
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 SYNOPSIS
 

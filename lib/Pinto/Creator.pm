@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ sub _write_modlist {
 sub _write_mailrc {
     my ($self) = @_;
 
-    my $mailrc_file = $self->config->authors_dir->file('01mailrc.txt.gz');
+    my $mailrc_file = $self->config->mailrc_file();
     open my $fh, '>:gzip', $mailrc_file;
     print {$fh} '';
     close $fh;
@@ -184,7 +184,7 @@ Pinto::Creator - Creates a new Pinto repository
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 AUTHOR
 

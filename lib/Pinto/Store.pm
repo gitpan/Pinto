@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -41,7 +41,7 @@ sub commit {
 
     $self->add_path( path => $self->config->pinto_dir() );
     $self->add_path( path => $self->config->modules_dir() );
-
+    $self->add_path( path => $self->config->mailrc_file() );
     inner();
 
     return $self;
@@ -160,7 +160,7 @@ Pinto::Store - Base class for storage of a Pinto repository
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 DESCRIPTION
 

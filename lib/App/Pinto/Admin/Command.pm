@@ -13,7 +13,7 @@ use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ App::Pinto::Admin::Command - Base class for pinto-admin commands
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 AUTHOR
 

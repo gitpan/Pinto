@@ -71,7 +71,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.028'; # VERSION
+our $VERSION = '0.029'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -153,7 +153,7 @@ sub default_format {
     my $width = 38 - length $self->version();
     $width = length $self->name() if $width < length $self->name();
 
-    return "%x%m%s %-${width}n %v  %p\n",
+    return "%x%m%s%y %-${width}n %v  %p\n",
 }
 
 #-------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ Pinto::Schema::Result::Package - Represents a package in a Distribution
 
 =head1 VERSION
 
-version 0.028
+version 0.029
 
 =head1 NAME
 
