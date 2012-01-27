@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
  my $usage =  <<"END_USAGE";
-%c --repos=PATH $command [OPTIONS]
+%c --root=PATH $command [OPTIONS]
 END_USAGE
 
     chomp $usage;
@@ -59,11 +59,11 @@ App::Pinto::Admin::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir statistics [OPTIONS]
+  pinto-admin --root=/some/dir statistics [OPTIONS]
 
 =head1 DESCRIPTION
 

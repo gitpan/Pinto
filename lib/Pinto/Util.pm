@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -38,17 +38,23 @@ sub author_dir {                                  ## no critic (ArgUnpacking)
 sub parse_dist_url {
     my ($url, $base_dir) = @_;
 
-    my $path = $url->path();  # '/yadda/yadda/authors/id/A/AU/AUTHOR/Foo-1.2.tar.gz'
+    #  $path = '/yadda/yadda/authors/id/A/AU/AUTHOR/Foo-1.2.tar.gz'
+    my $path = $url->path();
 
-    $path =~ s{^ (.*) /authors/id/(.*) $}{$2}mx       # 'A/AU/AUTHOR/Foo-1.2.tar.gz'
-        or throw_error 'Unable to parse url: $url';
+    if ( $path =~ s{^ (.*) /authors/id/(.*) $}{$2}mx ) {
 
-    my $source     = $url->isa('URI::file') ? $1 : $url->authority();
-    my @path_parts = split m{ / }mx, $path; # qw( A AU AUTHOR Foo-1.2.tar.gz )
-    my $archive    = file($base_dir, qw(authors id), @path_parts);
-    my $author     = $path_parts[2];
+        # $path = 'A/AU/AUTHOR/Foo-1.2.tar.gz'
+        my $source     = $url->isa('URI::file') ? $1 : $url->authority();
+        my @path_parts = split m{ / }mx, $path; # qw( A AU AUTHOR Foo-1.2.tar.gz )
+        my $archive    = file($base_dir, qw(authors id), @path_parts);
+        my $author     = $path_parts[2];
+        return ($source, $path, $author, $archive);
+    }
+    else {
 
-    return ($source, $path, $author, $archive);
+        throw_error 'Unable to parse url: $url';
+    }
+
 }
 
 #-------------------------------------------------------------------------------
@@ -147,7 +153,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 DESCRIPTION
 

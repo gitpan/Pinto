@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -42,14 +42,6 @@ has cache => (
     lazy_build => 1,
 );
 
-
-has root_dir => (
-    is         => 'ro',
-    isa        => Dir,
-    default    => sub { $_[0]->config->root_dir },
-    init_arg   => undef,
-    lazy       => 1,
-);
 
 #-------------------------------------------------------------------------------
 # Roles
@@ -137,7 +129,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 AUTHOR
 

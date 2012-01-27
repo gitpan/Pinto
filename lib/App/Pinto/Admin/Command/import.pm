@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -41,8 +41,8 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
     my $usage =  <<"END_USAGE";
-%c --repos=PATH $command [OPTIONS] PACKAGE_NAME ...
-%c --repos=PATH $command [OPTIONS] < LIST_OF_PACKAGE_NAMES
+%c --root=PATH $command [OPTIONS] PACKAGE_NAME ...
+%c --root=PATH $command [OPTIONS] < LIST_OF_PACKAGE_NAMES
 END_USAGE
 
     chomp $usage;
@@ -85,12 +85,12 @@ App::Pinto::Admin::Command::import - get selected distributions from a remote re
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir import [OPTIONS] PACKAGE_NAME ...
-  pinto-admin --repos=/some/dir import [OPTIONS] < LIST_OF_PACKAGE_NAMES
+  pinto-admin --root=/some/dir import [OPTIONS] PACKAGE_NAME ...
+  pinto-admin --root=/some/dir import [OPTIONS] < LIST_OF_PACKAGE_NAMES
 
 =head1 DESCRIPTION
 

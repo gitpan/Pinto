@@ -13,7 +13,7 @@ use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ sub usage_desc {
 
     my ($command) = $self->command_names();
 
-    return '%c --repos=PATH $command [OPTIONS] [ARGS]'
+    return '%c --root=PATH $command [OPTIONS] [ARGS]'
 }
 
 #-----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ App::Pinto::Admin::Command - Base class for pinto-admin commands
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 AUTHOR
 

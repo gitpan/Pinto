@@ -2,7 +2,7 @@ NAME
     Pinto - Curate your own CPAN-like repository
 
 VERSION
-    version 0.029
+    version 0.030
 
 SYNOPSIS
     See pinto-admin to create and manage a Pinto repository.
@@ -65,7 +65,7 @@ DESCRIPTION
 
         The pinto-admin and pinto-remote command line tools have options to
         control every aspect of your Pinto repository. They are well
-        documented and behave in a DWIM fashion.
+        documented and behave in the customary UNIX fashion.
 
     *   Pinto can be extended.
 

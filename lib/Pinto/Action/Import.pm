@@ -19,7 +19,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -100,7 +100,6 @@ sub execute {
     # counter attribute, or refactor _find_or_import so that it can
     # tell you whether or not it actually imported something.
 
-    $DB::single = 1;
     my @msgs = $self->messages();
     return scalar @msgs;
 }
@@ -255,7 +254,7 @@ Pinto::Action::Import - Import a distribution (and dependencies) into the local 
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 AUTHOR
 

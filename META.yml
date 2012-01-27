@@ -29,196 +29,196 @@ no_index:
 provides:
   App::Pinto::Admin:
     file: lib/App/Pinto/Admin.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command:
     file: lib/App/Pinto/Admin/Command.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::add:
     file: lib/App/Pinto/Admin/Command/add.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::clean:
     file: lib/App/Pinto/Admin/Command/clean.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::create:
     file: lib/App/Pinto/Admin/Command/create.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::import:
     file: lib/App/Pinto/Admin/Command/import.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::list:
     file: lib/App/Pinto/Admin/Command/list.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::manual:
     file: lib/App/Pinto/Admin/Command/manual.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::mirror:
     file: lib/App/Pinto/Admin/Command/mirror.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::nop:
     file: lib/App/Pinto/Admin/Command/nop.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::pin:
     file: lib/App/Pinto/Admin/Command/pin.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::purge:
     file: lib/App/Pinto/Admin/Command/purge.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::rebuild:
     file: lib/App/Pinto/Admin/Command/rebuild.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::remove:
     file: lib/App/Pinto/Admin/Command/remove.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::statistics:
     file: lib/App/Pinto/Admin/Command/statistics.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::unpin:
     file: lib/App/Pinto/Admin/Command/unpin.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::verify:
     file: lib/App/Pinto/Admin/Command/verify.pm
-    version: 0.029
+    version: 0.030
   App::Pinto::Admin::Command::version:
     file: lib/App/Pinto/Admin/Command/version.pm
-    version: 0.029
+    version: 0.030
   Pinto:
     file: lib/Pinto.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Import:
     file: lib/Pinto/Action/Import.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Mirror:
     file: lib/Pinto/Action/Mirror.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Nop:
     file: lib/Pinto/Action/Nop.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Pin:
     file: lib/Pinto/Action/Pin.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Purge:
     file: lib/Pinto/Action/Purge.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Rebuild:
     file: lib/Pinto/Action/Rebuild.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Remove:
     file: lib/Pinto/Action/Remove.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Statistics:
     file: lib/Pinto/Action/Statistics.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Unpin:
     file: lib/Pinto/Action/Unpin.pm
-    version: 0.029
+    version: 0.030
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.029
+    version: 0.030
   Pinto::Batch:
     file: lib/Pinto/Batch.pm
-    version: 0.029
+    version: 0.030
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.029
+    version: 0.030
   Pinto::Creator:
     file: lib/Pinto/Creator.pm
-    version: 0.029
+    version: 0.030
   Pinto::Database:
     file: lib/Pinto/Database.pm
-    version: 0.029
+    version: 0.030
   Pinto::Exceptions:
     file: lib/Pinto/Exceptions.pm
-    version: 0.029
+    version: 0.030
   Pinto::IndexCache:
     file: lib/Pinto/IndexCache.pm
-    version: 0.029
+    version: 0.030
   Pinto::IndexWriter:
     file: lib/Pinto/IndexWriter.pm
-    version: 0.029
+    version: 0.030
   Pinto::Interface::Authorable:
     file: lib/Pinto/Interface/Authorable.pm
-    version: 0.029
+    version: 0.030
   Pinto::Interface::Configurable:
     file: lib/Pinto/Interface/Configurable.pm
-    version: 0.029
+    version: 0.030
   Pinto::Interface::Loggable:
     file: lib/Pinto/Interface/Loggable.pm
-    version: 0.029
+    version: 0.030
   Pinto::Locker:
     file: lib/Pinto/Locker.pm
-    version: 0.029
+    version: 0.030
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.029
+    version: 0.030
   Pinto::PackageExtractor:
     file: lib/Pinto/PackageExtractor.pm
-    version: 0.029
+    version: 0.030
   Pinto::Repository:
     file: lib/Pinto/Repository.pm
-    version: 0.029
+    version: 0.030
   Pinto::Result:
     file: lib/Pinto/Result.pm
-    version: 0.029
+    version: 0.030
   Pinto::Role::FileFetcher:
     file: lib/Pinto/Role/FileFetcher.pm
-    version: 0.029
+    version: 0.030
   Pinto::Role::PathMaker:
     file: lib/Pinto/Role/PathMaker.pm
-    version: 0.029
+    version: 0.030
   Pinto::Schema:
     file: lib/Pinto/Schema.pm
-    version: 0.029
+    version: 0.030
   Pinto::Schema::Result::Distribution:
     file: lib/Pinto/Schema/Result/Distribution.pm
-    version: 0.029
+    version: 0.030
   Pinto::Schema::Result::Package:
     file: lib/Pinto/Schema/Result/Package.pm
-    version: 0.029
+    version: 0.030
   Pinto::Statistics:
     file: lib/Pinto/Statistics.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store::File:
     file: lib/Pinto/Store/File.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store::VCS:
     file: lib/Pinto/Store/VCS.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store::VCS::Git:
     file: lib/Pinto/Store/VCS/Git.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store::VCS::Git::Remote:
     file: lib/Pinto/Store/VCS/Git/Remote.pm
-    version: 0.029
+    version: 0.030
   Pinto::Store::VCS::Svn:
     file: lib/Pinto/Store/VCS/Svn.pm
-    version: 0.029
+    version: 0.030
   Pinto::Tester:
     file: lib/Pinto/Tester.pm
-    version: 0.029
+    version: 0.030
   Pinto::Tester::Util:
     file: lib/Pinto/Tester/Util.pm
-    version: 0.029
+    version: 0.030
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.029
+    version: 0.030
   Pinto::Util::Svn:
     file: lib/Pinto/Util/Svn.pm
-    version: 0.029
+    version: 0.030
 requires:
   App::Cmd::Setup: 0
   CPAN::Checksums: 0
@@ -269,4 +269,4 @@ requires:
 resources:
   bugtracker: https://github.com/thaljef/Pinto/issues
   repository: git://github.com/thaljef/Pinto.git
-version: 0.029
+version: 0.030

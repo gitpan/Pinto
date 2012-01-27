@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -49,11 +49,11 @@ App::Pinto::Admin::Command::verify - report distributions that are missing
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 SYNOPSIS
 
-  pinto-admin --repos=/some/dir verify
+  pinto-admin --root=/some/dir verify
 
 =head1 DESCRIPTION
 

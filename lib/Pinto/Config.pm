@@ -14,16 +14,25 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
 
-has root_dir   => (
+has root       => (
     is         => 'ro',
     isa        => Dir,
     required   => 1,
     coerce     => 1,
+);
+
+
+has root_dir   => (            # An alias for 'root'
+    is         => 'ro',
+    isa        => Dir,
+    init_arg   => undef,
+    default    => sub { return $_[0]->root() },
+    lazy       => 1,
 );
 
 
@@ -203,7 +212,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 DESCRIPTION
 

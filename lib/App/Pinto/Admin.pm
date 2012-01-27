@@ -11,14 +11,14 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub global_opt_spec {
 
   return (
-      [ 'repos|r=s'   => 'Path to your repository directory' ],
+      [ 'root|r=s'    => 'Path to your repository root directory' ],
       [ 'nocolor'     => 'Do not colorize diagnostic messages' ],
       [ 'quiet|q'     => 'Only report fatal errors' ],
       [ 'verbose|v+'  => 'More diagnostic output (repeatable)' ],
@@ -34,11 +34,8 @@ sub pinto {
     return $self->{pinto} ||= do {
         my %global_options = %{ $self->global_options() };
 
-        # Convert option name to match attribute...
-        $global_options{root_dir} ||= delete $global_options{repos};
-
-        $global_options{root_dir} ||= $ENV{PINTO_REPOSITORY}
-            || $self->usage_error('Must specify a repository directory');
+        $global_options{root} ||= $ENV{PINTO_REPOSITORY_ROOT}
+            || $self->usage_error('Must specify a repository root directory');
 
         my $pinto_class = $self->pinto_class();
         Class::Load::load_class($pinto_class);
@@ -66,7 +63,7 @@ App::Pinto::Admin - Command-line driver for Pinto::Admin
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 METHODS
 

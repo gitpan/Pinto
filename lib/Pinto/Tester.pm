@@ -17,7 +17,7 @@ use Pinto::Types qw(Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ has pinto => (
 );
 
 
-has root_dir => (
+has root => (
    is       => 'ro',
    isa      => Dir,
    default  => sub { dir( File::Temp::tempdir(CLEANUP => 1) ) },
@@ -76,10 +76,10 @@ has tb => (
 sub _build_pinto {
     my ($self) = @_;
 
-    my $creator = Pinto::Creator->new( root_dir => $self->root_dir() );
+    my $creator = Pinto::Creator->new( root => $self->root() );
     $creator->create( $self->creator_args() );
 
-    my %defaults = (out => $self->buffer(), verbose => 3, root_dir => $self->root_dir());
+    my %defaults = ( out => $self->buffer(), verbose => 3, root => $self->root() );
 
     return Pinto->new(%defaults, $self->pinto_args());
 }
@@ -109,10 +109,12 @@ sub reset_buffer {
 sub path_exists_ok {
     my ($self, $path, $name) = @_;
 
-    $path = file( $self->root_dir(), @{$path} );
+    $path = file( $self->root(), @{$path} );
     $name ||= "Path $path exists";
 
     $self->tb->ok(-e $path, $name);
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -120,10 +122,12 @@ sub path_exists_ok {
 sub path_not_exists_ok {
     my ($self, $path, $name) = @_;
 
-    $path = file( $self->root_dir(), @{$path} );
+    $path = file( $self->root(), @{$path} );
     $name ||= "Path $path does not exist";
 
     $self->tb->ok(! -e $path, $name);
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -144,7 +148,7 @@ sub package_loaded_ok {
     $self->tb->ok(1, "$pkg_spec is loaded");
     $self->tb->is_eq($pkg->version(), $pkg_ver, "$pkg_name has correct version");
 
-    my $archive = $pkg->distribution->archive( $self->root_dir() );
+    my $archive = $pkg->distribution->archive( $self->root() );
     $self->tb->ok(-e $archive, "Archive $archive exists");
 
     $self->tb->is_eq( $pkg->is_latest(), 1, "$pkg_spec is latest" )
@@ -152,6 +156,8 @@ sub package_loaded_ok {
 
     $self->tb->is_eq( $pkg->is_latest(), undef, "$pkg_spec is not latest" )
         if not $latest;
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -163,7 +169,7 @@ sub package_not_loaded_ok {
 
     my $author_dir = Pinto::Util::author_dir($author);
     my $dist_path = $author_dir->file($dist_file)->as_foreign('Unix');
-    my $archive   = $self->root_dir()->file(qw(authors id), $author_dir, $dist_file);
+    my $archive   = $self->root()->file(qw(authors id), $author_dir, $dist_file);
 
     my $attrs = { prefetch  => 'distribution' };
     my $where = { name => $pkg_name, 'distribution.path' => $dist_path };
@@ -172,6 +178,8 @@ sub package_not_loaded_ok {
     $self->tb->ok(!$pkg, "$pkg_spec is still loaded");
 
     $self->tb->ok(! -e $archive, "Archive $archive still exists");
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -179,9 +187,10 @@ sub package_not_loaded_ok {
 sub result_ok {
     my ($self, $result) = @_;
 
-    return 1 if $self->tb->ok( $result->is_success(), 'Result was succesful' );
-    $self->tb->diag( "Diagnostics: " . $result->to_string() );
-    return 0;
+    $self->tb->ok( $result->is_success(), 'Result was succesful' )
+        || $self->tb->diag( "Diagnostics: " . $result->to_string() );
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -190,6 +199,8 @@ sub result_not_ok {
     my ($self, $result) = @_;
 
     $self->tb->ok( !$result->is_success(), 'Result was not succesful' );
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -203,9 +214,10 @@ sub repository_empty_ok {
     my @pkgs = $self->pinto->repos->select_packages()->all();
     $self->tb->is_eq(scalar @pkgs, 0, 'Database has no packages');
 
-    my $dir = dir( $self->root_dir(), qw(authors id) );
+    my $dir = dir( $self->root(), qw(authors id) );
     $self->tb->ok(! -e $dir, 'Repository has no archives');
 
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -216,6 +228,8 @@ sub log_like {
     $name ||= 'Log output matches';
 
     $self->tb->like( $self->bufferstr(), $rx, $name );
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -226,6 +240,8 @@ sub log_unlike {
     $name ||= 'Log output does not match';
 
     $self->tb->unlike( $self->bufferstr(), $rx, $name );
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -259,7 +275,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 AUTHOR
 

@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -136,12 +136,12 @@ Pinto::Store::VCS::Git - Store your Pinto repository locally with Git
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 SYNOPSIS
 
   # If you don't already have a Pinto repository, create one (notice the --store option here)
-  $> pinto-admin --repos=~/PINTO create --store=Pinto::Store::VCS::Git
+  $> pinto-admin --root=~/PINTO create --store=Pinto::Store::VCS::Git
 
   # If you do already have a repository, edit its config (at $REPOS/.pinto/config/pinto.ini)
   store = Pinto::Store::VCS::Git
@@ -155,7 +155,7 @@ version 0.029
   $> git commit -a -m 'New Pinto repos'
 
 Now run L<pinto-admin> or L<pinto-server> as you normally would,
-setting the C<--repos> to the path of the working copy (which would be
+setting the C<--root> to the path of the working copy (which would be
 F<~/PINTO> in the example above).
 
 =head1 DESCRIPTION
@@ -168,7 +168,7 @@ procedure).
 
 Note this Store only works with a local Git repository (i.e. one that
 does not push or pull to another repository).  If you want to do that,
-see L<Pinto::Store::VCS::Git::Remote).
+see L<Pinto::Store::VCS::Git::Remote>).
 
 =head1 CAVEATS
 
@@ -176,7 +176,7 @@ see L<Pinto::Store::VCS::Git::Remote).
 
 =item The C<git> program is required.
 
-You must have the binary C<git> tool installed somwhere in uour
+You must have the binary C<git> tool installed somewhere in your
 C<$PATH> for this Store to work.
 
 =back

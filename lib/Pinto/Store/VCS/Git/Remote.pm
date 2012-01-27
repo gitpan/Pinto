@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -65,7 +65,7 @@ Pinto::Store::VCS::Git::Remote - Store your Pinto repository remotely with Git
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 SYNOPSIS
 
@@ -73,7 +73,7 @@ version 0.029
   # constructed a bare repository at git://some_server/PINTO.git
 
   # If you don't already have a Pinto repository, create one (notice the --store option here)
-  $> pinto-admin --repos=~/PINTO create --store=Pinto::Store::VCS::Git::Remote
+  $> pinto-admin --root=~/PINTO create --store=Pinto::Store::VCS::Git::Remote
 
   # If you do already have a repository, edit its config (at $REPOS/.pinto/config/pinto.ini)
   store = Pinto::Store::VCS::Git::Remote
@@ -110,7 +110,7 @@ L<Pinto::Store::VCS::Git> instead.
 
 =item The C<git> program is required.
 
-You must have the binary C<git> tool installed somwhere in uour
+You must have the binary C<git> tool installed somewhere in your
 C<$PATH> for this Store to work.
 
 =item No built-in support for authentication.

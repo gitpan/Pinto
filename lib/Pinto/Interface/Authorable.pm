@@ -9,7 +9,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.029'; # VERSION
+our $VERSION = '0.030'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ Pinto::Interface::Authorable - Something that has an author
 
 =head1 VERSION
 
-version 0.029
+version 0.030
 
 =head1 AUTHOR
 
