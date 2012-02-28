@@ -10,7 +10,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.030'; # VERSION
+our $VERSION = '0.031'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -129,7 +129,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.030
+version 0.031
 
 =head1 AUTHOR
 

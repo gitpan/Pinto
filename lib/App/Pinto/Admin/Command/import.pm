@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.030'; # VERSION
+our $VERSION = '0.031'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ App::Pinto::Admin::Command::import - get selected distributions from a remote re
 
 =head1 VERSION
 
-version 0.030
+version 0.031
 
 =head1 SYNOPSIS
 
@@ -106,6 +106,7 @@ packages that are available available on the remote repositories.  At
 present, Pinto takes the *first* package it can find that satisfies
 the prerequisite.  In the future, you may be able to direct Pinto to
 instead choose the *latest* package that satisfies the prerequisite.
+(NOT SURE THOSE LAST TWO STATEMENTS ARE TRUE).
 
 Imported distributions will be assigned to their original author
 (compare this to the C<add> command which makes B<you> the author of

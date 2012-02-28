@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.030'; # VERSION
+our $VERSION = '0.031'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ sub execute {
     # TODO: Use a config file format that allows multiple values per key (MVP perhaps?).
     $opts->{sources} = join ' ', @{ delete $opts->{source} } if defined $opts->{source};
 
-    my $creator = Pinto::Creator->new( $global_opts );
+    my $creator = Pinto::Creator->new( %{ $global_opts } );
     $creator->create( %{$opts} );
     return 0;
 }
@@ -77,7 +77,7 @@ App::Pinto::Admin::Command::create - create a new empty repository
 
 =head1 VERSION
 
-version 0.030
+version 0.031
 
 =head1 SYNOPSIS
 

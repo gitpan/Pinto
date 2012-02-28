@@ -7,7 +7,7 @@ MANIFEST.SKIP
 META.json
 META.yml
 README
-Todo
+TODO.pod
 bin/pinto-admin
 dist.ini
 lib/App/Pinto/Admin.pm
@@ -59,6 +59,7 @@ lib/Pinto/PackageExtractor.pm
 lib/Pinto/Repository.pm
 lib/Pinto/Result.pm
 lib/Pinto/Role/FileFetcher.pm
+lib/Pinto/Role/PackageImporter.pm
 lib/Pinto/Role/PathMaker.pm
 lib/Pinto/Schema.pm
 lib/Pinto/Schema/Result/Distribution.pm
