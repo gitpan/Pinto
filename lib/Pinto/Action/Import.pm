@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.031'; # VERSION
+our $VERSION = '0.032'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -101,7 +101,7 @@ Pinto::Action::Import - Import a package (and its prerequisites) into the local 
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.031'; # VERSION
+our $VERSION = '0.032'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ App::Pinto::Admin::Command::create - create a new empty repository
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 SYNOPSIS
 

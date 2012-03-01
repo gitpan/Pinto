@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.031'; # VERSION
+our $VERSION = '0.032'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -113,7 +113,7 @@ Pinto::Action::Clean - Remove all outdated distributions from the repository
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 AUTHOR
 

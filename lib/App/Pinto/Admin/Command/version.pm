@@ -11,7 +11,7 @@ use base qw(App::Pinto::Admin::Command);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.031'; # VERSION
+our $VERSION = '0.032'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ App::Pinto::Admin::Command::version - show version information
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 DESCRIPTION
 

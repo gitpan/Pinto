@@ -1,3 +1,13 @@
+0.032     2012-03-01 10:36:25 America/Los_Angeles
+
+     Bug Fixes:
+
+     Worked around a problem that caused the PAUSE indexer to
+     reject the last release.
+
+     Added an accurate line-count to the 02packages file so that
+     cpan(1) doesn't complain about it.
+
 0.031     2012-02-28 05:19:58 America/Los_Angeles
 
      Bug Fixes:
