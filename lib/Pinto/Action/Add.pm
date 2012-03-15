@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.032'; # VERSION
+our $VERSION = '0.033'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -103,7 +103,7 @@ override execute => sub {
 
     unless ( $self->norecurse() ) {
         my @imported = $self->import_prerequisites($archive);
-        #$self->add_message( Pinto::Util::imported_dist_message($_) ) for @imported;
+        $self->add_message( Pinto::Util::imported_prereq_dist_message($_) ) for @imported;
     }
 
     return 1;
@@ -150,7 +150,7 @@ Pinto::Action::Add - Add one distribution to the repository
 
 =head1 VERSION
 
-version 0.032
+version 0.033
 
 =head1 AUTHOR
 

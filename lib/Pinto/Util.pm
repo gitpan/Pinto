@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.032'; # VERSION
+our $VERSION = '0.033'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -113,6 +113,14 @@ sub imported_dist_message {
 
 #-------------------------------------------------------------------------------
 
+sub imported_prereq_dist_message {
+    my ($distribution) = @_;
+
+    return _dist_message($distribution, 'Imported prerequisite');
+}
+
+#-------------------------------------------------------------------------------
+
 sub _dist_message {
     my ($dist, $action) = @_;
 
@@ -153,7 +161,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.032
+version 0.033
 
 =head1 DESCRIPTION
 
