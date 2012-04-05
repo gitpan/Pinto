@@ -1,47 +1,56 @@
-package Pinto::Action::List;
-
 # ABSTRACT: An action for listing contents of a repository
+
+package Pinto::Action::List;
 
 use Moose;
 
-use Carp qw(croak);
-
-use MooseX::Types::Moose qw(Str HashRef);
-use Pinto::Types qw(IO);
+use MooseX::Types::Moose qw(HashRef);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
-
-#------------------------------------------------------------------------------
-# ISA
-
-extends 'Pinto::Action';
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has out => (
-    is      => 'ro',
-    isa     => IO,
-    coerce  => 1,
-    default => sub { [fileno(STDOUT), '>'] },
-);
+extends qw( Pinto::Action );
 
+#------------------------------------------------------------------------------
 
-has format => (
-    is      => 'ro',
-    isa     => Str,
-    default => '',
-);
+with qw( Pinto::Interface::Action::List );
 
+#------------------------------------------------------------------------------
 
 has where => (
     is      => 'ro',
     isa     => HashRef,
-    default => sub { {} },
+    builder => '_build_where',
+    lazy    => 1,
 );
+
+#------------------------------------------------------------------------------
+
+sub _build_where {
+    my ($self) = @_;
+
+    my $where = {};
+
+    my $pkg_name = $self->packages();
+    $where->{name} = { like => "%$pkg_name%" } if $pkg_name;
+
+    my $dist_path = $self->distributions();
+    $where->{path} = { like => "%$dist_path%" } if $dist_path;
+
+    my $index = $self->index();
+    $where->{is_latest} = $index ? 1 : undef if defined $index;
+
+    my $pinned = $self->pinned();
+    $where->{is_pinned} = $pinned ? 1 : undef if defined $pinned;
+
+    return $where;
+}
+
 
 #------------------------------------------------------------------------------
 
@@ -83,7 +92,7 @@ Pinto::Action::List - An action for listing contents of a repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

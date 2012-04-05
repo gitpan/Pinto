@@ -4,6 +4,7 @@ package Pinto::Role::FileFetcher;
 
 use Moose::Role;
 
+use File::Temp;
 use Path::Class;
 use LWP::UserAgent;
 
@@ -13,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -136,7 +137,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 METHODS
 

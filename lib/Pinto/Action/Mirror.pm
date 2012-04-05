@@ -1,6 +1,6 @@
-package Pinto::Action::Mirror;
-
 # ABSTRACT: Pull all the latest distributions into your repository
+
+package Pinto::Action::Mirror;
 
 use Moose;
 
@@ -13,26 +13,16 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
-# ISA
 
-extends 'Pinto::Action';
-
-#------------------------------------------------------------------------------
-# Moose Attributes
-
-# has force => (
-#    is      => 'ro',
-#    isa     => Bool,
-#    default => 0,
-# );
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
-# Moose Roles
 
-with qw(Pinto::Role::FileFetcher);
+with qw( Pinto::Role::FileFetcher
+         Pinto::Interface::Action::Mirror );
 
 #------------------------------------------------------------------------------
 
@@ -165,7 +155,7 @@ Pinto::Action::Mirror - Pull all the latest distributions into your repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

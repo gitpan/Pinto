@@ -4,7 +4,7 @@ package Pinto::Logger;
 
 use Moose;
 
-use MooseX::Types::Moose qw(Int Bool);
+use MooseX::Types::Moose qw(Int Bool Str);
 use Pinto::Types qw(IO);
 
 use Readonly;
@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,13 @@ has out => (
     is       => 'ro',
     isa      => IO,
     coerce   => 1,
-    default  => sub { [fileno(STDOUT), '>'] },
+    default  => sub { [fileno(STDERR), '>'] },
+);
+
+has log_prefix  => (
+    is       => 'ro',
+    isa      => Str,
+    default  => '',
 );
 
 has nocolor => (
@@ -57,23 +63,27 @@ sub BUILDARGS {
 }
 
 #-----------------------------------------------------------------------------
-# Private methods
+# Methods
 
-sub _logit {
+
+sub write {
     my ($self, $message) = @_;
 
-    return print { $self->out() } "$message\n";
+    # Split up multi-line messages and prepend the prefix to each line
+
+    chomp $message;
+    my $prefix = $self->log_prefix();
+    $message = join "\n$prefix", split m{\n}, $message;
+    return print { $self->out() } sprintf("%s%s\n", $prefix, $message);
 }
 
 #-----------------------------------------------------------------------------
-# Public methods
 
 
 sub debug {
     my ($self, $message) = @_;
 
-    chomp $message;
-    $self->_logit($message) if $self->verbose() >= $LEVEL_DEBUG;
+    $self->write($message) if $self->verbose() >= $LEVEL_DEBUG;
 
     return 1;
 }
@@ -84,8 +94,7 @@ sub debug {
 sub note {
     my ($self, $message) = @_;
 
-    chomp $message;
-    $self->_logit($message) if $self->verbose() >= $LEVEL_NOTE;
+    $self->write($message) if $self->verbose() >= $LEVEL_NOTE;
 
     return 1;
 }
@@ -96,8 +105,7 @@ sub note {
 sub info {
     my ($self, $message) = @_;
 
-    chomp $message;
-    $self->_logit($message) if $self->verbose() >= $LEVEL_INFO;
+    $self->write($message) if $self->verbose() >= $LEVEL_INFO;
 
     return 1;
 }
@@ -110,7 +118,7 @@ sub whine {
 
     chomp $message;
     $message = _colorize("$message", 'bold yellow') unless $self->nocolor();
-    $self->_logit($message) if $self->verbose() >= $LEVEL_WARN;
+    $self->write($message) if $self->verbose() >= $LEVEL_WARN;
 
     return 1;
 }
@@ -167,9 +175,13 @@ Pinto::Logger - A simple logger
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 METHODS
+
+=head2 write( $message )
+
+Unconditionally writes a log message
 
 =head2 debug( $message )
 

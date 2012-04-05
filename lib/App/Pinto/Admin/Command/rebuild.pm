@@ -11,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ App::Pinto::Admin::Command::rebuild - rebuild the repository index
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 SYNOPSIS
 

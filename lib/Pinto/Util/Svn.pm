@@ -13,7 +13,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #--------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #--------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ Pinto::Util::Svn - Utility functions for working with Subversion
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 FUNCTIONS
 

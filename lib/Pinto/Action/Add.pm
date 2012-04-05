@@ -1,6 +1,6 @@
-package Pinto::Action::Add;
-
 # ABSTRACT: Add one distribution to the repository
+
+package Pinto::Action::Add;
 
 use Moose;
 use MooseX::Types::Moose qw(Bool);
@@ -16,30 +16,19 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
-# ISA
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
-# Attrbutes
 
-has archive => (
-    is       => 'ro',
-    isa      => File,
-    required => 1,
-    coerce   => 1,
-);
+with qw( Pinto::Role::FileFetcher
+         Pinto::Role::PackageImporter
+         Pinto::Interface::Action::Add );
 
-
-has norecurse => (
-   is      => 'ro',
-   isa     => Bool,
-   default => 0,
-);
-
+#------------------------------------------------------------------------------
 
 has extractor => (
     is         => 'ro',
@@ -47,14 +36,6 @@ has extractor => (
     lazy_build => 1,
 );
 
-
-#------------------------------------------------------------------------------
-# Roles
-
-with qw( Pinto::Interface::Authorable
-         Pinto::Role::FileFetcher
-         Pinto::Role::PackageImporter
-);
 
 #------------------------------------------------------------------------------
 # Builders
@@ -150,7 +131,7 @@ Pinto::Action::Add - Add one distribution to the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

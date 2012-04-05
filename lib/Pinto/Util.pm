@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -161,7 +161,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 DESCRIPTION
 

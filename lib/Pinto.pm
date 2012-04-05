@@ -3,21 +3,22 @@ package Pinto;
 # ABSTRACT: Curate your own CPAN-like repository
 
 use Moose;
+use MooseX::Types::Moose qw(Bool);
 
+use Carp;
+use Try::Tiny;
 use Class::Load;
 
 use Pinto::Config;
 use Pinto::Logger;
-use Pinto::Locker;
 use Pinto::Batch;
 use Pinto::Repository;
-use Pinto::Exceptions qw(throw_fatal);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -27,14 +28,6 @@ our $VERSION = '0.033'; # VERSION
 has repos   => (
     is         => 'ro',
     isa        => 'Pinto::Repository',
-    lazy_build => 1,
-);
-
-
-has locker  => (
-    is         => 'ro',
-    isa        => 'Pinto::Locker',
-    init_arg   =>  undef,
     lazy_build => 1,
 );
 
@@ -92,15 +85,6 @@ sub _build_repos {
 }
 
 #------------------------------------------------------------------------------
-
-sub _build_locker {
-    my ($self) = @_;
-
-    return Pinto::Locker->new( config => $self->config(),
-                               logger => $self->logger() );
-}
-
-#------------------------------------------------------------------------------
 # Public methods
 
 sub new_batch {
@@ -122,9 +106,7 @@ sub add_action {
     my ($self, $action_name, %args) = @_;
 
     my $action_class = "Pinto::Action::$action_name";
-
-    eval { Class::Load::load_class($action_class); 1 }
-        or throw_fatal "Unable to load action class $action_class: $@";
+    Class::Load::load_class($action_class);
 
     my $action =  $action_class->new( config => $self->config(),
                                       logger => $self->logger(),
@@ -142,17 +124,12 @@ sub run_actions {
     my ($self) = @_;
 
     my $batch = $self->_batch()
-        or throw_fatal 'You must create a batch first';
+        or confess 'You must create a batch first';
 
-    # Divert any warnings to our logger
-    local $SIG{__WARN__} = sub { $self->whine(@_) };
+    my $result = try   { $self->_batch->run() }
+                 catch { $self->fatal($_)     };
 
-    # Shit happens here!
-    $self->locker->lock();
-    my $r = $self->_batch->run();
-    $self->locker->unlock();
-
-    return $r;
+    return $result;
 
 }
 
@@ -178,7 +155,7 @@ Pinto - Curate your own CPAN-like repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 SYNOPSIS
 

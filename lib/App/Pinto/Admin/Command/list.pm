@@ -14,7 +14,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -53,18 +53,6 @@ sub validate_args {
     $opts->{format} = eval qq{"$opts->{format}"} ## no critic qw(StringyEval)
         if $opts->{format};
 
-    my $pkg_name = delete $opts->{packages};
-    $opts->{where}->{name} = { like => "%$pkg_name%" } if $pkg_name;
-
-    my $dist_path = delete $opts->{distributions};
-    $opts->{where}->{path} = { like => "%$dist_path%" } if $dist_path;
-
-    my $index = delete $opts->{index};
-    $opts->{where}->{is_latest} = $index ? 1 : undef if defined $index;
-
-    my $pinned = delete $opts->{pinned};
-    $opts->{where}->{is_pinned} = $pinned ? 1 : undef if defined $pinned;
-
     return 1;
 }
 
@@ -84,7 +72,7 @@ App::Pinto::Admin::Command::list - list the contents of the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 SYNOPSIS
 

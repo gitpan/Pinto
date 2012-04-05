@@ -1,28 +1,22 @@
-package Pinto::Action::Rebuild;
-
 # ABSTRACT: Rebuild the index file for the repository
 
-use Moose;
+package Pinto::Action::Rebuild;
 
-use MooseX::Types::Moose qw(Bool);
+use Moose;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has recompute => (
-    is      => 'ro',
-    isa     => Bool,
-    default => 0,
-);
+with qw( Pinto::Interface::Action::Rebuild );
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +71,7 @@ Pinto::Action::Rebuild - Rebuild the index file for the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

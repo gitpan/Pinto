@@ -1,6 +1,6 @@
-package Pinto::Action::Purge;
-
 # ABSTRACT: Remove all distributions from the repository
+
+package Pinto::Action::Purge;
 
 use Moose;
 
@@ -8,11 +8,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Interface::Action::Purge );
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +59,7 @@ Pinto::Action::Purge - Remove all distributions from the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

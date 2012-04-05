@@ -50,7 +50,6 @@ lib/Pinto/Database.pm
 lib/Pinto/Exceptions.pm
 lib/Pinto/IndexCache.pm
 lib/Pinto/IndexWriter.pm
-lib/Pinto/Interface/Authorable.pm
 lib/Pinto/Interface/Configurable.pm
 lib/Pinto/Interface/Loggable.pm
 lib/Pinto/Locker.pm

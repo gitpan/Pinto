@@ -66,7 +66,6 @@ nop
 Configurable
 rebuild
 manual
-Authorable
 Remove
 Exceptions
 Tester

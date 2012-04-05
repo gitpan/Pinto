@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -61,8 +61,8 @@ sub execute {
 
     for my $arg (@args) {
         my ($name, $version) = split m/ - /mx, $arg, 2;
-        $self->pinto->add_action('Import', %{$opts}, package_name    => $name,
-                                                     minimum_version => ($version || 0));
+        $self->pinto->add_action('Import', %{$opts}, package => $name,
+                                                     version => ($version || 0));
     }
     my $result = $self->pinto->run_actions();
 
@@ -85,7 +85,7 @@ App::Pinto::Admin::Command::import - get selected distributions from a remote re
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 SYNOPSIS
 

@@ -1,32 +1,24 @@
-package Pinto::Action::Statistics;
 
 # ABSTRACT: Report statistics about the repository
+package Pinto::Action::Statistics;
 
 use Moose;
 
 use Pinto::Statistics;
-use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
-# ISA
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
-# Attributes
 
-has out => (
-    is      => 'ro',
-    isa     => IO,
-    coerce  => 1,
-    default => sub { [fileno(STDOUT), '>'] },
-);
+with qw( Pinto::Interface::Action::Statistics );
 
 #------------------------------------------------------------------------------
 
@@ -59,7 +51,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

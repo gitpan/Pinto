@@ -1,26 +1,22 @@
-package Pinto::Action::Nop;
-
 # ABSTRACT: A no-op action
 
+package Pinto::Action::Nop;
+
 use Moose;
-
-use MooseX::Types::Moose qw(Int);
-
-extends 'Pinto::Action';
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has sleep => (
-    is      => 'ro',
-    isa     => Int,
-    default => 0,
-);
+extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Interface::Action::Nop );
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +52,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 DESCRIPTION
 

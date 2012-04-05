@@ -1,32 +1,24 @@
-package Pinto::Action::Verify;
-
 # ABSTRACT: Verify all distributions are present in the repository
+
+package Pinto::Action::Verify;
 
 use Moose;
 
 use Pinto::Util;
-use Pinto::Types qw(IO);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
-# ISA
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
-# Attributes
 
-has out => (
-    is       => 'ro',
-    isa      => IO,
-    coerce   => 1,
-    default  => sub { [fileno(STDOUT), '>'] },
-);
+with qw( Pinto::Interface::Action::Verify );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -64,7 +56,7 @@ Pinto::Action::Verify - Verify all distributions are present in the repository
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 

@@ -1,29 +1,22 @@
-package Pinto::Action::Unpin;
-
 # ABSTRACT: Loosen a package that has been pinned
 
-use Moose;
-use MooseX::Types::Moose qw(Str);
+package Pinto::Action::Unpin;
 
-use Pinto::Types qw(Vers);
+use Moose;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.033'; # VERSION
+our $VERSION = '0.035'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has package => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
-);
+with qw( Pinto::Interface::Action::Unpin );
 
 #------------------------------------------------------------------------------
 
@@ -70,7 +63,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.033
+version 0.035
 
 =head1 AUTHOR
 
