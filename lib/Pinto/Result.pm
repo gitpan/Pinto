@@ -10,7 +10,7 @@ use overload ('""' => 'to_string');
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -24,13 +24,14 @@ has changes_made    => (
 );
 
 has exceptions => (
-    is         => 'ro',
     isa        => ArrayRef,
     traits     => [ 'Array' ],
     default    => sub { [] },
-    handles    => {add_exception => 'push'},
+    handles    => {
+        add_exception => 'push',
+        exceptions    => 'elements',
+    },
     init_arg   => undef,
-    auto_deref => 1,
 );
 
 #-----------------------------------------------------------------------------
@@ -38,7 +39,7 @@ has exceptions => (
 sub is_success {
     my ($self) = @_;
 
-    return @{ $self->exceptions() } == 0;
+    return $self->exceptions() == 0;
 }
 
 #-----------------------------------------------------------------------------
@@ -82,7 +83,7 @@ Pinto::Result - The result from running a Batch of Actions
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

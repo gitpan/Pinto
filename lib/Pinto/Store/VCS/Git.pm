@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -107,7 +107,7 @@ augment tag => sub {
     my $tag = $now->strftime( $args{tag} );
     my $msg = $args{message};
 
-    $self->info("Tagging at $tag");
+    $self->notice("Tagging at $tag");
 
     $self->_git->run( tag => '-m', $msg, $tag );
 
@@ -136,7 +136,7 @@ Pinto::Store::VCS::Git - Store your Pinto repository locally with Git
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 SYNOPSIS
 

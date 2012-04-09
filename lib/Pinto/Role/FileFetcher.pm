@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -29,7 +29,7 @@ has ua => (
 # Roles
 
 with qw( Pinto::Role::PathMaker
-         Pinto::Interface::Loggable );
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ sub fetch_temporary {
 sub _fetch {
     my ($self, $url, $to) = @_;
 
-    $self->note("Fetching $url");
+    $self->info("Fetching $url");
 
     my $result = eval { $self->ua->mirror($url, $to) } or throw_fatal $@;
 
@@ -137,7 +137,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 METHODS
 

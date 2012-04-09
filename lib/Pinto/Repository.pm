@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -46,8 +46,8 @@ has cache => (
 #-------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Interface::Configurable
-         Pinto::Interface::Loggable );
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #-------------------------------------------------------------------------------
 # Builders
@@ -129,7 +129,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

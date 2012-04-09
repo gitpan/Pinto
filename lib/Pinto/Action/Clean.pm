@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Clean );
+with qw( Pinto::Role::Interface::Action::Clean );
 
 #------------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ has confirm => (
 #------------------------------------------------------------------------------
 # Methods
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     my $outdated = $self->_select_outdated_distributions();
@@ -45,14 +45,14 @@ override execute => sub {
             next if not $self->_prompt_for_confirmation($dist);
         }
 
-        $self->info("Removing distribution $dist");
+        $self->notice("Removing distribution $dist");
         $self->repos->remove_distribution($dist);
         $self->add_message( "Removed outdated distribution $dist" );
         $removed++;
     }
 
     return $removed;
-};
+}
 
 #------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ Pinto::Action::Clean - Remove all outdated distributions from the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

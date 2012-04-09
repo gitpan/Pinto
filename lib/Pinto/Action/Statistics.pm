@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Statistics );
+with qw( Pinto::Role::Interface::Action::Statistics );
 
 #------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

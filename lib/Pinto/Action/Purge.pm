@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,28 +16,26 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Purge );
+with qw( Pinto::Role::Interface::Action::Purge );
 
 #------------------------------------------------------------------------------
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     my $dists = $self->repos->db->select_distributions();
 
     my $count = $dists->count();
-    $self->info("Removing all $count distributions from the repository");
+    $self->notice("Purging all $count distributions from the repository");
 
-    my $removed = 0;
     while ( my $dist = $dists->next() ) {
         $self->repos->remove_distribution($dist);
-        $removed++
     }
 
-    $self->add_message("Purged all $removed distributions" ) if $removed;
+    $self->add_message("Purged all $count distributions" ) if $count;
 
-    return $removed;
-};
+    return $count;
+}
 
 #------------------------------------------------------------------------------
 
@@ -59,7 +57,7 @@ Pinto::Action::Purge - Remove all distributions from the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

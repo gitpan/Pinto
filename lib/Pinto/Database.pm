@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -30,8 +30,8 @@ has schema => (
 #-------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Interface::Configurable
-         Pinto::Interface::Loggable
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable
          Pinto::Role::PathMaker );
 
 #-------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ sub insert_distribution {
 
     $self->debug("Inserting distribution $dist into database");
 
-    $self->whine("Developer distribution $dist will not be indexed")
+    $self->warning("Developer distribution $dist will not be indexed")
         if $dist->is_devel() and not $self->config->devel();
 
     my $txn_guard = $self->schema->txn_scope_guard(); # BEGIN transaction
@@ -193,7 +193,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

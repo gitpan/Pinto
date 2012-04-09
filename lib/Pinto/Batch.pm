@@ -16,13 +16,13 @@ use MooseX::Types::Moose qw(Str Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Interface::Loggable
-         Pinto::Interface::Configurable );
+with qw( Pinto::Role::Loggable
+         Pinto::Role::Configurable );
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -35,13 +35,14 @@ has repos    => (
 
 
 has messages => (
-    is         => 'ro',
     isa        => 'ArrayRef[Str]',
     traits     => [ 'Array' ],
-    handles    => {add_message => 'push'},
+    handles    => {
+        add_message => 'push',
+        messages    => 'elements',
+    },
     default    => sub { [] },
     init_arg   => undef,
-    auto_deref => 1,
 );
 
 
@@ -112,7 +113,7 @@ sub run {
     my ($self) = @_;
 
     # Divert any warnings to our logger
-    local $SIG{__WARN__} = sub { $self->whine(@_) };
+    local $SIG{__WARN__} = sub { $self->warning(@_) };
 
     $self->locker->lock();
     $self->repos->initialize() unless $self->noinit();
@@ -122,13 +123,11 @@ sub run {
     }
 
     if (not $self->_result->changes_made) {
-        $self->note('No changes were made');
+        $self->info('No changes were made');
         goto BATCH_DONE;
     }
 
     $self->repos->write_index();
-
-    $self->debug( $self->message_string() );
 
     if (not $self->nocommit) {
         my $msg = $self->message_string();
@@ -170,7 +169,7 @@ sub _handle_action_error {
 
     if ( blessed($error) && $error->isa('Pinto::Exception') ) {
         $self->_result->add_exception($error);
-        $self->whine($error);
+        $self->warning($error);
         return $self;
     }
 
@@ -199,7 +198,7 @@ Pinto::Batch - Runs a series of actions
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 METHODS
 

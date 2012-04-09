@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-------------------------------------------------------------------------------
 # ISA
@@ -91,7 +91,7 @@ augment tag => sub {
     my $msg    = $args{mmessage};
     my $origin = $self->svn_location();
 
-    $self->info("Tagging at $tag");
+    $self->notice("Tagging at $tag");
 
     Pinto::Util::Svn::svn_tag(from => $origin, to => $tag, message => $msg);
 
@@ -118,7 +118,7 @@ Pinto::Store::VCS::Svn - Store your Pinto repository with Subversion
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 SYNOPSIS
 

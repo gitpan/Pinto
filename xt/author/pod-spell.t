@@ -39,8 +39,6 @@ Software
 Systems
 lib
 Pinto
-Interface
-Loggable
 Role
 FileFetcher
 Store
@@ -59,13 +57,14 @@ Command
 import
 mirror
 Statistics
+Configurable
 Purge
 Locker
 Repository
 nop
-Configurable
 rebuild
 manual
+Loggable
 Remove
 Exceptions
 Tester

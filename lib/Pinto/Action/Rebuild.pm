@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Rebuild );
+with qw( Pinto::Role::Interface::Action::Rebuild );
 
 #------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ Pinto::Action::Rebuild - Rebuild the index file for the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

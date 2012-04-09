@@ -1,159 +1,105 @@
+# ABSTRACT: Record events in the repository log file (and elsewhere).
+
 package Pinto::Logger;
 
-# ABSTRACT: A simple logger
-
 use Moose;
+use MooseX::Types::Moose qw(Str);
 
-use MooseX::Types::Moose qw(Int Bool Str);
-use Pinto::Types qw(IO);
+use DateTime;
+use Log::Dispatch;
+use Log::Dispatch::File;
 
-use Readonly;
-use Term::ANSIColor 2.02;
+use Pinto::Types qw(Dir File);
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-----------------------------------------------------------------------------
+# Roles
 
-Readonly my $LEVEL_QUIET => -2;
-Readonly my $LEVEL_WARN  => -1;
-Readonly my $LEVEL_INFO  =>  0;
-Readonly my $LEVEL_NOTE  =>  1;
-Readonly my $LEVEL_DEBUG =>  2;
+with qw(Pinto::Interface::Configurable);
 
 #-----------------------------------------------------------------------------
-# Moose attributes
+# Attributes
 
-has verbose  => (
-    is       => 'ro',
-    isa      => Int,
-    default  => $LEVEL_INFO,
+has log_level => (
+    is      => 'ro',
+    isa     => Str,
+    default => sub { $_[0]->config->log_level },
 );
 
-has out => (
-    is       => 'ro',
-    isa      => IO,
-    coerce   => 1,
-    default  => sub { [fileno(STDERR), '>'] },
+
+has log_file => (
+    is      => 'ro',
+    isa     => File,
+    default => sub { $_[0]->config->log_file },
+    coerce  => 1,
 );
 
-has log_prefix  => (
-    is       => 'ro',
-    isa      => Str,
-    default  => '',
-);
 
-has nocolor => (
+has log_handler => (
     is       => 'ro',
-    isa      => Bool,
-    default  => 0,
+    isa      => 'Log::Dispatch',
+    builder  => '_build_log_handler',
+    handles  => [qw(debug info notice warning error)], # fatal is handled below
+    lazy     => 1,
 );
 
 #-----------------------------------------------------------------------------
 
-sub BUILDARGS {
-    my ($class, %args) = @_;
+sub _build_log_handler {
+    my ($self) = @_;
 
-    $args{verbose} = $LEVEL_QUIET if delete $args{quiet};
+    my $log_dir = $self->log_file->dir;
+    $log_dir->mkpath if not -e $log_dir;
 
-    return \%args;
-}
+    my $log_filename = $self->log_file->stringify;
 
-#-----------------------------------------------------------------------------
-# Methods
-
-
-sub write {
-    my ($self, $message) = @_;
-
-    # Split up multi-line messages and prepend the prefix to each line
-
-    chomp $message;
-    my $prefix = $self->log_prefix();
-    $message = join "\n$prefix", split m{\n}, $message;
-    return print { $self->out() } sprintf("%s%s\n", $prefix, $message);
-}
-
-#-----------------------------------------------------------------------------
+    my $cb = sub { my %args  = @_;
+                   my $msg   = $args{message};
+                   my $level = uc $args{level};
+                   my $now   = DateTime->now->iso8601;
+                   return "$now $level: $msg" };
 
 
-sub debug {
-    my ($self, $message) = @_;
+    my $out = Log::Dispatch::File->new( min_level   => 'notice',
+                                        filename    => $log_filename,
+                                        mode        => 'append',
+                                        permissions => 0644,
+                                        callbacks   => $cb,
+                                        newline     => 1 );
 
-    $self->write($message) if $self->verbose() >= $LEVEL_DEBUG;
+    my $handler = Log::Dispatch->new();
+    $handler->add($out);
 
-    return 1;
+    return $handler;
 }
 
 #-----------------------------------------------------------------------------
 
 
-sub note {
-    my ($self, $message) = @_;
+sub add_output {
+    my ($self, $output) = @_;
 
-    $self->write($message) if $self->verbose() >= $LEVEL_NOTE;
+    my $base_class = 'Log::Dispatch::Output';
+    $output->isa($base_class) or confess "Argument is not a $base_class";
 
-    return 1;
+    $self->log_handler->add($output);
+
+    return $self;
 }
 
 #-----------------------------------------------------------------------------
-
-
-sub info {
-    my ($self, $message) = @_;
-
-    $self->write($message) if $self->verbose() >= $LEVEL_INFO;
-
-    return 1;
-}
-
-#-----------------------------------------------------------------------------
-
-
-sub whine {
-    my ($self, $message) = @_;
-
-    chomp $message;
-    $message = _colorize("$message", 'bold yellow') unless $self->nocolor();
-    $self->write($message) if $self->verbose() >= $LEVEL_WARN;
-
-    return 1;
-}
-
-#-----------------------------------------------------------------------------
-
 
 sub fatal {
     my ($self, $message) = @_;
 
-    chomp $message;
-    $message = _colorize("$message", 'bold red') unless $self->nocolor();
-
-    die "$message\n";                     ## no critic (RequireCarping)
+    $self->log_handler->log_and_croak(level => 'fatal', message => $message);
 }
 
-#-----------------------------------------------------------------------------
-
-sub _colorize {
-    my ($string, $color) = @_;
-
-    return $string if not defined $color;
-    return $string if $color eq q{};
-
-    # TODO: Don't colorize if not going to a terminal?
-
-    # $terminator is a purely cosmetic change to make the color end at the end
-    # of the line rather than right before the next line. It is here because
-    # if you use background colors, some console windows display a little
-    # fragment of colored background before the next uncolored (or
-    # differently-colored) line.
-
-    my $terminator = chomp $string ? "\n" : q{};
-    return  Term::ANSIColor::colored( $string, $color ) . $terminator;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -171,37 +117,39 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Logger - A simple logger
+Pinto::Logger - Record events in the repository log file (and elsewhere).
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 METHODS
 
-=head2 write( $message )
+=head2 add_output( $obj )
 
-Unconditionally writes a log message
+Adds the object to the output destinations that this logger writes to.
+The object must be an instance of a L<Log::Dispatch::Output> subclass,
+such as L<Log::Dispatch::Screen> or L<Log::Dispatch::Handle>.
 
-=head2 debug( $message )
+=head1 LOGGING METHODS
 
-Logs a message if C<verbose> is 1 or higher.
+The following methods are available for writing to the logs at various
+levels (listed in order of increasing priority).  Each method takes a
+single message as an argument.
 
-=head2 note( $message )
+=item debug
 
-Logs a message if C<verbose> is 2 or higher.
+=item info
 
-=head2 info( $message )
+=item notice
 
-Logs a message if C<verbose> is 0 or higher.
+=item warning
 
-=head2 whine( $message )
+=item error
 
-Logs a message to C<verbose> is -1 or higher.
+=item fatal
 
-=head2 fatal( $message )
-
-Dies with the given message.
+Note that C<fatal> causes the application to C<croak>.
 
 =head1 AUTHOR
 
@@ -218,3 +166,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

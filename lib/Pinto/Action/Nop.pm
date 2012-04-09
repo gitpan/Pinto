@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,11 +16,11 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Nop );
+with qw( Pinto::Role::Interface::Action::Nop );
 
 #------------------------------------------------------------------------------
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     if ( my $sleep = $self->sleep() ) {
@@ -29,7 +29,7 @@ override execute => sub {
     }
 
     return 0;
-};
+}
 
 #------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 DESCRIPTION
 

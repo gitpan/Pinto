@@ -1,4 +1,4 @@
-# ABSTRACT: An action for listing contents of a repository
+# ABSTRACT: List the contents of a repository
 
 package Pinto::Action::List;
 
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::List );
+with qw( Pinto::Role::Interface::Action::List );
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ sub _build_where {
 
 #------------------------------------------------------------------------------
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     my $where = $self->where();
@@ -70,7 +70,7 @@ override execute => sub {
     }
 
     return 0;
-};
+}
 
 #------------------------------------------------------------------------------
 
@@ -88,11 +88,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::List - An action for listing contents of a repository
+Pinto::Action::List - List the contents of a repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

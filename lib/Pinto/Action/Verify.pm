@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Verify );
+with qw( Pinto::Role::Interface::Action::Verify );
 
 #------------------------------------------------------------------------------
 # Methods
@@ -56,7 +56,7 @@ Pinto::Action::Verify - Verify all distributions are present in the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

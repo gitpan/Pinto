@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Pin );
+with qw( Pinto::Role::Interface::Action::Pin );
 
 #------------------------------------------------------------------------------
 
@@ -25,10 +25,10 @@ sub execute {
 
     my $pkg = $self->_get_package() or return 0;
 
-    $self->whine("Package $pkg is already pinned")
+    $self->warning("Package $pkg is already pinned")
         and return 0 if $pkg->is_pinned();
 
-    $self->whine("This repository does not permit pinning developer packages")
+    $self->error("This repository does not permit pinning developer packages")
         and return 0 if $pkg->distribution->is_devel() and not $self->config->devel();
 
     $self->_do_pin($pkg);
@@ -52,12 +52,12 @@ sub _get_package {
     my $pkg_vname = $self->package() . $vname_suffix;
 
     if (not $pkg_count) {
-        $self->whine("Package $pkg_vname does not exist in the repository");
+        $self->error("Package $pkg_vname does not exist in the repository");
         return;
     }
     elsif ( $pkg_count > 1) {
         # TODO: Need to handle this better.  Maybe specify precise distribution?
-        $self->whine("Repository has multiple copies of package $pkg_vname");
+        $self->error("Repository has multiple copies of package $pkg_vname");
         return;
     }
 
@@ -72,7 +72,7 @@ sub _get_package {
 sub _do_pin {
     my ($self, $pkg) = @_;
 
-    $self->info("Pinning package $pkg");
+    $self->notice("Pinning package $pkg");
 
     # Only one version of a package can be pinned at a time.
     # So first, we unpin all the packages with that name...
@@ -114,7 +114,7 @@ Pinto::Action::Pin - Force a package into the index
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

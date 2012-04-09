@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,10 +25,11 @@ sub opt_spec {
     my ($self, $app) = @_;
 
     return (
-        [ 'devel'      => 'Include development releases in the repository index' ],
-        [ 'noinit'     => 'Do not pull/update from VCS before each operation' ],
-        [ 'source=s@'  => 'URL of repository for foreign distributions (repeatable)' ],
-        [ 'store=s'    => 'Name of class that handles storage of your repository' ],
+        [ 'devel'       => 'Include development releases in the repository index' ],
+        [ 'log_level=s' => 'Minimum logging level for the repository log file'    ],
+        [ 'noinit'      => 'Do not pull/update from VCS before each operation'    ],
+        [ 'source=s@'   => 'URL of repository for foreign distributions (repeatable)' ],
+        [ 'store=s'     => 'Name of class that handles storage of your repository' ],
     );
 }
 
@@ -77,7 +78,7 @@ App::Pinto::Admin::Command::create - create a new empty repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 SYNOPSIS
 

@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -35,8 +35,8 @@ has _lockmgr => (
 #-----------------------------------------------------------------------------
 # Moose roles
 
-with qw ( Pinto::Interface::Configurable
-          Pinto::Interface::Loggable );
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #-----------------------------------------------------------------------------
 # Builders
@@ -112,7 +112,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 DESCRIPTION
 

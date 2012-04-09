@@ -1,4 +1,4 @@
-package Pinto::Interface::Loggable;
+package Pinto::Role::Loggable;
 
 # ABSTRACT: Something that wants to log its activity
 
@@ -8,18 +8,28 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 has logger => (
     is         => 'ro',
     isa        => 'Pinto::Logger',
-    handles    => [ qw(debug note info whine fatal) ],
+    handles    => [ qw(debug info notice warning error fatal) ],
     required   => 1,
 );
 
 #-----------------------------------------------------------------------------
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+
+    my $args = $class->$orig(@_);
+
+    $args->{logger} = Pinto::Logger->new( %$args ) if not exists $args->{logger};
+    return $args;
+};
 
 1;
 
@@ -31,11 +41,11 @@ has logger => (
 
 =head1 NAME
 
-Pinto::Interface::Loggable - Something that wants to log its activity
+Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

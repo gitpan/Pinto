@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -28,7 +28,7 @@ has extractor => (
 #------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Interface::Loggable
+with qw( Pinto::Role::Loggable
          Pinto::Role::FileFetcher
 );
 
@@ -55,13 +55,13 @@ sub find_or_import {
     my ($pkg_name, $pkg_ver) = ($pkg_spec->{name}, $pkg_spec->{version});
     my $pkg_vname = "$pkg_name-$pkg_ver";
 
-    $self->note("Looking for package $pkg_vname");
+    $self->info("Looking for package $pkg_vname");
 
     my $where   = {name => $pkg_name, is_latest => 1};
     my $got_pkg = $self->repos->select_packages( $where )->single();
 
     if ($got_pkg and $got_pkg->version() >= $pkg_ver) {
-        $self->note("Already have package $pkg_vname or newer as $got_pkg");
+        $self->info("Already have package $pkg_vname or newer as $got_pkg");
         return ($got_pkg->distribution(), 0);
     }
 
@@ -107,7 +107,7 @@ sub import_prerequisites {
         }
         catch {
              my $prereq_vname = "$prereq->{name}-$prereq->{version}";
-             $self->whine("Skipping prerequisite $prereq_vname. $_");
+             $self->error("Skipping prerequisite $prereq_vname. $_");
              # Mark the prereq as done so we don't try to import it again
              $seen{ $prereq->{name} } = $prereq;
              undef;  # returned by try{}
@@ -163,7 +163,7 @@ sub _extract_prerequisites {
     # to figure out the prerequisites by other means.
 
     my @prereqs = try   { $self->extractor->requires( archive => $archive ) }
-                  catch { $self->whine("Unable to extract prerequisites from $archive: $_"); () };
+                  catch { $self->error("Unable to extract prerequisites from $archive: $_"); () };
 
     return @prereqs;
 }
@@ -183,7 +183,7 @@ sub _import_distribution {
     $self->fetch(from => $url, to => $destination);
 
     my @pkg_specs = $self->extractor->provides(archive => $destination);
-    $self->info(sprintf "Importing distribution $url providing %d packages", scalar @pkg_specs);
+    $self->notice(sprintf "Importing distribution $url providing %d packages", scalar @pkg_specs);
 
     my $struct = { path     => $path,
                    source   => $source,
@@ -211,7 +211,7 @@ Pinto::Role::PackageImporter - Something that imports packages from another repo
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

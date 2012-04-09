@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,12 +19,12 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Interface::Action::Remove );
+with qw( Pinto::Role::Interface::Action::Remove );
 
 #------------------------------------------------------------------------------
 
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     my $path    = $self->path();
@@ -43,14 +43,14 @@ override execute => sub {
     my @pkgs = $dist->packages();
     my $count = @pkgs;
 
-    $self->info("Removing distribution $dist with $count packages");
+    $self->notice("Removing distribution $dist with $count packages");
 
     $self->repos->remove_distribution($dist);
 
     $self->add_message( Pinto::Util::removed_dist_message($dist) );
 
     return 1;
-};
+}
 
 #------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ Pinto::Action::Remove - Remove one distribution from the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

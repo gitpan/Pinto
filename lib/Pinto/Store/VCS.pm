@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -32,7 +32,7 @@ has _paths => (
 augment initialize => sub {
     my ($self) = @_;
 
-    $self->note('Updating working copy');
+    $self->info('Updating working copy');
 
     inner();
 
@@ -68,7 +68,7 @@ augment remove_path => sub {
 augment commit => sub {
     my ($self) = @_;
 
-    $self->info('Committing changes to VCS');
+    $self->notice('Committing changes to VCS');
 
     inner();
 
@@ -117,7 +117,7 @@ Pinto::Store::VCS - Base class for VCS-backed Stores
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

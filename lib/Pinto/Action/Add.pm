@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ extends qw( Pinto::Action );
 
 with qw( Pinto::Role::FileFetcher
          Pinto::Role::PackageImporter
-         Pinto::Interface::Action::Add );
+         Pinto::Role::Interface::Action::Add );
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ sub _build_extractor {
 #------------------------------------------------------------------------------
 # Public methods
 
-override execute => sub {
+sub execute {
     my ($self) = @_;
 
     my $archive = $self->archive();
@@ -72,7 +72,7 @@ override execute => sub {
     $self->fetch(from => $archive, to => $destination);
 
     my @pkg_specs = $self->_extract_packages_and_check_authorship();
-    $self->info(sprintf "Adding distribution $path with %d packages", scalar @pkg_specs);
+    $self->notice(sprintf "Adding distribution $path with %d packages", scalar @pkg_specs);
 
     my $struct = { path     => $path,
                    source   => 'LOCAL',
@@ -88,7 +88,7 @@ override execute => sub {
     }
 
     return 1;
-};
+}
 
 #------------------------------------------------------------------------------
 
@@ -131,7 +131,7 @@ Pinto::Action::Add - Add one distribution to the repository
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

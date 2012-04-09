@@ -1,4 +1,4 @@
-	package Pinto::Action;
+package Pinto::Action;
 
 # ABSTRACT: Base class for Actions
 
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -22,38 +22,32 @@ has repos => (
 );
 
 has messages => (
-    is         => 'ro',
     isa        => 'ArrayRef[Str]',
     traits     => [ 'Array' ],
-    handles    => {add_message => 'push'},
+    handles    => {
+        add_message => 'push',
+        messages    => 'elements',
+    },
     default    => sub{ [] },
     init_arg   => undef,
-    auto_deref => 1,
 );
 
 has exceptions => (
-    is         => 'ro',
     isa        => 'ArrayRef[Pinto::Exception]',
     traits     => [ 'Array' ],
     default    => sub{ [] },
     init_arg   => undef,
-    handles    => {add_exception => 'push'},
-    auto_deref => 1,
+    handles    => {
+        add_exception => 'push',
+        exceptions    => 'elements',
+    },
 );
 
 #------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Interface::Configurable
-         Pinto::Interface::Loggable );
-
-#------------------------------------------------------------------------------
-# Methods
-
-sub execute {
-    my ($self) = @_;
-    croak 'This is an absract method';
-}
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
@@ -75,7 +69,7 @@ Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

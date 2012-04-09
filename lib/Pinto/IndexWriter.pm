@@ -10,7 +10,7 @@ use Pinto::Exceptions qw(throw_fatal);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -24,7 +24,7 @@ has db => (
 #------------------------------------------------------------------------------
 # Roles
 
-with qw(Pinto::Interface::Loggable);
+with qw(Pinto::Role::Loggable);
 
 #------------------------------------------------------------------------------
 # Methods
@@ -33,7 +33,7 @@ sub write {                                       ## no critic (BuiltinHomonym)
     my ($self, %args) = @_;
 
     my $file = $args{file};
-    $self->note("Writing index at $file");
+    $self->info("Writing index at $file");
 
     my @records = $self->_get_index_records();
     my $count = @records;
@@ -132,7 +132,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 

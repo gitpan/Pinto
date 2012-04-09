@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ App::Pinto::Admin::Command::nop - initialize Pinto and exit
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 SYNOPSIS
 

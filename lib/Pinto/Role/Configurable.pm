@@ -1,4 +1,4 @@
-package Pinto::Interface::Configurable;
+package Pinto::Role::Configurable;
 
 # ABSTRACT: Something that has a configuration
 
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.035'; # VERSION
+our $VERSION = '0.036'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -23,6 +23,16 @@ has config => (
 
 #-----------------------------------------------------------------------------
 
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+
+    my $args = $class->$orig(@_);
+
+    $args->{config} ||= Pinto::Config->new( $args );
+    return $args;
+};
+
 1;
 
 
@@ -33,11 +43,11 @@ has config => (
 
 =head1 NAME
 
-Pinto::Interface::Configurable - Something that has a configuration
+Pinto::Role::Configurable - Something that has a configuration
 
 =head1 VERSION
 
-version 0.035
+version 0.036
 
 =head1 AUTHOR
 
