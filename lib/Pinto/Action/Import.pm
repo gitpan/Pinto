@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.037'; # VERSION
+our $VERSION = '0.038'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,18 +23,10 @@ with qw( Pinto::Role::PackageImporter
 
 #------------------------------------------------------------------------------
 
-# TODO: Allow the import target to be specified as a package/version,
-# dist path, or a particular URL.  Then do the right thing for each.
-
-#------------------------------------------------------------------------------
-
 sub execute {
     my ($self) = @_;
 
-    my $wanted = { name    => $self->package(),
-                   version => $self->version() };
-
-    my ($dist, $imported_flag) = $self->find_or_import( $wanted );
+    my ($dist, $imported_flag) = $self->find_or_import( $self->target );
     return 0 if not $dist;
 
     $self->add_message( Pinto::Util::imported_dist_message($dist) )
@@ -70,7 +62,7 @@ Pinto::Action::Import - Import a package (and its prerequisites) into the local 
 
 =head1 VERSION
 
-version 0.037
+version 0.038
 
 =head1 AUTHOR
 

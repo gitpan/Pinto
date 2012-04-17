@@ -90,7 +90,8 @@ t/20-add.t
 t/21-remove.t
 t/22-mirror.t
 t/23-import.t
-t/24-import-multi.t
+t/24-import-dist.t
+t/25-import-multi.t
 t/26-purge.t
 t/27-rebuild.t
 t/28-pin.t

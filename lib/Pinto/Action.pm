@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.037'; # VERSION
+our $VERSION = '0.038'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -69,7 +69,7 @@ Pinto::Action - Base class for Actions
 
 =head1 VERSION
 
-version 0.037
+version 0.038
 
 =head1 AUTHOR
 

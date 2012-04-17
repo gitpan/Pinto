@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.037'; # VERSION
+our $VERSION = '0.038'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ Pinto::Action::Purge - Remove all distributions from the repository
 
 =head1 VERSION
 
-version 0.037
+version 0.038
 
 =head1 AUTHOR
 
