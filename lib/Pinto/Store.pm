@@ -1,19 +1,19 @@
-package Pinto::Store;
-
 # ABSTRACT: Base class for storage of a Pinto repository
+
+package Pinto::Store;
 
 use Moose;
 
 use Try::Tiny;
 use CPAN::Checksums;
 
-use Pinto::Exceptions qw(throw_fatal throw_error);
+use Pinto::Exception;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -64,8 +64,7 @@ sub tag {
 sub add_archive {
     my ($self, $archive_file) = @_;
 
-    throw_fatal "$archive_file is not a file"
-        if not -f $archive_file;
+    throw "$archive_file is not a file" if not -f $archive_file;
 
     $self->add_path( path => $archive_file );
     $self->update_checksums( directory => $archive_file->parent() );
@@ -93,10 +92,10 @@ sub add_path {
     my ($self, %args) = @_;
 
     my $path = $args{path};
-    throw_fatal "Must specify a path" if not $path;
-    throw_fatal "Path $path does not exist" if not -e $path;
+    throw "Must specify a path" if not $path;
+    throw "Path $path does not exist" if not -e $path;
 
-    inner();
+    inner;
 
     return $self;
 }
@@ -107,11 +106,11 @@ sub remove_path {
     my ($self, %args) = @_;
 
     my $path = $args{path};
-    throw_fatal "Must specify a path" if not $path;
+    throw "Must specify a path" if not $path;
 
     return if not -e $path;
 
-    inner();
+    inner;
 
     return $self;
 }
@@ -124,7 +123,7 @@ sub update_checksums {
 
     #return 0 if not -e $dir;  # Smells fishy
 
-    my @children = grep { ! Pinto::Util::is_vcs_file($_) } $dir->children();
+    my @children = grep { ! Pinto::Util::is_vcs_file($_) } $dir->children;
     return 0 if not @children;
 
     my $cs_file = $dir->file('CHECKSUMS');
@@ -137,7 +136,7 @@ sub update_checksums {
     $self->debug("Generating $cs_file");
 
     try   { CPAN::Checksums::updatedir($dir) }
-    catch { throw_error "CHECKSUM generation failed for $dir: $_" };
+    catch { throw "CHECKSUM generation failed for $dir: $_" };
 
     $self->add_path(path => $cs_file);
 
@@ -160,7 +159,7 @@ Pinto::Store - Base class for storage of a Pinto repository
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 DESCRIPTION
 
@@ -173,7 +172,7 @@ declared here.
 
 =head2 initialize()
 
-This method is called before each batch of Pinto events, and is
+This method is called before each L<Pinto::Action> is executed, and is
 responsible for doing any setup work that is required by the Store.
 This could include making a directory on the file system, checking out
 or updating a working copy, cloning, or pulling commits.  If the
@@ -183,12 +182,12 @@ already there.  Returns a reference to this Store.
 
 =head2 commit(message => 'what happened')
 
-This method is called after each batch of Pinto events and is
-responsible for doing any work that is required to commit the Store.
-This could include scheduling files for addition/deletion, pushing
-commits to a remote repository.  If the commit fails, an exception
-should be thrown.  The default implementation does nothing.  Returns a
-reference to this Store.
+This method is called after each L<Pinto::Action> is responsible for
+doing any work that is required to commit the Store.  This could
+include scheduling files for addition/deletion, pushing commits to a
+remote repository.  If the commit fails, an exception should be
+thrown.  The default implementation does nothing.  Returns a reference
+to this Store.
 
 =head2 tag( tag => $tag_name )
 

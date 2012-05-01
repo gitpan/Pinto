@@ -8,14 +8,16 @@ use MooseX::Types::Moose qw(Str);
 use DateTime;
 use Log::Dispatch;
 use Log::Dispatch::File;
+use Scalar::Util;
 
 use Pinto::Types qw(Dir File);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Roles
@@ -85,7 +87,7 @@ sub add_output {
     my ($self, $output) = @_;
 
     my $base_class = 'Log::Dispatch::Output';
-    $output->isa($base_class) or confess "Argument is not a $base_class";
+    $output->isa($base_class) or throw "Argument is not a $base_class";
 
     $self->log_handler->add($output);
 
@@ -97,7 +99,18 @@ sub add_output {
 sub fatal {
     my ($self, $message) = @_;
 
-    $self->log_handler->log_and_croak(level => 'fatal', message => $message);
+    # The $message could be a Pinto::Exception object, or it might just be
+    # a string.  If it is an object and the logger is set at the debug level
+    # then log the entire stack trace.  But if not, then just log the main
+    # message (or the $message itself, if it is not a Pinto::Exception)
+
+    if (Scalar::Util::blessed($message) and $message->isa('Pinto::Exception')) {
+        my $is_debug_log = $self->log_handler->is_debug;
+        $message = $is_debug_log ? $message->as_string : $message->message;
+    }
+
+    chomp $message;
+    $self->log_handler->log_and_croak(level => 'critical', message => $message);
 }
 
 
@@ -121,7 +134,7 @@ Pinto::Logger - Record events in the repository log file (and elsewhere).
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 METHODS
 
@@ -151,7 +164,7 @@ single message as an argument.
 
 =item fatal
 
-Note that C<fatal> causes the application to C<croak>.
+Note that C<fatal> causes the application to throw an exception.
 
 =back
 

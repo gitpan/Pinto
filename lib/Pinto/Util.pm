@@ -9,19 +9,18 @@ use version;
 use Carp;
 use Try::Tiny;
 use Path::Class;
+use Digest::MD5;
+use Digest::SHA;
+use DateTime;
 use Readonly;
 
-use Pinto::Exceptions qw(throw_version throw_error);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
-
-#-------------------------------------------------------------------------------
-
-Readonly my %VCS_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
+our $VERSION = '0.040_001'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -36,7 +35,7 @@ sub author_dir {                                  ## no critic (ArgUnpacking)
 #-------------------------------------------------------------------------------
 
 sub parse_dist_url {
-    my ($url, $base_dir) = @_;
+    my ($url) = @_;
 
     #  $path = '/yadda/yadda/authors/id/A/AU/AUTHOR/Foo-1.2.tar.gz'
     my $path = $url->path();
@@ -46,26 +45,14 @@ sub parse_dist_url {
         # $path = 'A/AU/AUTHOR/Foo-1.2.tar.gz'
         my $source     = $url->isa('URI::file') ? $1 : $url->authority();
         my @path_parts = split m{ / }mx, $path; # qw( A AU AUTHOR Foo-1.2.tar.gz )
-        my $archive    = file($base_dir, qw(authors id), @path_parts);
         my $author     = $path_parts[2];
-        return ($source, $path, $author, $archive);
+        return ($source, $path, $author);
     }
     else {
 
-        throw_error 'Unable to parse url: $url';
+        confess 'Unable to parse url: $url';
     }
 
-}
-
-#-------------------------------------------------------------------------------
-
-
-sub is_vcs_file {
-    my ($file) = @_;
-
-    $file = file($file) unless eval { $file->isa('Path::Class::File') };
-
-    return exists $VCS_FILES{ $file->basename() };
 }
 
 #-------------------------------------------------------------------------------
@@ -78,55 +65,53 @@ sub isa_perl {
 
 #-------------------------------------------------------------------------------
 
+Readonly my %VCS_FILES => (map {$_ => 1} qw(.svn .git .gitignore CVS));
+
+sub is_vcs_file {
+    my ($file) = @_;
+
+    $file = file($file) unless eval { $file->isa('Path::Class::File') };
+
+    return exists $VCS_FILES{ $file->basename() };
+}
+
+#-------------------------------------------------------------------------------
+
 sub mtime {
     my ($file) = @_;
 
-    croak 'Must supply a file' if not $file;
-    croak "$file does not exist" if not -e $file;
+    confess 'Must supply a file' if not $file;
+    confess "$file does not exist" if not -e $file;
 
     return (stat $file)[9];
 }
 
 #-------------------------------------------------------------------------------
 
-sub added_dist_message {
-    my ($distribution) = @_;
+sub md5 {
+    my ($file) = @_;
 
-    return _dist_message($distribution, 'Added');
+    confess 'Must supply a file' if not $file;
+    confess "$file does not exist" if not -e $file;
+
+    my $fh = $file->openr();
+    my $md5 = Digest::MD5->new->addfile($fh)->hexdigest();
+
+    return $md5;
 }
 
 #-------------------------------------------------------------------------------
 
-sub removed_dist_message {
-    my ($distribution) = @_;
+sub sha256 {
+    my ($file) = @_;
 
-    return _dist_message($distribution, 'Removed');
-}
+    confess 'Must supply a file' if not $file;
+    confess "$file does not exist" if not -e $file;
 
-#-------------------------------------------------------------------------------
+    my $fh = $file->openr();
+    my $sha256 = Digest::SHA->new(256)->addfile($fh)->hexdigest();
 
-sub imported_dist_message {
-    my ($distribution) = @_;
-
-    return _dist_message($distribution, 'Imported');
-}
-
-#-------------------------------------------------------------------------------
-
-sub imported_prereq_dist_message {
-    my ($distribution) = @_;
-
-    return _dist_message($distribution, 'Imported prerequisite');
-}
-
-#-------------------------------------------------------------------------------
-
-sub _dist_message {
-    my ($dist, $action) = @_;
-
-    my $vnames = join "\n    ", sort map { $_->vname() } $dist->packages();
-
-    return "$action distribution $dist providing:\n    $vnames";
+    return $sha256;
 }
 
 #-------------------------------------------------------------------------------
@@ -147,6 +132,44 @@ sub args_from_fh {
 }
 
 #-------------------------------------------------------------------------------
+
+
+sub normalize_property_name {
+    my ($prop_name) = @_;
+
+    $prop_name = lc  $prop_name;
+    throw "Invalid property name $prop_name" if $prop_name =~ m{[^a-z0-9._:-]};
+
+    return $prop_name;
+}
+
+#-------------------------------------------------------------------------------
+
+
+sub normalize_stack_name {
+    my ($stack_name) = @_;
+
+    $stack_name = lc  $stack_name;
+    throw "Invalid stack name $stack_name" if $stack_name =~ m{[^a-z0-9._:-]};
+
+    return $stack_name;
+}
+
+#-------------------------------------------------------------------------------
+
+
+
+sub ls_time_format {
+    my ($time) = @_;
+    my $now = time;
+    my $diff = $now - $time;
+    my $one_year = 60 * 60 * 24 * 365;  # seconds per year
+
+    my $format = $diff > $one_year ? '%b %e  %Y' : '%b %e %H:%M';
+    return DateTime->from_epoch( time_zone => 'local', epoch => $time )->strftime($format);
+}
+
+#-------------------------------------------------------------------------------
 1;
 
 
@@ -161,7 +184,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 DESCRIPTION
 
@@ -178,10 +201,24 @@ optional C<@base> can be a series of L<Path::Class:Dir> or path parts
 (as strings).  If C<@base> is given, it will be prepended to the
 directory that is returned.
 
-=head2 is_vcs_file($path)
+=head2 normalize_property_name( $prop_name )
 
-Given a path (which may be a file or directory), returns true if that path
-is part of the internals of a version control system (e.g. Git, Subversion).
+Normalizes the property name and returns it.  Throws an exception if
+the property name is invalid.  Currently, property names must be
+alphanumeric plus any of C<m/[._:-]/>.
+
+=head2 normalize_stack_name( $stack_name )
+
+Normalizes the stack name and returns it.  Throws an exception if the
+stack name is invalid.  Currently, stack names must be alphanumeric
+plus any of C<m/[._:-]/>.
+
+=head2 ls_time_format( $seconds_since_epoch )
+
+Formats a time value into a string that is similar to what you see in
+the output from the C<ls -l> command.  If the given time is less than
+1 year ago from now, you'll see the month, day, and time.  If the time
+is more than 1 year ago, you'll see the month, day, and year.
 
 =head1 AUTHOR
 

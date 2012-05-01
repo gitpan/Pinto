@@ -1,12 +1,9 @@
 package App::Pinto::Admin::Command::list;
 
-# ABSTRACT: list the contents of the repository
+# ABSTRACT: list the contents of a stack
 
 use strict;
 use warnings;
-
-use Readonly;
-use List::MoreUtils qw(none);
 
 #-----------------------------------------------------------------------------
 
@@ -14,7 +11,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -26,15 +23,11 @@ sub opt_spec {
     my ($self, $app) = @_;
 
     return (
-
-        [ 'index!'            => 'Limit to packages in the index (negatable)' ],
         [ 'distributions|D=s' => 'Limit to matching distribution paths' ],
-        [ 'noinit'            => 'Do not pull/update from VCS' ],
         [ 'packages|P=s'      => 'Limit to matching package names' ],
         [ 'pinned!'           => 'Limit to pinned packages (negatable)' ],
         [ 'format=s'          => 'Format specification (See POD for details)' ],
-
-
+        [ 'stack|s=s'         => 'List a stack other than the default' ],
 
     );
 }
@@ -44,14 +37,17 @@ sub opt_spec {
 sub validate_args {
     my ($self, $opts, $args) = @_;
 
-    $self->usage_error('Arguments are not allowed')
-        if @{ $args };
+    $self->usage_error('Multiple arguments are not allowed')
+        if @{ $args } > 1;
 
     $self->usage_error('Cannot specify packages and distributions together')
         if $opts->{packages} and $opts->{distributions};
 
     $opts->{format} = eval qq{"$opts->{format}"} ## no critic qw(StringyEval)
         if $opts->{format};
+
+    $opts->{stack} = $args->[0]
+        if $args->[0];
 
     return 1;
 }
@@ -68,11 +64,11 @@ sub validate_args {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::list - list the contents of the repository
+App::Pinto::Admin::Command::list - list the contents of a stack
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 SYNOPSIS
 
@@ -80,9 +76,9 @@ version 0.038
 
 =head1 DESCRIPTION
 
-This command lists the distributions and packages that are in your
-repository.  You can format the output to see the specific bits of
-information that you want.
+This command lists the distributions and packages that are registered
+to a stack within the repository.  You can format the output to see
+the specific bits of information that you want.
 
 For a large repository, it can take fair amount of time to list
 everything.  You might consider using the C<--packages> or
@@ -91,38 +87,35 @@ precise filtering, consider running the output through C<grep>.
 
 =head1 COMMAND ARGUMENTS
 
-None.
+As an alternative to the C<--stack> option, you can also specify the
+stack as an argument. So the following examples are equivalent:
+
+  pinto-admin --root /some/dir list --stack dev
+  pinto-admin --root /some/dir list dev
 
 =head1 COMMAND OPTIONS
 
 =over 4
 
-=item --index
-
-Limits the listing to records for packages that are in the index.  Using
-the C<--noindex> option has the opposite effect of limiting the listing
-to records for packages that are not in the index.
-
-=item -d=PATTERN
+=item -D=PATTERN
 
 =item --distributions=PATTERN
 
-Limits the listing to records where the distributions path matches
+Limit the listing to records where the distributions path matches
 C<PATTERN>.  Note that C<PATTERN> is just a plain string, not a regular
 expression.  The C<PATTERN> will match if it appears anywhere in the
 distribution path.
 
 =item --format=FORMAT_SPECIFICATION
 
-Sets the format of the output using C<printf>-style placeholders.
-Valid placeholders are:
+Format of the output using C<printf>-style placeholders.  Valid
+placeholders are:
 
   Placeholder    Meaning
   -----------------------------------------------------------------------------
   %n             Package name
   %N             Package name-version
   %v             Package version
-  %x             Index status:                   (@) = is latest
   %y             Pin status:                     (+) = is pinned
   %m             Distribution maturity:          (d) = developer, (r) = release
   %p             Distribution index path [1]
@@ -134,6 +127,11 @@ Valid placeholders are:
   %D             Distribution name-version
   %w             Distribution version
   %u             Distribution url
+  %k             Stack name
+  %e             Stack description
+  %M             Stack status                   (*) = is master
+  %U             Stack last-modified-time
+  %j             Stack last-modified-user
   %%             A literal '%'
 
 
@@ -147,31 +145,26 @@ You can also specify the minimum field widths and left or right
 justification, using the usual notation.  For example, this is what
 the default format looks like.
 
-  %x%m%s %-38n %v %p\n
+  %m%s %-38n %v %p\n
 
-=item --noinit
-
-Prevents L<Pinto> from pulling/updating the repository from the VCS
-before the operation.  This is only relevant if you are using a
-VCS-based storage mechanism.  This can speed up operations
-considerably, but should only be used if you *know* that your working
-copy is up-to-date and you are going to be the only actor touching the
-Pinto repository within the VCS.
-
-=item -p=PATTERN
+=item -P=PATTERN
 
 =item --packages=PATTERN
 
-Limits the listing to records where the package name matches
+Limit the listing to records where the package name matches
 C<PATTERN>.  Note that C<PATTERN> is just a plain string, not a
 regular expression.  The C<PATTERN> will match if it appears anywhere
 in the package name.
 
 =item --pinned
 
-Limits the listing to records for packages that are pinned.  Using the
-option C<--nopinned> has the opposite effect of limiting the listing
-to records for packages that are not pinned.
+Limit the listing to records for packages that are pinned.
+
+=item --stack=NAME
+
+List the contents of the stack with the given NAME.  Defaults to the
+name of whichever stack is currently marked as the master stack.  Use
+the C<stack list> command to see the stacks in the repository.
 
 =back
 

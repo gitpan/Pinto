@@ -1,14 +1,16 @@
-# ABSTRACT: Force a package into the index
+# ABSTRACT: Force a package to stay in a stack
 
 package Pinto::Action::Pin;
 
 use Moose;
 
+use Pinto::Exception qw(throw);
+
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,80 +25,48 @@ with qw( Pinto::Role::Interface::Action::Pin );
 sub execute {
     my ($self) = @_;
 
-    my $pkg = $self->_get_package() or return 0;
+    my $stack = $self->repos->get_stack(name => $self->stack);
 
-    $self->warning("Package $pkg is already pinned")
-        and return 0 if $pkg->is_pinned();
+    $self->_execute($_, $stack) for $self->targets;
 
-    $self->error("This repository does not permit pinning developer packages")
-        and return 0 if $pkg->distribution->is_devel() and not $self->config->devel();
-
-    $self->_do_pin($pkg);
-
-    return 1;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-sub _get_package {
-    my ($self) = @_;
+sub _execute {
+    my ($self, $target, $stack) = @_;
 
-    my $where           = { name => $self->package() };
-    $where->{version}   = $self->version() if defined $self->version();
-    $where->{is_latest} = 1 if not $self->has_version();
+    my $dist;
+    if ($target->isa('Pinto::PackageSpec')) {
 
-    my $pkg_rs = $self->repos->select_packages($where);
-    my $pkg_count = $pkg_rs->count();
+        my $pkg_name = $target->name;
+        my $pkg = $self->repos->get_package(name => $pkg_name, stack => $stack)
+            or throw "Package $pkg_name is not on stack $stack";
 
-    my $vname_suffix = $self->has_version() ? '-' . $self->version() : '';
-    my $pkg_vname = $self->package() . $vname_suffix;
-
-    if (not $pkg_count) {
-        $self->error("Package $pkg_vname does not exist in the repository");
-        return;
+        $dist = $pkg->distribution;
     }
-    elsif ( $pkg_count > 1) {
-        # TODO: Need to handle this better.  Maybe specify precise distribution?
-        $self->error("Repository has multiple copies of package $pkg_vname");
-        return;
+    elsif ($target->isa('Pinto::DistributionSpec')) {
+
+        $dist = $self->repos->get_distribution(path => $target->path)
+            or throw "Distribution $target does not exist";
+    }
+    else {
+
+        my $type = ref $target;
+        throw "Don't know how to pin target of type $type";
     }
 
-    # At this point, we know there is only one record
-    my $pkg = $pkg_rs->first();
 
-    return $pkg;
+    $self->notice("Pinning $dist on stack $stack");
+    $dist->pin(stack => $stack);
+
+    return;
 }
 
 #------------------------------------------------------------------------------
 
-sub _do_pin {
-    my ($self, $pkg) = @_;
-
-    $self->notice("Pinning package $pkg");
-
-    # Only one version of a package can be pinned at a time.
-    # So first, we unpin all the packages with that name...
-    my $where   = { name => $pkg->name() };
-    my @sisters = $self->repos->select_packages( $where )->all();
-    $_->is_pinned(undef) for @sisters;
-    $_->update() for @sisters;
-
-    # Then pin the particular package we want...
-    $pkg->is_pinned(1);
-    $pkg->update();
-
-    # Finally, remark the latest version of the package
-    $self->repos->db->mark_latest($pkg);
-
-    my $name = $pkg->name();
-    $self->add_message("Pinned package $name. Latest is now $pkg");
-
-    return 1;
-}
-
-#------------------------------------------------------------------------------
-
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -110,11 +80,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Pin - Force a package into the index
+Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

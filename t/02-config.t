@@ -3,11 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More (tests => 12);
+use Test::More;
 use Test::Exception;
 
 use Path::Class;
-use File::HomeDir;
 use File::Temp;
 use URI;
 
@@ -20,8 +19,6 @@ use Pinto::Config;
     my %default_cases = (
         root      => 'nowhere',
         sources   => 'http://cpan.perl.org',
-        store     => 'Pinto::Store::File',
-        noinit    => 0,
         devel     => 0,
     );
 
@@ -34,9 +31,7 @@ use Pinto::Config;
    my %custom_cases = (
         root      => 'nowhere',
         sources   => 'http://cpan.pair.com  http://metacpan.org',
-        store     => 'Pinto::Store::VCS::Git',
-        noinit    => 1,
-        devel     => 1,
+        devel     => 1
     );
 
     $cfg = Pinto::Config->new(%custom_cases);
@@ -45,10 +40,6 @@ use Pinto::Config;
         is($cfg->$method(), $expect, $msg);
     }
 
-    $cfg = Pinto::Config->new(root => '~/nowhere');
-    my $home = dir( File::HomeDir->my_home() );
-    is($cfg->root(), $home->file('nowhere'), 'Expanded ~/ to home directory');
-
     my $expect = [ map {URI->new($_)} qw(here there) ];
     $cfg = Pinto::Config->new(root => 'anywhere', sources => 'here there');
     is_deeply([$cfg->sources_list()], $expect, 'Parsed sources list');
@@ -56,3 +47,5 @@ use Pinto::Config;
 
 
 #------------------------------------------------------------------------------
+
+done_testing;

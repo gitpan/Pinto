@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,12 +23,12 @@ with qw( Pinto::Role::Interface::Action::Nop );
 sub execute {
     my ($self) = @_;
 
-    if ( my $sleep = $self->sleep() ) {
+    if (my $sleep = $self->sleep) {
         $self->debug("Process $$ sleeping for $sleep seconds");
-        sleep $self->sleep();
+        sleep $self->sleep;
     }
 
-    return 0;
+    return $self->result->new;
 }
 
 #------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 DESCRIPTION
 

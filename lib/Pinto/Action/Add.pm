@@ -1,22 +1,17 @@
-# ABSTRACT: Add one distribution to the repository
+# ABSTRACT: Add a local distribution into the repository
 
 package Pinto::Action::Add;
 
 use Moose;
 use MooseX::Types::Moose qw(Bool);
 
-use Path::Class;
-
-use Pinto::Util;
-use Pinto::Types qw(File);
-use Pinto::PackageExtractor;
-use Pinto::Exceptions qw(throw_error);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,92 +19,54 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::FileFetcher
-         Pinto::Role::PackageImporter
-         Pinto::Role::Interface::Action::Add );
+with qw( Pinto::Role::Interface::Action::Add
+         Pinto::Role::PackageImporter );
 
 #------------------------------------------------------------------------------
 
-has extractor => (
-    is         => 'ro',
-    isa        => 'Pinto::PackageExtractor',
-    lazy_build => 1,
-);
+sub BUILD {
+    my ($self, $args) = @_;
 
+    my @missing = grep { not -e $_ } $self->archives;
+    $self->error("Archive $_ does not exist") for @missing;
 
-#------------------------------------------------------------------------------
-# Builders
+    my @unreadable = grep { -e $_ and not -r $_ } $self->archives;
+    $self->error("Archive $_ is not readable") for @unreadable;
 
-sub _build_extractor {
-    my ($self) = @_;
+    throw "Some archives are missing or unreadable"
+        if @missing or @unreadable;
 
-    return Pinto::PackageExtractor->new( config => $self->config(),
-                                         logger => $self->logger() );
+    return $self;
 }
 
 #------------------------------------------------------------------------------
-# Public methods
 
 sub execute {
     my ($self) = @_;
 
-    my $archive = $self->archive();
-    my $author  = $self->author();
+    my $stack = $self->repos->get_stack(name => $self->stack);
 
-    throw_error "Archive $archive does not exist"  if not -e $archive;
-    throw_error "Archive $archive is not readable" if not -r $archive;
+    $self->_execute($_, $stack) for $self->archives;
 
-    my $root_dir   = $self->config->root_dir();
-    my $basename   = $archive->basename();
-    my $author_dir = Pinto::Util::author_dir($author);
-    my $path       = $author_dir->file($basename)->as_foreign('Unix')->stringify();
-
-    my $where    = {path => $path};
-    my $existing = $self->repos->select_distributions( $where )->single();
-    throw_error "Distribution $path already exists" if $existing;
-
-    my $destination = $self->repos->root_dir->file( qw(authors id), $author_dir, $basename );
-    $self->fetch(from => $archive, to => $destination);
-
-    my @pkg_specs = $self->_extract_packages_and_check_authorship();
-    $self->notice(sprintf "Adding distribution $path with %d packages", scalar @pkg_specs);
-
-    my $struct = { path     => $path,
-                   source   => 'LOCAL',
-                   mtime    => Pinto::Util::mtime($archive),
-                   packages => \@pkg_specs };
-
-    my $dist = $self->repos->add_distribution($struct);
-    $self->add_message( Pinto::Util::added_dist_message($dist) );
-
-    unless ( $self->norecurse() ) {
-        my @imported = $self->import_prerequisites($archive);
-        $self->add_message( Pinto::Util::imported_prereq_dist_message($_) ) for @imported;
-    }
-
-    return 1;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-sub _extract_packages_and_check_authorship {
-    my ($self) = @_;
+sub _execute {
+    my ($self, $archive, $stack) = @_;
 
-    my $archive = $self->archive();
-    my $author  = $self->author();
+    $self->notice("Adding distribution archive $archive");
 
-    my @pkg_specs = $self->extractor->provides( archive => $archive );
+    my $dist  = $self->repos->add( archive   => $archive,
+                                   author    => $self->author );
 
-    for my $pkg (@pkg_specs) {
-        my $attrs = { prefetch => 'distribution' };
-        my $where = { name => $pkg->{name}, 'distribution.source' => 'LOCAL'};
-        my $incumbent = $self->repos->select_packages($where, $attrs)->first() or next;
-        if ( (my $incumbent_author = $incumbent->distribution->author()) ne $author ) {
-            throw_error "Only author $incumbent_author can update package $pkg->{name}";
-        }
-    }
+    $dist->register( stack => $stack );
+    $dist->pin( stack => $stack ) if $self->pin;
 
-    return @pkg_specs;
+    $self->pull_prerequisites( $dist, $stack ) unless $self->norecurse;
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -127,11 +84,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Add - Add one distribution to the repository
+Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

@@ -1,16 +1,18 @@
-package Pinto::IndexWriter;
-
 # ABSTRACT: Write records to an 02packages.details.txt file
+
+package Pinto::IndexWriter;
 
 use Moose;
 
 use PerlIO::gzip;
 
-use Pinto::Exceptions qw(throw_fatal);
+use Pinto::Exception qw(throw);
+
+use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -32,13 +34,15 @@ with qw(Pinto::Role::Loggable);
 sub write {                                       ## no critic (BuiltinHomonym)
     my ($self, %args) = @_;
 
-    my $file = $args{file};
-    $self->info("Writing index at $file");
+    my $file  = $args{file};
+    my $stack = $args{stack};
 
-    my @records = $self->_get_index_records();
+    $self->info("Writing index for stack $stack at $file");
+
+    my @records = $self->_get_index_records($stack);
     my $count = @records;
 
-    open my $fh, '>:gzip', $file or throw_fatal "Cannot open $file: $!";
+    open my $fh, '>:gzip', $file or throw "Cannot open $file: $!";
     $self->_write_header($fh, $file, $count);
     $self->_write_records($fh, @records);
     close $fh;
@@ -51,7 +55,7 @@ sub write {                                       ## no critic (BuiltinHomonym)
 sub _write_header {
     my ($self, $fh, $filename, $line_count) = @_;
 
-    my $base    = $filename->basename();
+    my $base    = $filename->basename;
     my $url     = 'file://' . $filename->absolute->as_foreign('Unix');
     my $version = $Pinto::IndexWriter::VERSION || 'UNKNOWN VERSION';
 
@@ -88,7 +92,7 @@ sub _write_records {
 #------------------------------------------------------------------------------
 
 sub _get_index_records {
-    my ($self) = @_;
+    my ($self, $stack) = @_;
 
     # The index is rewritten after almost every action, so we want
     # this to be as fast as possible (especially during an Add or
@@ -101,12 +105,12 @@ sub _get_index_records {
     # like one produced by PAUSE.  Also, this is about twice as fast
     # as using an iterator to read each record lazily.
 
-    my $where  = { is_latest => 1 };
-    my $select = [ qw(name version distribution.path) ];
-    my $attrs  = { select => $select, join => 'distribution'};
+    my $where  = { 'stack.name' => $stack };
+    my $select = [ qw(package_name package_version distribution_path) ];
+    my $attrs  = { select => $select, join => 'stack' };
 
-    my $records = $self->db->select_packages( $where, $attrs );
-    my @records =  sort {$a->[0] cmp $b->[0]} $records->cursor()->all();
+    my $records = $self->db->select_registrations( $where, $attrs );
+    my @records =  sort {$a->[0] cmp $b->[0]} $records->cursor->all;
 
     return @records;
 
@@ -114,7 +118,7 @@ sub _get_index_records {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -132,7 +136,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

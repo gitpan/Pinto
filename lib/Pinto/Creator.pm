@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,13 +56,8 @@ sub create {
     my $cache_dir = $self->config->cache_dir();
     $self->mkpath($cache_dir);
 
-    # Create database
-    my $db = Pinto::Database->new( config => $self->config(),
-                                   logger => $self->logger() );
-    $db->deploy();
-
-    # Write package index
-    $db->write_index();
+    # Set up database
+    $self->_create_db();
 
     # Write modlist
     $self->_write_modlist();
@@ -136,6 +131,24 @@ END_MODLIST
 
 #------------------------------------------------------------------------------
 
+sub _create_db {
+    my ($self) = @_;
+
+    my $db = Pinto::Database->new( config => $self->config,
+                                   logger => $self->logger );
+    $db->deploy;
+
+    my $stack_attrs = {name => 'default', is_master => 1};
+    my $stack = $db->schema->resultset('Stack')->create($stack_attrs);
+    $stack->set_property('description' => 'the default stack');
+
+    $db->write_index;
+
+    return;
+}
+
+#------------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
@@ -154,7 +167,7 @@ Pinto::Creator - Creates a new Pinto repository
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

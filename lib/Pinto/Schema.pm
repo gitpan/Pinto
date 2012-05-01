@@ -4,23 +4,30 @@ package Pinto::Schema;
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
-use strict;
-use warnings;
-
-use base 'DBIx::Class::Schema';
+use Moose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
 
-# Created by DBIx::Class::Schema::Loader v0.07014 @ 2011-11-30 13:16:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BiORE01we2RbouF3oQ9tyQ
+# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-29 01:03:56
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yRlbDgtAuKaDHF9i1Kwqsg
 #-------------------------------------------------------------------------------
 
 # ABSTRACT: The DBIx::Class::Schema for Pinto
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
+
+#-------------------------------------------------------------------------------
+
+has logger => (
+  is      => 'rw',
+  isa     => 'Pinto::Logger',
+  handles => [ qw(debug notice info warning error fatal) ],
+);
 
 #-------------------------------------------------------------------------------
 
@@ -38,7 +45,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 
@@ -55,3 +62,8 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+
+
+# You can replace this text with custom code or comments, and it will be preserved on regeneration
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+1;

@@ -1,5 +1,5 @@
-
 # ABSTRACT: Report statistics about the repository
+
 package Pinto::Action::Statistics;
 
 use Moose;
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,10 +25,14 @@ with qw( Pinto::Role::Interface::Action::Statistics );
 sub execute {
     my ($self) = @_;
 
-    my $stats = Pinto::Statistics->new( db => $self->repos->db() );
+    # FIXME!
+    my $stack = $self->repos->get_stack;
+    my $stats = Pinto::Statistics->new( db    => $self->repos->db,
+                                        stack => $stack->name );
+
     print { $self->out() } $stats->to_formatted_string();
 
-    return 0;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
@@ -51,7 +55,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

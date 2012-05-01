@@ -1,6 +1,6 @@
 package App::Pinto::Admin::Command::pin;
 
-# ABSTRACT: force a package into the index
+# ABSTRACT: force a package to stay in a stack
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -21,10 +21,7 @@ sub opt_spec {
     my ($self, $app) = @_;
 
     return (
-        [ 'message|m=s' => 'Prepend a message to the VCS log' ],
-        [ 'nocommit'    => 'Do not commit changes to VCS' ],
-        [ 'noinit'      => 'Do not pull/update from VCS' ],
-        [ 'tag=s'       => 'Specify a VCS tag name' ],
+        [ 'stack|s=s'   => 'Stack on which to pin the target' ],
     );
 }
 
@@ -36,8 +33,8 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
     my $usage =  <<"END_USAGE";
-%c --root=PATH $command [OPTIONS] PACKAGE_NAME ...
-%c --root=PATH $command [OPTIONS] < LIST_OF_PACKAGE_NAMES
+%c --root=PATH $command [OPTIONS] TARGET ...
+%c --root=PATH $command [OPTIONS] < LIST_OF_TARGETSS
 END_USAGE
 
     chomp $usage;
@@ -46,23 +43,11 @@ END_USAGE
 
 #------------------------------------------------------------------------------
 
-sub execute {
-    my ($self, $opts, $args) = @_;
+sub args_attribute { return 'targets' }
 
-    my @args = @{$args} ? @{$args} : Pinto::Util::args_from_fh(\*STDIN);
-    return 0 if not @args;
+#------------------------------------------------------------------------------
 
-    $self->pinto->new_batch(%{$opts});
-
-    for my $arg (@args) {
-        my ($name, $version) = split m/ - /mx, $arg, 2;
-        my %version = defined $version ? (version => $version) : ();
-        $self->pinto->add_action('Pin', %{$opts}, package => $name, %version);
-    }
-    my $result = $self->pinto->run_actions();
-
-    return $result->is_success() ? 0 : 1;
-}
+sub args_from_stdin { return 1 }
 
 #------------------------------------------------------------------------------
 
@@ -76,42 +61,42 @@ sub execute {
 
 =head1 NAME
 
-App::Pinto::Admin::Command::pin - force a package into the index
+App::Pinto::Admin::Command::pin - force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 SYNOPSIS
 
-  pinto-admin --root=/some/dir pin [OPTIONS] PACKAGE_NAME ...
-  pinto-admin --root=/some/dir pin [OPTIONS] < LIST_OF_PACKAGE_NAMES
+  pinto-admin --root=/some/dir pin [OPTIONS] TARGET ...
+  pinto-admin --root=/some/dir pin [OPTIONS] < LIST_OF_TARGETS
 
 =head1 DESCRIPTION
 
-This command pins a package so that it will always appear in the index
-even if it is not the latest version, or a newer version is
-subsequently mirrored or imported.  You can pin the latest version of
-the package, or any arbitrary version of the package.
+This command pins a package so that it stays in the stack even if a
+newer version is subsequently mirrored, imported, or added to that
+stack.  The pin is local to the stack and does not affect any other
+stacks.
 
-Only one version of a package can be pinned at any one time.  If you
-pin C<Foo::Bar-1.0>, and then later pin <Foo::Bar-2.0>, then
-C<Foo::Bar-1.0> immediately becomes unpinned.
-
-To forcibly unpin a package, so that the latest version appears in the
-index, please see the C<unpin> command.
+A package must be in the stack before you can pin it.  To bring a
+package into the stack, use the C<pull> command.  To remove the pin
+from a package, please see the C<unpin> command.
 
 =head1 COMMAND ARGUMENTS
 
-To pin the latest version of a particular package, just give the name
-of the package.  For example:
+Arguments are the targets you wish to unpin.  Targets can be
+specified as packages or distributions, such as:
 
-  Foo::Bar
+  Some::Package
+  Some::Other::Package
 
-To pin a particular version of a package, append '-' and the version
-number to the name.  For example:
+  AUTHOR/Some-Dist-1.2.tar.gz
+  AUTHOR/Some-Other-Dist-1.3.zip
 
-  Foo::Bar-1.2
+When pinning a distribution, all the packages in that distribution
+become pinned.  Likewise when pinning a package, all its sister
+packages in the same distributon also become pinned.
 
 You can also pipe arguments to this command over STDIN.  In that case,
 blank lines and lines that look like comments (i.e. starting with "#"
@@ -121,35 +106,11 @@ or ';') will be ignored.
 
 =over 4
 
-=item --message=MESSAGE
+=item --stack=NAME
 
-Prepends the MESSAGE to the VCS log message that L<Pinto> generates.
-This is only relevant if you are using a VCS-based storage mechanism
-for L<Pinto>.
-
-=item --nocommit
-
-Prevents L<Pinto> from committing changes in the repository to the VCS
-after the operation.  This is only relevant if you are using a
-VCS-based storage mechanism.  Beware this will leave your working copy
-out of sync with the VCS.  It is up to you to then commit or rollback
-the changes using your VCS tools directly.  Pinto will not commit old
-changes that were left from a previous operation.
-
-=item --noinit
-
-Prevents L<Pinto> from pulling/updating the repository from the VCS
-before the operation.  This is only relevant if you are using a
-VCS-based storage mechanism.  This can speed up operations
-considerably, but should only be used if you *know* that your working
-copy is up-to-date and you are going to be the only actor touching the
-Pinto repository within the VCS.
-
-=item --tag=NAME
-
-Instructs L<Pinto> to tag the head revision of the repository at NAME.
-This is only relevant if you are using a VCS-based storage mechanism.
-The syntax of the NAME depends on the type of VCS you are using.
+Pins the package on the stack with the given NAME.  Defaults to the
+name of whichever stack is currently marked as the master stack.  Use
+the C<stack list> command to see the stacks in the repository.
 
 =back
 

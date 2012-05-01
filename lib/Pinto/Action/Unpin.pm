@@ -4,11 +4,13 @@ package Pinto::Action::Unpin;
 
 use Moose;
 
+use Pinto::Exception qw(throw);
+
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,24 +25,43 @@ with qw( Pinto::Role::Interface::Action::Unpin );
 sub execute {
     my ($self) = @_;
 
-    my $name  =  $self->package();
-    my $where = { name => $name, is_pinned => 1 };
-    my $pkg   = $self->repos->select_packages($where)->first();
+    my $stack = $self->repos->get_stack(name => $self->stack);
 
-    if (not $pkg) {
-        $self->error("Package $name does not exist in the repository, or is not pinned");
-        return 0;
+    $self->_execute($_, $stack) for $self->targets;
+
+    return $self->result->changed;
+}
+
+#------------------------------------------------------------------------------
+
+sub _execute {
+    my ($self, $target, $stack) = @_;
+
+    my $dist;
+    if ($target->isa('Pinto::PackageSpec')) {
+
+        my $pkg_name = $target->name;
+        my $pkg = $self->repos->get_package(name => $pkg_name, stack => $stack)
+            or throw "Package $pkg_name is not registered on stack $stack";
+
+        $dist = $pkg->distribution;
+    }
+    elsif ($target->isa('Pinto::DistributionSpec')) {
+
+        $dist = $self->repos->get_distribution(path => $target->path)
+            or throw "Distribution $target does not exist";
+    }
+    else {
+
+        my $type = ref $target;
+        throw "Don't know how to pin target of type $type";
     }
 
-    $self->notice("Unpinning package $pkg");
 
-    $pkg->is_pinned(undef);
-    $pkg->update();
-    my $latest = $self->repos->db->mark_latest($pkg);
+    $self->notice("Unpinning $dist from stack $stack");
+    $dist->unpin(stack => $stack);
 
-    $self->add_message("Unpinned package $name. Latest is now $latest");
-
-    return 1;
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -63,7 +84,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

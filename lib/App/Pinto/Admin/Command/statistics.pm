@@ -11,21 +11,11 @@ use base 'App::Pinto::Admin::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub command_names { return qw( statistics stats ) }
-
-#------------------------------------------------------------------------------
-
-sub opt_spec {
-    my ($self, $app) = @_;
-
-    return (
-        [ 'noinit'      => 'Do not pull/update from VCS' ],
-    );
-}
 
 #------------------------------------------------------------------------------
 
@@ -35,7 +25,7 @@ sub usage_desc {
     my ($command) = $self->command_names();
 
  my $usage =  <<"END_USAGE";
-%c --root=PATH $command [OPTIONS]
+%c --root=PATH $command
 END_USAGE
 
     chomp $usage;
@@ -59,34 +49,24 @@ App::Pinto::Admin::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 SYNOPSIS
 
-  pinto-admin --root=/some/dir statistics [OPTIONS]
+  pinto-admin --root=/some/dir statistics
 
 =head1 DESCRIPTION
 
-This command reports some statistics about the repository
+This command reports some statistics about the repository.  It is
+currently only reports information about the master stack.
 
 =head1 COMMAND ARGUMENTS
 
-None
+None.
 
 =head1 COMMAND OPTIONS
 
-=over 4
-
-=item --noinit
-
-Prevents L<Pinto> from pulling/updating the repository from the VCS
-before the operation.  This is only relevant if you are using a
-VCS-based storage mechanism.  This can speed up operations
-considerably, but should only be used if you *know* that your working
-copy is up-to-date and you are going to be the only actor touching the
-Pinto repository within the VCS.
-
-=back
+None.
 
 =head1 AUTHOR
 

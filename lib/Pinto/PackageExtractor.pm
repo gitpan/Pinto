@@ -1,6 +1,6 @@
-package Pinto::PackageExtractor;
-
 # ABSTRACT: Extract packages provided/required by a distribution archive
+
+package Pinto::PackageExtractor;
 
 use Moose;
 use MooseX::Types::Moose qw(Bool);
@@ -9,14 +9,14 @@ use Try::Tiny;
 use Dist::Requires 0.005;  # Bug fixes, better tempdir cleanup
 use Dist::Metadata 0.922;  # Supports zip
 
-use Pinto::Exceptions qw(throw_error);
+use Pinto::Exception qw(throw);
 
 use version;
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Attributes
@@ -48,8 +48,8 @@ sub provides {
 
     $self->info("Extracting packages from archive $archive");
 
-    my $provides =   try { Dist::Metadata->new(file => $archive)->package_versions()  }
-                   catch { throw_error "Unable to extract packages from $archive: $_" };
+    my $provides =   try { Dist::Metadata->new(file => $archive)->package_versions }
+                   catch { throw "Unable to extract packages from $archive: $_"    };
 
     my @provides;
     for my $pkg_name ( sort keys %{ $provides } ) {
@@ -73,10 +73,10 @@ sub requires {
 
     my $archive = $args{archive};
 
-    $self->info("Extracting prerequisites from $archive");
+    $self->info("Extracting prerequisites from archive $archive");
 
-    my %prereqs =   try { Dist::Requires->new()->prerequisites(dist => $archive)          }
-                  catch { throw_error "Unable to extract prerequisites from $archive: $_" };
+    my %prereqs =   try { Dist::Requires->new()->prerequisites(dist => $archive)    }
+                  catch { throw "Unable to extract prerequisites from $archive: $_" };
 
     my @prereqs;
     for my $pkg_name ( sort keys %prereqs ) {
@@ -108,7 +108,7 @@ sub _versionize {
             $self->warning("Package $vname has invalid version. Ignoring it");
         }
         else {
-            throw_error "Package $vname has invalid version: $@";
+            throw "Package $vname has invalid version: $@";
         }
     }
 
@@ -117,7 +117,7 @@ sub _versionize {
 
 #-----------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

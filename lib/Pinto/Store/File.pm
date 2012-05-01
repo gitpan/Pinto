@@ -1,16 +1,16 @@
-package Pinto::Store::File;
-
 # ABSTRACT: Store a Pinto repository on the local filesystem
+
+package Pinto::Store::File;
 
 use Moose;
 
-use Pinto::Exceptions qw(throw_fatal);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -24,12 +24,12 @@ augment remove_path => sub {
     my ($self, %args) = @_;
 
     my $path = $args{path};
-    $path->remove() or throw_fatal "Failed to remove path $path: $!";
+    $path->remove or throw "Failed to remove path $path: $!";
 
-    while (my $dir = $path->parent()) {
-        last if $dir->children();
+    while (my $dir = $path->parent) {
+        last if $dir->children;
         $self->debug("Removing empty directory $dir");
-        $dir->remove() or throw_fatal "Failed to remove directory $dir: $!";
+        $dir->remove or throw "Failed to remove directory $dir: $!";
         $path = $dir;
     }
 
@@ -51,14 +51,7 @@ Pinto::Store::File - Store a Pinto repository on the local filesystem
 
 =head1 VERSION
 
-version 0.038
-
-=head1 DESCRIPTION
-
-L<Pinto::Store::File> is the default back-end for a Pinto repository.
-It basically just represents files on disk.  You should look at
-L<Pinto::Store::VCS::Svn> or L<Pinto::Store::VCS::Git> for a more
-interesting example.
+version 0.040_001
 
 =head1 AUTHOR
 
@@ -75,4 +68,3 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
-

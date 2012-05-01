@@ -2,10 +2,69 @@
 
 =over 4
 
-=item Exception hierarchy/handling
 
-Current regime is too complicated.  Maybe just croak on any error,
-rather than trying to continue with the rest of the batch.
+
+=item Command to list dependencies and dependants
+
+=item Way to verify prereqs on a stack
+
+=item Command to unregister a pkg/dist ??
+
+=item Option to enforce strict stacks (no overlapping dists)
+
+=item Re-examine interface classes
+
+=item Write test cases for Stack operations
+
+=item Create a type for StackPropertyName
+
+=item Relocate stack merging code
+
+#--------------------------
+
+=item Prettier stack listing and stack prop listing
+
+=item Re-examine log levels for messages
+
+=item Divide actions into Actions and Reports
+
+=item Create Request (or Event) superclass for Action and Report
+
+=item Verify checksums during 'verify'
+
+=item Enable shared (for Reports) and exclusive locking (for Actions)
+
+=item Add hooks before/after adding and pulling
+
+=item Ensure there is an open revision before each Repos operation
+
+=item Give revisions properties
+
+=item Compute checksum for stack after each revision
+
+=item Allow revisions to be tagged
+
+=item Mark stacks as merged after merge
+
+=item Mark stacks as deleted after delete
+
+=item Warn if an unmerged stack is being deleted
+
+=item Way to view all packages (not just in a stack)
+
+=item Way to pin/unpin all packages in a stack
+
+=item Make the Store transactional
+
+=item Rollback a stack to prior revision
+
+=item View history for entire repository or stack
+
+=item Examine the delta between two stacks
+
+=item Rewrite tests with Test::Class
+
+=item Extract new Roles into Pinto-Common
 
 =back
 

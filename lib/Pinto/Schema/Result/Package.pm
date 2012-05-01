@@ -8,70 +8,72 @@ package Pinto::Schema::Result::Package;
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Core';
 
 
 __PACKAGE__->table("package");
 
 
 __PACKAGE__->add_columns(
-  "package_id",
+  "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
   { data_type => "text", is_nullable => 0 },
   "version",
   { data_type => "text", is_nullable => 0 },
-  "is_latest",
-  { data_type => "boolean", default_value => \"null", is_nullable => 1 },
-  "is_pinned",
-  { data_type => "boolean", default_value => \"null", is_nullable => 1 },
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 
-__PACKAGE__->set_primary_key("package_id");
+__PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->add_unique_constraint("name_distribution_unique", ["name", "distribution"]);
 
 
-__PACKAGE__->add_unique_constraint("name_is_latest_unique", ["name", "is_latest"]);
-
-
-__PACKAGE__->add_unique_constraint("name_is_pinned_unique", ["name", "is_pinned"]);
-
-
 __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
-  { distribution_id => "distribution" },
+  { id => "distribution" },
   { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07014 @ 2011-12-06 11:04:23
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xCWTZGqBqsFQCU96vVWt7w
+__PACKAGE__->has_many(
+  "registrations",
+  "Pinto::Schema::Result::Registration",
+  { "foreign.package" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
+
+with 'Pinto::Role::Schema::Result';
+
+
+# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-30 13:28:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WmTnWaYne00RFrQwStuZbw
 
 #------------------------------------------------------------------------------
 
-# ABSTRACT: Represents a package in a Distribution
+# ABSTRACT: Represents a Package provided by a Distribution
 
 #------------------------------------------------------------------------------
 
 use Carp;
 use String::Format;
 
-use Pinto::Util;
-use Pinto::Exceptions qw(throw_error);
-
 use overload ( '""'     => 'to_string',
-               '<=>'    => 'compare_version',
+               '<=>'    => 'compare',
                fallback => undef );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -81,14 +83,43 @@ __PACKAGE__->inflate_column( 'version' => { inflate => sub { version->parse($_[0
 );
 
 #------------------------------------------------------------------------------
+# Schema::Loader does not create many-to-many relationships for us.  So we
+# must create them by hand here...
 
-sub new {
-    my ($class, $attrs) = @_;
+__PACKAGE__->many_to_many( stacks => 'registration', 'stack' );
 
-    $attrs->{version} = 0
-        if not defined $attrs->{version};
 
-    return $class->SUPER::new($attrs);
+#------------------------------------------------------------------------------
+
+sub FOREIGNBUILDARGS {
+    my ($class, $args) = @_;
+
+    $args ||= {};
+    $args->{version} = 0 if not defined $args->{version};
+
+    return $args;
+}
+
+#------------------------------------------------------------------------------
+
+sub register {
+    my ($self, %args) = @_;
+
+    my $stack = $args{stack};
+    $self->create_related('registrations', {stack => $stack->id});
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
+sub registration {
+    my ($self, %args) = @_;
+
+    my $where = {name => $args{stack}};
+    my $stack = $self->result_source->schema->resultset('Stack')->find($where);
+
+    return $self->find_related('registrations', {stack => $stack});
 }
 
 #------------------------------------------------------------------------------
@@ -101,29 +132,22 @@ sub vname {
 
 #------------------------------------------------------------------------------
 
-sub to_string {
+sub as_spec {
     my ($self) = @_;
 
-    # Some attributes are just undefined, usually because of
-    # oddly named distributions and other old stuff on CPAN.
-    no warnings 'uninitialized';  ## no critic qw(NoWarnings);
-
-    return sprintf '%s/%s/%s', $self->distribution->author(),
-                               $self->distribution->vname(),
-                               $self->vname();
+    return Pinto::PackageSpec->new( name    => $self->name,
+                                    version => $self->version );
 }
 
 #------------------------------------------------------------------------------
 
-sub to_formatted_string {
+sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
          'n' => sub { $self->name()                                   },
          'N' => sub { $self->vname()                                  },
          'v' => sub { $self->version->stringify()                     },
-         'x' => sub { $self->is_latest()                ? '@' : ' '   },
-         'y' => sub { $self->is_pinned()                ? '+' : ' '   },
          'm' => sub { $self->distribution->is_devel()   ? 'd' : 'r'   },
          'p' => sub { $self->distribution->path()                     },
          'P' => sub { $self->distribution->archive()                  },
@@ -150,33 +174,34 @@ sub to_formatted_string {
 sub default_format {
     my ($self) = @_;
 
-    my $width = 38 - length $self->version();
-    $width = length $self->name() if $width < length $self->name();
-
-    return "%x%m%s%y %-${width}n %v  %p\n",
+    return '%a/%D/%N';  # AUTHOR/DIST-VNAME/PKG-VNAME
 }
 
 #-------------------------------------------------------------------------------
 
-sub compare_version {
+sub compare {
     my ($pkg_a, $pkg_b) = @_;
 
-    croak "Can only compare Pinto::Package objects"
+    confess "Can only compare Pinto::Package objects"
         if __PACKAGE__ ne ref $pkg_a || __PACKAGE__ ne ref $pkg_b;
 
-    croak "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
+    return 0 if $pkg_a->id() == $pkg_b->id();
+
+    confess "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
         if $pkg_a->name() ne $pkg_b->name();
 
-    my $r =   ( ($pkg_a->is_pinned() || 0)        <=> ($pkg_b->is_pinned() || 0)        )
-           || ( $pkg_a->distribution->is_local()  <=> $pkg_b->distribution->is_local()  )
-           || ( $pkg_a->version()                 <=> $pkg_b->version()                 )
-           || ( $pkg_a->distribution->mtime()     <=> $pkg_b->distribution->mtime()     );
+    my $r =   ( $pkg_a->version()             <=> $pkg_b->version()             )
+           || ( $pkg_a->distribution->mtime() <=> $pkg_b->distribution->mtime() );
 
-    # No two packages can be considered equal!
-    throw_error "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
+    # No two non-identical packages can be considered equal!
+    confess "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
 
     return $r;
 };
+
+#-------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
 
 #-------------------------------------------------------------------------------
 1;
@@ -189,11 +214,11 @@ sub compare_version {
 
 =head1 NAME
 
-Pinto::Schema::Result::Package - Represents a package in a Distribution
+Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 NAME
 
@@ -203,7 +228,7 @@ Pinto::Schema::Result::Package
 
 =head1 ACCESSORS
 
-=head2 package_id
+=head2 id
 
   data_type: 'integer'
   is_auto_increment: 1
@@ -219,18 +244,6 @@ Pinto::Schema::Result::Package
   data_type: 'text'
   is_nullable: 0
 
-=head2 is_latest
-
-  data_type: 'boolean'
-  default_value: null
-  is_nullable: 1
-
-=head2 is_pinned
-
-  data_type: 'boolean'
-  default_value: null
-  is_nullable: 1
-
 =head2 distribution
 
   data_type: 'integer'
@@ -241,7 +254,7 @@ Pinto::Schema::Result::Package
 
 =over 4
 
-=item * L</package_id>
+=item * L</id>
 
 =back
 
@@ -257,26 +270,6 @@ Pinto::Schema::Result::Package
 
 =back
 
-=head2 C<name_is_latest_unique>
-
-=over 4
-
-=item * L</name>
-
-=item * L</is_latest>
-
-=back
-
-=head2 C<name_is_pinned_unique>
-
-=over 4
-
-=item * L</name>
-
-=item * L</is_pinned>
-
-=back
-
 =head1 RELATIONS
 
 =head2 distribution
@@ -284,6 +277,20 @@ Pinto::Schema::Result::Package
 Type: belongs_to
 
 Related object: L<Pinto::Schema::Result::Distribution>
+
+=head2 registrations
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Registration>
+
+=head1 L<Moose> ROLES APPLIED
+
+=over 4
+
+=item * L<Pinto::Role::Schema::Result>
+
+=back
 
 =head1 AUTHOR
 
@@ -300,3 +307,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

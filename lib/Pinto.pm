@@ -1,45 +1,33 @@
 package Pinto;
 
-# ABSTRACT: Curate your own CPAN-like repository
+# ABSTRACT: Curate a repository of Perl modules
 
 use Moose;
-use MooseX::Types::Moose qw(Bool Str);
+use MooseX::Types::Moose qw(Str);
 
-use Carp;
 use Try::Tiny;
 use Class::Load;
 
-use Pinto::Config;
-use Pinto::Logger;
-use Pinto::Batch;
 use Pinto::Repository;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
-# Attributes
 
 has repos   => (
     is         => 'ro',
     isa        => 'Pinto::Repository',
-    builder    => '_build_repos',
     lazy       => 1,
+    default    => sub { Pinto::Repository->new( config => $_[0]->config,
+                                                logger => $_[0]->logger ) },
 );
 
 
-has _batch => (
-    is         => 'ro',
-    isa        => 'Pinto::Batch',
-    writer     => '_set_batch',
-    init_arg   => undef,
-);
-
-
-has _action_base_class => (
+has action_base_class => (
     is         => 'ro',
     isa        => Str,
     default    => 'Pinto::Action',
@@ -48,91 +36,55 @@ has _action_base_class => (
 
 
 #------------------------------------------------------------------------------
-# Moose roles
 
 with qw( Pinto::Role::Configurable
          Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
-# Construction
-
-sub BUILD {
-    my ($self) = @_;
-
-    unless (    -e $self->config->db_file()
-             && -e $self->config->modules_dir()
-             && -e $self->config->authors_dir() ) {
-
-      my $root_dir = $self->config->root_dir();
-      $self->fatal("Directory $root_dir does not look like a Pinto repository");
-    }
-
-    return $self;
-}
-
-#------------------------------------------------------------------------------
-# Builders
-
-sub _build_repos {
-    my ($self) = @_;
-
-    return Pinto::Repository->new( config => $self->config(),
-                                   logger => $self->logger() );
-}
-
-#------------------------------------------------------------------------------
-# Public methods
 
 
-sub new_batch {
-    my ($self, %args) = @_;
-
-    my $batch = Pinto::Batch->new( config => $self->config(),
-                                   logger => $self->logger(),
-                                   repos  => $self->repos(),
-                                   %args );
-
-   $self->_set_batch( $batch );
-
-   return $self;
-}
-
-#------------------------------------------------------------------------------
-
-
-sub add_action {
+sub run {
     my ($self, $action_name, %args) = @_;
 
-    my $batch = $self->_batch()
-        or confess 'You must create a batch first';
+    # Divert any warnings to our logger
+    local $SIG{__WARN__} = sub { $self->warning(@_) };
 
-    my $action_class = $self->_action_base_class . "::$action_name";
+    # Load the Action class
+    my $action_class = $self->action_base_class . "::$action_name";
     Class::Load::load_class($action_class);
 
-    my $action =  $action_class->new( config => $self->config(),
-                                      logger => $self->logger(),
-                                      repos  => $self->repos(),
+
+    # Construct the Action
+    my $action =  $action_class->new( logger => $self->logger,
+                                      repos  => $self->repos,
                                       %args );
 
-    $batch->enqueue($action);
-
-    return $self;
+    # Do it!
+    return $self->_run($action);
 }
 
 #------------------------------------------------------------------------------
 
+sub _run {
+    my ($self, $action) = @_;
 
-sub run_actions {
-    my ($self) = @_;
+    my $result;
 
-    my $batch = $self->_batch()
-        or confess 'You must create a batch first';
-
-    my $result = try   { $self->_batch->run() }
-                 catch { $self->fatal($_)     };
+    try {
+        $self->repos->lock;
+        my $guard = $self->repos->db->schema->txn_scope_guard;
+        $result = $action->execute;
+        $self->repos->write_index if $result->made_changes;
+        $self->info('No changes were made') if not $result->made_changes;
+        $self->repos->unlock;
+        $guard->commit;
+    }
+    catch {
+        $self->repos->unlock;
+        $self->fatal($_);
+    };
 
     return $result;
-
 }
 
 #------------------------------------------------------------------------------
@@ -164,11 +116,11 @@ placeholders metacpan
 
 =head1 NAME
 
-Pinto - Curate your own CPAN-like repository
+Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 SYNOPSIS
 
@@ -279,26 +231,10 @@ developers.
 
 =head1 METHODS
 
-=head2 new_batch( %batch_args )
+=head2 run( $action_name => %action_args )
 
-Prepares this Pinto to run a new batch of Actions.  Any prior batch will
-be discarded.
-
-=head2 add_action( $action_name, %action_args )
-
-Constructs the action with the given names and arguments, and adds it
-to the current batch.  You must first call C<new_batch> before you can
-add any actions.  The precise class of the Action will be formed by
-prepending 'Pinto::Action::' to the action name.  See the
-documentation for the corresponding Action class for a details about
-the arguments it supports.
-
-=head2 run_actions()
-
-Executes all the actions that are currently in the batch for this
-Pinto.  Returns a L<Pinto::Result> object that indicates whether the
-batch was successful and contains any warning or error messages that
-might have occurred along the way.
+Runs the Action with the given C<$action_name>, passing the
+C<%action_args> to its constructor.  Returns a L<Pinto::Result>.
 
 =head2 add_logger( $obj )
 

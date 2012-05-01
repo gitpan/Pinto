@@ -5,94 +5,54 @@ use warnings;
 
 use Test::More;
 
-use Path::Class;
-use FindBin qw($Bin);
-
 use Pinto::Tester;
+use Pinto::Tester::Util qw(make_dist_archive);
 
 #------------------------------------------------------------------------------
 
-my $fakes     = dir( $Bin, qw(data fakepan repos a) );
-my $auth_dir  = $fakes->subdir( qw(authors id L LO LOCAL) );
-
-my $dist    = 'FooOnly-0.01.tar.gz';
-my $pkg     = 'Foo-0.01';
-my $archive = $auth_dir->file($dist);
-
-# A couple local authors...
-my $auth1 = 'AUTHOR1';
-my $auth2 = 'AUTHOR2';
-
-#------------------------------------------------------------------------------
-# Setup...
-
-my $t = Pinto::Tester->new();
-my $pinto = $t->pinto();
+my $auth    = 'ME';
+my $pkg1    = 'Foo-0.01';
+my $pkg2    = 'Bar-0.01';
+my $dist    = 'Foo-Bar-0.01';
+my $archive = make_dist_archive("$dist=$pkg1,$pkg2");
 
 #------------------------------------------------------------------------------
 # Adding a local dist...
 
-$pinto->new_batch();
-$pinto->add_action( 'Add', archive => $archive, author => $auth1 );
-$t->result_ok( $pinto->run_actions() );
+{
+  my $t = Pinto::Tester->new;
+  $t->run_ok('Add', {archives => $archive, author => $auth});
 
-
-$t->package_loaded_ok( "$auth1/$dist/$pkg", 1 );
-$t->path_exists_ok( [qw( authors id A AU AUTHOR1 CHECKSUMS)] );
-
-#-----------------------------------------------------------------------------
-# Addition exceptions...
-
-$t->reset_buffer();
-$pinto->new_batch();
-$pinto->add_action('Add', archive => $archive, author => $auth1);
-$t->result_not_ok( $pinto->run_actions() );
-$t->log_like( qr/$dist already exists/,
-              'Cannot add same dist twice' );
-
-$t->reset_buffer();
-$pinto->new_batch();
-$pinto->add_action('Add', archive => $archive, author => $auth2);
-$t->result_not_ok( $pinto->run_actions() );
-$t->log_like( qr/Only author $auth1 can update package Foo/,
-              'Cannot add package owned by another author');
-
-$t->reset_buffer();
-$pinto->new_batch();
-$pinto->add_action('Add', archive => 'none_such', author => $auth1);
-$t->result_not_ok( $pinto->run_actions() );
-$t->log_like( qr/none_such does not exist/,
-          'Cannot add nonexistant archive' );
+  $t->registration_ok("$auth/$dist/$pkg1/default");
+  $t->registration_ok("$auth/$dist/$pkg2/default");
+}
 
 #-----------------------------------------------------------------------------
-# Adding devel release to non-devel repository
+# Adding to alternative stack...
 
-$dist = 'Fee-0.02_1.tar.gz';
-$pkg  = 'Fee-0.02_1';
-$archive = $auth_dir->file($dist);
+{
+  my $t = Pinto::Tester->new;
+  $t->run_ok('Stack::Create', {stack => 'dev'});
+  $t->run_ok('Add', {archives => $archive, author => $auth, stack => 'dev'});
 
-$t->reset_buffer();
-$pinto->new_batch();
-$pinto->add_action('Add', archive => $archive, author => $auth1);
-$t->result_ok( $pinto->run_actions() );
-
-$t->package_loaded_ok( "$auth1/$dist/$pkg", 0 );
-$t->log_like( qr/Developer distribution .* will not be indexed/,
-              'Got warning about devel dist' );
+  $t->registration_ok( "$auth/$dist/$pkg1/dev" );
+  $t->registration_ok( "$auth/$dist/$pkg2/dev" );
+}
 
 #-----------------------------------------------------------------------------
-# Adding devel release to a devel repository
+# Exceptions...
 
-$t = Pinto::Tester->new( creator_args => {devel => 1} );
-$pinto = $t->pinto();
+{
+  my $t = Pinto::Tester->new;
 
-$pinto->new_batch();
-$pinto->add_action('Add', archive => $archive, author => $auth1);
-$t->result_ok( $pinto->run_actions() );
+  $t->run_ok('Add', {archives => $archive, author => $auth});
+  $t->run_throws_ok( 'Add', {archives => $archive, author => $auth},
+                     qr/already exists/, 'Cannot add same dist twice' );
 
-$t->package_loaded_ok( "$auth1/$dist/$pkg", 1 );
-$t->log_unlike( qr/Developer distribution .* will not be indexed/,
-                'Did not get warning about devel dist');
+  $t->run_throws_ok( 'Add', {archives => 'bogus', author => $auth},
+                     qr/Some archives are missing/, 'Cannot add nonexistant archive' );
+}
 
+#-----------------------------------------------------------------------------
 
-done_testing();
+done_testing;

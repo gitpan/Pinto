@@ -1,6 +1,6 @@
-package Pinto::Role::FileFetcher;
-
 # ABSTRACT: Something that fetches remote files
+
+package Pinto::Role::FileFetcher;
 
 use Moose::Role;
 
@@ -8,21 +8,22 @@ use File::Temp;
 use Path::Class;
 use LWP::UserAgent;
 
-use Pinto::Exceptions qw(throw_fatal throw_error);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
 
 has ua => (
-    is         => 'ro',
-    isa        => 'LWP::UserAgent',
-    lazy_build => 1,
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    lazy    => 1,
+    builder => '_build_ua',
 );
 
 #------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ sub fetch_temporary {
     my $tempdir  = File::Temp::tempdir(CLEANUP => 1);
     my $tempfile = Path::Class::file($tempdir, $base);
 
-    $self->fetch(url => $url, to => $tempfile);
+    $self->fetch(from => $url, to => $tempfile);
 
     return Path::Class::file($tempfile);
 }
@@ -73,9 +74,10 @@ sub fetch_temporary {
 sub _fetch {
     my ($self, $url, $to) = @_;
 
-    $self->info("Fetching $url");
+    $self->debug("Fetching $url");
 
-    my $result = eval { $self->ua->mirror($url, $to) } or throw_fatal $@;
+    my $result = eval { $self->ua->mirror($url, $to) }
+        or throw $@;
 
     if ($result->is_success()) {
         return 1;
@@ -84,7 +86,7 @@ sub _fetch {
         return 0;
     }
     else {
-        throw_error "Failed to fetch $url: " . $result->status_line();
+        throw "Failed to fetch $url: " . $result->status_line;
     }
 
     # Should never get here
@@ -137,7 +139,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 METHODS
 

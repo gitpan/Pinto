@@ -1,16 +1,15 @@
-# ABSTRACT: List the contents of a repository
+# ABSTRACT: List the contents of a stack
 
 package Pinto::Action::List;
 
 use Moose;
-
 use MooseX::Types::Moose qw(HashRef);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,10 +22,10 @@ with qw( Pinto::Role::Interface::Action::List );
 #------------------------------------------------------------------------------
 
 has where => (
-    is      => 'ro',
-    isa     => HashRef,
-    builder => '_build_where',
-    lazy    => 1,
+    is       => 'ro',
+    isa      => HashRef,
+    builder  => '_build_where',
+    lazy     => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -36,45 +35,45 @@ sub _build_where {
 
     my $where = {};
 
-    my $pkg_name = $self->packages();
-    $where->{name} = { like => "%$pkg_name%" } if $pkg_name;
+    if (my $pkg_name = $self->packages) {
+        $where->{'package.name'} = { like => "%$pkg_name%" }
+    }
 
-    my $dist_path = $self->distributions();
-    $where->{path} = { like => "%$dist_path%" } if $dist_path;
+    if (my $dist_path = $self->distributions) {
+        $where->{'package.distribution.path'} = { like => "%$dist_path%" };
+    }
 
-    my $index = $self->index();
-    $where->{is_latest} = $index ? 1 : undef if defined $index;
-
-    my $pinned = $self->pinned();
-    $where->{is_pinned} = $pinned ? 1 : undef if defined $pinned;
+    if (my $pinned = $self->pinned) {
+        $where->{is_pinned} = 1;
+    }
 
     return $where;
 }
-
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $where = $self->where();
+    my $where = $self->where;
+    my $stack = $self->repos->get_stack(name => $self->stack);
+    $where->{'stack.name'} = $stack->name;
 
-    my $attrs = { order_by => [ qw(name version path) ],
-                  prefetch => 'distribution' };
+    my $attrs = { order_by => [ qw(me.package_name me.package_version me.distribution_path) ],
+                  prefetch => [ 'stack', {'package' => 'distribution'} ] };
 
-    my $rs = $self->repos->db->select_packages($where, $attrs);
+    my $rs = $self->repos->db->select_registrations($where, $attrs);
 
-    my $format = $self->format();
-    while( my $package = $rs->next() ) {
-        print { $self->out() } $package->to_formatted_string($format);
+    while( my $registration = $rs->next ) {
+        print { $self->out } $registration->to_string($self->format);
     }
 
-    return 0;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -88,11 +87,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::List - List the contents of a repository
+Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

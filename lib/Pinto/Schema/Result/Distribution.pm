@@ -8,14 +8,17 @@ package Pinto::Schema::Result::Distribution;
 use strict;
 use warnings;
 
-use base 'DBIx::Class::Core';
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Core';
 
 
 __PACKAGE__->table("distribution");
 
 
 __PACKAGE__->add_columns(
-  "distribution_id",
+  "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "path",
   { data_type => "text", is_nullable => 0 },
@@ -23,10 +26,14 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "mtime",
   { data_type => "integer", is_nullable => 0 },
+  "md5",
+  { data_type => "text", is_nullable => 0 },
+  "sha256",
+  { data_type => "text", is_nullable => 0 },
 );
 
 
-__PACKAGE__->set_primary_key("distribution_id");
+__PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->add_unique_constraint("path_unique", ["path"]);
@@ -35,13 +42,25 @@ __PACKAGE__->add_unique_constraint("path_unique", ["path"]);
 __PACKAGE__->has_many(
   "packages",
   "Pinto::Schema::Result::Package",
-  { "foreign.distribution" => "self.distribution_id" },
+  { "foreign.distribution" => "self.id" },
   { cascade_copy => 0, cascade_delete => 1 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07014 @ 2011-12-06 11:01:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:oaRV9jWYq0VgLnIU/he+sA
+__PACKAGE__->has_many(
+  "prerequisites",
+  "Pinto::Schema::Result::Prerequisite",
+  { "foreign.distribution" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
+
+with 'Pinto::Role::Schema::Result';
+
+
+# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-29 02:10:14
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eV+MI4xhoIRRgFF3WOvxKw
 
 #-------------------------------------------------------------------------------
 
@@ -55,48 +74,172 @@ use CPAN::DistnameInfo;
 use String::Format;
 
 use Pinto::Util;
-use Pinto::Exceptions qw(throw_error);
+use Pinto::Exception qw(throw);
+use Pinto::DistributionSpec;
 
 use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub new {
-    my ($class, $attrs) = @_;
+sub FOREIGNBUILDARGS {
+    my ($class, $args) = @_;
 
-    $attrs->{source} = 'LOCAL'
-        if not defined $attrs->{source};
+    $args ||= {};
+    $args->{source} ||= 'LOCAL';
 
-    return $class->SUPER::new($attrs);
+    return $args;
 }
 
 #------------------------------------------------------------------------------
 
-sub name {
-    my ($self) = @_;
+sub register {
+    my ($self, %args) = @_;
 
-    return $self->_distname_info->dist();
+    my $stack = $args{stack};
+    my $did_register = 0;
+    my $errors       = 0;
+
+    for my $pkg ($self->packages) {
+
+      if ($pkg->registrations_rs->find( {stack => $stack->id} ) ) {
+          $self->debug("Package $pkg is already on stack $stack");
+          next;
+      }
+
+      my $incumbent = $stack->registration(package => $pkg->name);
+
+      if (not $incumbent) {
+          $self->debug("Registering $pkg on stack $stack");
+          $pkg->register(stack => $stack);
+          $did_register++;
+          next;
+      }
+
+      my $incumbent_pkg = $incumbent->package;
+
+      if ( $incumbent_pkg == $pkg ) {
+        $self->warning("Package $pkg is already on stack $stack");
+        next;
+      }
+
+      if ( $incumbent_pkg < $pkg and $incumbent->is_pinned ) {
+        my $pkg_name = $pkg->name;
+        $self->error("Cannot add $pkg to stack $stack because $pkg_name is pinned to $incumbent_pkg");
+        $errors++;
+        next;
+      }
+
+
+      my ($log_as, $direction) = ($incumbent_pkg > $pkg) ? ('warning', 'Downgrading')
+                                                         : ('notice',  'Upgrading');
+
+      $incumbent->delete;
+      $self->$log_as("$direction package $incumbent_pkg to $pkg in stack $stack");
+      $pkg->register(stack => $stack);
+      $did_register++;
+    }
+
+    throw "Unable to register distribution $self on stack $stack"
+      if $errors;
+
+    $stack->touch if $did_register; # Update mtime
+
+    return $did_register;
 }
 
 #------------------------------------------------------------------------------
 
-sub vname {
-    my ($self) = @_;
+sub pin {
+    my ($self, %args) = @_;
 
-    return $self->_distname_info->distvname();
+    my $stack   = $args{stack};
+    my $errors  = 0;
+    my $did_pin = 0;
+
+    for my $pkg ($self->packages) {
+        my $registration = $pkg->registration(stack => $stack);
+
+        if (not $registration) {
+            $self->error("Package $pkg is not registered on stack $stack");
+            $errors++;
+            next;
+        }
+
+
+        if ($registration->is_pinned) {
+            $self->warning("Package $pkg is already pinned on stack $stack");
+            next;
+        }
+
+        $registration->pin;
+        $did_pin++;
+    }
+
+    throw "Unable to pin distribution $self to stack $stack"
+      if $errors;
+
+    $stack->touch if $did_pin; # Update mtime
+
+    return $did_pin;
+
 }
 
 #------------------------------------------------------------------------------
 
-sub version {
-    my ($self) = @_;
+sub unpin {
+    my ($self, %args) = @_;
 
-    return $self->_distname_info->version();
+    my $stack = $args{stack};
+    my $did_unpin = 0;
+
+    for my $pkg ($self->packages) {
+        my $registration = $pkg->registration(stack => $stack);
+
+        if (not $registration) {
+            $self->warning("Package $pkg is not registered on stack $stack");
+            next;
+        }
+
+        if (not $registration->is_pinned) {
+            $self->warning("Package $pkg is not pinned on stack $stack");
+            next;
+        }
+
+        $registration->unpin;
+        $did_unpin++;
+    }
+
+    $stack->touch if $did_unpin; # Update mtime
+
+    return $did_unpin;
 }
+
+#------------------------------------------------------------------------------
+
+has distname_info => (
+    isa      => 'CPAN::DistnameInfo',
+    init_arg => undef,
+    handles  => { name     => 'dist',
+                  vname    => 'distvname',
+                  version  => 'version',
+                  maturity => 'maturity' },
+    default  => sub { CPAN::DistnameInfo->new( $_[0]->path ) },
+    lazy     => 1,
+);
+
+#------------------------------------------------------------------------------
+
+has is_devel => (
+    is       => 'ro',
+    isa      => 'Bool',
+    init_arg => undef,
+    default  => sub {$_[0]->maturity() eq 'developer'},
+    lazy     => 1,
+);
 
 #------------------------------------------------------------------------------
 
@@ -123,20 +266,12 @@ sub author {
 sub url {
     my ($self, $base) = @_;
 
-    # TODO: can we come up with a sensible URL for local dists?
-    return 'UNKNOWN' if $self->is_local();
+    # TODO: Is there a sensible URL for local dists?
+    return 'UNKNOWN' if $self->is_local;
 
-    $base ||= $self->source();
+    $base ||= $self->source;
 
-    return URI->new( "$base/authors/id/" . $self->path() )->canonical();
-}
-
-#------------------------------------------------------------------------------
-
-sub is_devel {
-    my ($self) = @_;
-
-    return $self->_distname_info->maturity() eq 'developer';
+    return URI->new( "$base/authors/id/" . $self->path )->canonical;
 }
 
 #------------------------------------------------------------------------------
@@ -144,7 +279,32 @@ sub is_devel {
 sub is_local {
     my ($self) = @_;
 
-    return $self->source() eq 'LOCAL';
+    return $self->source eq 'LOCAL';
+}
+
+#------------------------------------------------------------------------------
+
+sub package {
+    my ($self, %args) = @_;
+
+    my $pkg_name = $args{name};
+
+    my $where = {name => $pkg_name};
+    my $pkg = $self->find_related('packages', $where) or return;
+
+    if (my $stk_name = $args{stack}){
+        return $pkg->registration(stack => $stk_name) ? $pkg : ();
+    }
+
+    return $pkg;
+}
+
+#------------------------------------------------------------------------------
+
+sub registered_packages {
+    my ($self, %args) = @_;
+
+    # TODO...
 }
 
 #------------------------------------------------------------------------------
@@ -157,10 +317,26 @@ sub package_count {
 
 #------------------------------------------------------------------------------
 
+sub prerequisite_specs {
+    my ($self) = @_;
+
+    return map { $_->as_spec } $self->prerequisites;
+}
+
+#------------------------------------------------------------------------------
+
+sub as_spec {
+    my ($self) = @_;
+
+    return Pinto::DistributionSpec->new(path => $self->path);
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ($self) = @_;
 
-    return $self->path();
+    return $self->path;
 }
 
 #------------------------------------------------------------------------------
@@ -196,15 +372,9 @@ sub default_format {
 
 #------------------------------------------------------------------------------
 
-sub _distname_info {
-    my ($self) = @_;
-
-    return $self->{__distname_info__} ||= CPAN::DistnameInfo->new( $self->path() );
-
-}
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
-
 1;
 
 
@@ -219,7 +389,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 NAME
 
@@ -229,7 +399,7 @@ Pinto::Schema::Result::Distribution
 
 =head1 ACCESSORS
 
-=head2 distribution_id
+=head2 id
 
   data_type: 'integer'
   is_auto_increment: 1
@@ -250,11 +420,21 @@ Pinto::Schema::Result::Distribution
   data_type: 'integer'
   is_nullable: 0
 
+=head2 md5
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 sha256
+
+  data_type: 'text'
+  is_nullable: 0
+
 =head1 PRIMARY KEY
 
 =over 4
 
-=item * L</distribution_id>
+=item * L</id>
 
 =back
 
@@ -275,6 +455,20 @@ Pinto::Schema::Result::Distribution
 Type: has_many
 
 Related object: L<Pinto::Schema::Result::Package>
+
+=head2 prerequisites
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Prerequisite>
+
+=head1 L<Moose> ROLES APPLIED
+
+=over 4
+
+=item * L<Pinto::Role::Schema::Result>
+
+=back
 
 =head1 AUTHOR
 

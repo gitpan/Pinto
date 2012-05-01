@@ -1,67 +1,54 @@
 package Pinto::Result;
 
-# ABSTRACT: The result from running a Batch of Actions
+# ABSTRACT: The result from running an Action
 
 use Moose;
 
-use MooseX::Types::Moose qw(Bool ArrayRef);
-
-use overload ('""' => 'to_string');
+use MooseX::Types::Moose qw(Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
-# Moose attributes
 
-has changes_made    => (
+has made_changes => (
     is        => 'ro',
     isa       => Bool,
-    init_arg  => undef,
-    writer    => '_set_changes_made',
+    writer    => '_set_made_changes',
     default   => 0,
 );
 
-has exceptions => (
-    isa        => ArrayRef,
-    traits     => [ 'Array' ],
-    default    => sub { [] },
-    handles    => {
-        add_exception => 'push',
-        exceptions    => 'elements',
-    },
-    init_arg   => undef,
+
+
+has was_successful => (
+    is         => 'ro',
+    isa        => Bool,
+    writer     => '_set_was_successful',
+    default    => 1,
 );
 
 #-----------------------------------------------------------------------------
 
-sub is_success {
+sub failed {
     my ($self) = @_;
-
-    return $self->exceptions() == 0;
-}
-
-#-----------------------------------------------------------------------------
-# HACK! Confusing: "made_changes" vs. "changes_made"
-
-sub made_changes {
-    my ($self) = @_;
-
-    $self->_set_changes_made(1);
-
+    $self->_set_was_successful(0);
     return $self;
 }
 
 #-----------------------------------------------------------------------------
 
-sub to_string {
+sub changed {
     my ($self) = @_;
+    $self->_set_made_changes(1);
+    return $self;
+}
 
-    my $string = join "\n", map { "$_" } $self->exceptions();
-    $string .= "\n" unless $string =~ m/\n $/x;
+#-----------------------------------------------------------------------------
 
-    return $string;
+sub exit_status {
+    my ($self) = @_;
+    return not $self->was_successful;
 }
 
 #-----------------------------------------------------------------------------
@@ -79,11 +66,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Result - The result from running a Batch of Actions
+Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 

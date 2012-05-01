@@ -1,19 +1,23 @@
+# ABSTRACT: Base class for all Actions
+
 package Pinto::Action;
 
-# ABSTRACT: Base class for Actions
-
 use Moose;
+use MooseX::Types::Moose qw(Bool);
 
-use Carp;
+use Pinto::Result;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.038'; # VERSION
+our $VERSION = '0.040_001'; # VERSION
 
 #------------------------------------------------------------------------------
-# Attributes
+
+with qw( Pinto::Role::Loggable );
+
+#------------------------------------------------------------------------------
 
 has repos => (
     is       => 'ro',
@@ -21,33 +25,14 @@ has repos => (
     required => 1,
 );
 
-has messages => (
-    isa        => 'ArrayRef[Str]',
-    traits     => [ 'Array' ],
-    handles    => {
-        add_message => 'push',
-        messages    => 'elements',
-    },
-    default    => sub{ [] },
-    init_arg   => undef,
+
+has result => (
+    is       => 'ro',
+    isa      => 'Pinto::Result',
+    default  => sub { Pinto::Result->new },
+    init_arg => undef,
+    lazy     => 1,
 );
-
-has exceptions => (
-    isa        => 'ArrayRef[Pinto::Exception]',
-    traits     => [ 'Array' ],
-    default    => sub{ [] },
-    init_arg   => undef,
-    handles    => {
-        add_exception => 'push',
-        exceptions    => 'elements',
-    },
-);
-
-#------------------------------------------------------------------------------
-# Roles
-
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
@@ -65,11 +50,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action - Base class for Actions
+Pinto::Action - Base class for all Actions
 
 =head1 VERSION
 
-version 0.038
+version 0.040_001
 
 =head1 AUTHOR
 
