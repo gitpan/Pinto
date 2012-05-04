@@ -18,7 +18,7 @@ my $t = Pinto::Tester->new;
 {
   # Create a new stack...
   my ($stk_name, $stk_desc) = ('dev', 'the development stack');
-  $t->run_ok('Stack::Create', {stack => $stk_name, description => $stk_desc});
+  $t->run_ok('New', {stack => $stk_name, description => $stk_desc});
   my $stack = $t->pinto->repos->get_stack(name => $stk_name);
   is $stack->name, $stk_name, 'Got correct stack name';
   is $stack->get_property('description'), $stk_desc, 'Got correct stack description';
@@ -32,9 +32,9 @@ my $t = Pinto::Tester->new;
   $t->registration_ok( 'ME/FooAndBar-1/Foo-1/dev/-' );
   $t->registration_ok( 'ME/FooAndBar-1/Bar-1/dev/-' );
 
-  # Should not be on the default stack...
-  $t->registration_not_ok( 'ME/FooAndBar-1/Foo-1/default/-' );
-  $t->registration_not_ok( 'ME/FooAndBar-1/Bar-1/default/-' );
+  # Should not be on the init stack...
+  $t->registration_not_ok( 'ME/FooAndBar-1/Foo-1/init/-' );
+  $t->registration_not_ok( 'ME/FooAndBar-1/Bar-1/init/-' );
 
   # Check that mtime was updated...
   $stack->discard_changes; # Causes it to reload from DB
@@ -47,7 +47,7 @@ my $t = Pinto::Tester->new;
   # Copy dev -> qa...
   my $dev_stk_name = 'dev';
   my ($qa_stk_name, $qa_stk_desc) = ('qa', 'the qa stack');
-  $t->run_ok('Stack::Copy', {from_stack  => $dev_stk_name,
+  $t->run_ok('Copy', {from_stack  => $dev_stk_name,
                              to_stack    => $qa_stk_name,});
 
   my $dev_stack = $t->pinto->repos->get_stack(name => $dev_stk_name);
@@ -66,50 +66,50 @@ my $t = Pinto::Tester->new;
 
 {
 
-  # Marking master stack...
-  my $default_stack = $t->pinto->repos->get_stack;
-  ok defined $default_stack, 'get_stack with no args returned a stack';
-  ok $default_stack->is_master, 'default stack is the master stack';
+  # Marking default stack...
+  my $init_stack = $t->pinto->repos->get_stack;
+  ok defined $init_stack, 'get_stack with no args returned a stack';
+  ok $init_stack->is_default, 'init stack is the default stack';
 
   my $dev_stack = $t->pinto->repos->get_stack(name => 'dev');
   ok defined $dev_stack, 'got the dev stack';
 
 
-  $dev_stack->mark_as_master;
-  ok $dev_stack->is_master, 'dev stack is now master';
+  $dev_stack->mark_as_default;
+  ok $dev_stack->is_default, 'dev stack is now default';
 
   # Force reload from DB...
-  $default_stack->discard_changes;
-  ok !$default_stack->is_master, 'default stack is no longer master';
+  $init_stack->discard_changes;
+  ok !$init_stack->is_default, 'init stack is no longer default';
 
-  throws_ok { $default_stack->is_master(0) } qr/cannot directly set is_master/,
-    'Setting is_master directly throws exception';
+  throws_ok { $init_stack->is_default(0) } qr/cannot directly set is_default/,
+    'Setting is_default directly throws exception';
 }
 
 #------------------------------------------------------------------------------
 
 {
   # Copy from a stack that doesn't exist
-  $t->run_throws_ok('Stack::Copy', {from_stack => 'nowhere',
-                                    to_stack   => 'somewhere'},
-                                    qr/Stack nowhere does not exist/);
+  $t->run_throws_ok('Copy', {from_stack => 'nowhere',
+                             to_stack   => 'somewhere'},
+                             qr/Stack nowhere does not exist/);
 
 
   # Copy to a stack that already exists
-  $t->run_throws_ok('Stack::Copy', {from_stack => 'default',
-                                    to_stack   => 'dev'},
-                                    qr/Stack dev already exists/);
+  $t->run_throws_ok('Copy', {from_stack => 'init',
+                             to_stack   => 'dev'},
+                             qr/Stack dev already exists/);
 
 
   # Create stack with invalid name
-  $t->run_throws_ok('Stack::Create', {stack => '$bogus@'},
-                                      qr/Invalid stack name/);
+  $t->run_throws_ok('New', {stack => '$bogus@'},
+                            qr/Invalid stack name/);
 
 
   # Copy to stack with invalid name
-  $t->run_throws_ok('Stack::Copy', {from_stack => 'default',
-                                    to_stack   => '$bogus@'},
-                                    qr/Invalid stack name/);
+  $t->run_throws_ok('Copy', {from_stack => 'init',
+                              to_stack   => '$bogus@'},
+                              qr/Invalid stack name/);
 }
 
 

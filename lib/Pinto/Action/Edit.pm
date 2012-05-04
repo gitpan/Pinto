@@ -1,34 +1,41 @@
-# ABSTRACT: Base class for Pinto exceptions
+# ABSTRACT: Change stack properties
 
-package Pinto::Exception;
+package Pinto::Action::Edit;
 
 use Moose;
-use Moose::Exporter;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Throwable::Error';
+extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-Moose::Exporter->setup_import_methods( as_is => [ throw => \&throw ] );
-
-#------------------------------------------------------------------------------
-# HACK: I'm not sure this will work with subclasses
-
-sub throw { __PACKAGE__->SUPER::throw(@_) }
+with qw( Pinto::Role::Interface::Action::Edit );
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable( inline_constructor => 0 );
+sub execute {
+    my ($self) = @_;
+
+    my $stack = $self->repos->get_stack(name => $self->stack);
+    $stack->mark_as_default if $self->default;
+    $stack->set_properties($self->properties);
+
+    return $self->result->changed;
+}
 
 #------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
+
+#------------------------------------------------------------------------------
+
 1;
 
 
@@ -39,11 +46,11 @@ __PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 =head1 NAME
 
-Pinto::Exception - Base class for Pinto exceptions
+Pinto::Action::Edit - Change stack properties
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

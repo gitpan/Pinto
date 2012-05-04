@@ -1,6 +1,6 @@
-package Pinto::Creator;
+package Pinto::Initializer;
 
-# ABSTRACT: Creates a new Pinto repository
+# ABSTRACT: Initializes a new Pinto repository
 
 use Moose;
 
@@ -9,31 +9,29 @@ use autodie;
 use PerlIO::gzip;
 use Path::Class;
 
-use Pinto::Logger;
-use Pinto::Config;
 use Pinto::Database;
+use Pinto::Repository;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Loggable
-         Pinto::Role::Configurable
+with qw( Pinto::Role::Configurable
          Pinto::Role::PathMaker );
 
 #------------------------------------------------------------------------------
 
 
-sub create {
+sub init {
     my ($self, %args) = @_;
 
     # Sanity checks
     my $root_dir = $self->config->root_dir();
-    $self->fatal("Directory $root_dir is not empty")
+    die "Directory $root_dir must be empty to create a repository there\n"
         if -e $root_dir and $root_dir->children();
 
     # Create repos root directory
@@ -67,7 +65,10 @@ sub create {
     $self->mkpath($authors_dir);
 
     # Write authors index
-    $self->_write_mailrc();
+    $self->_write_mailrc;
+
+    # Write the packages index
+    $self->_write_index;
 
     $self->notice("Created new repository at directory $root_dir");
 
@@ -134,15 +135,23 @@ END_MODLIST
 sub _create_db {
     my ($self) = @_;
 
-    my $db = Pinto::Database->new( config => $self->config,
-                                   logger => $self->logger );
+    my $db = Pinto::Database->new( config => $self->config );
     $db->deploy;
 
-    my $stack_attrs = {name => 'default', is_master => 1};
+    my $stack_attrs = {name => 'init', is_default => 1};
     my $stack = $db->schema->resultset('Stack')->create($stack_attrs);
-    $stack->set_property('description' => 'the default stack');
+    $stack->set_property('description' => 'the initial stack');
 
-    $db->write_index;
+    return;
+}
+
+#------------------------------------------------------------------------------
+
+sub _write_index {
+    my ($self) = @_;
+
+    my $repos = Pinto::Repository->new( config => $self->config );
+    $repos->write_index;
 
     return;
 }
@@ -163,11 +172,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Creator - Creates a new Pinto repository
+Pinto::Initializer - Initializes a new Pinto repository
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

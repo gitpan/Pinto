@@ -20,7 +20,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -116,23 +116,6 @@ sub sha256 {
 
 #-------------------------------------------------------------------------------
 
-sub args_from_fh {
-    my ($fh) = @_;
-
-    my @args;
-    while (my $line = <$fh>) {
-        chomp $line;
-        next if not length $line;
-        next if $line =~ m/^ \s* [;#]/x;
-        next if $line !~ m/\S/x;
-        push @args, $line;
-    }
-
-    return @args;
-}
-
-#-------------------------------------------------------------------------------
-
 
 sub normalize_property_name {
     my ($prop_name) = @_;
@@ -184,7 +167,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 DESCRIPTION
 

@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Moose attributes
@@ -113,7 +113,7 @@ Pinto::Locker - Synchronize concurrent Pinto actions
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 DESCRIPTION
 

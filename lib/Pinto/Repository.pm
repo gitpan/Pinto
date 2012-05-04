@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -31,7 +31,6 @@ has db => (
     is         => 'ro',
     isa        => 'Pinto::Database',
     lazy       => 1,
-    handles    => [ qw(write_index) ],
     default    => sub { Pinto::Database->new( config => $_[0]->config,
                                               logger => $_[0]->logger ) },
 );
@@ -101,7 +100,7 @@ sub get_stack {
 
     my $stk_name = $args{name};
     return $stk_name if ref $stk_name;  # Is object (or struct) so just return
-    return $self->get_master_stack if not $stk_name;
+    return $self->get_default_stack if not $stk_name;
 
     my $where = { name => $stk_name };
     my $stack = $self->db->select_stack( $where );
@@ -115,13 +114,13 @@ sub get_stack {
 #-------------------------------------------------------------------------------
 
 
-sub get_master_stack {
+sub get_default_stack {
     my ($self) = @_;
 
-    my $where = {is_master => 1};
+    my $where = {is_default => 1};
     my @stacks = $self->db->select_stacks( $where )->all;
 
-    throw "PANIC! There must be exactly one master stack" if @stacks != 1;
+    throw "PANIC! There must be exactly one default stack" if @stacks != 1;
 
     return $stacks[0];
 }
@@ -259,116 +258,17 @@ sub create_stack {
 
 #-------------------------------------------------------------------------------
 
-
-sub merge_stack {
+sub write_index {
     my ($self, %args) = @_;
 
-    my $from_stk_name = $args{from};
-    my $to_stk_name   = $args{to};
-    my $dryrun        = $args{dryrun};
+    my $writer = Pinto::IndexWriter->new(logger => $self->logger);
 
+    $args{file}  ||= $self->config->index_file unless $args{handle};
+    $args{stack} ||= $self->get_default_stack;
 
-    my $from_stk = $self->get_stack(name => $from_stk_name);
-    my $to_stk   = $self->get_stack(name => $to_stk_name);
+    $writer->write(%args);
 
-    my $conflicts;
-    my $where = { stack => $from_stk->id };
-    my $registration_rs = $self->db->select_registrations( $where );
-
-
-    while ( my $from_registration = $registration_rs->next ) {
-        $self->info("Merging package $from_registration into stack $to_stk");
-        $conflicts += $self->_merge_registration($from_registration, $to_stk, $dryrun);
-    }
-
-
-    throw "There were $conflicts conflicts.  Merge aborted"
-        if $conflicts and not $dryrun;
-
-    $self->info('Dry run merge -- no changes were made')
-        and return if $dryrun;
-
-    # TODO: Add the is_merged field to schema
-    # $from_stk->update( {is_merged => 1} );
-
-    return;
-}
-
-#------------------------------------------------------------------------------
-
-sub _merge_registration {
-    my ($self, $from_registration, $to_stk, $dryrun) = @_;
-
-    my $from_pkg    = $from_registration->package;
-    my $attrs       = {prefetch => 'package'};
-    my $where       = {package_name  => $from_pkg->name, stack => $to_stk->id};
-    my $to_registration = $self->db->select_registration($where, $attrs);
-
-    # CASE 1:  The package does not exist in the target stack,
-    # so we can go ahead and just add it there.
-
-    if (not defined $to_registration) {
-         $self->debug("Adding package $from_pkg to stack $to_stk");
-         return 0 if $dryrun;
-         $from_registration->copy( {stack => $to_stk} );
-         return 0;
-     }
-
-    # CASE 2:  The exact same package is in both the source
-    # and the target stacks, so we don't have to merge.  But
-    # if the source is pinned, then we should also copy the
-    # pin to the target.
-
-    if ($from_registration == $to_registration) {
-        $self->debug("$from_registration and $to_registration are the same");
-        if ($from_registration->is_pinned and not $to_registration->is_pinned) {
-            $self->debug("Adding pin to $to_registration");
-            return 0 if $dryrun;
-            $to_registration->update({pin => 1});
-            return 0;
-        }
-        return 0;
-    }
-
-    # CASE 3:  The package in the target stack is newer than the
-    # one in the source stack.  If the package in the source stack
-    # is pinned, then we have a conflict, so whine.  If it is not
-    # pinned then there is nothing to do because the package in
-    # the target stack is already newer.
-
-    if ($to_registration > $from_registration) {
-        if ( $from_registration->is_pinned ) {
-            $self->warning("$from_registration is pinned to a version older than $to_registration");
-            return 1;
-        }
-        $self->debug("$to_registration is already newer than $from_registration");
-        return 0;
-    }
-
-
-    # CASE 4:  The package in the target stack is older than the
-    # one in the source stack.  If the package in the target stack
-    # is pinned, then we have a conflict, so whine.  If it is not
-    # pinned, then upgrade the package in the target stack with
-    # the newer package in the source stack.
-
-    if ($to_registration < $from_registration) {
-        if ( $to_registration->is_pinned ) {
-            $self->warning("$to_registration is pinned to a version older than $from_registration");
-            return 1;
-        }
-        my $from_pkg = $from_registration->package();
-        $self->info("Upgrading $to_registration to $from_pkg");
-        return 0 if $dryrun;
-        $to_registration->update( {package => $from_pkg} );
-        return 0;
-    }
-
-    # CASE 5:  The above logic should cover all possible scenarios.
-    # So if we get here then either our logic is flawed or something
-    # weird has happened in the database.
-
-    throw "Unable to merge $from_registration into $to_registration";
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -394,7 +294,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 ATTRIBUTES
 
@@ -407,8 +307,6 @@ version 0.040_001
 =head2 extractor
 
 =head1 METHODS
-
-=head2 write_index
 
 =head2 initialize()
 
@@ -435,15 +333,15 @@ C<$stack_name>.  If there is no stack with such a name in the
 repository, throws an exception.  If the C<nocroak> option is true,
 than an exception will not be thrown and undef will be returned.  If
 you do not specify a stack name (or it is undefined) then you'll get
-whatever stack is currently marked as the master stack.
+whatever stack is currently marked as the default stack.
 
-=head2 get_master_stack()
+=head2 get_default_stack()
 
 Returns the L<Pinto::Schema::Result::Stack> that is currently marked
-as the master stack in this repository.  This is what you get when you
+as the default stack in this repository.  This is what you get when you
 call C<get_stack> without any arguments.
 
-At any time, there must be exactly one master stack.  This method will
+At any time, there must be exactly one default stack.  This method will
 throw an exception if it discovers that condition is not true.
 
 =head2 get_package( name => $pkg_name )
@@ -492,10 +390,6 @@ pulled distribution.
 =head2 pull( distribution => $spec )
 
 =head2 create_stack(name => $stk_name, properties => { $key => $value, ... } )
-
-=head2 merge_stack(from => $stk_name_a, to => $stk_name_b)
-
-=head2 merge_stack(from => $stk_name_a, to => $stk_name_b, dryrun => 1)
 
 =head2 locate(path = $dist_path)
 

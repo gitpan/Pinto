@@ -1,16 +1,14 @@
-# ABSTRACT: Show stack properties
+# ABSTRACT: Create a new empty stack
 
-package Pinto::Action::Stack::Props;
+package Pinto::Action::New;
 
 use Moose;
-
-use String::Format;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,26 +16,22 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Stack::Props );
+with qw( Pinto::Role::Interface::Action::New );
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->stack);
+    my $stack = $self->repos->create_stack(name => $self->stack);
+    $stack->set_property('description' => $self->description);
 
-    my $props = $stack->get_properties;
-    while ( my ($prop, $value) = each %{$props} ) {
-        print { $self->out } stringf($self->format, {n => $prop, v => $value});
-    }
-
-    return $self->result;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -51,11 +45,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Stack::Props - Show stack properties
+Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

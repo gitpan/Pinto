@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Roles
@@ -134,7 +134,7 @@ Pinto::Logger - Record events in the repository log file (and elsewhere).
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 METHODS
 

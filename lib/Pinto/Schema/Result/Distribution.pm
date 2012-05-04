@@ -81,7 +81,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ sub register {
         next;
       }
 
-      if ( $incumbent_pkg < $pkg and $incumbent->is_pinned ) {
+      if ( $incumbent->is_pinned ) {
         my $pkg_name = $pkg->name;
         $self->error("Cannot add $pkg to stack $stack because $pkg_name is pinned to $incumbent_pkg");
         $errors++;
@@ -389,7 +389,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 NAME
 

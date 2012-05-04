@@ -34,8 +34,6 @@
       },
       "runtime" : {
          "requires" : {
-            "App::Cmd::Setup" : "0",
-            "App::Cmd::Subdispatch" : "0",
             "CPAN::Checksums" : "0",
             "CPAN::DistnameInfo" : "0",
             "Carp" : "0",
@@ -52,15 +50,11 @@
             "File::Temp" : "0",
             "IO::String" : "0",
             "LWP::UserAgent" : "0",
-            "List::Util" : "0",
             "LockFile::Simple" : "0",
             "Log::Dispatch" : "0",
             "Log::Dispatch::File" : "0",
-            "Log::Dispatch::Screen" : "0",
-            "Log::Dispatch::Screen::Color" : "0",
             "Module::Faker::Dist" : "0",
             "Moose" : "0",
-            "Moose::Exporter" : "0",
             "Moose::Role" : "0",
             "MooseX::Aliases" : "0",
             "MooseX::Configuration" : "0",
@@ -68,28 +62,29 @@
             "MooseX::NonMoose" : "0",
             "MooseX::Types::Log::Dispatch" : "0",
             "MooseX::Types::Moose" : "0",
-            "Package::Locator" : "0.004",
+            "Package::Locator" : "0.006",
             "Path::Class" : "0",
             "PerlIO::gzip" : "0",
-            "Pinto::Common" : "0.040_001",
-            "Pinto::Constants" : "0",
+            "Pinto::Common" : "0.040_002",
             "Pinto::DistributionSpec" : "0",
+            "Pinto::Exception" : "0",
             "Pinto::PackageSpec" : "0",
             "Pinto::Role::Interface::Action::Add" : "0",
+            "Pinto::Role::Interface::Action::Copy" : "0",
+            "Pinto::Role::Interface::Action::Edit" : "0",
+            "Pinto::Role::Interface::Action::Install" : "0",
             "Pinto::Role::Interface::Action::List" : "0",
+            "Pinto::Role::Interface::Action::Merge" : "0",
+            "Pinto::Role::Interface::Action::New" : "0",
             "Pinto::Role::Interface::Action::Nop" : "0",
             "Pinto::Role::Interface::Action::Pin" : "0",
+            "Pinto::Role::Interface::Action::Props" : "0",
             "Pinto::Role::Interface::Action::Pull" : "0",
-            "Pinto::Role::Interface::Action::Stack::Copy" : "0",
-            "Pinto::Role::Interface::Action::Stack::Create" : "0",
-            "Pinto::Role::Interface::Action::Stack::Edit" : "0",
-            "Pinto::Role::Interface::Action::Stack::List" : "0",
-            "Pinto::Role::Interface::Action::Stack::Props" : "0",
+            "Pinto::Role::Interface::Action::Stacks" : "0",
             "Pinto::Role::Interface::Action::Statistics" : "0",
             "Pinto::Role::Interface::Action::Unpin" : "0",
             "Pinto::Role::Interface::Action::Verify" : "0",
             "Pinto::Types" : "0",
-            "Pod::Usage" : "0",
             "Readonly" : "0",
             "SQL::Translator" : "0.11009",
             "Scalar::Util" : "0",
@@ -97,7 +92,6 @@
             "Test::Builder::Module" : "0",
             "Test::Exception" : "0",
             "Test::Log::Dispatch" : "0",
-            "Throwable::Error" : "0",
             "Try::Tiny" : "0",
             "URI" : "0",
             "autodie" : "0",
@@ -114,283 +108,197 @@
       "test" : {
          "requires" : {
             "File::Find" : "0",
+            "File::Which" : "0",
             "Log::Dispatch::Handle" : "0",
+            "Test::File" : "0",
             "Test::More" : "0"
          }
       }
    },
    "provides" : {
-      "App::Pinto::Admin" : {
-         "file" : "lib/App/Pinto/Admin.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command" : {
-         "file" : "lib/App/Pinto/Admin/Command.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::add" : {
-         "file" : "lib/App/Pinto/Admin/Command/add.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::create" : {
-         "file" : "lib/App/Pinto/Admin/Command/create.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::list" : {
-         "file" : "lib/App/Pinto/Admin/Command/list.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::manual" : {
-         "file" : "lib/App/Pinto/Admin/Command/manual.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::nop" : {
-         "file" : "lib/App/Pinto/Admin/Command/nop.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::pin" : {
-         "file" : "lib/App/Pinto/Admin/Command/pin.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::pull" : {
-         "file" : "lib/App/Pinto/Admin/Command/pull.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::stack" : {
-         "file" : "lib/App/Pinto/Admin/Command/stack.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::statistics" : {
-         "file" : "lib/App/Pinto/Admin/Command/statistics.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::unpin" : {
-         "file" : "lib/App/Pinto/Admin/Command/unpin.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::verify" : {
-         "file" : "lib/App/Pinto/Admin/Command/verify.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Command::version" : {
-         "file" : "lib/App/Pinto/Admin/Command/version.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::DispatchingCommand" : {
-         "file" : "lib/App/Pinto/Admin/DispatchingCommand.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::copy" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/copy.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::create" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/create.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::edit" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/edit.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::list" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/list.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::merge" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/merge.pm",
-         "version" : "0.040_001"
-      },
-      "App::Pinto::Admin::Subcommand::stack::props" : {
-         "file" : "lib/App/Pinto/Admin/Subcommand/stack/props.pm",
-         "version" : "0.040_001"
-      },
       "Pinto" : {
          "file" : "lib/Pinto.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Action" : {
          "file" : "lib/Pinto/Action.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Action::Add" : {
          "file" : "lib/Pinto/Action/Add.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::Copy" : {
+         "file" : "lib/Pinto/Action/Copy.pm",
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::Edit" : {
+         "file" : "lib/Pinto/Action/Edit.pm",
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::Install" : {
+         "file" : "lib/Pinto/Action/Install.pm",
+         "version" : "0.040_002"
       },
       "Pinto::Action::List" : {
          "file" : "lib/Pinto/Action/List.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::Merge" : {
+         "file" : "lib/Pinto/Action/Merge.pm",
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::New" : {
+         "file" : "lib/Pinto/Action/New.pm",
+         "version" : "0.040_002"
       },
       "Pinto::Action::Nop" : {
          "file" : "lib/Pinto/Action/Nop.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Action::Pin" : {
          "file" : "lib/Pinto/Action/Pin.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
+      },
+      "Pinto::Action::Props" : {
+         "file" : "lib/Pinto/Action/Props.pm",
+         "version" : "0.040_002"
       },
       "Pinto::Action::Pull" : {
          "file" : "lib/Pinto/Action/Pull.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
-      "Pinto::Action::Stack::Copy" : {
-         "file" : "lib/Pinto/Action/Stack/Copy.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Action::Stack::Create" : {
-         "file" : "lib/Pinto/Action/Stack/Create.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Action::Stack::Edit" : {
-         "file" : "lib/Pinto/Action/Stack/Edit.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Action::Stack::List" : {
-         "file" : "lib/Pinto/Action/Stack/List.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Action::Stack::Merge" : {
-         "file" : "lib/Pinto/Action/Stack/Merge.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Action::Stack::Props" : {
-         "file" : "lib/Pinto/Action/Stack/Props.pm",
-         "version" : "0.040_001"
+      "Pinto::Action::Stacks" : {
+         "file" : "lib/Pinto/Action/Stacks.pm",
+         "version" : "0.040_002"
       },
       "Pinto::Action::Statistics" : {
          "file" : "lib/Pinto/Action/Statistics.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Action::Unpin" : {
          "file" : "lib/Pinto/Action/Unpin.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Action::Verify" : {
          "file" : "lib/Pinto/Action/Verify.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Config" : {
          "file" : "lib/Pinto/Config.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Creator" : {
-         "file" : "lib/Pinto/Creator.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Database" : {
          "file" : "lib/Pinto/Database.pm",
-         "version" : "0.040_001"
-      },
-      "Pinto::Exception" : {
-         "file" : "lib/Pinto/Exception.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::IndexCache" : {
          "file" : "lib/Pinto/IndexCache.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::IndexWriter" : {
          "file" : "lib/Pinto/IndexWriter.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
+      },
+      "Pinto::Initializer" : {
+         "file" : "lib/Pinto/Initializer.pm",
+         "version" : "0.040_002"
       },
       "Pinto::Locker" : {
          "file" : "lib/Pinto/Locker.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Logger" : {
          "file" : "lib/Pinto/Logger.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::PackageExtractor" : {
          "file" : "lib/Pinto/PackageExtractor.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Repository" : {
          "file" : "lib/Pinto/Repository.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Result" : {
          "file" : "lib/Pinto/Result.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::Configurable" : {
          "file" : "lib/Pinto/Role/Configurable.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::FileFetcher" : {
          "file" : "lib/Pinto/Role/FileFetcher.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::Loggable" : {
          "file" : "lib/Pinto/Role/Loggable.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::PackageImporter" : {
          "file" : "lib/Pinto/Role/PackageImporter.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::PathMaker" : {
          "file" : "lib/Pinto/Role/PathMaker.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Role::Schema::Result" : {
          "file" : "lib/Pinto/Role/Schema/Result.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema" : {
          "file" : "lib/Pinto/Schema.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::Distribution" : {
          "file" : "lib/Pinto/Schema/Result/Distribution.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::Package" : {
          "file" : "lib/Pinto/Schema/Result/Package.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::Prerequisite" : {
          "file" : "lib/Pinto/Schema/Result/Prerequisite.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::Registration" : {
          "file" : "lib/Pinto/Schema/Result/Registration.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::Stack" : {
          "file" : "lib/Pinto/Schema/Result/Stack.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Schema::Result::StackProperty" : {
          "file" : "lib/Pinto/Schema/Result/StackProperty.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Statistics" : {
          "file" : "lib/Pinto/Statistics.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Store" : {
          "file" : "lib/Pinto/Store.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Store::File" : {
          "file" : "lib/Pinto/Store/File.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Tester" : {
          "file" : "lib/Pinto/Tester.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Tester::Util" : {
          "file" : "lib/Pinto/Tester/Util.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       },
       "Pinto::Util" : {
          "file" : "lib/Pinto/Util.pm",
-         "version" : "0.040_001"
+         "version" : "0.040_002"
       }
    },
    "release_status" : "testing",
@@ -404,6 +312,6 @@
          "web" : "https://github.com/thaljef/Pinto"
       }
    },
-   "version" : "0.040_001"
+   "version" : "0.040_002"
 }
 

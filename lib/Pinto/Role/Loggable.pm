@@ -1,14 +1,16 @@
-package Pinto::Role::Loggable;
-
 # ABSTRACT: Something that wants to log its activity
 
+package Pinto::Role::Loggable;
+
 use Moose::Role;
+
+use Pinto::Logger;
 
 use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -45,7 +47,7 @@ Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

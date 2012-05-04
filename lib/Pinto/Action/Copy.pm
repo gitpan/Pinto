@@ -1,6 +1,6 @@
-# ABSTRACT: List known stacks in the repository
+# ABSTRACT: An action to create a new stack by copying another
 
-package Pinto::Action::Stack::List;
+package Pinto::Action::Copy;
 
 use Moose;
 
@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,21 +16,20 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Stack::List );
+with qw( Pinto::Role::Interface::Action::Copy );
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $attrs = { order_by => 'name' };
-    my @stacks = $self->repos->db->select_stacks(undef, $attrs)->all;
+    my $stack = $self->repos->get_stack(name => $self->from_stack);
+    my $copy = $stack->copy_deeply({name => $self->to_stack});
+    my $description = $self->description || "copy of stack $stack";
+    $copy->set_property('description' => $description);
+    $copy->touch($stack->last_modified_on);
 
-    for my $stack ( @stacks ) {
-        print { $self->out } $stack->to_string($self->format);
-    }
-
-    return $self->result;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
@@ -49,11 +48,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Stack::List - List known stacks in the repository
+Pinto::Action::Copy - An action to create a new stack by copying another
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -138,26 +138,11 @@ sub create_stack {
 
 #-------------------------------------------------------------------------------
 
-sub write_index {
-    my ($self) = @_;
-
-    my $writer = Pinto::IndexWriter->new( logger => $self->logger(),
-                                          db     => $self );
-
-    my $index_file = $self->config->index_file;
-    my $stack = $self->select_stacks({is_master => 1})->single->name;
-    $writer->write(file => $index_file, stack => $stack);
-
-    return $self;
-}
-
-#-------------------------------------------------------------------------------
-
 sub deploy {
     my ($self) = @_;
 
     $self->mkpath( $self->config->db_dir() );
-    $self->debug( 'Creating database at ' . $self->config->db_file() );
+    $self->debug( 'Creating database at ' . $self->config->db_file );
     $self->schema->deploy;
 
     return $self;
@@ -183,7 +168,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

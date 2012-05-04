@@ -8,8 +8,10 @@ use Module::Build 0.3601;
 my %module_build_args = (
   "build_requires" => {
     "File::Find" => 0,
+    "File::Which" => 0,
     "Log::Dispatch::Handle" => 0,
     "Module::Build" => "0.3601",
+    "Test::File" => 0,
     "Test::More" => 0
   },
   "configure_requires" => {
@@ -20,14 +22,12 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.040_001",
+  "dist_version" => "0.040_002",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
   "recursive_test_files" => 1,
   "requires" => {
-    "App::Cmd::Setup" => 0,
-    "App::Cmd::Subdispatch" => 0,
     "CPAN::Checksums" => 0,
     "CPAN::DistnameInfo" => 0,
     "Carp" => 0,
@@ -44,15 +44,11 @@ my %module_build_args = (
     "File::Temp" => 0,
     "IO::String" => 0,
     "LWP::UserAgent" => 0,
-    "List::Util" => 0,
     "LockFile::Simple" => 0,
     "Log::Dispatch" => 0,
     "Log::Dispatch::File" => 0,
-    "Log::Dispatch::Screen" => 0,
-    "Log::Dispatch::Screen::Color" => 0,
     "Module::Faker::Dist" => 0,
     "Moose" => 0,
-    "Moose::Exporter" => 0,
     "Moose::Role" => 0,
     "MooseX::Aliases" => 0,
     "MooseX::Configuration" => 0,
@@ -60,28 +56,29 @@ my %module_build_args = (
     "MooseX::NonMoose" => 0,
     "MooseX::Types::Log::Dispatch" => 0,
     "MooseX::Types::Moose" => 0,
-    "Package::Locator" => "0.004",
+    "Package::Locator" => "0.006",
     "Path::Class" => 0,
     "PerlIO::gzip" => 0,
-    "Pinto::Common" => "0.040_001",
-    "Pinto::Constants" => 0,
+    "Pinto::Common" => "0.040_002",
     "Pinto::DistributionSpec" => 0,
+    "Pinto::Exception" => 0,
     "Pinto::PackageSpec" => 0,
     "Pinto::Role::Interface::Action::Add" => 0,
+    "Pinto::Role::Interface::Action::Copy" => 0,
+    "Pinto::Role::Interface::Action::Edit" => 0,
+    "Pinto::Role::Interface::Action::Install" => 0,
     "Pinto::Role::Interface::Action::List" => 0,
+    "Pinto::Role::Interface::Action::Merge" => 0,
+    "Pinto::Role::Interface::Action::New" => 0,
     "Pinto::Role::Interface::Action::Nop" => 0,
     "Pinto::Role::Interface::Action::Pin" => 0,
+    "Pinto::Role::Interface::Action::Props" => 0,
     "Pinto::Role::Interface::Action::Pull" => 0,
-    "Pinto::Role::Interface::Action::Stack::Copy" => 0,
-    "Pinto::Role::Interface::Action::Stack::Create" => 0,
-    "Pinto::Role::Interface::Action::Stack::Edit" => 0,
-    "Pinto::Role::Interface::Action::Stack::List" => 0,
-    "Pinto::Role::Interface::Action::Stack::Props" => 0,
+    "Pinto::Role::Interface::Action::Stacks" => 0,
     "Pinto::Role::Interface::Action::Statistics" => 0,
     "Pinto::Role::Interface::Action::Unpin" => 0,
     "Pinto::Role::Interface::Action::Verify" => 0,
     "Pinto::Types" => 0,
-    "Pod::Usage" => 0,
     "Readonly" => 0,
     "SQL::Translator" => "0.11009",
     "Scalar::Util" => 0,
@@ -89,7 +86,6 @@ my %module_build_args = (
     "Test::Builder::Module" => 0,
     "Test::Exception" => 0,
     "Test::Log::Dispatch" => 0,
-    "Throwable::Error" => 0,
     "Try::Tiny" => 0,
     "URI" => 0,
     "autodie" => 0,
@@ -102,9 +98,7 @@ my %module_build_args = (
     "version" => 0,
     "warnings" => 0
   },
-  "script_files" => [
-    "bin/pinto-admin"
-  ]
+  "script_files" => []
 );
 
 

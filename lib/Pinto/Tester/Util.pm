@@ -16,7 +16,7 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ sub parse_reg_spec {
     my ($pkg_name, $pkg_version) = split m{-}x, $pkg;
 
     # Set defaults
-    $stack_name  ||= 'default';
+    $stack_name  ||= 'init';
     $pkg_version ||= 0;
 
     return ($author, $dist_archive, $pkg_name, $pkg_version, $stack_name, $is_pinned);
@@ -168,7 +168,7 @@ Pinto::Tester::Util - Static helper functions for testing
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 

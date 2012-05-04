@@ -1,14 +1,15 @@
-# ABSTRACT: Change stack properties
+# ABSTRACT: Merge packages from one stack into another
 
-package Pinto::Action::Stack::Edit;
+package Pinto::Action::Merge;
 
 use Moose;
+use MooseX::Types::Moose qw(Bool Str);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_001'; # VERSION
+our $VERSION = '0.040_002'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,23 +17,29 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Stack::Edit );
+with qw( Pinto::Role::Interface::Action::Merge );
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->stack);
-    $stack->mark_as_master if $self->master;
-    $stack->set_properties($self->properties);
+    my $from_stack = $self->repos->get_stack(name => $self->from_stack);
+    my $to_stack   = $self->repos->get_stack(name => $self->to_stack);
 
-    return $self->result->changed;
+    $self->notice("Merging stack $from_stack into stack $to_stack");
+
+    my $did_merge = $from_stack->merge( to     => $to_stack,
+                                        dryrun => $self->dryrun );
+
+    $self->result->changed unless $self->dryrun;
+
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable();
 
 #------------------------------------------------------------------------------
 
@@ -46,11 +53,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Stack::Edit - Change stack properties
+Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.040_001
+version 0.040_002
 
 =head1 AUTHOR
 
