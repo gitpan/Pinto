@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -62,7 +62,9 @@ has locker  => (
     is         => 'ro',
     isa        => 'Pinto::Locker',
     lazy       => 1,
-    handles    => [ qw(lock unlock) ],
+    handles    => { lock_exclusive => [lock => 'EX'],
+                    lock_shared    => [lock => 'SH'],
+                    unlock         => 'unlock' },
     default    => sub { Pinto::Locker->new( config => $_[0]->config,
                                             logger => $_[0]->logger ) },
 );
@@ -294,7 +296,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 ATTRIBUTES
 
@@ -318,7 +320,9 @@ version 0.040_002
 
 =head2 locate( distribution => );
 
-=head2 lock
+=head2 lock_shared
+
+=head2 lock_exclusive
 
 =head2 unlock
 

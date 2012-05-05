@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ sub run {
         my $action_class = $self->action_base_class . "::$action_name";
         Class::Load::load_class($action_class);
 
-        $self->repos->lock;
+        $self->repos->lock_exclusive;
         my $guard = $self->repos->db->schema->txn_scope_guard;
 
         @args{qw(logger repos)} = ($self->logger, $self->repos);
@@ -89,7 +89,7 @@ sub add_logger {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 SYNOPSIS
 

@@ -16,7 +16,7 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ Pinto::Tester::Util - Static helper functions for testing
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 AUTHOR
 

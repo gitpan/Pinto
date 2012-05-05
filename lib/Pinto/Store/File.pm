@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #------------------------------------------------------------------------------
 # ISA
@@ -51,7 +51,7 @@ Pinto::Store::File - Store a Pinto repository on the local filesystem
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 AUTHOR
 

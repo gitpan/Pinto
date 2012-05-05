@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ Pinto::Role::PackageImporter - Something that imports packages from another repo
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 AUTHOR
 

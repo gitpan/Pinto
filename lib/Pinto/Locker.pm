@@ -1,11 +1,11 @@
-package Pinto::Locker;
+# ABSTRACT: Manage locks to synchronize concurrent operations
 
-# ABSTRACT: Synchronize concurrent Pinto actions
+package Pinto::Locker;
 
 use Moose;
 
 use Path::Class;
-use LockFile::Simple;
+use File::NFSLock;
 
 use Pinto::Types qw(File);
 use Pinto::Exception qw(throw);
@@ -14,65 +14,41 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.040_002'; # VERSION
+our $VERSION = '0.040_003'; # VERSION
 
 #-----------------------------------------------------------------------------
-# Moose attributes
+
+our $LOCKFILE_TIMEOUT = 50;
+
+#-----------------------------------------------------------------------------
 
 has _lock => (
     is         => 'rw',
-    isa        => 'LockFile::Lock',
-    predicate  => 'is_locked',
+    isa        => 'File::NFSLock',
+    predicate  => '_is_locked',
+    clearer    => '_clear_lock',
     init_arg   => undef,
-);
-
-has _lockmgr => (
-    is         => 'ro',
-    isa        => 'LockFile::Simple',
-    init_arg   => undef,
-    lazy_build => 1,
 );
 
 #-----------------------------------------------------------------------------
-# Moose roles
 
 with qw( Pinto::Role::Configurable
          Pinto::Role::Loggable );
 
 #-----------------------------------------------------------------------------
-# Builders
-
-sub _build__lockmgr {
-    my ($self) = @_;
-
-    my $wfunc = sub { $self->debug(@_) };
-    my $efunc = sub { throw(@_) };
-
-    return LockFile::Simple->make( -autoclean => 1,
-                                   -efunc     => $efunc,
-                                   -wfunc     => $wfunc,
-                                   -stale     => 1,
-                                   -nfs       => 1 );
-}
-
-#-----------------------------------------------------------------------------
-# Methods
 
 
-sub lock {                                             ## no critic (Homonym)
-    my ($self) = @_;
+sub lock {                                   ## no critic qw(Homonym)
+    my ($self, $lock_type) = @_;
 
-    my $root_dir = $self->config->root_dir;
+    my $root_dir  = $self->root_dir;
+    throw "$root_dir is already locked" if $self->_is_locked;
 
-    # If by chance, the directory we are trying to lock does not exist,
-    # then LockFile::Simple will wait (a while) until it does.  To
-    # avoid this extra delay, just make sure the directory exists now.
-    throw "Repository $root_dir does not exist" if not -e $root_dir;
-
-    my $lock = $self->_lockmgr->lock( $root_dir->file('')->stringify )
+    my $lock_file = $root_dir->file('.lock')->stringify;
+    my $lock = File::NFSLock->new($lock_file, $lock_type, $LOCKFILE_TIMEOUT)
         or throw 'Unable to lock the repository -- please try later';
 
-    $self->debug("Process $$ got the lock on $root_dir");
+    $self->debug("Process $$ got $lock_type lock on $root_dir");
     $self->_lock($lock);
 
     return $self;
@@ -84,9 +60,10 @@ sub lock {                                             ## no critic (Homonym)
 sub unlock {
     my ($self) = @_;
 
-    return $self if not $self->is_locked;
+    return $self if not $self->_is_locked;
 
-    $self->_lock->release or throw 'Unable to unlock repository';
+    $self->_lock->unlock or throw 'Unable to unlock repository';
+    $self->_clear_lock;
 
     my $root_dir = $self->config->root_dir;
     $self->debug("Process $$ released the lock on $root_dir");
@@ -109,24 +86,24 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Locker - Synchronize concurrent Pinto actions
+Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.040_002
+version 0.040_003
 
 =head1 DESCRIPTION
 
 =head1 METHODS
 
-=head2 lock()
+=head2 lock
 
 Attempts to get a lock on a Pinto repository.  If the repository is already
 locked, we will attempt to contact the current lock holder and make sure they
 are really alive.  If not, then we will steal the lock.  If they are, then
 we patiently wait until we timeout, which is about 60 seconds.
 
-=head2 unlock()
+=head2 unlock
 
 Releases the lock on the Pinto repository so that other processes can
 get to work.
