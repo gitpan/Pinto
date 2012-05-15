@@ -20,7 +20,9 @@ __PACKAGE__->table("distribution");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "path",
+  "author",
+  { data_type => "text", is_nullable => 0 },
+  "archive",
   { data_type => "text", is_nullable => 0 },
   "source",
   { data_type => "text", is_nullable => 0 },
@@ -36,7 +38,7 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("path_unique", ["path"]);
+__PACKAGE__->add_unique_constraint("author_archive_unique", ["author", "archive"]);
 
 
 __PACKAGE__->has_many(
@@ -59,8 +61,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-29 02:10:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eV+MI4xhoIRRgFF3WOvxKw
+# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-05-09 09:12:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HqbbygyiJcg0vCTHPiKzHw
 
 #-------------------------------------------------------------------------------
 
@@ -81,7 +83,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -243,22 +245,26 @@ has is_devel => (
 
 #------------------------------------------------------------------------------
 
-sub archive {
-    my ($self, @base) = @_;
+sub path {
+    my ($self) = @_;
 
-    my @parts = split '/', $self->path();
-
-    return Path::Class::file(@base, qw(authors id), @parts);
+    return join '/', substr($self->author, 0, 1),
+                     substr($self->author, 0, 2),
+                     $self->author,
+                     $self->archive;
 }
 
 #------------------------------------------------------------------------------
 
-sub author {
-    my ($self) = @_;
+sub native_path {
+    my ($self, @base) = @_;
 
-    my $dist_path = $self->path();
-
-    return (split '/', $dist_path)[2];
+    return Path::Class::file( @base,
+                              qw(authors id),
+                              substr($self->author, 0, 1),
+                              substr($self->author, 0, 2),
+                              $self->author,
+                              $self->archive );
 }
 
 #------------------------------------------------------------------------------
@@ -312,7 +318,7 @@ sub registered_packages {
 sub package_count {
     my ($self) = @_;
 
-    return scalar $self->packages();
+    return scalar $self->packages;
 }
 
 #------------------------------------------------------------------------------
@@ -336,7 +342,7 @@ sub as_spec {
 sub to_string {
     my ($self) = @_;
 
-    return $self->path;
+    return $self->author . '/' . $self->archive ;
 }
 
 #------------------------------------------------------------------------------
@@ -350,7 +356,8 @@ sub to_formatted_string {
          'w' => sub { $self->version()                        },
          'm' => sub { $self->is_devel()   ? 'd' : 'r'         },
          'p' => sub { $self->path()                           },
-         'P' => sub { $self->archive()                        },
+         'P' => sub { $self->native_path()                    },
+         'f' => sub { $self->archive()                        },
          's' => sub { $self->is_local()   ? 'l' : 'f'         },
          'S' => sub { $self->source()                         },
          'a' => sub { $self->author()                         },
@@ -367,7 +374,7 @@ sub to_formatted_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%p',
+    return '%a/%f',
 }
 
 #------------------------------------------------------------------------------
@@ -389,7 +396,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 NAME
 
@@ -405,7 +412,12 @@ Pinto::Schema::Result::Distribution
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 path
+=head2 author
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 archive
 
   data_type: 'text'
   is_nullable: 0
@@ -440,11 +452,13 @@ Pinto::Schema::Result::Distribution
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<path_unique>
+=head2 C<author_archive_unique>
 
 =over 4
 
-=item * L</path>
+=item * L</author>
+
+=item * L</archive>
 
 =back
 

@@ -3,14 +3,17 @@
 package Pinto::Action::Props;
 
 use Moose;
+use MooseX::Types::Moose qw(Undef Str Maybe);
 
 use String::Format;
+
+use Pinto::Types qw(StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +21,23 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Props );
+with qw( Pinto::Role::Reporter );
+
+#------------------------------------------------------------------------------
+
+has stack  => (
+    is        => 'ro',
+    isa       => StackName | Undef,
+    default   => undef,
+    coerce    => 1,
+);
+
+
+has format => (
+    is      => 'ro',
+    isa     => Str,
+    default => "%n = %v\n",
+);
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +74,7 @@ Pinto::Action::Props - Show stack properties
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

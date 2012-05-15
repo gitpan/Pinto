@@ -19,14 +19,18 @@ __PACKAGE__->load_namespaces;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
+
+#-------------------------------------------------------------------------------
+
+our $SCHEMA_VERSION = 1;
 
 #-------------------------------------------------------------------------------
 
 has logger => (
-  is      => 'rw',
-  isa     => 'Pinto::Logger',
-  handles => [ qw(debug notice info warning error fatal) ],
+    is      => 'rw',
+    isa     => 'Pinto::Logger',
+    handles => [ qw(debug notice info warning error fatal) ],
 );
 
 #-------------------------------------------------------------------------------
@@ -45,7 +49,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

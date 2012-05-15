@@ -73,7 +73,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ sub registration {
 sub vname {
     my ($self) = @_;
 
-    return $self->name() . '-' . $self->version();
+    return $self->name() . '~' . $self->version();
 }
 
 #------------------------------------------------------------------------------
@@ -150,7 +150,8 @@ sub to_string {
          'v' => sub { $self->version->stringify()                     },
          'm' => sub { $self->distribution->is_devel()   ? 'd' : 'r'   },
          'p' => sub { $self->distribution->path()                     },
-         'P' => sub { $self->distribution->archive()                  },
+         'P' => sub { $self->distribution->native_path()              },
+         'f' => sub { $self->distribution->archive                    },
          's' => sub { $self->distribution->is_local()   ? 'l' : 'f'   },
          'S' => sub { $self->distribution->source()                   },
          'a' => sub { $self->distribution->author()                   },
@@ -218,7 +219,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 NAME
 

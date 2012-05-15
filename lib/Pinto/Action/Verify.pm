@@ -1,4 +1,4 @@
-# ABSTRACT: Verify all distributions are present in the repository
+# ABSTRACT: Report distributions that are missing
 
 package Pinto::Action::Verify;
 
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,10 +18,9 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Verify );
+with qw( Pinto::Role::Reporter );
 
 #------------------------------------------------------------------------------
-# Methods
 
 sub execute {
     my ($self) = @_;
@@ -54,11 +53,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action::Verify - Verify all distributions are present in the repository
+Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

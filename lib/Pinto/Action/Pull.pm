@@ -3,12 +3,16 @@
 package Pinto::Action::Pull;
 
 use Moose;
+use MooseX::Aliases;
+use MooseX::Types::Moose qw(Undef Bool);
+
+use Pinto::Types qw(Specs StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,8 +20,40 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Pull
-         Pinto::Role::PackageImporter );
+has targets => (
+    isa      => Specs,
+    traits   => [ qw(Array) ],
+    handles  => {targets => 'elements'},
+    required => 1,
+    coerce   => 1,
+);
+
+
+has stack => (
+    is        => 'ro',
+    isa       => StackName | Undef,
+    alias     => 'operative_stack',
+    default   => undef,
+    coerce    => 1,
+);
+
+
+has pin => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
+
+has norecurse => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -36,11 +72,12 @@ sub execute {
 sub _execute {
     my ($self, $target, $stack) = @_;
 
-    my ($dist, $did_pull) = $self->find_or_pull( $target, $stack );
-    return if not $dist;
+    my ($dist, $did_pull) = $self->repos->get_or_pull( target => $target,
+                                                       stack  => $stack );
 
     unless ( $self->norecurse ) {
-        my @prereq_dists = $self->pull_prerequisites( $dist, $stack );
+        my @prereq_dists = $self->repos->pull_prerequisites( dist  => $dist,
+                                                             stack => $stack );
         $did_pull += @prereq_dists;
     }
 
@@ -69,7 +106,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

@@ -3,13 +3,15 @@
 package Pinto::Action::Merge;
 
 use Moose;
-use MooseX::Types::Moose qw(Bool Str);
+use MooseX::Aliases;
+
+use Pinto::Types qw(StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,7 +19,25 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Merge );
+has from_stack => (
+    is       => 'ro',
+    isa      => StackName,
+    required => 1,
+    coerce   => 1,
+);
+
+
+has to_stack => (
+    is       => 'ro',
+    isa      => StackName,
+    alias    => 'operative_stack',
+    required => 1,
+    coerce   => 1,
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -29,10 +49,9 @@ sub execute {
 
     $self->notice("Merging stack $from_stack into stack $to_stack");
 
-    my $did_merge = $from_stack->merge( to     => $to_stack,
-                                        dryrun => $self->dryrun );
+    my $did_merge = $from_stack->merge( to => $to_stack );
 
-    $self->result->changed unless $self->dryrun;
+    $self->result->changed if $did_merge;
 
     return $self->result;
 }
@@ -57,7 +76,7 @@ Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

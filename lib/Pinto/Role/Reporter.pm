@@ -1,10 +1,10 @@
-# ABSTRACT: Something that wants to log its activity
+# ABSTRACT: Something that reports about the repository
 
-package Pinto::Role::Loggable;
+package Pinto::Role::Reporter;
 
 use Moose::Role;
 
-use Pinto::Logger;
+use Pinto::Types qw(Io);
 
 use namespace::autoclean;
 
@@ -14,24 +14,14 @@ our $VERSION = '0.041'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-has logger => (
-    is         => 'ro',
-    isa        => 'Pinto::Logger',
-    handles    => [ qw(debug info notice warning error fatal) ],
-    required   => 1,
+has out => (
+    is      => 'ro',
+    isa     => Io,
+    coerce  => 1,
+    default => sub { [fileno(STDOUT), '>'] },
 );
 
 #-----------------------------------------------------------------------------
-
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
-
-    my $args = $class->$orig(@_);
-
-    $args->{logger} = Pinto::Logger->new( %$args ) if not exists $args->{logger};
-    return $args;
-};
 
 1;
 
@@ -43,7 +33,7 @@ around BUILDARGS => sub {
 
 =head1 NAME
 
-Pinto::Role::Loggable - Something that wants to log its activity
+Pinto::Role::Reporter - Something that reports about the repository
 
 =head1 VERSION
 

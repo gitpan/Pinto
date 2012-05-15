@@ -1,10 +1,9 @@
-# ABSTRACT: Something that wants to log its activity
+# ABSTRACT: Something that operates on the repository
 
-package Pinto::Role::Loggable;
+package Pinto::Role::Operator;
 
 use Moose::Role;
-
-use Pinto::Logger;
+use MooseX::Types::Moose qw(Bool);
 
 use namespace::autoclean;
 
@@ -14,24 +13,17 @@ our $VERSION = '0.041'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-has logger => (
-    is         => 'ro',
-    isa        => 'Pinto::Logger',
-    handles    => [ qw(debug info notice warning error fatal) ],
-    required   => 1,
-);
+requires qw(operative_stack);
 
 #-----------------------------------------------------------------------------
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
+has dryrun => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
 
-    my $args = $class->$orig(@_);
-
-    $args->{logger} = Pinto::Logger->new( %$args ) if not exists $args->{logger};
-    return $args;
-};
+#-----------------------------------------------------------------------------
 
 1;
 
@@ -43,7 +35,7 @@ around BUILDARGS => sub {
 
 =head1 NAME
 
-Pinto::Role::Loggable - Something that wants to log its activity
+Pinto::Role::Operator - Something that operates on the repository
 
 =head1 VERSION
 

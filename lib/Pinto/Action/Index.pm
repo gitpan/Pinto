@@ -1,11 +1,11 @@
-# ABSTRACT: Base class for all Actions
+# ABSTRACT: Show the index of a stack
 
-package Pinto::Action;
+package Pinto::Action::Index;
 
 use Moose;
-use MooseX::Types::Moose qw(Str);
+use MooseX::Types::Moose qw(Undef HashRef Str Bool);
 
-use Pinto::Result;
+use Pinto::Types qw(Author StackName);
 
 use namespace::autoclean;
 
@@ -15,35 +15,35 @@ our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Loggable );
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has repos => (
-    is       => 'ro',
-    isa      => 'Pinto::Repository',
-    required => 1,
-);
+with qw( Pinto::Role::Reporter );
 
+#------------------------------------------------------------------------------
 
-has username => (
-    is       => 'ro',
-    isa      => Str,
-    default  => sub { $ENV{USER} },
-);
-
-
-has result => (
-    is       => 'ro',
-    isa      => 'Pinto::Result',
-    default  => sub { Pinto::Result->new },
-    init_arg => undef,
-    lazy     => 1,
+has stack => (
+    is        => 'ro',
+    isa       => StackName | Undef,
+    default   => undef,
+    coerce    => 1,
 );
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+sub execute {
+    my ($self) = @_;
+
+    my $stack = $self->repos->get_stack(name => $self->stack);
+    $self->repos->write_index(stack => $stack, handle => $self->out);
+
+    return $self->result;
+}
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action - Base class for all Actions
+Pinto::Action::Index - Show the index of a stack
 
 =head1 VERSION
 

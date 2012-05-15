@@ -70,7 +70,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -189,7 +189,6 @@ sub merge {
     my ($self, %args) = @_;
 
     my $to_stk = $args{to};
-    my $dryrun = $args{dryrun};
 
     my $from_pkg = $self->package;
     my $to_reg   = $to_stk->registration(package => $from_pkg);
@@ -199,7 +198,6 @@ sub merge {
 
     if (not defined $to_reg) {
          $self->debug("Adding package $from_pkg to stack $to_stk");
-         return 0 if $dryrun;
          $self->copy( {stack => $to_stk} );
          return 0;
      }
@@ -213,7 +211,6 @@ sub merge {
         $self->debug("$self and $to_reg are the same");
         if ($self->is_pinned and not $to_reg->is_pinned) {
             $self->debug("Adding pin to $to_reg");
-            return 0 if $dryrun;
             $to_reg->pin;
             return 0;
         }
@@ -249,7 +246,6 @@ sub merge {
         }
         my $from_pkg = $self->package;
         $self->info("Upgrading $to_reg to $from_pkg");
-        return 0 if $dryrun;
         $to_reg->delete;
         $self->copy( {stack => $to_reg->stack} );
         return 0;
@@ -287,7 +283,8 @@ sub to_string {
          v => sub { $self->package->version                                     },
          m => sub { $self->package->distribution->is_devel  ? 'd' : 'r'         },
          p => sub { $self->package->distribution->path                          },
-         P => sub { $self->package->distribution->archive                       },
+         P => sub { $self->package->distribution->native_path                   },
+         f => sub { $self->package->distribution->archive                       },
          s => sub { $self->package->distribution->is_local  ? 'l' : 'f'         },
          S => sub { $self->package->distribution->source                        },
          a => sub { $self->package->distribution->author                        },
@@ -296,7 +293,7 @@ sub to_string {
          w => sub { $self->package->distribution->version                       },
          u => sub { $self->package->distribution->url                           },
          k => sub { $self->stack->name                                          },
-         M => sub { $self->stack->is_default                 ? '*' : ' '         },
+         M => sub { $self->stack->is_default                 ? '*' : ' '        },
          e => sub { $self->stack->get_property('description')                   },
          u => sub { $self->stack->last_modified_on                              },
          U => sub { Pinto::Util::ls_time_format($self->stack->last_modified_on) },
@@ -338,7 +335,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 NAME
 

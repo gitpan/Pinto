@@ -3,14 +3,17 @@
 package Pinto::Action::Unpin;
 
 use Moose;
+use MooseX::Aliases;
+use MooseX::Types::Moose qw(Undef);
 
+use Pinto::Types qw(Specs StackName);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +21,26 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Unpin );
+has targets => (
+    isa      => Specs,
+    traits   => [ qw(Array) ],
+    handles  => {targets => 'elements'},
+    required => 1,
+    coerce   => 1,
+);
+
+
+has stack => (
+    is        => 'ro',
+    isa       => Undef | StackName,
+    alias     => 'operative_stack',
+    default   => undef,
+    coerce    => 1,
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -48,8 +70,10 @@ sub _execute {
     }
     elsif ($target->isa('Pinto::DistributionSpec')) {
 
-        $dist = $self->repos->get_distribution(path => $target->path)
-            or throw "Distribution $target does not exist";
+        $dist = $self->repos->get_distribution( author => $target->author,
+                                                archive => $target->archive );
+
+        throw "Distribution $target does not exist" if not $dist;
     }
     else {
 
@@ -66,7 +90,7 @@ sub _execute {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -84,7 +108,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

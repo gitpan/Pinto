@@ -3,13 +3,15 @@
 package Pinto::Action::List;
 
 use Moose;
-use MooseX::Types::Moose qw(HashRef);
+use MooseX::Types::Moose qw(Undef HashRef Str Bool);
+
+use Pinto::Types qw(Author StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,9 +19,51 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::List );
+with qw( Pinto::Role::Reporter );
 
 #------------------------------------------------------------------------------
+
+has stack => (
+    is        => 'ro',
+    isa       => StackName | Undef,
+    default   => undef,
+    coerce    => 1,
+);
+
+
+has pinned => (
+    is     => 'ro',
+    isa    => Bool,
+);
+
+
+has author => (
+    is     => 'ro',
+    isa    => Author,
+    coerce => 1,
+);
+
+
+has packages => (
+    is     => 'ro',
+    isa    => Str,
+);
+
+
+has distributions => (
+    is     => 'ro',
+    isa    => Str,
+);
+
+
+has format => (
+    is        => 'ro',
+    isa       => Str,
+    default   => "%m%s%y %-40n %12v  %a/%f\n",
+    predicate => 'has_format',
+    lazy      => 1,
+);
+
 
 has where => (
     is       => 'ro',
@@ -39,8 +83,12 @@ sub _build_where {
         $where->{'package.name'} = { like => "%$pkg_name%" }
     }
 
-    if (my $dist_path = $self->distributions) {
-        $where->{'package.distribution.path'} = { like => "%$dist_path%" };
+    if (my $dist_name = $self->distributions) {
+        $where->{'package.distribution.archive'} = { like => "%$dist_name%" };
+    }
+
+    if (my $author = $self->author) {
+        $where->{'package.distribution.author'} = $author;
     }
 
     if (my $pinned = $self->pinned) {
@@ -105,7 +153,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

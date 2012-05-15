@@ -3,20 +3,41 @@
 package Pinto::Action::New;
 
 use Moose;
+use MooseX::Aliases;
+use MooseX::Types::Moose qw(Str);
+
+use Pinto::Types qw(StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::New );
+has stack => (
+    is       => 'ro',
+    isa      => StackName,
+    alias    => 'operative_stack',
+    required => 1,
+    coerce   => 1,
+);
+
+
+has description => (
+    is         => 'ro',
+    isa        => Str,
+    predicate  => 'has_description',
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -49,7 +70,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

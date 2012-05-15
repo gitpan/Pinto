@@ -3,14 +3,16 @@
 package Pinto::Action::Statistics;
 
 use Moose;
+use MooseX::Types::Moose qw(Undef);
 
+use Pinto::Types qw(StackName);
 use Pinto::Statistics;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,7 +20,16 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Statistics );
+with qw( Pinto::Role::Reporter );
+
+#------------------------------------------------------------------------------
+
+has stack => (
+    is        => 'ro',
+    isa       => StackName | Undef,
+    default   => undef,
+    coerce    => 1,
+);
 
 #------------------------------------------------------------------------------
 
@@ -26,11 +37,11 @@ sub execute {
     my ($self) = @_;
 
     # FIXME!
-    my $stack = $self->repos->get_stack;
+    my $stack = $self->repos->get_stack( $self->stack );
     my $stats = Pinto::Statistics->new( db    => $self->repos->db,
                                         stack => $stack->name );
 
-    print { $self->out() } $stats->to_formatted_string();
+    print { $self->out } $stats->to_formatted_string();
 
     return $self->result;
 }
@@ -55,7 +66,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

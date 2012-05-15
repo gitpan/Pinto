@@ -1,5 +1,5 @@
 use utf8;
-package Pinto::Schema::Result::StackProperty;
+package Pinto::Schema::Result::RepositoryProperty;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
@@ -14,14 +14,12 @@ use MooseX::MarkAsMethods autoclean => 1;
 extends 'DBIx::Class::Core';
 
 
-__PACKAGE__->table("stack_property");
+__PACKAGE__->table("repository_property");
 
 
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "stack",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "name",
   { data_type => "text", is_nullable => 0 },
   "value",
@@ -32,37 +30,29 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("stack_name_unique", ["stack", "name"]);
-
-
-__PACKAGE__->belongs_to(
-  "stack",
-  "Pinto::Schema::Result::Stack",
-  { id => "stack" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
-);
+__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 
 
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-30 12:42:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z05ZOuRC81L0D/lHByjugw
+# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-05-08 21:12:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JEYmGo1sVZSGRVeWvVpv0g
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
-# ABSTRACT: Represents stack metadata
+# ABSTRACT: Repository metadata
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 our $VERSION = '0.041'; # VERSION
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 __PACKAGE__->meta->make_immutable;
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 1;
 
 
@@ -73,7 +63,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Schema::Result::StackProperty - Represents stack metadata
+Pinto::Schema::Result::RepositoryProperty - Repository metadata
 
 =head1 VERSION
 
@@ -81,9 +71,9 @@ version 0.041
 
 =head1 NAME
 
-Pinto::Schema::Result::StackProperty
+Pinto::Schema::Result::RepositoryProperty
 
-=head1 TABLE: C<stack_property>
+=head1 TABLE: C<repository_property>
 
 =head1 ACCESSORS
 
@@ -91,12 +81,6 @@ Pinto::Schema::Result::StackProperty
 
   data_type: 'integer'
   is_auto_increment: 1
-  is_nullable: 0
-
-=head2 stack
-
-  data_type: 'integer'
-  is_foreign_key: 1
   is_nullable: 0
 
 =head2 name
@@ -120,23 +104,13 @@ Pinto::Schema::Result::StackProperty
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<stack_name_unique>
+=head2 C<name_unique>
 
 =over 4
-
-=item * L</stack>
 
 =item * L</name>
 
 =back
-
-=head1 RELATIONS
-
-=head2 stack
-
-Type: belongs_to
-
-Related object: L<Pinto::Schema::Result::Stack>
 
 =head1 L<Moose> ROLES APPLIED
 

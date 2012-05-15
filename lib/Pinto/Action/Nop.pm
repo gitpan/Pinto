@@ -3,12 +3,13 @@
 package Pinto::Action::Nop;
 
 use Moose;
+use MooseX::Types::Moose qw(Int);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,7 +17,11 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Nop );
+has sleep => (
+    is      => 'ro',
+    isa     => Int,
+    default => 0,
+);
 
 #------------------------------------------------------------------------------
 
@@ -52,7 +57,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 DESCRIPTION
 

@@ -1,11 +1,11 @@
-# ABSTRACT: Base class for all Actions
+# ABSTRACT: Delete a stack
 
-package Pinto::Action;
+package Pinto::Action::Delete;
 
 use Moose;
-use MooseX::Types::Moose qw(Str);
+use MooseX::Aliases;
 
-use Pinto::Result;
+use Pinto::Types qw(StackName);
 
 use namespace::autoclean;
 
@@ -15,35 +15,36 @@ our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Loggable );
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has repos => (
+has stack => (
     is       => 'ro',
-    isa      => 'Pinto::Repository',
+    isa      => StackName,
+    alias    => 'operative_stack',
     required => 1,
-);
-
-
-has username => (
-    is       => 'ro',
-    isa      => Str,
-    default  => sub { $ENV{USER} },
-);
-
-
-has result => (
-    is       => 'ro',
-    isa      => 'Pinto::Result',
-    default  => sub { Pinto::Result->new },
-    init_arg => undef,
-    lazy     => 1,
+    coerce   => 1,
 );
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+with qw( Pinto::Role::Operator );
+
+#------------------------------------------------------------------------------
+
+sub execute {
+    my ($self) = @_;
+
+    my $stack = $self->repos->get_stack(name => $self->stack);
+    $stack->delete;
+
+    return $self->result->changed;
+}
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -57,7 +58,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::Action - Base class for all Actions
+Pinto::Action::Delete - Delete a stack
 
 =head1 VERSION
 

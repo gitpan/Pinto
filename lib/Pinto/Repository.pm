@@ -4,6 +4,7 @@ package Pinto::Repository;
 
 use Moose;
 
+use Pinto::Util;
 use Pinto::Store;
 use Pinto::Locker;
 use Pinto::Database;
@@ -16,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -96,6 +97,91 @@ sub BUILD {
 
 #-------------------------------------------------------------------------------
 
+sub check_schema_version {
+    my ($self) = @_;
+
+    my $class_schema_version = $Pinto::Schema::SCHEMA_VERSION;
+    my $db_schema_version = $self->get_property('pinto:schema_version');
+
+    throw "Could not find the version of this repository"
+      if not defined $db_schema_version;
+
+    throw "Your repository is too old for this version of Pinto"
+      if $class_schema_version > $db_schema_version;
+
+    throw "This version of Pinto is too old for this repository"
+      if $class_schema_version < $db_schema_version;
+
+    return;
+}
+
+#-------------------------------------------------------------------------------
+
+sub get_property {
+    my ($self, @prop_names) = @_;
+
+    my %props = %{ $self->get_properties };
+    return @props{@prop_names};
+}
+
+#-------------------------------------------------------------------------------
+
+sub get_properties {
+    my ($self) = @_;
+
+    my @props = $self->db->repository_properties->search->all;
+
+    return { map { $_->name => $_->value } @props };
+}
+
+#-------------------------------------------------------------------------------
+
+sub set_property {
+    my ($self, $prop_name, $value) = @_;
+    return $self->set_properties( {$prop_name => $value} );
+}
+
+#-------------------------------------------------------------------------------
+
+sub set_properties {
+    my ($self, $props) = @_;
+
+    while (my ($name, $value) = each %{$props}) {
+        $name = Pinto::Util::normalize_property_name($name);
+        my $nv_pair = {name => $name, value => $value};
+        $self->db->repository_properties->update_or_create($nv_pair);
+    }
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub delete_property {
+    my ($self, @prop_names) = @_;
+
+    for my $prop_name (@prop_names) {
+        my $where = {name => $prop_name};
+        my $prop = $self->db->repository_properties->update_or_create($where);
+        $prop->delete if $prop;
+    }
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub delete_properties {
+    my ($self) = @_;
+
+    my $props_rs = $self->db->repository_properties->search;
+    $props_rs->delete;
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
 
 sub get_stack {
     my ($self, %args) = @_;
@@ -158,10 +244,8 @@ sub get_package {
 sub get_distribution {
     my ($self, %args) = @_;
 
-    my $dist_path = $args{path};
-
-    my $where = { path => $dist_path };
     my $attrs = { prefetch => 'packages' };
+    my $where = { author => $args{author}, archive => $args{archive} };
     my $dist  = $self->db->select_distributions( $where, $attrs )->first;
 
     return $dist;
@@ -181,16 +265,16 @@ sub add {
     throw "Archive $archive does not exist"  if not -e $archive;
     throw "Archive $archive is not readable" if not -r $archive;
 
-    my $basename   = $archive->basename();
-    my $author_dir = Pinto::Util::author_dir($author);
-    my $dist_path  = $author_dir->file($basename)->as_foreign('Unix')->stringify();
+    my $archive_basename = $archive->basename;
+    my $dist_pretty      = "$author/$archive_basename";
 
-    $self->get_distribution(path => $dist_path)
-        and throw "Distribution $dist_path already exists";
+    $self->get_distribution(author => $author, archive => $archive_basename)
+        and throw "Distribution $dist_pretty already exists";
 
     # Assemble the basic structure...
-    my $dist_struct = { path     => $dist_path,
+    my $dist_struct = { author   => $author,
                         source   => $source,
+                        archive  => $archive_basename,
                         mtime    => Pinto::Util::mtime($archive),
                         md5      => Pinto::Util::md5($archive),
                         sha256   => Pinto::Util::sha256($archive) };
@@ -205,16 +289,16 @@ sub add {
 
     my $p = @provides;
     my $r = @requires;
-    $self->info("Archvie $dist_path provides $p and requires $r packages");
+    $self->info("Distribution $dist_pretty provides $p and requires $r packages");
 
     # Always update database *before* moving the archive into the
     # repository, so if there is an error in the DB, we can stop and
     # the repository will still be clean.
 
     my $dist = $self->db->create_distribution( $dist_struct );
-    my $repo_archive = $dist->archive( $self->root_dir() );
-    $self->fetch( from => $archive, to => $repo_archive );
-    $self->store->add_archive( $repo_archive );
+    my $archive_in_repos = $dist->native_path( $self->root_dir );
+    $self->fetch( from => $archive, to => $archive_in_repos );
+    $self->store->add_archive( $archive_in_repos );
 
     return $dist;
 }
@@ -237,6 +321,155 @@ sub pull {
                            author    => $author,
                            source    => $source );
     return $dist;
+}
+
+#------------------------------------------------------------------------------
+
+sub get_or_pull {
+    my ($self, %args) = @_;
+
+    my $target = $args{target};
+    my $stack  = $args{stack};
+
+    if ( $target->isa('Pinto::PackageSpec') ){
+        return $self->_pull_by_package_spec($target, $stack);
+    }
+    elsif ($target->isa('Pinto::DistributionSpec') ){
+        return $self->_pull_by_distribution_spec($target, $stack);
+    }
+    else {
+        my $type = ref $target;
+        throw "Don't know how to pull a $type";
+    }
+}
+
+#------------------------------------------------------------------------------
+
+sub _pull_by_package_spec {
+    my ($self, $pspec, $stack) = @_;
+
+    $self->info("Looking for package $pspec");
+
+    my ($pkg_name, $pkg_ver) = ($pspec->name, $pspec->version);
+    my $latest = $self->get_package(name => $pkg_name);
+
+    if ($latest && $latest->version >= $pkg_ver) {
+        my $dist = $latest->distribution;
+        $self->debug("Already have package $pspec or newer as $latest");
+        my $did_register = $dist->register(stack => $stack);
+        return ($dist, $did_register);
+    }
+
+    my $dist_url = $self->locate( package => $pspec->name,
+                                  version => $pspec->version,
+                                  latest  => 1 );
+
+    throw "Cannot find prerequisite $pspec anywhere"
+      if not $dist_url;
+
+    $self->debug("Found package $pspec or newer in $dist_url");
+
+    if ( Pinto::Util::isa_perl($dist_url) ) {
+        $self->debug("Distribution $dist_url is a perl. Skipping it.");
+        return (undef, 0);
+    }
+
+    $self->notice("Pulling distribution $dist_url");
+    my $dist = $self->pull(url => $dist_url);
+
+    $dist->register( stack => $stack );
+
+    return ($dist, 1);
+}
+
+#------------------------------------------------------------------------------
+
+sub _pull_by_distribution_spec {
+    my ($self, $dspec, $stack) = @_;
+
+    $self->info("Looking for distribution $dspec");
+
+    my $got_dist = $self->get_distribution( author  => $dspec->author,
+                                            archive => $dspec->archive );
+
+    if ($got_dist) {
+        $self->info("Already have distribution $dspec");
+        my $did_register = $got_dist->register(stack => $stack);
+        return ($got_dist, $did_register);
+    }
+
+    my $dist_url = $self->locate(distribution => $dspec->path)
+      or throw "Cannot find prerequisite $dspec anywhere";
+
+    $self->debug("Found package $dspec at $dist_url");
+
+    if ( Pinto::Util::isa_perl($dist_url) ) {
+        $self->debug("Distribution $dist_url is a perl. Skipping it.");
+        return (undef , 0);
+    }
+
+    $self->notice("Pulling distribution $dist_url");
+    my $dist = $self->pull(url => $dist_url);
+
+    $dist->register( stack => $stack );
+
+    return ($dist, 1);
+}
+
+#------------------------------------------------------------------------------
+
+sub pull_prerequisites {
+    my ($self, %args) = @_;
+
+    my $dist  = $args{dist};
+    my $stack = $args{stack};
+
+    my @prereq_queue = $dist->prerequisite_specs;
+    my %visited = ($dist->path => 1);
+    my @pulled;
+    my %seen;
+
+  PREREQ:
+    while (my $prereq = shift @prereq_queue) {
+
+        my ($required_dist, $did_pull) = $self->get_or_pull( target => $prereq,
+                                                             stack  => $stack );
+        next PREREQ if not ($required_dist and $did_pull);
+        push @pulled, $required_dist if $did_pull;
+
+        if ( $visited{$required_dist->path} ) {
+            # We don't need to recurse into prereqs more than once
+            $self->debug("Already visited archive $required_dist");
+            next PREREQ;
+        }
+
+      NEW_PREREQ:
+        for my $new_prereq ( $required_dist->prerequisite_specs ) {
+
+            # This is all pretty hacky.  It might be better to represent the queue
+            # as a hash table instead of a list, since we really need to keep track
+            # of things by name.
+
+            # Add this prereq to the queue only if greater than the ones we already got
+            my $name = $new_prereq->{name};
+
+            next NEW_PREREQ if exists $seen{$name}
+                               && $new_prereq->{version} <= $seen{$name};
+
+            # Take any prior versions of this prereq out of the queue
+            @prereq_queue = grep { $_->{name} ne $name } @prereq_queue;
+
+            # Note that this is the latest version of this prereq we've seen so far
+            $seen{$name} = $new_prereq->{version};
+
+            # Push the prereq onto the queue
+            push @prereq_queue, $new_prereq;
+        }
+
+        $visited{$required_dist->path} = 1;
+    }
+
+    return @pulled;
 }
 
 #-------------------------------------------------------------------------------
@@ -296,7 +529,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 ATTRIBUTES
 
@@ -360,13 +593,11 @@ Returns the L<Pinto:Schema::Result::Package> with the given
 C<$pkg_name> that is on the stack with the given C<$stk_name>. If
 there is no such package on that stack, returns nothing.
 
-=head2 get_distribution( path => $dist_path )
+=head2 get_distribution( author => $author, archive => $archive )
 
 Returns the L<Pinto::Schema::Result::Distribution> with the given
-C<$dist_path>.  If there is no distribution with such a path in the
-respoistory, returns nothing.  Note the C<$dist_path> is a Unix-style
-path fragment that identifies the location of the distribution archive
-within the repository, such as F<J/JE/JEFF/Pinto-0.033.tar.gz>
+author ID and archive name.  If there is no distribution in the
+respoistory, returns nothing.
 
 =head2 add( archive => $path, author => $id )
 

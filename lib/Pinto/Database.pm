@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -101,7 +101,8 @@ sub select_registrations {
 sub create_distribution {
     my ($self, $struct) = @_;
 
-    $self->debug("Inserting distribution $struct->{path} into database");
+    my $pretty_dist = "$struct->{author}/$struct->{archive}";
+    $self->debug("Inserting distribution $pretty_dist into database");
 
     return $self->schema->resultset('Distribution')->create($struct);
 }
@@ -138,12 +139,25 @@ sub create_stack {
 
 #-------------------------------------------------------------------------------
 
+sub repository_properties {
+    my ($self) = @_;
+
+    return $self->schema->resultset('RepositoryProperty');
+}
+
+#-------------------------------------------------------------------------------
+
 sub deploy {
     my ($self) = @_;
 
     $self->mkpath( $self->config->db_dir() );
     $self->debug( 'Creating database at ' . $self->config->db_file );
     $self->schema->deploy;
+
+    my $props = { name  => 'pinto:schema_version',
+                  value => $Pinto::Schema::SCHEMA_VERSION };
+
+    $self->schema->resultset('RepositoryProperty')->create($props);
 
     return $self;
 }
@@ -168,7 +182,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

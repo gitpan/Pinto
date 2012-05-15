@@ -21,7 +21,7 @@ use Pinto::Types qw(Uri Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -190,7 +190,7 @@ sub registration_ok {
     # Test distribution object...
     my $dist = $pkg->distribution;
     $self->tb->is_eq($dist->path,  $dist_path, "Distribution has correct dist path");
-    $self->path_exists_ok( [$dist->archive] );
+    $self->path_exists_ok( [$dist->native_path] );
 
     # Test pins...
     $self->tb->ok($reg->is_pinned,  "Registration $reg is pinned") if $is_pinned;
@@ -271,7 +271,7 @@ sub result_not_changed_ok {
 
 #------------------------------------------------------------------------------
 
-sub repository_empty_ok {
+sub repository_clean_ok {
     my ($self) = @_;
 
     my @dists = $self->pinto->repos->db->select_distributions->all;
@@ -280,8 +280,10 @@ sub repository_empty_ok {
     my @pkgs = $self->pinto->repos->db->select_packages->all;
     $self->tb->is_eq(scalar @pkgs, 0, 'Database has no packages');
 
-    my $dir = dir( $self->root(), qw(authors id) );
-    $self->tb->ok(! -e $dir, 'Repository has no archives');
+    my @stacks = $self->pinto->repos->db->select_stacks->all;
+    $self->tb->is_eq(scalar @stacks, 1, 'Database has only one stack');
+    $self->tb->is_eq($stacks[0]->name, 'init',  'The stack is called "init"');
+    $self->tb->is_eq($stacks[0]->is_default, 1,  'The stack is marked as default');
 
     return;
 }
@@ -366,7 +368,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

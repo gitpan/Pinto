@@ -66,7 +66,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -205,6 +205,8 @@ sub mark_as_default {
 sub touch {
     my ($self, $time, $user) = @_;
 
+    return unless $self->in_storage;
+
     my %changes;
     $changes{last_modified_on} = $time || time;
     $changes{last_modified_by} = $user || $ENV{USER};
@@ -289,7 +291,6 @@ sub merge {
     my ($self, %args) = @_;
 
     my $to_stk = $args{to};
-    my $dryrun = $args{dryrun};
 
     my $conflicts;
     for my $reg ($self->registrations) {
@@ -297,13 +298,9 @@ sub merge {
         $conflicts += $reg->merge(%args);
     }
 
-    throw "There were $conflicts conflicts.  Merge aborted"
-        if $conflicts and not $dryrun;
+    throw "There were $conflicts conflicts.  Merge aborted" if $conflicts;
 
-    $self->info('Dry run merge -- no changes were made')
-        and return if $dryrun;
-
-    return;
+    return 1;
 }
 
 #------------------------------------------------------------------------------
@@ -351,7 +348,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 NAME
 

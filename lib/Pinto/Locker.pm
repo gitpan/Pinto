@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -43,6 +43,9 @@ sub lock {                                   ## no critic qw(Homonym)
 
     my $root_dir  = $self->root_dir;
     throw "$root_dir is already locked" if $self->_is_locked;
+
+    local $File::NFSLock::LOCK_EXTENSION = '';
+    local @File::NFSLock::CATCH_SIGS = ();
 
     my $lock_file = $root_dir->file('.lock')->stringify;
     my $lock = File::NFSLock->new($lock_file, $lock_type, $LOCKFILE_TIMEOUT)
@@ -90,7 +93,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 DESCRIPTION
 

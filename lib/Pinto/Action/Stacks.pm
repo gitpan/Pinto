@@ -3,12 +3,13 @@
 package Pinto::Action::Stacks;
 
 use Moose;
+use MooseX::Types::Moose qw(Str);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,7 +17,15 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Stacks );
+with qw( Pinto::Role::Reporter );
+
+#------------------------------------------------------------------------------
+
+has format => (
+    is      => 'ro',
+    isa     => Str,
+    default => "%M %-16k %-16j %U\n",
+);
 
 #------------------------------------------------------------------------------
 
@@ -53,7 +62,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

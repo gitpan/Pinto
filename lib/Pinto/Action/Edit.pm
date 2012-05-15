@@ -3,20 +3,48 @@
 package Pinto::Action::Edit;
 
 use Moose;
+use MooseX::Aliases;
+use MooseX::Types::Moose qw(Undef Str HashRef Bool);
+
+use Pinto::Types qw(StackName);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Edit );
+has stack => (
+    is       => 'ro',
+    isa      => StackName | Undef,
+    alias    => 'operative_stack',
+    default  => undef,
+    coerce   => 1,
+);
+
+
+has properties => (
+    is      => 'ro',
+    isa     => HashRef,
+    default => sub{ {} },
+);
+
+
+has default => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +78,7 @@ Pinto::Action::Edit - Change stack properties
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 

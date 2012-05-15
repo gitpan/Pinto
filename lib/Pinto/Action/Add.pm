@@ -3,15 +3,17 @@
 package Pinto::Action::Add;
 
 use Moose;
-use MooseX::Types::Moose qw(Bool);
+use MooseX::Aliases;
+use MooseX::Types::Moose qw(Undef Bool Str);
 
+use Pinto::Types qw(Author Files StackName);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.040_003'; # VERSION
+our $VERSION = '0.041'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,8 +21,49 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Interface::Action::Add
-         Pinto::Role::PackageImporter );
+has author => (
+    is         => 'ro',
+    isa        => Author,
+    default    => sub { uc ($_[0]->pausecfg->{user} || $_[0]->username) },
+    coerce     => 1,
+    lazy       => 1,
+);
+
+
+has archives  => (
+    isa       => Files,
+    traits    => [ qw(Array) ],
+    handles   => {archives => 'elements'},
+    required  => 1,
+    coerce    => 1,
+);
+
+
+has stack => (
+    is       => 'ro',
+    isa      => StackName | Undef,
+    alias    => 'operative_stack',
+    default  => undef,
+    coerce   => 1,
+);
+
+
+has pin => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
+
+has norecurse => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Operator Pinto::Role::PauseConfig );
 
 #------------------------------------------------------------------------------
 
@@ -64,7 +107,8 @@ sub _execute {
     $dist->register( stack => $stack );
     $dist->pin( stack => $stack ) if $self->pin;
 
-    $self->pull_prerequisites( $dist, $stack ) unless $self->norecurse;
+    $self->repos->pull_prerequisites( dist  => $dist,
+                                      stack => $stack ) unless $self->norecurse;
 
     return;
 }
@@ -88,7 +132,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.040_003
+version 0.041
 
 =head1 AUTHOR
 
