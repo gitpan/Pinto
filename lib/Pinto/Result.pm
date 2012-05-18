@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.041'; # VERSION
+our $VERSION = '0.042'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.041
+version 0.042
 
 =head1 AUTHOR
 

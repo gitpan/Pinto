@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.041'; # VERSION
+our $VERSION = '0.042'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,9 +37,10 @@ sub execute {
     my ($self) = @_;
 
     # FIXME!
-    my $stack = $self->repos->get_stack( $self->stack );
-    my $stats = Pinto::Statistics->new( db    => $self->repos->db,
-                                        stack => $stack->name );
+    my $stack = $self->repos->get_stack(name => $self->stack);
+
+    my $stats = Pinto::Statistics->new(db    => $self->repos->db,
+                                       stack => $stack->name);
 
     print { $self->out } $stats->to_formatted_string();
 
@@ -66,7 +67,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.041
+version 0.042
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.041'; # VERSION
+our $VERSION = '0.042'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.041
+version 0.042
 
 =head1 AUTHOR
 

@@ -21,7 +21,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.041",
+  "dist_version" => "0.042",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -38,7 +38,7 @@ my %module_build_args = (
     "Digest::MD5" => 0,
     "Digest::SHA" => 0,
     "Dist::Metadata" => "0.922",
-    "Dist::Requires" => "0.005",
+    "Dist::Requires" => "0.006",
     "Exporter" => 0,
     "File::HomeDir" => 0,
     "File::NFSLock" => 0,

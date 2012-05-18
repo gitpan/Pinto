@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.041'; # VERSION
+our $VERSION = '0.042'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,9 +56,9 @@ sub run {
       '_run_operator' : '_run_reporter';
 
     my $result = try     { $self->$runner($action_class, %args)   }
-                 finally { $self->repos->unlock }
-                 catch   { $self->fatal($_) };
+                 catch   { $self->repos->unlock; $self->fatal($_) };
 
+    $self->repos->unlock;
     return $result;
 }
 
@@ -147,7 +147,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.041
+version 0.042
 
 =head1 SYNOPSIS
 
