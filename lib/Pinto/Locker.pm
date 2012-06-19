@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ sub unlock {
 
     return $self if not $self->_is_locked;
 
-    $self->_lock->unlock or throw 'Unable to unlock repository';
+    $self->_lock->unlock or warn 'Unable to unlock repository';
     $self->_clear_lock;
 
     my $root_dir = $self->config->root_dir;
@@ -93,7 +93,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 DESCRIPTION
 

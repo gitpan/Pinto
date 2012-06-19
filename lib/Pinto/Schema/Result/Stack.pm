@@ -66,7 +66,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ sub copy_members {
 
     for my $registration ( $self->registrations ) {
         my $pkg = $registration->package;
-        $self->debug("Copying package $pkg into stack $to_stack");
+        $self->debug( sub{"Copying package $pkg into stack $to_stack"} );
         $registration->copy( { stack => $to_stack } );
     }
 
@@ -348,7 +348,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 NAME
 

@@ -1,3 +1,18 @@
+0.043     2012-06-19 10:47:15 America/Los_Angeles
+
+     Bug Fixes:
+
+     Prevent writing to closed handle, when running the install
+     action via pinto remotely.
+
+     Now requires Dist::Metadata 0.923 or newer, which indexes
+     more like PAUSE does it.
+
+     Other Stuff:
+
+     Some minor performance optimizations, to reduce the number of
+     trips to the database.
+
 0.042     2012-05-17 21:55:19 America/Los_Angeles
 
      finally{...} doesn't seem to work properly on older perls, and

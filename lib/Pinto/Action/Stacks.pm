@@ -9,7 +9,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 AUTHOR
 

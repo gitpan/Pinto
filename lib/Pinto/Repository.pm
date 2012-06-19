@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ sub get_package {
         my $where  = { name => $pkg_name };
         my @pkgs   = $self->db->select_packages( $where )->all;
         my $latest = (sort {$a <=> $b} @pkgs)[-1];
-        return $latest ? $latest : ();
+        return defined $latest ? $latest : ();
     }
 }
 
@@ -353,9 +353,9 @@ sub _pull_by_package_spec {
     my ($pkg_name, $pkg_ver) = ($pspec->name, $pspec->version);
     my $latest = $self->get_package(name => $pkg_name);
 
-    if ($latest && $latest->version >= $pkg_ver) {
+    if (defined $latest && ($latest->version >= $pkg_ver)) {
         my $dist = $latest->distribution;
-        $self->debug("Already have package $pspec or newer as $latest");
+        $self->debug( sub {"Already have package $pspec or newer as $latest"} );
         my $did_register = $dist->register(stack => $stack);
         return ($dist, $did_register);
     }
@@ -529,7 +529,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 ATTRIBUTES
 

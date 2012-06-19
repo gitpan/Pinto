@@ -70,7 +70,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -277,6 +277,9 @@ sub compare {
 sub to_string {
     my ($self, $format) = @_;
 
+    # my ($pkg, $file, $line) = caller;
+    # warn __PACKAGE__ . " stringified from $file at line $line";
+
     my %fspec = (
          n => sub { $self->package->name                                        },
          N => sub { $self->package->vname                                       },
@@ -335,7 +338,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 NAME
 

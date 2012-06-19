@@ -43,7 +43,6 @@ lib/Pinto/Role/FileFetcher.pm
 lib/Pinto/Role/Loggable.pm
 lib/Pinto/Role/Operator.pm
 lib/Pinto/Role/PathMaker.pm
-lib/Pinto/Role/PauseConfig.pm
 lib/Pinto/Role/Reporter.pm
 lib/Pinto/Role/Schema/Result.pm
 lib/Pinto/Schema.pm
@@ -71,6 +70,7 @@ perlcritic.ini
 sql/mkdbic
 sql/pinto.sql
 t/00-compile.t
+t/00-report-prereqs.t
 t/02-config.t
 t/03-package.t
 t/04-distribution.t
@@ -90,6 +90,7 @@ t/31-stack-props.t
 t/32-dryrun.t
 t/35-install.t
 t/40-locking.t
+tools/provides
 weaver.ini
 xt/release/distmeta.t
 xt/release/pod-syntax.t

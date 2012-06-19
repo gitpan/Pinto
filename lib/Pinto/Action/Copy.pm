@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Pinto::Action::Copy - An action to create a new stack by copying another
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 AUTHOR
 

@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -131,7 +131,7 @@ has log_file => (
 
 has log_level  => (
     is         => 'ro',
-    isa        => LogLevel,
+    isa        => LogLevel | Int,
     key        => 'log_level',
     default    => 'notice',
     documentation => 'Minimum logging level for the log file',
@@ -215,7 +215,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 DESCRIPTION
 

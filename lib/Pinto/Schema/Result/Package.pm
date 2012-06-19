@@ -73,7 +73,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.042'; # VERSION
+our $VERSION = '0.043'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -116,10 +116,12 @@ sub register {
 sub registration {
     my ($self, %args) = @_;
 
-    my $where = {name => $args{stack}};
-    my $stack = $self->result_source->schema->resultset('Stack')->find($where);
+    my $where1 = {name => $args{stack}};
+    my $stack  = $self->result_source->schema->resultset('Stack')->find($where1);
 
-    return $self->find_related('registrations', {stack => $stack});
+    my $attrs  = {key  => 'stack_package_name_unique'};
+    my $where2 = {stack => $stack, package_name => $self->name};
+    return $self->find_related('registrations', $where2, $attrs);
 }
 
 #------------------------------------------------------------------------------
@@ -143,6 +145,9 @@ sub as_spec {
 
 sub to_string {
     my ($self, $format) = @_;
+
+    # my ($pkg, $file, $line) = caller;
+    # warn __PACKAGE__ . " stringified from $file at line $line";
 
     my %fspec = (
          'n' => sub { $self->name()                                   },
@@ -219,7 +224,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 NAME
 
