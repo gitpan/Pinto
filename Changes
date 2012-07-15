@@ -1,3 +1,10 @@
+0.044     2012-07-15 01:39:18 America/Los_Angeles
+
+     Bug Fixes:
+
+     The magic stack named '@' (meaning all stacks) did
+     not work.
+
 0.043     2012-06-19 10:47:15 America/Los_Angeles
 
      Bug Fixes:

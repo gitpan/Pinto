@@ -5,13 +5,13 @@ package Pinto::Action::List;
 use Moose;
 use MooseX::Types::Moose qw(Undef HashRef Str Bool);
 
-use Pinto::Types qw(Author StackName);
+use Pinto::Types qw(Author StackName StackAt StackDefault);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.043'; # VERSION
+our $VERSION = '0.044'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ with qw( Pinto::Role::Reporter );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackAt | StackDefault,
     default   => undef,
     coerce    => 1,
 );
@@ -153,7 +153,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
 =head1 AUTHOR
 

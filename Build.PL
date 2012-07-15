@@ -24,7 +24,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.043",
+  "dist_version" => "0.044",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -62,7 +62,7 @@ my %module_build_args = (
     "Package::Locator" => "0.006",
     "Path::Class" => 0,
     "PerlIO::gzip" => 0,
-    "Pinto::Common" => "0.041",
+    "Pinto::Common" => "0.045",
     "Pinto::DistributionSpec" => 0,
     "Pinto::Exception" => 0,
     "Pinto::PackageSpec" => 0,

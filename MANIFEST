@@ -81,6 +81,7 @@ t/10-compare.t
 t/19-tester.t
 t/20-add.t
 t/21-add-deep.t
+t/22-list.t
 t/23-pull.t
 t/25-pull-multi.t
 t/28-pin.t

@@ -66,7 +66,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.043'; # VERSION
+our $VERSION = '0.044'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -348,7 +348,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
 =head1 NAME
 
