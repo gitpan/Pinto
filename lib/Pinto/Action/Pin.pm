@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.044'; # VERSION
+our $VERSION = '0.045'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.044
+version 0.045
 
 =head1 AUTHOR
 

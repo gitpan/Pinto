@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.044'; # VERSION
+our $VERSION = '0.045'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ Pinto::Role::Reporter - Something that reports about the repository
 
 =head1 VERSION
 
-version 0.044
+version 0.045
 
 =head1 AUTHOR
 

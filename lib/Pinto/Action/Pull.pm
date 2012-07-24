@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.044'; # VERSION
+our $VERSION = '0.045'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.044
+version 0.045
 
 =head1 AUTHOR
 

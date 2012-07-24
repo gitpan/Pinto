@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.044'; # VERSION
+our $VERSION = '0.045'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Attributes
@@ -135,7 +135,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.044
+version 0.045
 
 =head1 AUTHOR
 
