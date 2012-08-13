@@ -83,7 +83,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.045'; # VERSION
+our $VERSION = '0.046'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,6 @@ sub register {
     for my $pkg ($self->packages) {
 
       if (defined $pkg->registrations_rs->find( {stack => $stack->id} ) ) {
-        $DB::single = 1;
           $self->debug( sub {"Package $pkg is already on stack $stack"} );
           next;
       }
@@ -398,7 +397,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.045
+version 0.046
 
 =head1 NAME
 

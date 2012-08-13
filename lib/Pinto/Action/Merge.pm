@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.045'; # VERSION
+our $VERSION = '0.046'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.045
+version 0.046
 
 =head1 AUTHOR
 

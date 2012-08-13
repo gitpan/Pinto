@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.045'; # VERSION
+our $VERSION = '0.046'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ Pinto::Role::Configurable - Something that has a configuration
 
 =head1 VERSION
 
-version 0.045
+version 0.046
 
 =head1 AUTHOR
 

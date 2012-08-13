@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.045'; # VERSION
+our $VERSION = '0.046'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ sub _execute {
     my ($dist, $did_pull) = $self->repos->get_or_pull( target => $target,
                                                        stack  => $stack );
 
-    unless ( $self->norecurse ) {
+    if ($dist and not $self->norecurse) {
         my @prereq_dists = $self->repos->pull_prerequisites( dist  => $dist,
                                                              stack => $stack );
         $did_pull += @prereq_dists;
@@ -106,7 +106,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.045
+version 0.046
 
 =head1 AUTHOR
 

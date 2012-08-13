@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.045'; # VERSION
+our $VERSION = '0.046'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ Pinto::Action::Edit - Change stack properties
 
 =head1 VERSION
 
-version 0.045
+version 0.046
 
 =head1 AUTHOR
 
