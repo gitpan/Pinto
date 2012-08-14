@@ -14,11 +14,11 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.046'; # VERSION
+our $VERSION = '0.047'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-our $LOCKFILE_TIMEOUT = 50;
+our $LOCKFILE_TIMEOUT = $ENV{PINTO_LOCKFILE_TIMEOUT} || 50; # Seconds
 
 #-----------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.046
+version 0.047
 
 =head1 DESCRIPTION
 

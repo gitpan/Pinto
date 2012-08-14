@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.046'; # VERSION
+our $VERSION = '0.047'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -48,12 +48,12 @@ sub changed {
 
 sub exit_status {
     my ($self) = @_;
-    return not $self->was_successful;
+    return $self->was_successful ? 0 : 1;
 }
 
 #-----------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 1;
@@ -70,7 +70,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.046
+version 0.047
 
 =head1 AUTHOR
 
