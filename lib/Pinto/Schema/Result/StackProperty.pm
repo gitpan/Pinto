@@ -56,7 +56,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.047'; # VERSION
+our $VERSION = '0.048'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ Pinto::Schema::Result::StackProperty - Represents stack metadata
 
 =head1 VERSION
 
-version 0.047
+version 0.048
 
 =head1 NAME
 
