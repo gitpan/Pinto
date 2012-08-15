@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.048'; # VERSION
+our $VERSION = '0.050'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -100,7 +100,18 @@ sub _run_operator {
             $self->repos->db->schema->txn_rollback;
         }
         else {
-            $self->repos->write_index;  # ???
+
+            # We only need to update the static index file if changes
+            # were made on the stack that the file represents (i.e. it
+            # is the default stack).  If the $operative_stack is not
+            # defined, then it is the default stack by definition.
+
+            my $operative_stack = $action->operative_stack;
+            my $default_stack   = $self->repos->get_default_stack->name;
+
+            $self->repos->write_index if not defined $operative_stack
+                or $operative_stack eq $default_stack;
+
             $self->repos->db->schema->txn_commit;
         }
 
@@ -147,7 +158,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.048
+version 0.050
 
 =head1 SYNOPSIS
 

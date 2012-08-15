@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.048'; # VERSION
+our $VERSION = '0.050'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -529,7 +529,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.048
+version 0.050
 
 =head1 ATTRIBUTES
 

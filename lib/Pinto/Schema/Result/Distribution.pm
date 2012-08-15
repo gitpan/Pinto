@@ -83,7 +83,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.048'; # VERSION
+our $VERSION = '0.050'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -124,6 +124,7 @@ sub register {
       my $incumbent_pkg = $incumbent->package;
 
       if ( $incumbent_pkg == $pkg ) {
+        # TODO: should this be an exception?
         $self->warning("Package $pkg is already on stack $stack");
         next;
       }
@@ -145,8 +146,7 @@ sub register {
       $did_register++;
     }
 
-    throw "Unable to register distribution $self on stack $stack"
-      if $errors;
+    throw "Unable to register distribution $self on stack $stack" if $errors;
 
     $stack->touch if $did_register; # Update mtime
 
@@ -181,8 +181,7 @@ sub pin {
         $did_pin++;
     }
 
-    throw "Unable to pin distribution $self to stack $stack"
-      if $errors;
+    throw "Unable to pin distribution $self to stack $stack" if $errors;
 
     $stack->touch if $did_pin; # Update mtime
 
@@ -195,16 +194,19 @@ sub pin {
 sub unpin {
     my ($self, %args) = @_;
 
-    my $stack = $args{stack};
+    my $stack     = $args{stack};
+    my $errors    = 0;
     my $did_unpin = 0;
 
     for my $pkg ($self->packages) {
         my $registration = $pkg->registration(stack => $stack);
 
         if (not $registration) {
-            $self->warning("Package $pkg is not registered on stack $stack");
+            $self->error("Package $pkg is not registered on stack $stack");
+            $errors++;
             next;
         }
+
 
         if (not $registration->is_pinned) {
             $self->warning("Package $pkg is not pinned on stack $stack");
@@ -214,6 +216,8 @@ sub unpin {
         $registration->unpin;
         $did_unpin++;
     }
+
+    throw "Unable to unpin distribution $self to stack $stack" if $errors;
 
     $stack->touch if $did_unpin; # Update mtime
 
@@ -397,7 +401,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.048
+version 0.050
 
 =head1 NAME
 
