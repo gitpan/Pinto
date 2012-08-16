@@ -12,6 +12,7 @@ dist.ini
 lib/Pinto.pm
 lib/Pinto/Action.pm
 lib/Pinto/Action/Add.pm
+lib/Pinto/Action/Clean.pm
 lib/Pinto/Action/Copy.pm
 lib/Pinto/Action/Delete.pm
 lib/Pinto/Action/Edit.pm

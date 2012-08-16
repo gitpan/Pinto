@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.050'; # VERSION
+our $VERSION = '0.051'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -64,6 +64,8 @@ sub execute {
 
     $self->_execute($_, $stack) for $self->targets;
 
+    $self->repos->clean_files if $self->dryrun;
+
     return $self->result;
 }
 
@@ -106,7 +108,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.050
+version 0.051
 
 =head1 AUTHOR
 

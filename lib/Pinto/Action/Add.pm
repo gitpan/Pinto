@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.050'; # VERSION
+our $VERSION = '0.051'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -91,6 +91,8 @@ sub execute {
 
     $self->_execute($_, $stack) for $self->archives;
 
+    $self->repos->clean_files if $self->dryrun;
+
     return $self->result->changed;
 }
 
@@ -115,7 +117,7 @@ sub _execute {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 1;
@@ -132,7 +134,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.050
+version 0.051
 
 =head1 AUTHOR
 

@@ -4,11 +4,14 @@ package Pinto::Repository;
 
 use Moose;
 
+use Path::Class;
+use File::Find;
+
 use Pinto::Util;
-use Pinto::Store;
 use Pinto::Locker;
 use Pinto::Database;
 use Pinto::IndexCache;
+use Pinto::Store::File;
 use Pinto::PackageExtractor;
 use Pinto::Exception qw(throw);
 use Pinto::Types qw(Dir);
@@ -17,7 +20,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.050'; # VERSION
+our $VERSION = '0.051'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -40,11 +43,11 @@ has db => (
 
 has store => (
     is         => 'ro',
-    isa        => 'Pinto::Store',
+    isa        => 'Pinto::Store::File',
     lazy       => 1,
     handles    => [ qw(initialize commit tag) ],
-    default    => sub { Pinto::Store->new( config => $_[0]->config,
-                                           logger => $_[0]->logger ) },
+    default    => sub { Pinto::Store::File->new( config => $_[0]->config,
+                                                 logger => $_[0]->logger ) },
 );
 
 
@@ -509,6 +512,34 @@ sub write_index {
 #-------------------------------------------------------------------------------
 
 
+sub clean_files {
+    my ($self) = @_;
+
+    my $deleted  = 0;
+    my $callback = sub {
+        return if not -f $_;
+
+        my $path    = file($_);
+        my $author  = $path->parent->basename;
+        my $archive = $path->basename;
+
+        return if $archive eq 'CHECKSUMS';
+        return if $self->get_distribution(author => $author, archive => $archive);
+
+        $self->notice("Removing orphaned archive $path");
+        $self->store->remove_archive($path);
+        $deleted++;
+    };
+
+    my $authors_id_dir = $self->config->authors_dir->subdir('id');
+    File::Find::find({no_chdir => 1, wanted => $callback}, $authors_id_dir);
+
+    return $deleted;
+}
+
+#-------------------------------------------------------------------------------
+
+
 #-------------------------------------------------------------------------------
 
 __PACKAGE__->meta->make_immutable();
@@ -529,7 +560,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.050
+version 0.051
 
 =head1 ATTRIBUTES
 
@@ -625,6 +656,12 @@ pulled distribution.
 =head2 pull( distribution => $spec )
 
 =head2 create_stack(name => $stk_name, properties => { $key => $value, ... } )
+
+=head2 clean_files()
+
+Deletes all distribution archives that are on the filesystem but not
+listed in a stack.  This can happen when an Action fails or is aborted
+prematurely.
 
 =head2 locate(path = $dist_path)
 

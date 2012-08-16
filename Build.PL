@@ -8,7 +8,6 @@ use Module::Build 0.3601;
 my %module_build_args = (
   "build_requires" => {
     "ExtUtils::MakeMaker" => 0,
-    "File::Find" => 0,
     "File::Spec::Functions" => 0,
     "List::Util" => 0,
     "Log::Dispatch::Handle" => 0,
@@ -24,7 +23,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.050",
+  "dist_version" => "0.051",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -43,6 +42,7 @@ my %module_build_args = (
     "Dist::Metadata" => "0.923",
     "Dist::Requires" => "0.006",
     "Exporter" => 0,
+    "File::Find" => 0,
     "File::NFSLock" => 0,
     "File::Temp" => 0,
     "File::Which" => 0,

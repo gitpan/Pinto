@@ -1,8 +1,11 @@
-# ABSTRACT: Attributes and methods for all Schema::Result objects
+# ABSTRACT: Remove orphaned archives
 
-package Pinto::Role::Schema::Result;
+package Pinto::Action::Clean;
 
-use Moose::Role;
+use Moose;
+
+use Path::Class;
+use File::Find;
 
 use namespace::autoclean;
 
@@ -12,15 +15,27 @@ our $VERSION = '0.051'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has logger  => (
-   handles  => [ qw(debug info notice warning error fatal) ],
-   default  => sub { $_[0]->result_source->schema->logger },
-   init_arg => undef,
-   lazy     => 1,
-);
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
+with qw( Pinto::Role::Reporter );
+
+#------------------------------------------------------------------------------
+
+sub execute {
+    my ($self) = @_;
+
+    $self->repos->clean_files;
+
+    return $self->result;
+}
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
+
+#-----------------------------------------------------------------------------
 1;
 
 
@@ -31,7 +46,7 @@ has logger  => (
 
 =head1 NAME
 
-Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result objects
+Pinto::Action::Clean - Remove orphaned archives
 
 =head1 VERSION
 
