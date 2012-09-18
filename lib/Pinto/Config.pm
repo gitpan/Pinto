@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -30,11 +30,21 @@ has root       => (
     coerce     => 1,
 );
 
+
 has authors_dir => (
     is        => 'ro',
     isa       => Dir,
     init_arg  => undef,
-    default   => sub { return $_[0]->root_dir->subdir('authors') },
+    default   => sub { return $_[0]->pinto_dir->subdir('authors') },
+    lazy      => 1,
+);
+
+
+has authors_id_dir => (
+    is        => 'ro',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->authors_dir->subdir('id') },
     lazy      => 1,
 );
 
@@ -43,16 +53,7 @@ has modules_dir => (
     is        => 'ro',
     isa       => Dir,
     init_arg  => undef,
-    default   => sub { return $_[0]->root_dir->subdir('modules') },
-    lazy      => 1,
-);
-
-
-has index_file => (
-    is        => 'ro',
-    isa       => File,
-    init_arg  => undef,
-    default   => sub { return $_[0]->modules_dir->file('02packages.details.txt.gz') },
+    default   => sub { return $_[0]->pinto_dir->subdir('modules') },
     lazy      => 1,
 );
 
@@ -62,6 +63,15 @@ has mailrc_file => (
     isa       => File,
     init_arg  => undef,
     default   => sub { return $_[0]->authors_dir->file('01mailrc.txt.gz') },
+    lazy      => 1,
+);
+
+
+has modlist_file => (
+    is        => 'ro',
+    isa       => File,
+    init_arg  => undef,
+    default   => sub { return $_[0]->modules_dir->file('03modlist.data.gz') },
     lazy      => 1,
 );
 
@@ -131,7 +141,7 @@ has log_file => (
 
 has log_level  => (
     is         => 'ro',
-    isa        => LogLevel | Int,
+    isa        => Str,
     key        => 'log_level',
     default    => 'notice',
     documentation => 'Minimum logging level for the log file',
@@ -215,7 +225,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 DESCRIPTION
 

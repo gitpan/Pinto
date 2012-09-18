@@ -3,7 +3,6 @@
 package Pinto::Action::Add;
 
 use Moose;
-use MooseX::Aliases;
 use MooseX::Types::Moose qw(Undef Bool Str);
 
 use Pinto::Types qw(Author Files StackName);
@@ -13,11 +12,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
@@ -42,7 +45,6 @@ has archives  => (
 has stack => (
     is       => 'ro',
     isa      => StackName | Undef,
-    alias    => 'operative_stack',
     default  => undef,
     coerce   => 1,
 );
@@ -61,9 +63,16 @@ has norecurse => (
     default   => 0,
 );
 
+
+has dryrun => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Operator Pinto::Role::PauseConfig );
+with qw( Pinto::Role::PauseConfig );
 
 #------------------------------------------------------------------------------
 
@@ -87,13 +96,17 @@ sub BUILD {
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->stack);
-
+    my $stack = $self->repos->open_stack(name => $self->stack);
     $self->_execute($_, $stack) for $self->archives;
+    $self->result->changed if $stack->refresh->has_changed;
 
-    $self->repos->clean_files if $self->dryrun;
+    if ( not ($self->dryrun and $stack->has_changed) ) {
+        my $message_primer = $stack->head_revision->change_details;
+        $stack->close(message => $self->edit_message(primer => $message_primer));
+        $self->repos->write_index(stack => $stack);
+    }
 
-    return $self->result->changed;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
@@ -134,7 +147,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

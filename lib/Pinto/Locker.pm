@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -41,12 +41,14 @@ with qw( Pinto::Role::Configurable
 sub lock {                                   ## no critic qw(Homonym)
     my ($self, $lock_type) = @_;
 
-    my $root_dir  = $self->root_dir;
-    throw "$root_dir is already locked" if $self->_is_locked;
+    return if $self->_is_locked;
+
+    $lock_type ||= 'SH';
 
     local $File::NFSLock::LOCK_EXTENSION = '';
     local @File::NFSLock::CATCH_SIGS = ();
 
+    my $root_dir  = $self->root_dir;
     my $lock_file = $root_dir->file('.lock')->stringify;
     my $lock = File::NFSLock->new($lock_file, $lock_type, $LOCKFILE_TIMEOUT)
         or throw 'Unable to lock the repository -- please try later';
@@ -93,7 +95,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 DESCRIPTION
 

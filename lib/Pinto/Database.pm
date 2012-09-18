@@ -8,14 +8,13 @@ use Try::Tiny;
 use Path::Class;
 
 use Pinto::Schema;
-use Pinto::IndexWriter;
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -23,6 +22,7 @@ our $VERSION = '0.051'; # VERSION
 has schema => (
    is         => 'ro',
    isa        => 'Pinto::Schema',
+   handles    => [ qw(txn_begin txn_commit txn_rollback) ],
    init_arg   => undef,
    lazy_build => 1,
 );
@@ -112,9 +112,6 @@ sub create_distribution {
 sub select_stacks {
     my ($self, $where, $attrs) = @_;
 
-    $where ||= {};
-    $attrs ||= {};
-
     return $self->schema->resultset('Stack')->search( $where, $attrs );
 }
 
@@ -139,6 +136,22 @@ sub create_stack {
 
 #-------------------------------------------------------------------------------
 
+sub select_revisions {
+    my ($self, $where, $attrs) = @_;
+
+    return $self->schema->resultset('Revision')->search( $where, $attrs );
+}
+
+#-------------------------------------------------------------------------------
+
+sub create_revision {
+    my ($self, $attrs) = @_;
+
+    return $self->schema->resultset('Revision')->create( $attrs );
+}
+
+#-------------------------------------------------------------------------------
+
 sub repository_properties {
     my ($self) = @_;
 
@@ -154,7 +167,7 @@ sub deploy {
     $self->debug( 'Creating database at ' . $self->config->db_file );
     $self->schema->deploy;
 
-    my $props = { name  => 'pinto:schema_version',
+    my $props = { key   => 'pinto:schema_version',
                   value => $Pinto::Schema::SCHEMA_VERSION };
 
     $self->schema->resultset('RepositoryProperty')->create($props);
@@ -182,7 +195,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

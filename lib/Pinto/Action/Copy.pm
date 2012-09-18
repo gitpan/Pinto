@@ -3,7 +3,6 @@
 package Pinto::Action::Copy;
 
 use Moose;
-use MooseX::Aliases;
 use MooseX::Types::Moose qw(Str);
 
 use Pinto::Types qw(StackName);
@@ -12,11 +11,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
@@ -31,7 +34,6 @@ has from_stack => (
 has to_stack => (
     is       => 'ro',
     isa      => StackName,
-    alias    => 'operative_stack',
     required => 1,
     coerce   => 1,
 );
@@ -45,18 +47,20 @@ has description => (
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Operator );
-
-#------------------------------------------------------------------------------
-
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->from_stack);
-    my $copy = $stack->copy_deeply({name => $self->to_stack});
-    my $description = $self->description || "copy of stack $stack";
-    $copy->set_property('description' => $description);
-    $copy->touch($stack->last_modified_on);
+    my $orig = $self->repos->get_stack(name => $self->from_stack);
+    my $copy = $self->repos->copy_stack(from => $orig, to => $self->to_stack);
+
+    my $description = $self->description || "copy of stack $orig";
+    $copy->set_property(description => $description);
+
+    my $message_primer = $copy->head_revision->change_details;
+
+    $copy->close(message => $self->edit_message(primer => $message_primer));
+
+    $self->repos->write_index(stack => $copy);
 
     return $self->result->changed;
 }
@@ -81,7 +85,7 @@ Pinto::Action::Copy - An action to create a new stack by copying another
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

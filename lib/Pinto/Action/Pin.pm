@@ -3,7 +3,6 @@
 package Pinto::Action::Pin;
 
 use Moose;
-use MooseX::Aliases;
 use MooseX::Types::Moose qw(Undef);
 
 use Pinto::Types qw(Specs StackName);
@@ -13,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,10 +20,13 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
+with qw( Pinto::Role::Committable );
+
+#------------------------------------------------------------------------------
+
 has stack => (
     is        => 'ro',
     isa       => StackName | Undef,
-    alias     => 'operative_stack',
     default   => undef,
     coerce    => 1
 );
@@ -40,16 +42,18 @@ has targets => (
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Operator );
-
-#------------------------------------------------------------------------------
-
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->stack);
+    my $stack = $self->repos->open_stack(name => $self->stack);
 
     $self->_execute($_, $stack) for $self->targets;
+
+    return $self->result if $self->dryrun or not $stack->refresh->has_changed;
+
+    my $message_primer = $stack->head_revision->change_details;
+
+    $stack->close(message => $self->edit_message(primer => $message_primer));
 
     return $self->result->changed;
 }
@@ -81,7 +85,6 @@ sub _execute {
         throw "Don't know how to pin target of type $type";
     }
 
-
     $self->notice("Pinning $dist on stack $stack");
     $dist->pin(stack => $stack);
 
@@ -108,7 +111,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

@@ -1,26 +1,19 @@
-# ABSTRACT: Base class for all Actions
+# ABSTRACT: Construct Action objects
 
-package Pinto::Action;
+package Pinto::ActionFactory;
 
 use Moose;
 use MooseX::Types::Moose qw(Str);
 
-use Pinto::Result;
-use Pinto::Types qw(Io);
-use Pinto::Exception;
+use Class::Load;
 
-use namespace::autoclean;
+use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
 our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Loggable );
-
-#------------------------------------------------------------------------------
-
 
 has repos => (
     is       => 'ro',
@@ -29,38 +22,39 @@ has repos => (
 );
 
 
-has username => (
-    is       => 'ro',
-    isa      => Str,
-    default  => sub { $ENV{USER} },
-);
-
-
-has out => (
-    is      => 'ro',
-    isa     => Io,
-    coerce  => 1,
-    default => sub { [fileno(STDOUT), '>'] },
-);
-
-
-has result => (
-    is       => 'ro',
-    isa      => 'Pinto::Result',
-    default  => sub { Pinto::Result->new },
-    init_arg => undef,
-    lazy     => 1,
+has action_class_namespace => (
+    is        => 'ro',
+    isa       => Str,
+    default   => 'Pinto::Action',
 );
 
 #------------------------------------------------------------------------------
 
-sub execute { throw 'Abstract method' }
+with qw( Pinto::Role::Configurable
+         Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
-sub say {
-    my ($self, $message) = @_;
-    return print {$self->out} $message . "\n";
+sub create_action {
+    my ($self, $action_name, %action_args) = @_;
+
+    @action_args{qw(logger repos)} = ($self->logger, $self->repos);
+    my $action_class = $self->load_class_for_action(name => $action_name);
+    my $action = $action_class->new(%action_args);
+
+    return $action;
+}
+
+#------------------------------------------------------------------------------
+
+sub load_class_for_action {
+    my ($self, %args) = @_;
+
+    my $action_name = ucfirst $args{name} || throw 'Must specify an action name';
+    my $action_class = $self->action_class_namespace . '::' . $action_name;
+    Class::Load::load_class($action_class);
+
+    return $action_class;
 }
 
 #------------------------------------------------------------------------------
@@ -78,7 +72,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action - Base class for all Actions
+Pinto::ActionFactory - Construct Action objects
 
 =head1 VERSION
 

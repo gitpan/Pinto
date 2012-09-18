@@ -83,7 +83,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -148,8 +148,6 @@ sub register {
 
     throw "Unable to register distribution $self on stack $stack" if $errors;
 
-    $stack->touch if $did_register; # Update mtime
-
     return $did_register;
 }
 
@@ -182,8 +180,6 @@ sub pin {
     }
 
     throw "Unable to pin distribution $self to stack $stack" if $errors;
-
-    $stack->touch if $did_pin; # Update mtime
 
     return $did_pin;
 
@@ -218,8 +214,6 @@ sub unpin {
     }
 
     throw "Unable to unpin distribution $self to stack $stack" if $errors;
-
-    $stack->touch if $did_unpin; # Update mtime
 
     return $did_unpin;
 }
@@ -264,7 +258,6 @@ sub native_path {
     my ($self, @base) = @_;
 
     return Path::Class::file( @base,
-                              qw(authors id),
                               substr($self->author, 0, 1),
                               substr($self->author, 0, 2),
                               $self->author,
@@ -401,7 +394,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 

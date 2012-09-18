@@ -24,22 +24,49 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "is_default",
   { data_type => "integer", is_nullable => 0 },
-  "last_modified_on",
+  "head_revision",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "has_changed",
   { data_type => "integer", is_nullable => 0 },
-  "last_modified_by",
-  { data_type => "text", is_nullable => 0 },
 );
 
 
 __PACKAGE__->set_primary_key("id");
 
 
+__PACKAGE__->add_unique_constraint("head_revision_unique", ["head_revision"]);
+
+
 __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+
+
+__PACKAGE__->belongs_to(
+  "head_revision",
+  "Pinto::Schema::Result::Revision",
+  { id => "head_revision" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
+
+__PACKAGE__->has_many(
+  "registration_changes",
+  "Pinto::Schema::Result::RegistrationChange",
+  { "foreign.stack" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
 
 
 __PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
+  { "foreign.stack" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
+__PACKAGE__->has_many(
+  "revisions",
+  "Pinto::Schema::Result::Revision",
   { "foreign.stack" => "self.id" },
   { cascade_copy => 0, cascade_delete => 1 },
 );
@@ -57,8 +84,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-05-03 00:46:42
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2X9BNMm9xjPjECGdDWDVXA
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-17 14:51:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iiRBkYCaNapPwU/nGcqQzQ
 
 #-------------------------------------------------------------------------------
 
@@ -66,22 +93,18 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #-------------------------------------------------------------------------------
+
+use MooseX::Types::Moose qw(Bool);
 
 use String::Format;
 
 use Pinto::Util;
 use Pinto::Exception qw(throw);
 
-use overload ( '""'     => 'to_string' );
-
-#-------------------------------------------------------------------------------
-# Schema::Loader does not create many-to-many relationships for us.  So we
-# must create them by hand here...
-
-__PACKAGE__->many_to_many( packages => 'regsitry', 'package' );
+use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
@@ -89,13 +112,11 @@ sub FOREIGNBUILDARGS {
   my ($class, $args) = @_;
 
   $args ||= {};
-  $args->{is_default} ||= 0;
-  $args->{last_modified_on} ||= time;
-  $args->{last_modified_by} ||= $ENV{USER};
+  $args->{is_default}  ||= 0;
+  $args->{has_changed} ||= 0;
 
   return $args;
 }
-
 
 #------------------------------------------------------------------------------
 
@@ -113,6 +134,20 @@ before is_default => sub {
 
 #------------------------------------------------------------------------------
 
+sub close {
+    my ($self, @args) = @_;
+
+    throw "Stack $self is not open for revision"
+      if $self->head_revision->is_committed;
+
+    $self->update( {has_changed => 0} );
+    $self->head_revision->close(@args);
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
 sub registration {
     my ($self, %args) = @_;
 
@@ -125,28 +160,27 @@ sub registration {
 #------------------------------------------------------------------------------
 
 sub copy {
-  my ($self, $changes) = @_;
+    my ($self, $changes) = @_;
 
-  $changes ||= {};
-  my $to_stack_name = Pinto::Util::normalize_stack_name( $changes->{name} );
+    $changes ||= {};
+    my $to_stack_name = Pinto::Util::normalize_stack_name( $changes->{name} );
 
-  throw "Stack $to_stack_name already exists"
-    if $self->result_source->resultset->find({name => $to_stack_name});
+    throw "Stack $to_stack_name already exists"
+      if $self->result_source->resultset->find({name => $to_stack_name});
 
-  $changes->{is_default} = 0; # Never duplicate the default flag
+    $changes->{is_default} = 0; # Never duplicate the default flag
 
-  return $self->next::method($changes);
+    return $self->next::method($changes);
 }
 
 #------------------------------------------------------------------------------
 
 sub copy_deeply {
-    my ($self, @args) = @_;
+    my ($self, $changes) = @_;
 
-    my $copy = $self->copy(@args);
+    my $copy = $self->copy($changes);
     $self->copy_properties(to => $copy);
-    $self->copy_members(to => $copy);
-    $copy->touch($self->last_modified_on);
+    $self->copy_registrations(to => $copy);
 
     return $copy;
 }
@@ -165,7 +199,7 @@ sub copy_properties {
 
 #------------------------------------------------------------------------------
 
-sub copy_members {
+sub copy_registrations {
     my ($self, %args) = @_;
 
     my $to_stack = $args{to};
@@ -195,34 +229,38 @@ sub mark_as_default {
     $rs->update_all( {is_default => 0} );
 
     $self->warning("Marking stack $self as default");
-    $self->update({is_default => 1});
+    $self->update( {is_default => 1} );
 
     return 1;
 }
 
 #------------------------------------------------------------------------------
 
-sub touch {
-    my ($self, $time, $user) = @_;
+sub mark_as_changed {
+    my ($self) = @_;
 
-    return unless $self->in_storage;
-
-    my %changes;
-    $changes{last_modified_on} = $time || time;
-    $changes{last_modified_by} = $user || $ENV{USER};
-
-    $self->update( \%changes );
+    $self->update( {has_changed => 1} ) unless $self->has_changed;
 
     return $self;
 }
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+sub revision {
+    my ($self, %args) = @_;
+
+    return $self->revisions if not defined $args{number};
+
+    return $self->find_related( revisions => {number => $args{number}} );
+}
+
+#------------------------------------------------------------------------------
 
 sub get_property {
-    my ($self, @prop_names) = @_;
+    my ($self, @prop_keys) = @_;
 
     my %props = %{ $self->get_properties };
-    return @props{@prop_names};
+    return @props{@prop_keys};
 }
 
 #-------------------------------------------------------------------------------
@@ -232,14 +270,15 @@ sub get_properties {
 
     my @props = $self->search_related('stack_properties')->all;
 
-    return { map { $_->name => $_->value } @props };
+    return { map { $_->key => $_->value } @props };
 }
 
 #-------------------------------------------------------------------------------
 
 sub set_property {
-    my ($self, $prop_name, $value) = @_;
-    return $self->set_properties( {$prop_name => $value} );
+    my ($self, $prop_key, $value) = @_;
+
+    return $self->set_properties( {$prop_key => $value} );
 }
 
 #-------------------------------------------------------------------------------
@@ -247,26 +286,25 @@ sub set_property {
 sub set_properties {
     my ($self, $props) = @_;
 
-    my $attrs  = {key => 'stack_name_unique'};
-    while (my ($name, $value) = each %{$props}) {
-        $name = Pinto::Util::normalize_property_name($name);
-        my $nv_pair = {name => $name, value => $value};
-        $self->update_or_create_related('stack_properties', $nv_pair, $attrs);
+    my $attrs  = {key => 'stack_key_unique'};
+    while (my ($key, $value) = each %{$props}) {
+        $key = Pinto::Util::normalize_property_name($key);
+        my $kv_pair = {key => $key, value => $value};
+        $self->update_or_create_related('stack_properties', $kv_pair, $attrs);
     }
 
-    $self->touch;
     return $self;
 }
 
 #-------------------------------------------------------------------------------
 
 sub delete_property {
-    my ($self, @prop_names) = @_;
+    my ($self, @prop_keys) = @_;
 
-    my $attrs = {key => 'stack_name_unique'};
+    my $attrs = {key => 'stack_key_unique'};
 
-    for my $prop_name (@prop_names) {
-          my $where = {name => $prop_name};
+    for my $prop_key (@prop_keys) {
+          my $where = {key => $prop_key};
           my $prop = $self->find_related('stack_properties', $where, $attrs);
           $prop->delete if $prop;
     }
@@ -309,12 +347,12 @@ sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
-           k => sub { $self->name                                          },
-           M => sub { $self->is_default              ? '*' : ' '           },
-           j => sub { $self->last_modified_by                              },
-           u => sub { $self->last_modified_on                              },
-           U => sub { Pinto::Util::ls_time_format($self->last_modified_on) },
-           e => sub { $self->get_property('description')                   },
+           k => sub { $self->name                                                     },
+           M => sub { $self->is_default                          ? '*' : ' '          },
+           j => sub { $self->head_revision->committed_by                              },
+           u => sub { $self->head_revision->committed_on                              },
+           U => sub { Pinto::Util::ls_time_format($self->head_revision->committed_on) },
+           e => sub { $self->get_property('description')                              },
     );
 
     $format ||= $self->default_format();
@@ -348,7 +386,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 
@@ -374,14 +412,15 @@ Pinto::Schema::Result::Stack
   data_type: 'integer'
   is_nullable: 0
 
-=head2 last_modified_on
+=head2 head_revision
 
   data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
 
-=head2 last_modified_by
+=head2 has_changed
 
-  data_type: 'text'
+  data_type: 'integer'
   is_nullable: 0
 
 =head1 PRIMARY KEY
@@ -394,6 +433,14 @@ Pinto::Schema::Result::Stack
 
 =head1 UNIQUE CONSTRAINTS
 
+=head2 C<head_revision_unique>
+
+=over 4
+
+=item * L</head_revision>
+
+=back
+
 =head2 C<name_unique>
 
 =over 4
@@ -404,11 +451,29 @@ Pinto::Schema::Result::Stack
 
 =head1 RELATIONS
 
+=head2 head_revision
+
+Type: belongs_to
+
+Related object: L<Pinto::Schema::Result::Revision>
+
+=head2 registration_changes
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::RegistrationChange>
+
 =head2 registrations
 
 Type: has_many
 
 Related object: L<Pinto::Schema::Result::Registration>
+
+=head2 revisions
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Revision>
 
 =head2 stack_properties
 

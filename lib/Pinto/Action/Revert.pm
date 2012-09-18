@@ -1,11 +1,11 @@
-# ABSTRACT: Loosen a package that has been pinned
+# ABSTRACT: Restore stack to a prior revision
 
-package Pinto::Action::Unpin;
+package Pinto::Action::Revert;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef);
+use MooseX::Types::Moose qw(Int);
 
-use Pinto::Types qw(Specs StackName);
+use Pinto::Types qw(StackName StackDefault);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
@@ -24,20 +24,18 @@ with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
-has targets => (
-    isa      => Specs,
-    traits   => [ qw(Array) ],
-    handles  => {targets => 'elements'},
-    required => 1,
-    coerce   => 1,
+has stack => (
+    is        => 'ro',
+    isa       => StackName | StackDefault,
+    default   => undef,
+    coerce    => 1,
 );
 
 
-has stack => (
-    is        => 'ro',
-    isa       => Undef | StackName,
-    default   => undef,
-    coerce    => 1,
+has revision => (
+    is       => 'ro',
+    isa      => Int,
+    default  => -1,
 );
 
 #------------------------------------------------------------------------------
@@ -45,9 +43,10 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->open_stack(name => $self->stack);
+    my $stack   = $self->repos->get_stack(name => $self->stack);
+    my $revnum  = $self->_compute_target_revnum($stack);
 
-    $self->_execute($_, $stack) for $self->targets;
+    $self->_execute($stack, $revnum);
 
     return $self->result if $self->dryrun or not $stack->refresh->has_changed;
 
@@ -55,41 +54,52 @@ sub execute {
 
     $stack->close(message => $self->edit_message(primer => $message_primer));
 
+    $self->repos->write_index(stack => $stack);
+
     return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
+sub _compute_target_revnum {
+    my ($self, $stack) = @_;
+
+    my $headnum = $stack->head_revision->number;
+
+    my $revnum  = $self->revision;
+    $revnum     = ($headnum + $revnum) if $revnum < 0;
+
+    $self->fatal("Stack $stack is already at revision 0")
+      if $headnum == 0;
+
+    $self->fatal("No such revision $revnum on stack $stack")
+      if $revnum > $headnum;
+
+    $self->fatal("Revision $revnum is the head of stack $stack")
+      if $revnum == $headnum;
+
+    return $revnum;
+}
+
+#------------------------------------------------------------------------------
+
 sub _execute {
-    my ($self, $target, $stack) = @_;
+    my ($self, $stack, $revnum) = @_;
 
-    my $dist;
-    if ($target->isa('Pinto::PackageSpec')) {
+    $self->notice("Reverting stack $stack to revision $revnum");
 
-        my $pkg_name = $target->name;
-        my $pkg = $self->repos->get_package(name => $pkg_name, stack => $stack)
-            or throw "Package $pkg_name is not registered on stack $stack";
+    my $new_head  = $self->repos->open_revision(stack => $stack);
+    my $previous_revision = $new_head->previous_revision;
 
-        $dist = $pkg->distribution;
-    }
-    elsif ($target->isa('Pinto::DistributionSpec')) {
-
-        $dist = $self->repos->get_distribution( author => $target->author,
-                                                archive => $target->archive );
-
-        throw "Distribution $target does not exist" if not $dist;
-    }
-    else {
-
-        my $type = ref $target;
-        throw "Don't know how to pin target of type $type";
+    while ($previous_revision->number > $revnum) {
+        $previous_revision->undo;
+        $previous_revision = $previous_revision->previous_revision;
     }
 
+    throw "Checksum does not match for revision $revnum.  Aborting"
+        if $previous_revision->md5 ne $new_head->compute_md5;
 
-    $self->notice("Unpinning $dist from stack $stack");
-    $self->result->changed if $dist->unpin(stack => $stack);
-
-    return;
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -108,7 +118,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Unpin - Loosen a package that has been pinned
+Pinto::Action::Revert - Restore stack to a prior revision
 
 =head1 VERSION
 

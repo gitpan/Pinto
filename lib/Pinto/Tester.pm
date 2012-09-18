@@ -1,6 +1,6 @@
-package Pinto::Tester;
-
 # ABSTRACT: A class for testing a Pinto repository
+
+package Pinto::Tester;
 
 use Moose;
 use MooseX::NonMoose;
@@ -21,11 +21,11 @@ use Pinto::Types qw(Uri Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Test::Builder::Module';
+extends qw(Test::Builder::Module);
 
 #------------------------------------------------------------------------------
 
@@ -63,14 +63,6 @@ has root => (
 );
 
 
-has root_url => (
-   is       => 'ro',
-   isa      => Uri,
-   default  => sub { URI->new('file://' . $_[0]->root->resolve->absolute) },
-   lazy     => 1,
-);
-
-
 has tb => (
    is       => 'ro',
    isa      => 'Test::Builder',
@@ -98,7 +90,7 @@ sub _build_pinto {
     my $initializer = Pinto::Initializer->new(%defaults, %log_defaults);
     $initializer->init( $self->init_args );
 
-    my $pinto = Pinto->new(%defaults, %log_defaults, $self->pinto_args());
+    my $pinto = Pinto->new(%defaults, %log_defaults, $self->pinto_args);
     return $pinto;
 }
 
@@ -134,7 +126,7 @@ sub path_not_exists_ok {
     my ($self, $path, $name) = @_;
 
     $path = file( $self->root(), @{$path} );
-    $name ||= "Path $path does not exist";
+    $name ||= "Path $path should not exist";
 
     $self->tb->ok(! -e $path, $name);
 
@@ -145,6 +137,8 @@ sub path_not_exists_ok {
 
 sub run_ok {
     my ($self, $action_name, $args, $test_name) = @_;
+
+    $args->{message} ||= ($test_name || "Testing action $action_name");
 
     my $result = $self->pinto->run($action_name, %{ $args });
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -176,8 +170,8 @@ sub registration_ok {
         = parse_reg_spec($reg_spec);
 
     my $author_dir = Pinto::Util::author_dir($author);
-    my $dist_path = $author_dir->file($dist_archive)->as_foreign('Unix');
-    my $stack     = $self->pinto->repos->get_stack(name => $stack_name);
+    my $dist_path  = $author_dir->file($dist_archive)->as_foreign('Unix');
+    my $stack      = $self->pinto->repos->get_stack(name => $stack_name);
 
     my $where = { stack => $stack->id, package_name => $pkg_name };
     my $attrs = { prefetch => {package => 'distribution' }};
@@ -199,14 +193,19 @@ sub registration_ok {
     # Test distribution object...
     my $dist = $pkg->distribution;
     $self->tb->is_eq($dist->path,  $dist_path, "Distribution has correct dist path");
-    $self->path_exists_ok( [$dist->native_path] );
+
+    # Archive should be reachable through stack symlink (e.g. $stack/authors/id/A/AU/AUTHOR/Foo-1.0.tar.gz)
+    $self->path_exists_ok( [$stack_name, qw(authors id), $dist->native_path] );
+
+    # Archive should be reachable through gobal authors dir (e.g. .pinto/authors/id/A/AU/AUTHOR/Foo-1.0.tar.gz)
+    $self->path_exists_ok( [ qw(.pinto authors id), $dist->native_path ] );
 
     # Test pins...
-    $self->tb->ok($reg->is_pinned,  "Registration $reg is pinned") if $is_pinned;
-    $self->tb->ok(!$reg->is_pinned, "Registration $reg is not pinned") if not $is_pinned;
+    $self->tb->ok($reg->is_pinned,  "Registration $reg should be pinned") if $is_pinned;
+    $self->tb->ok(!$reg->is_pinned, "Registration $reg should not be pinned") if not $is_pinned;
 
     # Test checksums...
-    $self->path_exists_ok( [qw(authors id), $author_dir, 'CHECKSUMS'] );
+    $self->path_exists_ok( [qw(.pinto authors id), $author_dir, 'CHECKSUMS'] );
     # TODO: test actual checksum values?
 
     return;
@@ -227,9 +226,10 @@ sub registration_not_ok {
     my $where = {stack => $stack->id, package_name => $pkg_name, distribution_path => $dist_path};
     my $reg = $self->pinto->repos->db->select_registration($where);
 
-    return $self->tb->ok(1, "Registration $reg_spec does not exist")
+    return $self->tb->ok(1, "Registration $reg_spec should not exist")
         if not $reg;
 }
+
 #------------------------------------------------------------------------------
 
 sub result_ok {
@@ -280,6 +280,19 @@ sub result_not_changed_ok {
 
 #------------------------------------------------------------------------------
 
+sub head_revision_number_is {
+    my ($self, $revnum, $stack_name, $test_name) = @_;
+
+    my $stack       = $self->pinto->repos->get_stack(name => $stack_name);
+    my $head_revnum = $stack->head_revision->number;
+
+    $test_name ||= "Head revision number of stack $stack matches";
+
+    return $self->tb->is_eq($head_revnum, $revnum, $test_name);
+}
+
+#------------------------------------------------------------------------------
+
 sub repository_clean_ok {
     my ($self) = @_;
 
@@ -293,6 +306,9 @@ sub repository_clean_ok {
     $self->tb->is_eq(scalar @stacks, 1, 'Database has only one stack');
     $self->tb->is_eq($stacks[0]->name, 'init',  'The stack is called "init"');
     $self->tb->is_eq($stacks[0]->is_default, 1,  'The stack is marked as default');
+
+    my $authors_id_dir = $self->pinto->config->authors_id_dir;
+    $self->tb->ok(! -e $authors_id_dir, 'The authors/id dir should be gone');
 
     return;
 }
@@ -339,13 +355,15 @@ sub populate {
     for my $spec (@specs) {
         my $struct  = make_dist_struct($spec);
         my $archive = make_dist_archive($struct);
+        my $message = "Populated repository with $spec";
 
         my $args = { norecurse => 1,
                      archives  => $archive,
-                     author    => $struct->{cpan_author} };
+                     author    => $struct->{cpan_author},
+                     message   => $message };
 
-        my $r = $self->run_ok('Add', $args, "Populating repository with $spec");
-        croak 'Population failed so the rest of this test is aborted' unless $r->was_successful;
+        my $r = $self->run_ok('Add', $args, $message);
+        croak 'Population failed. Aborting test' unless $r->was_successful;
     }
 
     return $self;
@@ -359,6 +377,16 @@ sub clear_cache {
     $self->pinto->repos->clear_cache;
 
     return $self;
+}
+
+#------------------------------------------------------------------------------
+
+sub stack_url {
+    my ($self, $stack_name) = @_;
+
+    $stack_name ||= 'init';
+
+    return URI->new('file://' . $self->root->resolve->absolute . "/$stack_name");
 }
 
 #------------------------------------------------------------------------------
@@ -377,7 +405,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

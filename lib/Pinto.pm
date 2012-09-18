@@ -1,39 +1,39 @@
-package Pinto;
-
 # ABSTRACT: Curate a repository of Perl modules
 
+package Pinto;
+
 use Moose;
-use MooseX::Types::Moose qw(Str);
 
 use Try::Tiny;
-use Class::Load;
 
 use Pinto::Repository;
+use Pinto::ActionFactory;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has repos   => (
+has repos => (
     is         => 'ro',
     isa        => 'Pinto::Repository',
     lazy       => 1,
     default    => sub { Pinto::Repository->new( config => $_[0]->config,
-                                                logger => $_[0]->logger ) },
+                                                logger => $_[0]->logger, ) },
 );
 
 
-has action_base_class => (
-    is         => 'ro',
-    isa        => Str,
-    default    => 'Pinto::Action',
-    init_arg   => undef,
+has action_factory => (
+    is        => 'ro',
+    isa       => 'Pinto::ActionFactory',
+    lazy      => 1,
+    default   => sub { Pinto::ActionFactory->new( config => $_[0]->config,
+                                                  logger => $_[0]->logger,
+                                                  repos  => $_[0]->repos, ) },
 );
-
 
 #------------------------------------------------------------------------------
 
@@ -42,91 +42,23 @@ with qw( Pinto::Role::Configurable
 
 #------------------------------------------------------------------------------
 
-
 sub run {
-    my ($self, $action_name, %args) = @_;
+    my ($self, $action_name, @action_args) = @_;
 
-    # Divert any warnings to our logger
-    local $SIG{__WARN__} = sub { $self->warning(@_) };
+    my $action = $self->action_factory->create_action($action_name => @action_args);
 
-    my $action_class = $self->action_base_class . "::$action_name";
-    Class::Load::load_class($action_class);
+    my $lock_type = $action->does('Pinto::Role::Committable') ? 'EX' : 'SH';
+    $self->repos->lock($lock_type);
 
-    my $runner = $action_class->does('Pinto::Role::Operator') ?
-      '_run_operator' : '_run_reporter';
-
-    my $result = try     { $self->$runner($action_class, %args)   }
-                 catch   { $self->repos->unlock; $self->fatal($_) };
+    my $result = try   { $action->execute }
+                 catch { $self->repos->unlock; die $_ };
 
     $self->repos->unlock;
-    return $result;
-}
-
-#------------------------------------------------------------------------------
-
-sub _run_reporter {
-    my ($self, $action_class, %args) = @_;
-
-    $self->repos->lock_shared;
-    $self->repos->check_schema_version;
-    @args{qw(logger repos)} = ($self->logger, $self->repos);
-    my $action = $action_class->new( %args );
-    my $result = $action->execute;
-
-    return $result;
-
-}
-
-#------------------------------------------------------------------------------
-
-sub _run_operator {
-    my ($self, $action_class, %args) = @_;
-
-    $self->repos->lock_exclusive;
-    $self->repos->check_schema_version;
-    $self->repos->db->schema->txn_begin;
-
-    my $result = try {
-        @args{qw(logger repos)} = ($self->logger, $self->repos);
-        my $action = $action_class->new( %args );
-        my $res    = $action->execute;
-
-        if ($action->dryrun) {
-            $self->notice('Dryrun -- rolling back database');
-            $self->repos->db->schema->txn_rollback;
-        }
-        elsif ( not $res->made_changes ) {
-            $self->notice('No changes were made');
-            $self->repos->db->schema->txn_rollback;
-        }
-        else {
-
-            # We only need to update the static index file if changes
-            # were made on the stack that the file represents (i.e. it
-            # is the default stack).  If the $operative_stack is not
-            # defined, then it is the default stack by definition.
-
-            my $operative_stack = $action->operative_stack;
-            my $default_stack   = $self->repos->get_default_stack->name;
-
-            $self->repos->write_index if not defined $operative_stack
-                or $operative_stack eq $default_stack;
-
-            $self->repos->db->schema->txn_commit;
-        }
-
-        $res; # returned from try{}
-    }
-    catch {
-        $self->repos->db->schema->txn_rollback;
-        die $_;        ## no critic qw(Carping)
-    };
 
     return $result;
 }
 
 #------------------------------------------------------------------------------
-
 
 sub add_logger {
     my ($self, @args) = @_;
@@ -158,7 +90,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 SYNOPSIS
 
@@ -178,18 +110,6 @@ the standard Perl tool chain. Pinto supports various operations for
 gathering and managing distribution dependencies within the
 repository, so that you can control precisely which dependencies go
 into your application.
-
-=head1 METHODS
-
-=head2 run( $action_name => %action_args )
-
-Runs the Action with the given C<$action_name>, passing the
-C<%action_args> to its constructor.  Returns a L<Pinto::Result>.
-
-=head2 add_logger( $obj )
-
-Convenience method for installing additional endpoints for logging.
-The object must be an instance of a L<Log::Dispatch::Output> subclass.
 
 =head1 FEATURES
 

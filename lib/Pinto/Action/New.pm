@@ -3,7 +3,6 @@
 package Pinto::Action::New;
 
 use Moose;
-use MooseX::Aliases;
 use MooseX::Types::Moose qw(Str);
 
 use Pinto::Types qw(StackName);
@@ -12,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,10 +19,13 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
+with qw( Pinto::Role::Committable );
+
+#------------------------------------------------------------------------------
+
 has stack => (
     is       => 'ro',
     isa      => StackName,
-    alias    => 'operative_stack',
     required => 1,
     coerce   => 1,
 );
@@ -37,22 +39,25 @@ has description => (
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Operator );
-
-#------------------------------------------------------------------------------
-
 sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->create_stack(name => $self->stack);
-    $stack->set_property('description' => $self->description);
+
+    $stack->set_property(description => $self->description) if $self->has_description;
+
+    my $message_primer = $stack->head_revision->change_details;
+
+    $stack->close(message => $self->edit_message(primer => $message_primer));
+
+    $self->repos->write_index(stack => $stack);
 
     return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
@@ -70,7 +75,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

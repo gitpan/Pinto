@@ -6,11 +6,13 @@ use Moose;
 
 use Path::Class;
 use File::Find;
+use Scalar::Util qw(blessed);
 
 use Pinto::Util;
 use Pinto::Locker;
 use Pinto::Database;
 use Pinto::IndexCache;
+use Pinto::IndexWriter;
 use Pinto::Store::File;
 use Pinto::PackageExtractor;
 use Pinto::Exception qw(throw);
@@ -20,7 +22,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -45,7 +47,6 @@ has store => (
     is         => 'ro',
     isa        => 'Pinto::Store::File',
     lazy       => 1,
-    handles    => [ qw(initialize commit tag) ],
     default    => sub { Pinto::Store::File->new( config => $_[0]->config,
                                                  logger => $_[0]->logger ) },
 );
@@ -66,9 +67,7 @@ has locker  => (
     is         => 'ro',
     isa        => 'Pinto::Locker',
     lazy       => 1,
-    handles    => { lock_exclusive => [lock => 'EX'],
-                    lock_shared    => [lock => 'SH'],
-                    unlock         => 'unlock' },
+    handles    => [ qw(lock unlock) ],
     default    => sub { Pinto::Locker->new( config => $_[0]->config,
                                             logger => $_[0]->logger ) },
 );
@@ -94,6 +93,8 @@ sub BUILD {
         my $root_dir = $self->config->root_dir();
         throw "Directory $root_dir does not look like a Pinto repository";
     }
+
+    $self->check_schema_version;
 
     return $self;
 }
@@ -121,10 +122,10 @@ sub check_schema_version {
 #-------------------------------------------------------------------------------
 
 sub get_property {
-    my ($self, @prop_names) = @_;
+    my ($self, @keys) = @_;
 
     my %props = %{ $self->get_properties };
-    return @props{@prop_names};
+    return @props{@keys};
 }
 
 #-------------------------------------------------------------------------------
@@ -134,14 +135,15 @@ sub get_properties {
 
     my @props = $self->db->repository_properties->search->all;
 
-    return { map { $_->name => $_->value } @props };
+    return { map { $_->key => $_->value } @props };
 }
 
 #-------------------------------------------------------------------------------
 
 sub set_property {
-    my ($self, $prop_name, $value) = @_;
-    return $self->set_properties( {$prop_name => $value} );
+    my ($self, $key, $value) = @_;
+
+    return $self->set_properties( {$key => $value} );
 }
 
 #-------------------------------------------------------------------------------
@@ -149,10 +151,10 @@ sub set_property {
 sub set_properties {
     my ($self, $props) = @_;
 
-    while (my ($name, $value) = each %{$props}) {
-        $name = Pinto::Util::normalize_property_name($name);
-        my $nv_pair = {name => $name, value => $value};
-        $self->db->repository_properties->update_or_create($nv_pair);
+    while (my ($key, $value) = each %{$props}) {
+        $key = Pinto::Util::normalize_property_name($key);
+        my $kv_pair = {key => $key, value => $value};
+        $self->db->repository_properties->update_or_create($kv_pair);
     }
 
     return $self;
@@ -161,10 +163,10 @@ sub set_properties {
 #-------------------------------------------------------------------------------
 
 sub delete_property {
-    my ($self, @prop_names) = @_;
+    my ($self, @keys) = @_;
 
-    for my $prop_name (@prop_names) {
-        my $where = {name => $prop_name};
+    for my $key (@keys) {
+        my $where = {key => $key};
         my $prop = $self->db->repository_properties->update_or_create($where);
         $prop->delete if $prop;
     }
@@ -177,6 +179,7 @@ sub delete_property {
 sub delete_properties {
     my ($self) = @_;
 
+    # TODO: Do not allow deletion of system props
     my $props_rs = $self->db->repository_properties->search;
     $props_rs->delete;
 
@@ -194,7 +197,8 @@ sub get_stack {
     return $self->get_default_stack if not $stk_name;
 
     my $where = { name => $stk_name };
-    my $stack = $self->db->select_stack( $where );
+    my $attrs = { prefetch => 'head_revision' };
+    my $stack = $self->db->select_stack( $where, $attrs );
 
     throw "Stack $stk_name does not exist"
         unless $stack or $args{nocroak};
@@ -209,12 +213,26 @@ sub get_default_stack {
     my ($self) = @_;
 
     my $where = {is_default => 1};
-    my @stacks = $self->db->select_stacks( $where )->all;
+    my $attrs = {prefetch => 'head_revision'};
+    my @stacks = $self->db->select_stacks( $where, $attrs )->all;
 
     throw "PANIC! There must be exactly one default stack" if @stacks != 1;
 
     return $stacks[0];
 }
+
+#-------------------------------------------------------------------------------
+
+
+sub open_stack {
+    my ($self, %args) = @_;
+
+    my $stack = $self->get_stack(%args, nocroak => 0);
+    my $revision = $self->open_revision(stack => $stack);
+
+    return $stack;
+}
+
 
 #-------------------------------------------------------------------------------
 
@@ -263,7 +281,6 @@ sub add {
     my $archive = $args{archive};
     my $author  = $args{author};
     my $source  = $args{source} || 'LOCAL';
-    my $index   = $args{index}  || 1;  # Is this needed?
 
     throw "Archive $archive does not exist"  if not -e $archive;
     throw "Archive $archive is not readable" if not -r $archive;
@@ -299,7 +316,8 @@ sub add {
     # the repository will still be clean.
 
     my $dist = $self->db->create_distribution( $dist_struct );
-    my $archive_in_repos = $dist->native_path( $self->root_dir );
+    my $basedir = $self->config->authors_id_dir;
+    my $archive_in_repos = $dist->native_path( $basedir );
     $self->fetch( from => $archive, to => $archive_in_repos );
     $self->store->add_archive( $archive_in_repos );
 
@@ -313,16 +331,16 @@ sub pull {
     my ($self, %args) = @_;
 
     my $url = $args{url};
-    my ($source, $path, $author) = Pinto::Util::parse_dist_url( $url );
+    my ($host, $path, $author) = Pinto::Util::parse_dist_url($url);
 
     throw "Distribution $path already exists"
-        if $self->get_distribution( path => $path );
+        if $self->get_distribution(path => $path);
 
     my $archive = $self->fetch_temporary(url => $url);
 
     my $dist = $self->add( archive   => $archive,
                            author    => $author,
-                           source    => $source );
+                           source    => $url );
     return $dist;
 }
 
@@ -357,10 +375,10 @@ sub _pull_by_package_spec {
     my $latest = $self->get_package(name => $pkg_name);
 
     if (defined $latest && ($latest->version >= $pkg_ver)) {
-        my $dist = $latest->distribution;
+        my $got_dist = $latest->distribution;
         $self->debug( sub {"Already have package $pspec or newer as $latest"} );
-        my $did_register = $dist->register(stack => $stack);
-        return ($dist, $did_register);
+        my $did_register = $got_dist->register(stack => $stack);
+        return ($got_dist, 0);
     }
 
     my $dist_url = $self->locate( package => $pspec->name,
@@ -378,11 +396,11 @@ sub _pull_by_package_spec {
     }
 
     $self->notice("Pulling distribution $dist_url");
-    my $dist = $self->pull(url => $dist_url);
+    my $pulled_dist = $self->pull(url => $dist_url);
 
-    $dist->register( stack => $stack );
+    $pulled_dist->register( stack => $stack );
 
-    return ($dist, 1);
+    return ($pulled_dist, 1);
 }
 
 #------------------------------------------------------------------------------
@@ -398,7 +416,7 @@ sub _pull_by_distribution_spec {
     if ($got_dist) {
         $self->info("Already have distribution $dspec");
         my $did_register = $got_dist->register(stack => $stack);
-        return ($got_dist, $did_register);
+        return ($got_dist, 0);
     }
 
     my $dist_url = $self->locate(distribution => $dspec->path)
@@ -408,15 +426,15 @@ sub _pull_by_distribution_spec {
 
     if ( Pinto::Util::isa_perl($dist_url) ) {
         $self->debug("Distribution $dist_url is a perl. Skipping it.");
-        return (undef , 0);
+        return (undef, 0);
     }
 
     $self->notice("Pulling distribution $dist_url");
-    my $dist = $self->pull(url => $dist_url);
+    my $pulled_dist = $self->pull(url => $dist_url);
 
-    $dist->register( stack => $stack );
+    $pulled_dist->register( stack => $stack );
 
-    return ($dist, 1);
+    return ($pulled_dist, 1);
 }
 
 #------------------------------------------------------------------------------
@@ -481,17 +499,52 @@ sub pull_prerequisites {
 sub create_stack {
     my ($self, %args) = @_;
 
-    my $name  = Pinto::Util::normalize_stack_name($args{name});
-    my $props = $args{properties};
+    $args{name} = Pinto::Util::normalize_stack_name($args{name});
+    $args{is_default} ||= 0;
 
-    throw "Stack $name already exists"
-        if $self->get_stack(name => $name, nocroak => 1);
+    throw "Stack $args{name} already exists"
+        if $self->get_stack(name => $args{name}, nocroak => 1);
 
-    my $stack = $self->db->create_stack( {name => $name} );
-    $stack->set_properties($props) if $props;
+    my $revision = $self->open_revision;
+    my $stack    = $self->db->create_stack( {%args, head_revision => $revision} );
+
+    $revision->update( {stack => $stack} );
+
+    $self->create_stack_filesystem(stack => $stack);
 
     return $stack;
+}
 
+#-------------------------------------------------------------------------------
+
+sub copy_stack {
+    my ($self, %args) = @_;
+
+    my $from_stack    = $args{from};
+    my $to_stack_name = $args{to};
+
+    my $revision = $self->open_revision;
+    my $changes  = {head_revision => $revision, name => $to_stack_name};
+    my $copy     = $from_stack->copy_deeply( $changes );
+
+    $revision->update( {stack => $copy} );
+
+    $self->create_stack_filesystem(stack => $copy);
+
+    $copy->refresh;  # Make sure $copy has reference to the new $revision
+
+    return $copy;
+}
+
+#-------------------------------------------------------------------------------
+
+sub delete_stack {
+   my ($self, %args) = @_;
+
+   $args{stack}->delete;
+   $self->delete_stack_filesystem(%args);
+
+   return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -499,12 +552,50 @@ sub create_stack {
 sub write_index {
     my ($self, %args) = @_;
 
-    my $writer = Pinto::IndexWriter->new(logger => $self->logger);
-
-    $args{file}  ||= $self->config->index_file unless $args{handle};
     $args{stack} ||= $self->get_default_stack;
+    $args{logger} = $self->logger;
+    $args{config} = $self->config;
 
-    $writer->write(%args);
+    my $writer = Pinto::IndexWriter->new( %args );
+    $writer->write_index;
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub create_stack_filesystem {
+    my ($self, %args) = @_;
+
+    my $stack = $args{stack};
+
+    my $stack_dir = $self->root_dir->subdir($stack->name);
+    $stack_dir->mkpath;
+
+    my $stack_modules_dir = $stack_dir->subdir('modules');
+    $stack_modules_dir->mkpath;
+
+    my $stack_authors_dir  = $stack_dir->subdir('authors');
+    my $shared_authors_dir = $self->config->authors_dir->relative($stack_dir);
+    _symlink($shared_authors_dir, $stack_authors_dir);
+
+    my $stack_modlist_file  = $stack_modules_dir->file('03modlist.data.gz');
+    my $shared_modlist_file = $self->config->modlist_file->relative($stack_modules_dir);
+    _symlink($shared_modlist_file, $stack_modlist_file);
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub delete_stack_filesystem {
+    my ($self, %args) = @_;
+
+    my $stack = $args{stack};
+    my $stack_dir = $self->root_dir->subdir($stack->name);
+
+    $self->debug("Removing stack directory $stack_dir");
+    $stack_dir->rmtree or throw "Failed to remove $stack_dir" if -e $stack_dir;
 
     return $self;
 }
@@ -524,21 +615,58 @@ sub clean_files {
         my $archive = $path->basename;
 
         return if $archive eq 'CHECKSUMS';
+        return if $archive eq '01mailrc.txt.gz';
+
+        # TODO: Optimize by fetching all known distributions in one query.
+        # Then stash in hash keyed by path.  Delete any path not in hash.
         return if $self->get_distribution(author => $author, archive => $archive);
 
-        $self->notice("Removing orphaned archive $path");
+        $self->notice("Removing orphaned archive at $path");
         $self->store->remove_archive($path);
         $deleted++;
     };
 
-    my $authors_id_dir = $self->config->authors_dir->subdir('id');
-    File::Find::find({no_chdir => 1, wanted => $callback}, $authors_id_dir);
+    my $authors_dir = $self->config->authors_dir;
+    $self->debug("Cleaning orphaned archives beneath $authors_dir");
+    File::Find::find({no_chdir => 1, wanted => $callback}, $authors_dir);
 
     return $deleted;
 }
 
 #-------------------------------------------------------------------------------
 
+sub _symlink {
+    my ($to, $from) = @_;
+
+    # TODO: symlink is not supported on windows.  Consider using Win32::API
+    # as a workaround.  But from what I've read, it requires admin rights :(
+
+    my $ok = symlink $to, $from
+        or throw "symlink to $to from $from failed: $!";
+
+    return $ok;
+}
+
+#-------------------------------------------------------------------------------
+
+sub open_revision {
+    my ($self, %args) = @_;
+
+    $args{message} ||= '';     # Message usually updated when we commmit
+
+    my $revision = $self->db->create_revision(\%args);
+    my $revnum = $revision->number;
+
+    if (my $stack = $args{stack}) {
+        $stack->update({head_revision => $revision});
+        $self->debug("Opened new head revision $revnum on stack $stack");
+    }
+    else {
+        $self->debug("Opened new head revision $revnum but not bound to stack" );
+    }
+
+    return $revision;
+}
 
 #-------------------------------------------------------------------------------
 
@@ -560,7 +688,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 ATTRIBUTES
 
@@ -570,23 +698,17 @@ version 0.051
 
 =head2 cache
 
+=head2 locker
+
 =head2 extractor
 
 =head1 METHODS
-
-=head2 initialize()
-
-=head2 commit()
-
-=head2 tag()
 
 =head2 locate( package => );
 
 =head2 locate( distribution => );
 
-=head2 lock_shared
-
-=head2 lock_exclusive
+=head2 lock( $LOCK_TYPE )
 
 =head2 unlock
 
@@ -603,14 +725,45 @@ than an exception will not be thrown and undef will be returned.  If
 you do not specify a stack name (or it is undefined) then you'll get
 whatever stack is currently marked as the default stack.
 
+The stack object will not be open for revision, so you will not be
+able to change any of the registrations for that stack.  To get a
+stack that you can modify, use C<open_stack>.
+
 =head2 get_default_stack()
 
 Returns the L<Pinto::Schema::Result::Stack> that is currently marked
 as the default stack in this repository.  This is what you get when you
 call C<get_stack> without any arguments.
 
+The stack object will not be open for revision, so you will not be
+able to change any of the registrations for that stack.  To get a
+stack that you can modify, use C<open_stack>.
+
 At any time, there must be exactly one default stack.  This method will
 throw an exception if it discovers that condition is not true.
+
+=head2 open_stack()
+
+=head2 open_stack( name => $stack_name )
+
+Returns the L<Pinto::Schema::Result::Stack> object with the given
+C<$stack_name> and sets the head revision of the stack to point to a
+newly created L<Pinto::Schema::Result::Revision>.  You can them
+proceed to modify the registrations or properties associated with the
+stack.
+
+If you do not specify a stack name (or it is undefined) then you'll
+get whatever stack is currently marked as the default stack.  But if
+you do specify a name, then the stack must already exist or an
+exception will be thrown.
+
+This method also starts a transaction.  Calling C<commit> or
+C<rollback> on the stack will close the transaction.  If the stack
+object goes out of scope before you call close the transaction, it
+will automatically rollback.
+
+Use C<get_stack> instead if you just want to read the registrations
+and properties.
 
 =head2 get_package( name => $pkg_name )
 
@@ -645,35 +798,19 @@ representing the newly added distribution.
 
 =head2 pull( url => $url )
 
-Pulls a distribution archive from a remote repository and C<add>s it
-to this repository.  The packages provided by the distribution will be
+Pulls a distribution archive from a remote URL and adds it to this
+repository.  The packages provided by the distribution will be
 indexed, and the prerequisites will be recorded.  Returns a
 L<Pinto::Schema::Result::Distribution> object representing the newly
 pulled distribution.
 
-=head2 pull( package => $spec )
-
-=head2 pull( distribution => $spec )
-
-=head2 create_stack(name => $stk_name, properties => { $key => $value, ... } )
+=head2 create_stack(name => $stk_name)
 
 =head2 clean_files()
 
 Deletes all distribution archives that are on the filesystem but not
-listed in a stack.  This can happen when an Action fails or is aborted
+in the database.  This can happen when an Action fails or is aborted
 prematurely.
-
-=head2 locate(path = $dist_path)
-
-=head2 locate(package => $name)
-
-=head2 locate(package => $name, version => $vers)
-
-=head2 get_or_locate(path = $dist_path)
-
-=head2 get_or_locate(package => $name)
-
-=head2 get_or_locate(package => $name, version => $vers)
 
 =head1 AUTHOR
 

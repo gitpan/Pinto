@@ -3,7 +3,6 @@
 package Pinto::Action::Install;
 
 use Moose;
-use MooseX::Aliases;
 use MooseX::Types::Moose qw(Undef Bool HashRef ArrayRef Maybe Str);
 
 use File::Which qw(which);
@@ -15,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -42,7 +41,6 @@ has cpanm_exe => (
 has stack   => (
     is        => 'ro',
     isa       => StackName | Undef,
-    alias     => 'operative_stack',
     default   => undef,
     coerce    => 1,
 );
@@ -61,10 +59,6 @@ has pull => (
     isa     => Bool,
     default => 0,
 );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -96,6 +90,8 @@ sub execute {
     my $stack = $self->repos->get_stack(name => $self->stack);
 
     do { $self->_pull($stack, $_) for $self->targets } if $self->pull;
+
+    $self->repos->write_index(stack => $stack) if $self->result->made_changes;
 
     $self->_install($stack, $self->targets);
 
@@ -129,13 +125,10 @@ sub _pull {
 sub _install {
     my ($self, $stack, @targets) = @_;
 
-    my $temp_index_fh = File::Temp->new;
-    $self->repos->write_index(stack => $stack, handle => $temp_index_fh);
-
     # Wire cpanm to our repo
     my $opts = $self->cpanm_options;
-    $opts->{'mirror-index'} = $temp_index_fh->filename;
-    $opts->{mirror}         = 'file://' . $self->repos->root->absolute;
+    $opts->{'mirror-only'} = '';
+    $opts->{mirror} = 'file://' . $self->repos->root->absolute . "/$stack";
 
     # Process other cpanm options
     my @cpanm_opts;
@@ -174,7 +167,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

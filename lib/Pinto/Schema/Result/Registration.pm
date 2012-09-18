@@ -41,6 +41,9 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("stack_package_name_unique", ["stack", "package_name"]);
 
 
+__PACKAGE__->add_unique_constraint("stack_package_unique", ["stack", "package"]);
+
+
 __PACKAGE__->belongs_to(
   "package",
   "Pinto::Schema::Result::Package",
@@ -61,8 +64,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-05-01 08:58:34
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hPckPn0RQHVTiNk3qYaL8Q
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-14 13:53:35
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vVMTiTt58Vt2uqE5hPFjTA
 
 #------------------------------------------------------------------------------
 
@@ -70,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -88,6 +91,8 @@ use overload ( '""'     => 'to_string',
 
 sub FOREIGNBUILDARGS {
     my ($class, $args) = @_;
+
+    # Should we default these here or in the database?
 
     $args ||= {};
     $args->{is_pinned} ||= 0;
@@ -107,80 +112,103 @@ sub FOREIGNBUILDARGS {
 
 #-------------------------------------------------------------------------------
 
+sub update { throw 'Updates to '.  __PACKAGE__ . ' are not allowed'; }
+
+#-------------------------------------------------------------------------------
+
 sub insert {
-    my ($self) = @_;
+    my ($self, @args) = @_;
 
     # Compute values for denormalized attributes...
-
     $self->package_name($self->package->name);
     $self->package_version($self->package->version->stringify);
     $self->distribution_path($self->package->distribution->path);
 
-    $self->stack->touch;
+    my $return = $self->next::method(@args);
 
-    return $self->next::method;
+    $self->_record_change('insert');
+
+    return $return;
  }
-
-#-------------------------------------------------------------------------------
-
-sub update {
-    my ($self, $args) = @_;
-
-    $args ||= {};
-
-    # These columns are derived from the package.  We've denormalized
-    # the table slightly to ensure data integrity and optimize the table
-    # for generating the index file (all the data is in one table).
-
-    for my $attr ( qw(package_name package_version distribution_path) ){
-        throw "Attribute '$attr' cannot be set directly" if $args->{$attr};
-    }
-
-
-    # TODO: Denormalizing the table here feels a bit wonky.  Again,
-    # we could probably do this with DB triggers, but I just despise them.
-
-    my $pkg = $args->{package} || $self->package;
-
-    $args->{package_name}      = $pkg->name;
-    $args->{package_version}   = $pkg->version;
-    $args->{distribution_path} = $pkg->distribution->path;
-
-    # TODO: Do we need to check if the object was actually updated
-    # before touching the stack?  It seems unlikely, but it is possible
-    # that none of the attributes changed so no UPDATE was issued.  We could
-    # probably avoid that kind of dilemma with triggers, but I hate them :(
-    $self->stack->touch;
-
-    return $self->next::method($args);
-}
 
 #-------------------------------------------------------------------------------
 
 sub delete {
     my ($self, @args) = @_;
 
-    # TODO: Do we need to check if the object was actually deleted
-    # before touching the stack?  It seems unlikely, but it is possible
-    # that the object was never in_storage to begin with.  We could
-    # probably avoid that kind of dilemma with triggers, but I hate them :(
-    $self->stack->touch;
+    my $return = $self->next::method(@args);
 
-    return $self->next::method(@args);
+    $self->_record_change('delete');
+
+    return $return;
+ }
+
+#------------------------------------------------------------------------------
+
+sub _record_change {
+  my ($self, $event) = @_;
+
+    my $stack    = $self->stack;
+    my $revision = $stack->head_revision;
+
+    throw "Stack $stack is not open for revision"
+      if $revision->is_committed;
+
+    my $hist = { stack      => $stack,
+                 package    => $self->package,
+                 is_pinned  => $self->is_pinned,
+                 revision   => $revision,
+                 event      => $event };
+
+    # Update history....
+    my $rs = $self->result_source->schema->resultset('RegistrationChange');
+
+    # Usually, a package is added OR removed only once during a single
+    # revision.  But during a Revert action, we unwind several past
+    # revisions inside of a new revision.  So it is possible that the
+    # same package could have been added AND removed several times
+    # during one of those past revisions.
+
+    if ( my $change = $rs->find($hist) ) {
+        $self->debug("$change already applied to revision $revision. Skipping");
+    }
+    else {
+        my $verb = $event eq 'delete' ? 'deleted' : 'inserted';
+        $self->debug( sub{"$self $verb in history for revision $revision"} );
+        $rs->create($hist);
+    }
+
+    $stack->mark_as_changed;
+
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
 
 sub pin {
     my ($self) = @_;
-    return $self->update({is_pinned => 1});
+
+    throw "$self is already pinned" if $self->is_pinned;
+
+    $self->delete;
+    $self->is_pinned(1);
+    $self->insert;
+
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
 
 sub unpin {
     my ($self) = @_;
-    return $self->update({is_pinned => 0});
+
+    throw "$self is not pinned" if not $self->is_pinned;
+
+    $self->delete;
+    $self->is_pinned(0);
+    $self->insert;
+
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -298,8 +326,8 @@ sub to_string {
          k => sub { $self->stack->name                                          },
          M => sub { $self->stack->is_default                 ? '*' : ' '        },
          e => sub { $self->stack->get_property('description')                   },
-         u => sub { $self->stack->last_modified_on                              },
-         U => sub { Pinto::Util::ls_time_format($self->stack->last_modified_on) },
+         j => sub { $self->stack->head_revision->committed_by                   },
+         u => sub { $self->stack->head_revision->committed_on                   },
          y => sub { $self->is_pinned                        ? '+' : ' '         },
     );
 
@@ -338,7 +366,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 
@@ -403,6 +431,16 @@ Pinto::Schema::Result::Registration
 =item * L</stack>
 
 =item * L</package_name>
+
+=back
+
+=head2 C<stack_package_unique>
+
+=over 4
+
+=item * L</stack>
+
+=item * L</package>
 
 =back
 

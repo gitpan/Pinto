@@ -9,7 +9,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,14 +17,10 @@ extends 'Pinto::Action';
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Reporter );
-
-#------------------------------------------------------------------------------
-
 has format => (
     is      => 'ro',
     isa     => Str,
-    default => "%M %-16k %-16j %U\n",
+    default => "%M %-16k %-16j %U",
 );
 
 #------------------------------------------------------------------------------
@@ -36,7 +32,7 @@ sub execute {
     my @stacks = $self->repos->db->select_stacks(undef, $attrs)->all;
 
     for my $stack ( @stacks ) {
-        print { $self->out } $stack->to_string($self->format);
+        $self->say($stack->to_string($self->format));
     }
 
     return $self->result;
@@ -62,7 +58,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

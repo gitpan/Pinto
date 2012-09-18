@@ -8,16 +8,27 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
 has logger  => (
+   is       => 'ro',
+   isa      => 'Pinto::Logger',
    handles  => [ qw(debug info notice warning error fatal) ],
    default  => sub { $_[0]->result_source->schema->logger },
-   init_arg => undef,
    lazy     => 1,
 );
+
+#------------------------------------------------------------------------------
+
+sub refresh {
+    my ($self) = @_;
+
+    $self->discard_changes;
+
+    return $self;
+}
 
 #------------------------------------------------------------------------------
 
@@ -35,7 +46,18 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.051
+version 0.052
+
+=head1 DESCRIPTION
+
+This role adds a L<Pinto::Logger> attributes.  It should only be
+applied to L<Pinto::Schema::Result> subclasses, as it will reach into
+the underlying L<Pinto::Schema> object to get at the logger.
+
+This gives us a back door for injecting additional attributes into
+L<Pinto::Schema::Result> objects, since those are usually created by
+L<DBIx::Class> and we don't have control over the construction
+process.
 
 =head1 AUTHOR
 
@@ -52,3 +74,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+

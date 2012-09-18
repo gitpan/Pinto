@@ -1,3 +1,38 @@
+0.052     2012-09-18 16:15:38 America/Los_Angeles
+
+     Important:
+
+     This version of Pinto is not compatible with repositories that
+     were created with prior versions.  The way that archives and
+     indexes are stored on the filesystem has been made simpler
+     and faster.  If using Pinto::Server, you'll need to upgrade
+     that too.  Contact thaljef@cpan.org if you need a migration
+     path for an existing repository.
+
+     New Features:
+
+     Now supports a Revert action, which restores the stack to
+     a prior revision.  This is light-weight form of version control.
+
+     Now supports a Log action, which displays the history of
+     changes to a stack.
+
+     Each action that changes the state of the repository now requires
+     a commit message.  You can pass this into the API, or it
+     will prompt for one via your editor.
+
+     Other Changes:
+
+     The Index action is no longer supported.  Now that each
+     stack has its own index file, I see no need to have this
+     Action.
+
+     Orphaned archives are now automatically cleaned whenever
+     you do an Add or Pull action with dryrun enabled.
+
+     Now requires Dist-Requires-0.008, which fixes some test
+     failures on some platforms.
+
 0.051     2012-08-15 18:27:34 America/Los_Angeles
 
      More hacking to workaround the broken prefetch feature

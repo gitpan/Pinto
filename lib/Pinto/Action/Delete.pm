@@ -3,7 +3,6 @@
 package Pinto::Action::Delete;
 
 use Moose;
-use MooseX::Aliases;
 
 use Pinto::Types qw(StackName);
 
@@ -11,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,14 +21,9 @@ extends qw( Pinto::Action );
 has stack => (
     is       => 'ro',
     isa      => StackName,
-    alias    => 'operative_stack',
     required => 1,
     coerce   => 1,
 );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -37,7 +31,8 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->get_stack(name => $self->stack);
-    $stack->delete;
+
+    $self->repos->delete_stack(stack => $stack);
 
     return $self->result->changed;
 }
@@ -62,7 +57,7 @@ Pinto::Action::Delete - Delete a stack
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

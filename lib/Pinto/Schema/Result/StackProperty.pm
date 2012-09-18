@@ -22,7 +22,7 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "stack",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "name",
+  "key",
   { data_type => "text", is_nullable => 0 },
   "value",
   { data_type => "text", default_value => "", is_nullable => 1 },
@@ -32,7 +32,7 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("stack_name_unique", ["stack", "name"]);
+__PACKAGE__->add_unique_constraint("stack_key_unique", ["stack", "key"]);
 
 
 __PACKAGE__->belongs_to(
@@ -47,8 +47,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-30 12:42:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z05ZOuRC81L0D/lHByjugw
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-13 09:44:02
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hr2tDQcORrtek9hk9AtzVw
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ Pinto::Schema::Result::StackProperty - Represents stack metadata
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 
@@ -99,7 +99,7 @@ Pinto::Schema::Result::StackProperty
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 name
+=head2 key
 
   data_type: 'text'
   is_nullable: 0
@@ -120,13 +120,13 @@ Pinto::Schema::Result::StackProperty
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<stack_name_unique>
+=head2 C<stack_key_unique>
 
 =over 4
 
 =item * L</stack>
 
-=item * L</name>
+=item * L</key>
 
 =back
 

@@ -12,15 +12,11 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Reporter );
 
 #------------------------------------------------------------------------------
 
@@ -42,7 +38,7 @@ sub execute {
     my $stats = Pinto::Statistics->new(db    => $self->repos->db,
                                        stack => $stack->name);
 
-    print { $self->out } $stats->to_formatted_string();
+    $self->say($stats->to_formatted_string);
 
     return $self->result;
 }
@@ -67,7 +63,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

@@ -20,7 +20,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -121,6 +121,7 @@ sub normalize_property_name {
     my ($prop_name) = @_;
 
     $prop_name = lc  $prop_name;
+    # TODO: make sure this regex matches the PropertykName type constraint
     throw "Invalid property name $prop_name" if $prop_name =~ m{[^a-z0-9._:-]};
 
     return $prop_name;
@@ -133,6 +134,7 @@ sub normalize_stack_name {
     my ($stack_name) = @_;
 
     $stack_name = lc  $stack_name;
+    # TODO: make sure this regex matches the StackName type constraint
     throw "Invalid stack name $stack_name" if $stack_name =~ m{[^a-z0-9._:-]};
 
     return $stack_name;
@@ -167,7 +169,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 DESCRIPTION
 

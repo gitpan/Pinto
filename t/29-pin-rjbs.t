@@ -19,7 +19,7 @@ $cpan->populate( 'JOHN/DistA-1 = PkgA~1 & PkgB~1',
 
 #------------------------------------------------------------------------------
 
-my $local = Pinto::Tester->new(init_args => {sources => $cpan->root_url});
+my $local = Pinto::Tester->new(init_args => {sources => $cpan->stack_url});
 
 # PkgA requires PkgB (above). MyDist requires both PkgA and PkgB...
 my $archive =  make_dist_archive('MyDist-1=MyPkg-1 & PkgA~1,PkgB~1');
@@ -32,7 +32,6 @@ $local->registration_ok('FRED/DistB-1/PkgB~1');
 # Now, suppose that PkgA and PkgB both are upgraded on CPAN
 $cpan->populate( 'JOHN/DistA-2 = PkgA~2 & PkgB~2',
                  'FRED/DistB-2 = PkgB~2', );
-
 $local->clear_cache; # Make sure we get new index from CPAN
 
 # We would like to try and upgrade to PkgA-2.  So create a new stack

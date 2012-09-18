@@ -44,6 +44,14 @@ __PACKAGE__->belongs_to(
 
 
 __PACKAGE__->has_many(
+  "registration_changes",
+  "Pinto::Schema::Result::RegistrationChange",
+  { "foreign.package" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
+__PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
   { "foreign.package" => "self.id" },
@@ -55,8 +63,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-30 13:28:14
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:WmTnWaYne00RFrQwStuZbw
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-17 14:51:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Uhv4DkCpUuJH9XuRVRejg
 
 #------------------------------------------------------------------------------
 
@@ -73,7 +81,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -224,7 +232,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 
@@ -283,6 +291,12 @@ Pinto::Schema::Result::Package
 Type: belongs_to
 
 Related object: L<Pinto::Schema::Result::Distribution>
+
+=head2 registration_changes
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::RegistrationChange>
 
 =head2 registrations
 

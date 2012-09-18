@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.051
+    version 0.052
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -20,15 +20,6 @@ DESCRIPTION
     gathering and managing distribution dependencies within the repository,
     so that you can control precisely which dependencies go into your
     application.
-
-METHODS
-  run( $action_name => %action_args )
-    Runs the Action with the given $action_name, passing the %action_args to
-    its constructor. Returns a Pinto::Result.
-
-  add_logger( $obj )
-    Convenience method for installing additional endpoints for logging. The
-    object must be an instance of a Log::Dispatch::Output subclass.
 
 FEATURES
     Pinto is inspired by Carton, CPAN::Mini::Inject, and MyCPAN::App::DPAN,

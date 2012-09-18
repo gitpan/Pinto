@@ -21,6 +21,7 @@ my @modules = qw(
   CPAN::DistnameInfo
   Carp
   Class::Load
+  Cwd::Guard
   DBD::SQLite
   DBIx::Class
   DBIx::Class::Core
@@ -32,12 +33,16 @@ my @modules = qw(
   Dist::Requires
   Exporter
   ExtUtils::MakeMaker
+  File::Basename
   File::Find
   File::NFSLock
   File::Spec::Functions
   File::Temp
   File::Which
+  HTTP::Date
+  IO::Interactive
   IO::String
+  JSON
   LWP::UserAgent
   List::Util
   Log::Dispatch
@@ -56,7 +61,6 @@ my @modules = qw(
   Package::Locator
   Path::Class
   PerlIO::gzip
-  Pinto::Common
   Pinto::DistributionSpec
   Pinto::Exception
   Pinto::PackageSpec
@@ -66,6 +70,7 @@ my @modules = qw(
   SQL::Translator
   Scalar::Util
   String::Format
+  Term::EditorEdit
   Test::Builder::Module
   Test::Exception
   Test::File

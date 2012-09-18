@@ -1,17 +1,17 @@
-# ABSTRACT: Show the index of a stack
+# ABSTRACT: Show revision log for a stack
 
-package Pinto::Action::Index;
+package Pinto::Action::Log;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef HashRef Str Bool);
+use MooseX::Types::Moose qw(Bool Int Undef);
 
-use Pinto::Types qw(Author StackName);
+use Pinto::Types qw(StackName StackDefault);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,15 +19,25 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Reporter );
-
-#------------------------------------------------------------------------------
-
 has stack => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackDefault,
     default   => undef,
     coerce    => 1,
+);
+
+
+has revision => (
+    is        => 'ro',
+    isa       => Int | Undef,
+    default   => undef,
+);
+
+
+has detailed => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
 );
 
 #------------------------------------------------------------------------------
@@ -36,7 +46,19 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->get_stack(name => $self->stack);
-    $self->repos->write_index(stack => $stack, handle => $self->out);
+
+    my $revnum = $self->revision;
+    my @revisions = $stack->revision(number => $revnum);
+
+    $self->fatal("No such revision $revnum on stack $stack")
+      if !@revisions && defined $revnum;
+
+    my $format = "%k\@%b | %j | %u\n\n%g\n";
+    for my $revision (reverse @revisions) {
+        $self->say('-' x 79);
+        $self->say($revision->to_string($format));
+        $self->say($revision->change_details) if $self->detailed;
+    }
 
     return $self->result;
 }
@@ -57,11 +79,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Index - Show the index of a stack
+Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

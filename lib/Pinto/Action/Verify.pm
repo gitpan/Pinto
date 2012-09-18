@@ -10,15 +10,11 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Reporter );
 
 #------------------------------------------------------------------------------
 
@@ -31,7 +27,7 @@ sub execute {
 
     while ( my $dist = $rs->next ) {
         my $archive = $dist->archive( $self->repos->root_dir );
-        print { $self->out } "Missing distribution $archive\n" if not -e $archive;
+        $self->say("Missing distribution $archive") if not -e $archive;
     }
 
     return $self->result;
@@ -57,7 +53,7 @@ Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

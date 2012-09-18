@@ -13,15 +13,11 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Reporter );
+extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
@@ -36,7 +32,7 @@ has stack  => (
 has format => (
     is      => 'ro',
     isa     => Str,
-    default => "%n = %v\n",
+    default => "%n = %v",
 );
 
 #------------------------------------------------------------------------------
@@ -48,7 +44,7 @@ sub execute {
 
     my $props = $stack->get_properties;
     while ( my ($prop, $value) = each %{$props} ) {
-        print { $self->out } stringf($self->format, {n => $prop, v => $value});
+        $self->say(stringf($self->format, {n => $prop, v => $value}));
     }
 
     return $self->result;
@@ -74,7 +70,7 @@ Pinto::Action::Props - Show stack properties
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 

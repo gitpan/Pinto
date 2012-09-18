@@ -3,7 +3,7 @@
 package Pinto::Action::Merge;
 
 use Moose;
-use MooseX::Aliases;
+use MooseX::Types::Moose qw(Bool);
 
 use Pinto::Types qw(StackName);
 
@@ -11,11 +11,15 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 #------------------------------------------------------------------------------
 
-extends 'Pinto::Action';
+extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
@@ -30,14 +34,9 @@ has from_stack => (
 has to_stack => (
     is       => 'ro',
     isa      => StackName,
-    alias    => 'operative_stack',
     required => 1,
     coerce   => 1,
 );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Operator );
 
 #------------------------------------------------------------------------------
 
@@ -45,23 +44,26 @@ sub execute {
     my ($self) = @_;
 
     my $from_stack = $self->repos->get_stack(name => $self->from_stack);
-    my $to_stack   = $self->repos->get_stack(name => $self->to_stack);
+    my $to_stack   = $self->repos->open_stack(name => $self->to_stack);
 
     $self->notice("Merging stack $from_stack into stack $to_stack");
 
-    my $did_merge = $from_stack->merge( to => $to_stack );
+    $from_stack->merge(to => $to_stack);
 
-    $self->result->changed if $did_merge;
+    return $self->result if $self->dryrun or not $to_stack->refresh->has_changed;
 
-    return $self->result;
+    $self->repos->write_index(stack => $to_stack);
+
+    $to_stack->close(message => $self->message);
+
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
-
 1;
 
 
@@ -76,7 +78,7 @@ Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 AUTHOR
 
