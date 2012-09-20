@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.052'; # VERSION
+our $VERSION = '0.053'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,16 +46,16 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->open_stack(name => $self->stack);
-
     $self->_execute($_, $stack) for $self->targets;
+    $self->result->changed if $stack->refresh->has_changed;
 
-    return $self->result if $self->dryrun or not $stack->refresh->has_changed;
+    if ( $stack->has_changed and not $self->dryrun ) {
+        my $message_primer = $stack->head_revision->change_details;
+        my $message = $self->edit_message(primer => $message_primer);
+        $stack->close(message => $message, committed_by => $self->username);
+    }
 
-    my $message_primer = $stack->head_revision->change_details;
-
-    $stack->close(message => $self->edit_message(primer => $message_primer));
-
-    return $self->result->changed;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.052
+version 0.053
 
 =head1 AUTHOR
 

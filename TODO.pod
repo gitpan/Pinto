@@ -2,6 +2,8 @@
 
 =over 4
 
+=item Ensure the Store does not overwrite files.
+
 =item Extract versioning stuff to a separate dist.
 
 =item Command to unregister a pkg/dist
@@ -19,6 +21,8 @@
 =item Refactor the Initializer class
 
 #--------------------------
+
+=item Attribute to indicate of package was explicitly requested for stack
 
 =item Improve locking mechanism (one lock per stack, maybe in db).
 

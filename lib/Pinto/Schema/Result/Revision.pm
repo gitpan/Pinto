@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.052'; # VERSION
+our $VERSION = '0.053'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,9 +108,10 @@ sub FOREIGNBUILDARGS {
   # TODO: Should we really default these here or in the DB?
 
   $args ||= {};
-  $args->{committed_by} ||= $ENV{USER};
-  $args->{committed_on} = 0;
-  $args->{is_committed} = 0;
+  $args->{message}      ||= '';
+  $args->{committed_by} ||= '';
+  $args->{committed_on}   = 0;
+  $args->{is_committed}   = 0;
 
   return $args;
 }
@@ -175,7 +176,17 @@ sub next_revision {
 sub close {
     my ($self, %args) = @_;
 
-    throw "Revision $self is already committed" if $self->is_committed;
+    throw "Revision $self is already closed"
+      if $self->is_committed;
+
+    throw "Must specify a message to close revision $self"
+       unless $args{message} or $self->messsage;
+
+    throw "Must specify a username to close revision $self"
+       unless $args{committed_by} or $self->committed_by;
+
+    throw "Must specify a stack to close revision $self"
+       unless $args{stack} or $self->stack;
 
     $self->update( { %args,
                      committed_on => time,
@@ -279,7 +290,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.052
+version 0.053
 
 =head1 NAME
 

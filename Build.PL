@@ -23,7 +23,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.052",
+  "dist_version" => "0.053",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -35,6 +35,7 @@ my %module_build_args = (
     "Class::Load" => 0,
     "Cwd::Guard" => 0,
     "DBD::SQLite" => "1.33",
+    "DBIx::Class" => "0.08200",
     "DBIx::Class::Core" => 0,
     "DBIx::Class::Schema" => 0,
     "DateTime" => 0,

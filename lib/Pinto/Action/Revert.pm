@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.052'; # VERSION
+our $VERSION = '0.053'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -47,16 +47,16 @@ sub execute {
     my $revnum  = $self->_compute_target_revnum($stack);
 
     $self->_execute($stack, $revnum);
+    $self->result->changed if $stack->refresh->has_changed;
 
-    return $self->result if $self->dryrun or not $stack->refresh->has_changed;
+    if ($stack->has_changed and not $self->dryrun) {
+        my $message_primer = $stack->head_revision->change_details;
+        my $message = $self->edit_message(primer => $message_primer);
+        $stack->close(message => $message, committed_by => $self->username);
+        $self->repos->write_index(stack => $stack);
+    }
 
-    my $message_primer = $stack->head_revision->change_details;
-
-    $stack->close(message => $self->edit_message(primer => $message_primer));
-
-    $self->repos->write_index(stack => $stack);
-
-    return $self->result->changed;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ Pinto::Action::Revert - Restore stack to a prior revision
 
 =head1 VERSION
 
-version 0.052
+version 0.053
 
 =head1 AUTHOR
 

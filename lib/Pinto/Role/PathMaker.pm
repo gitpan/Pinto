@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.052'; # VERSION
+our $VERSION = '0.053'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -57,7 +57,7 @@ Pinto::Role::PathMaker - Something that makes directory paths
 
 =head1 VERSION
 
-version 0.052
+version 0.053
 
 =head1 METHODS
 

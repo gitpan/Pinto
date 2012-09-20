@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.052'; # VERSION
+our $VERSION = '0.053'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ sub _create_stack {
 
     $repos->write_index(stack => $stack);
 
-    $stack->close(message => 'Created initial stack');
+    $stack->close(message => 'Created initial stack', committed_by => $ENV{USER});
 
     return;
 }
@@ -192,7 +192,7 @@ Pinto::Initializer - Initializes a new Pinto repository
 
 =head1 VERSION
 
-version 0.052
+version 0.053
 
 =head1 AUTHOR
 
