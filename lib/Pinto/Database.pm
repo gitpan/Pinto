@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -195,7 +195,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 AUTHOR
 

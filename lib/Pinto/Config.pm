@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -28,6 +28,13 @@ has root       => (
     alias      => 'root_dir',
     required   => 1,
     coerce     => 1,
+);
+
+
+has username  => (
+    is        => 'ro',
+    isa       => Str,
+    default   => sub { return $ENV{USER} || $ENV{USERNAME} || $ENV{LOGNAME} },
 );
 
 
@@ -225,7 +232,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 DESCRIPTION
 

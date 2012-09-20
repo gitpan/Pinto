@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ with qw( Pinto::Role::Committable );
 has author => (
     is         => 'ro',
     isa        => Author,
-    default    => sub { uc ($_[0]->pausecfg->{user} || $_[0]->username) },
+    default    => sub { uc ($_[0]->pausecfg->{user} || $_[0]->repos->config->username) },
     coerce     => 1,
     lazy       => 1,
 );
@@ -103,7 +103,7 @@ sub execute {
     if ($stack->has_changed and not $self->dryrun) {
         my $message_primer = $stack->head_revision->change_details;
         my $message = $self->edit_message(primer => $message_primer);
-        $stack->close(message => $message, committed_by => $self->username);
+        $stack->close(message => $message);
         $self->repos->write_index(stack => $stack);
     }
 
@@ -148,7 +148,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 AUTHOR
 

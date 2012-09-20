@@ -5,13 +5,14 @@ package Pinto::Action::List;
 use Moose;
 use MooseX::Types::Moose qw(Undef HashRef Str Bool);
 
-use Pinto::Types qw(Author StackName StackAt StackDefault);
+use Pinto::Types qw(Author StackName StackAll StackDefault);
+use Pinto::Constants qw($PINTO_STACK_NAME_ALL);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ extends qw( Pinto::Action );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | StackAt | StackDefault,
+    isa       => StackName | StackAll | StackDefault,
     default   => undef,
     coerce    => 1,
 );
@@ -103,7 +104,7 @@ sub execute {
     my $stk_name = $self->stack;
     my $format;
 
-    if (defined $stk_name and $stk_name eq '@') {
+    if (defined $stk_name and $stk_name eq $PINTO_STACK_NAME_ALL) {
         # If listing all stacks, then include the stack name
         # in the listing, unless a custom format has been given
         $format = $self->has_format ? $self->format
@@ -164,7 +165,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 AUTHOR
 

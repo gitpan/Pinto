@@ -22,7 +22,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -652,7 +652,8 @@ sub _symlink {
 sub open_revision {
     my ($self, %args) = @_;
 
-    $args{message} ||= '';     # Message usually updated when we commmit
+    $args{message}      ||= '';     # Message usually updated when we commmit
+    $args{committed_by} ||= $self->config->username;
 
     my $revision = $self->db->create_revision(\%args);
     my $revnum = $revision->number;
@@ -670,7 +671,7 @@ sub open_revision {
 
 #-------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #-------------------------------------------------------------------------------
 
@@ -688,7 +689,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 ATTRIBUTES
 

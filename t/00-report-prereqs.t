@@ -61,6 +61,7 @@ my @modules = qw(
   Package::Locator
   Path::Class
   PerlIO::gzip
+  Pinto::Constants
   Pinto::DistributionSpec
   Pinto::Exception
   Pinto::PackageSpec

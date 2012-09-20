@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ sub execute {
     if ($to_stack->has_changed and not $self->dryrun) {
         my $message_primer = $to_stack->head_revision->change_details;
         my $message = $self->edit_message(primer => $message_primer);
-        $to_stack->close(message => $message, committed_by => $self->username);
+        $to_stack->close(message => $message);
         $self->repos->write_index(stack => $to_stack);
     }
 
@@ -80,7 +80,7 @@ Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 AUTHOR
 

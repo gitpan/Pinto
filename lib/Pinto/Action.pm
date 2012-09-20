@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.054'; # VERSION
+our $VERSION = '0.055'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -26,13 +26,6 @@ has repos => (
     is       => 'ro',
     isa      => 'Pinto::Repository',
     required => 1,
-);
-
-
-has username => (
-    is       => 'ro',
-    isa      => Str,
-    default  => sub { $ENV{USER} },
 );
 
 
@@ -82,7 +75,7 @@ Pinto::Action - Base class for all Actions
 
 =head1 VERSION
 
-version 0.054
+version 0.055
 
 =head1 AUTHOR
 

@@ -2,6 +2,8 @@
 
 =over 4
 
+=item Rethink the API for getting/opening/committing stacks
+
 =item Ensure the Store does not overwrite files.
 
 =item Extract versioning stuff to a separate dist.
