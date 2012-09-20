@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.053'; # VERSION
+our $VERSION = '0.054'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -366,7 +366,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.053
+version 0.054
 
 =head1 NAME
 

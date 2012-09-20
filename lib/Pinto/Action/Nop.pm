@@ -9,7 +9,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.053'; # VERSION
+our $VERSION = '0.054'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.053
+version 0.054
 
 =head1 DESCRIPTION
 

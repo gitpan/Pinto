@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.053'; # VERSION
+our $VERSION = '0.054'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -139,7 +139,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.053
+version 0.054
 
 =head1 METHODS
 

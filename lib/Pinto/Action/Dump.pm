@@ -18,7 +18,7 @@ use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.053'; # VERSION
+our $VERSION = '0.054'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -263,7 +263,7 @@ Pinto::Action::Dump - Dump repository contents and revision history to a file
 
 =head1 VERSION
 
-version 0.053
+version 0.054
 
 =head1 AUTHOR
 

@@ -28,169 +28,169 @@ no_index:
 provides:
   Pinto:
     file: lib/Pinto.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action:
     file: lib/Pinto/Action.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Add:
     file: lib/Pinto/Action/Add.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Clean:
     file: lib/Pinto/Action/Clean.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Copy:
     file: lib/Pinto/Action/Copy.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Delete:
     file: lib/Pinto/Action/Delete.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Dump:
     file: lib/Pinto/Action/Dump.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Edit:
     file: lib/Pinto/Action/Edit.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Install:
     file: lib/Pinto/Action/Install.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::List:
     file: lib/Pinto/Action/List.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Log:
     file: lib/Pinto/Action/Log.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Merge:
     file: lib/Pinto/Action/Merge.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::New:
     file: lib/Pinto/Action/New.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Nop:
     file: lib/Pinto/Action/Nop.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Pin:
     file: lib/Pinto/Action/Pin.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Props:
     file: lib/Pinto/Action/Props.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Pull:
     file: lib/Pinto/Action/Pull.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Revert:
     file: lib/Pinto/Action/Revert.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Stacks:
     file: lib/Pinto/Action/Stacks.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Statistics:
     file: lib/Pinto/Action/Statistics.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Unpin:
     file: lib/Pinto/Action/Unpin.pm
-    version: 0.053
+    version: 0.054
   Pinto::Action::Verify:
     file: lib/Pinto/Action/Verify.pm
-    version: 0.053
+    version: 0.054
   Pinto::ActionFactory:
     file: lib/Pinto/ActionFactory.pm
-    version: 0.053
+    version: 0.054
   Pinto::Config:
     file: lib/Pinto/Config.pm
-    version: 0.053
+    version: 0.054
   Pinto::Database:
     file: lib/Pinto/Database.pm
-    version: 0.053
+    version: 0.054
   Pinto::IndexCache:
     file: lib/Pinto/IndexCache.pm
-    version: 0.053
+    version: 0.054
   Pinto::IndexWriter:
     file: lib/Pinto/IndexWriter.pm
-    version: 0.053
+    version: 0.054
   Pinto::Initializer:
     file: lib/Pinto/Initializer.pm
-    version: 0.053
+    version: 0.054
   Pinto::Locker:
     file: lib/Pinto/Locker.pm
-    version: 0.053
+    version: 0.054
   Pinto::Logger:
     file: lib/Pinto/Logger.pm
-    version: 0.053
+    version: 0.054
   Pinto::PackageExtractor:
     file: lib/Pinto/PackageExtractor.pm
-    version: 0.053
+    version: 0.054
   Pinto::Repository:
     file: lib/Pinto/Repository.pm
-    version: 0.053
+    version: 0.054
   Pinto::Result:
     file: lib/Pinto/Result.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::Committable:
     file: lib/Pinto/Role/Committable.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::Configurable:
     file: lib/Pinto/Role/Configurable.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::FileFetcher:
     file: lib/Pinto/Role/FileFetcher.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::Loggable:
     file: lib/Pinto/Role/Loggable.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::PathMaker:
     file: lib/Pinto/Role/PathMaker.pm
-    version: 0.053
+    version: 0.054
   Pinto::Role::Schema::Result:
     file: lib/Pinto/Role/Schema/Result.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema:
     file: lib/Pinto/Schema.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Distribution:
     file: lib/Pinto/Schema/Result/Distribution.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Package:
     file: lib/Pinto/Schema/Result/Package.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Prerequisite:
     file: lib/Pinto/Schema/Result/Prerequisite.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Registration:
     file: lib/Pinto/Schema/Result/Registration.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::RegistrationChange:
     file: lib/Pinto/Schema/Result/RegistrationChange.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::RepositoryProperty:
     file: lib/Pinto/Schema/Result/RepositoryProperty.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Revision:
     file: lib/Pinto/Schema/Result/Revision.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::Stack:
     file: lib/Pinto/Schema/Result/Stack.pm
-    version: 0.053
+    version: 0.054
   Pinto::Schema::Result::StackProperty:
     file: lib/Pinto/Schema/Result/StackProperty.pm
-    version: 0.053
+    version: 0.054
   Pinto::Statistics:
     file: lib/Pinto/Statistics.pm
-    version: 0.053
+    version: 0.054
   Pinto::Store:
     file: lib/Pinto/Store.pm
-    version: 0.053
+    version: 0.054
   Pinto::Store::File:
     file: lib/Pinto/Store/File.pm
-    version: 0.053
+    version: 0.054
   Pinto::Tester:
     file: lib/Pinto/Tester.pm
-    version: 0.053
+    version: 0.054
   Pinto::Tester::Util:
     file: lib/Pinto/Tester/Util.pm
-    version: 0.053
+    version: 0.054
   Pinto::Util:
     file: lib/Pinto/Util.pm
-    version: 0.053
+    version: 0.054
 requires:
   CPAN::Checksums: 0
   CPAN::DistnameInfo: 0
@@ -259,4 +259,4 @@ resources:
   bugtracker: https://github.com/thaljef/Pinto/issues
   homepage: https://metacpan.org/module/Pinto::Manual
   repository: git://github.com/thaljef/Pinto.git
-version: 0.053
+version: 0.054

@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.053'; # VERSION
+our $VERSION = '0.054'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Attributes
@@ -58,7 +58,10 @@ sub provides {
         push @provides, {name => $pkg_name, version => $pkg_ver};
     }
 
-    $self->warning("$archive contains no packages") if not @provides;
+    @provides = $self->__common_sense_workaround($args{archive}->basename)
+      if @provides == 0 and $args{archive}->basename =~ m/^ common-sense /x;
+
+    $self->warning("$archive provides no packages") if not @provides;
 
     return $self->_versionize(@provides);
 }
@@ -116,6 +119,25 @@ sub _versionize {
 }
 
 #-----------------------------------------------------------------------------
+# HACK: The common-sense distribution generates the .pm file at build time.
+# It relies on an unusual feature of PAUSE that scans the __DATA__ section
+# of .PM files for potential packages.  Module::Metdata doesn't have that
+# feature, so to us, it appears that common-sense contains no packages.
+# I've asked the author to use the "provides" field of the META file so
+# that other tools can discover the packages in his distribution, but
+# he has refused to do so.  So we work around it by just assuming the
+# distribution contains a package named "common::sense".
+
+sub __common_sense_workaround {
+    my ($self, $cs_archive) = @_;
+
+    my ($version) = ($cs_archive =~ m/common-sense- ([\d_.]+) \.tar\.gz/x);
+
+    return { name => 'common::sense',
+             version => version->parse($version) };
+}
+
+#-----------------------------------------------------------------------------
 
 __PACKAGE__->meta->make_immutable;
 
@@ -135,7 +157,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.053
+version 0.054
 
 =head1 AUTHOR
 
