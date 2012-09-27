@@ -3,16 +3,15 @@
 package Pinto::Action::Statistics;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef);
 
-use Pinto::Types qw(StackName);
+use Pinto::Types qw(StackName StackDefault);
 use Pinto::Statistics;
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +21,7 @@ extends qw( Pinto::Action );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackDefault,
     default   => undef,
     coerce    => 1,
 );
@@ -63,7 +62,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

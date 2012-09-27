@@ -1,11 +1,11 @@
-# ABSTRACT: Add a local distribution into the repository
+# ABSTRACT: Replace a distribution archive within the repository
 
-package Pinto::Action::Add;
+package Pinto::Action::Replace;
 
 use Moose;
-use MooseX::Types::Moose qw(Bool Str);
+use MooseX::Types::Moose qw(Bool);
 
-use Pinto::Types qw(Author Files StackName StackDefault);
+use Pinto::Types qw(Author DistSpec StackName StackDefault File);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
@@ -20,7 +20,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::PauseConfig Pinto::Role::Committable );
+with qw( Pinto::Role::PauseConfig Pinto::Role::Committable);
 
 #------------------------------------------------------------------------------
 
@@ -33,20 +33,19 @@ has author => (
 );
 
 
-has archives  => (
-    isa       => Files,
-    traits    => [ qw(Array) ],
-    handles   => {archives => 'elements'},
+has target  => (
+    is        => 'ro',
+    isa       => DistSpec,
     required  => 1,
     coerce    => 1,
 );
 
 
-has stack => (
-    is       => 'ro',
-    isa      => StackName | StackDefault,
-    default  => undef,
-    coerce   => 1,
+has archive  => (
+    is        => 'ro',
+    isa       => File,
+    required  => 1,
+    coerce    => 1,
 );
 
 
@@ -68,14 +67,10 @@ has norecurse => (
 sub BUILD {
     my ($self, $args) = @_;
 
-    my @missing = grep { not -e $_ } $self->archives;
-    $self->error("Archive $_ does not exist") for @missing;
+    my $archive = $self->archive;
 
-    my @unreadable = grep { -e $_ and not -r $_ } $self->archives;
-    $self->error("Archive $_ is not readable") for @unreadable;
-
-    throw "Some archives are missing or unreadable"
-        if @missing or @unreadable;
+    throw "Archive $archive does not exist"  if not -e $archive;
+    throw "Archive $archive is not readable" if not -r $archive;
 
     return $self;
 }
@@ -85,32 +80,46 @@ sub BUILD {
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->open_stack(name => $self->stack);
-    $self->_add($_, $stack) for $self->archives;
+    my $target = $self->target;
+    my $old_dist  = $self->repos->get_distribution( spec => $target );
 
-    if ($self->result->made_changes and not $self->dryrun) {
-        my $message = $self->edit_message(stacks => [$stack]);
+    throw "Distribution $target is not in the repository" if not $old_dist;
+
+    my $new_dist = $self->repos->add( archive => $self->archive,
+                                      author  => $self->author );
+
+    my @registered_stacks = $old_dist->registered_stacks;
+    my @changed_stacks = grep {$self->_replace( $_, $old_dist, $new_dist )} @registered_stacks;
+    return $self->result if not @changed_stacks;
+
+    my $message = $self->edit_message(stacks => \@changed_stacks);
+
+    for my $stack (@changed_stacks) {
         $stack->close(message => $message);
         $self->repos->write_index(stack => $stack);
     }
 
-    return $self->result;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
-sub _add {
-    my ($self, $archive, $stack) = @_;
+sub _replace {
+    my ($self, $stack, $old_dist, $new_dist) = @_;
 
-    $self->notice("Adding distribution archive $archive");
+    $self->repos->open_stack(stack => $stack);
 
-    my $dist = $self->repos->add(archive => $archive, author => $self->author);
+    for my $package ($old_dist->packages) {
+        my $reg = $package->registration(stack => $stack) or next;
+        $reg->delete;
+    }
 
-    $dist->register(stack => $stack, pin => $self->pin);
+    $new_dist->register( stack => $stack, pin => $self->pin );
 
-    $self->repos->pull_prerequisites(dist => $dist, stack => $stack) unless $self->norecurse;
+    $self->repos->pull_prerequisites( dist  => $new_dist,
+                                      stack => $stack ) unless $self->norecurse;
 
-    return $self->result->changed;
+    return $stack if $stack->refresh->has_changed;
 }
 
 #------------------------------------------------------------------------------
@@ -118,11 +127,10 @@ sub _add {
 sub message_primer {
     my ($self) = @_;
 
-    my $archives  = join ', ', map {$_->basename} $self->archives;
-    my $pinned    = $self->pin       ? ' and pinned'            : '';
-    my $prereqs   = $self->norecurse ? ' without prerequisites' : '';
+    my $target  = $self->target;
+    my $archive = $self->archive->basename;
 
-    return "Added${pinned} ${archives}$prereqs.";
+    return "Replaced $target with $archive.";
 }
 
 #------------------------------------------------------------------------------
@@ -140,7 +148,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Add - Add a local distribution into the repository
+Pinto::Action::Replace - Replace a distribution archive within the repository
 
 =head1 VERSION
 

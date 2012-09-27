@@ -81,7 +81,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -114,7 +114,9 @@ sub register {
     my ($self, %args) = @_;
 
     my $stack = $args{stack};
-    $self->create_related('registrations', {stack => $stack->id});
+    my $pin   = $args{pin};
+
+    $self->create_related('registrations', {stack => $stack->id, is_pinned => $pin});
 
     return $self;
 }
@@ -124,12 +126,11 @@ sub register {
 sub registration {
     my ($self, %args) = @_;
 
-    my $where1 = {name => $args{stack}};
-    my $stack  = $self->result_source->schema->resultset('Stack')->find($where1);
+    my $stack = $args{stack};
+    my $where = {stack => $stack};
+    my $attrs = {key   => 'stack_package_unique'};
 
-    my $attrs  = {key  => 'stack_package_name_unique'};
-    my $where2 = {stack => $stack, package_name => $self->name};
-    return $self->find_related('registrations', $where2, $attrs);
+    return $self->find_related('registrations', $where, $attrs);
 }
 
 #------------------------------------------------------------------------------
@@ -232,7 +233,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 NAME
 

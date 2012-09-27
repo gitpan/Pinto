@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -232,7 +232,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 DESCRIPTION
 

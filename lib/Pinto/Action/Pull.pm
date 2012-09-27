@@ -3,15 +3,15 @@
 package Pinto::Action::Pull;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef Bool);
+use MooseX::Types::Moose qw(Bool);
 
-use Pinto::Types qw(Specs StackName);
+use Pinto::Types qw(Specs StackName StackDefault);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ has targets => (
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackDefault,
     default   => undef,
     coerce    => 1,
 );
@@ -53,13 +53,6 @@ has norecurse => (
     default   => 0,
 );
 
-
-has dryrun => (
-    is      => 'ro',
-    isa     => Bool,
-    default => 0,
-);
-
 #------------------------------------------------------------------------------
 
 
@@ -68,12 +61,10 @@ sub execute {
 
     my $stack = $self->repos->open_stack(name => $self->stack);
 
-    $self->_execute($_, $stack) for $self->targets;
-    $self->result->changed if $stack->refresh->has_changed;
+    $self->_pull($_, $stack) for $self->targets;
 
-    if ($stack->has_changed and not $self->dryrun) {
-        my $message_primer = $stack->head_revision->change_details;
-        my $message = $self->edit_message(primer => $message_primer);
+    if ($self->result->made_changes and not $self->dryrun) {
+        my $message = $self->edit_message(stacks => [$stack]);
         $stack->close(message => $message);
         $self->repos->write_index(stack => $stack);
     }
@@ -83,20 +74,31 @@ sub execute {
 
 #------------------------------------------------------------------------------
 
-sub _execute {
+sub _pull {
     my ($self, $target, $stack) = @_;
 
-    my ($dist, $did_pull) = $self->repos->get_or_pull( target => $target,
-                                                       stack  => $stack );
-
-    $dist->pin( stack => $stack ) if $dist && $self->pin;
+    my ($dist, $did_pull) = $self->repos->find_or_pull(target => $target);
+    my $did_register = $dist ? $dist->register(stack => $stack, pin => $self->pin) : undef;
 
     if ($dist and not $self->norecurse) {
-        my @prereq_dists = $self->repos->pull_prerequisites( dist  => $dist,
-                                                             stack => $stack );
+        $did_pull += $self->repos->pull_prerequisites(dist => $dist, stack => $stack);
     }
 
+    $self->result->changed if $did_pull or $did_register;
+
     return;
+}
+
+#------------------------------------------------------------------------------
+
+sub message_primer {
+    my ($self) = @_;
+
+    my $targets  = join ', ', $self->targets;
+    my $pinned   = $self->pin       ? ' and pinned'            : '';
+    my $prereqs  = $self->norecurse ? ' without prerequisites' : '';
+
+    return "Pulled${pinned} ${targets}$prereqs.";
 }
 
 #------------------------------------------------------------------------------
@@ -119,7 +121,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

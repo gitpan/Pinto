@@ -21,7 +21,7 @@ use Pinto::Types qw(Uri Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -137,8 +137,6 @@ sub path_not_exists_ok {
 
 sub run_ok {
     my ($self, $action_name, $args, $test_name) = @_;
-
-    $args->{message} ||= ($test_name || "Testing action $action_name");
 
     my $result = $self->pinto->run($action_name, %{ $args });
     local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -405,7 +403,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

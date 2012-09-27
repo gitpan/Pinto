@@ -3,15 +3,15 @@
 package Pinto::Action::Edit;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef Str HashRef Bool);
+use MooseX::Types::Moose qw(Str HashRef Bool);
 
-use Pinto::Types qw(StackName);
+use Pinto::Types qw(StackName StackDefault);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ extends qw( Pinto::Action );
 
 has stack => (
     is       => 'ro',
-    isa      => StackName | Undef,
+    isa      => StackName | StackDefault,
     default  => undef,
     coerce   => 1,
 );
@@ -72,7 +72,7 @@ Pinto::Action::Edit - Change stack properties
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

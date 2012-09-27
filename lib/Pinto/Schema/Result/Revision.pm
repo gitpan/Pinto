@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -204,12 +204,11 @@ sub compute_md5 {
     throw "Must bind revision to a stack before computing checksum"
       if not $self->stack;
 
-    my $md5 = Digest::MD5->new;
-    my $registrations_rs = $self->stack->registrations_rs;
+    my $attrs   = {select => [qw(package_name package_version distribution_path)] };
+    my $rs      = $self->stack->search_related_rs('registrations', {}, $attrs);
 
-    while (my $registration = $registrations_rs->next) {
-        $md5->add( $registration->to_string('%a/%D/%N') );
-    }
+    my $md5 = Digest::MD5->new;
+    $md5->add( join '/', @{$_} ) for $rs->cursor->all;
 
     return $md5->hexdigest;
 }
@@ -221,7 +220,7 @@ sub undo {
 
     $self->info("Undoing revision $self");
 
-    $_->undo for reverse $self->registration_changes;
+    $_->undo(stack => $self->stack) for reverse $self->registration_changes;
 
     return $self;
 }
@@ -290,7 +289,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 NAME
 

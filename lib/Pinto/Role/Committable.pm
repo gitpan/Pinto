@@ -6,12 +6,14 @@ use Moose::Role;
 use MooseX::Types::Moose qw(Bool Str);
 
 use Try::Tiny;
-use Term::EditorEdit;
 use IO::Interactive qw(is_interactive);
+
+use Pinto::CommitMessage;
+use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,7 +31,7 @@ has message => (
 
 #------------------------------------------------------------------------------
 
-requires qw( execute );
+requires qw( execute message_primer );
 
 #------------------------------------------------------------------------------
 
@@ -39,8 +41,7 @@ around execute => sub {
     $self->repos->db->txn_begin;
 
     my $result = try   { $self->$orig(@args) }
-                 catch { $self->repos->db->txn_rollback;
-                         $self->repos->clean_files; die $_ };
+                 catch { $self->repos->db->txn_rollback; die $_ };
 
     if ($self->dryrun) {
         $self->notice('Dryrun -- rolling back database');
@@ -64,16 +65,14 @@ around execute => sub {
 sub edit_message {
     my ($self, %args) = @_;
 
+    my $stacks = $args{stacks} || [];
+    my $primer = $args{primer} || $self->message_primer || '';
+
     return $self->message if $self->has_message;
-    $self->fatal('Must supply a commit message') if not is_interactive;
+    return $primer if not is_interactive;
 
-    my $primer_header = "\n\n" . '-' x 79 . "\n\n";
-    my $primer = $primer_header . ($args{primer} || 'No details available');
-
-    my $message = Term::EditorEdit->edit(document => $primer);
-    $message =~ s/( \n+ -{79} \n .*)//smx;  # Strip primer
-
-    $self->fatal('Commit message is empty.  Aborting action') if $message !~ /\S+/;
+    my $message = Pinto::CommitMessage->new(stacks => $stacks, primer => $primer)->edit;
+    throw 'Aborting due to empty commit message' if $message !~ /\S+/;
 
     return $message;
 }
@@ -93,7 +92,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

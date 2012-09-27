@@ -3,7 +3,7 @@
 package Pinto::Action::List;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef HashRef Str Bool);
+use MooseX::Types::Moose qw(HashRef Str Bool);
 
 use Pinto::Types qw(Author StackName StackAll StackDefault);
 use Pinto::Constants qw($PINTO_STACK_NAME_ALL);
@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -165,7 +165,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

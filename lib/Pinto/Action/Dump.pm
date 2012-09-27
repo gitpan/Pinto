@@ -18,7 +18,7 @@ use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ sub _link_authors_dir {
     my $dump_authors_id_dir = $dump_authors_dir->subdir('id');
 
     my $ok = symlink $abs_repos_authors_id_dir, $dump_authors_id_dir;
-    $self->fatal("symlink failed: $!") if not $ok;
+    throw "symlink failed: $!" if not $ok;
 
     return $self;
 }
@@ -231,7 +231,7 @@ sub _create_dumpfile {
     my $cwd_guard = cwd_guard($dumpdir->parent->stringify);
     my $ok = not system @cmd;
 
-    $self->fatal("tar command failed: $!") if not $ok;
+    throw "tar command failed: $!" if not $ok;
 }
 
 
@@ -263,7 +263,7 @@ Pinto::Action::Dump - Dump repository contents and revision history to a file
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

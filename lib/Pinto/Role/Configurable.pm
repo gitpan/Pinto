@@ -1,6 +1,6 @@
-package Pinto::Role::Configurable;
-
 # ABSTRACT: Something that has a configuration
+
+package Pinto::Role::Configurable;
 
 use Moose::Role;
 
@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ Pinto::Role::Configurable - Something that has a configuration
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

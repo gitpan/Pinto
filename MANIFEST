@@ -26,12 +26,14 @@ lib/Pinto/Action/Nop.pm
 lib/Pinto/Action/Pin.pm
 lib/Pinto/Action/Props.pm
 lib/Pinto/Action/Pull.pm
+lib/Pinto/Action/Replace.pm
 lib/Pinto/Action/Revert.pm
 lib/Pinto/Action/Stacks.pm
 lib/Pinto/Action/Statistics.pm
 lib/Pinto/Action/Unpin.pm
 lib/Pinto/Action/Verify.pm
 lib/Pinto/ActionFactory.pm
+lib/Pinto/CommitMessage.pm
 lib/Pinto/Config.pm
 lib/Pinto/Database.pm
 lib/Pinto/IndexCache.pm
@@ -60,7 +62,6 @@ lib/Pinto/Schema/Result/Stack.pm
 lib/Pinto/Schema/Result/StackProperty.pm
 lib/Pinto/Statistics.pm
 lib/Pinto/Store.pm
-lib/Pinto/Store/File.pm
 lib/Pinto/Tester.pm
 lib/Pinto/Tester/Util.pm
 lib/Pinto/Util.pm
@@ -96,7 +97,9 @@ t/31-stack-props.t
 t/32-dryrun.t
 t/35-install.t
 t/36-revert.t
+t/37-replace.t
 t/40-locking.t
+tools/import
 tools/provides
 weaver.ini
 xt/release/distmeta.t

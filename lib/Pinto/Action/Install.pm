@@ -3,18 +3,18 @@
 package Pinto::Action::Install;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef Bool HashRef ArrayRef Maybe Str);
+use MooseX::Types::Moose qw(Bool HashRef ArrayRef Maybe Str);
 
 use File::Which qw(which);
 
-use Pinto::Types qw(StackName);
+use Pinto::Types qw(StackName StackDefault);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ has cpanm_exe => (
 
 has stack   => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackDefault,
     default   => undef,
     coerce    => 1,
 );
@@ -95,11 +95,9 @@ sub execute {
                             : $self->repos->get_stack(name => $self->stack);
 
     do { $self->_pull($stack, $_) for $self->targets } if $self->pull;
-    $self->result->changed if $stack->refresh->has_changed;
 
-    if ($self->pull and $stack->has_changed and not $self->dryrun) {
-        my $message_primer = $stack->head_revision->change_details;
-        my $message = $self->edit_message(primer => $message_primer);
+    if ($self->pull and $self->result->made_changes and not $self->dryrun) {
+        my $message = $self->edit_message(stacks => [$stack]);
         $stack->close(message => $message);
         $self->repos->write_index(stack => $stack);
     }
@@ -116,17 +114,16 @@ sub _pull {
 
     if (-d $target or -f $target) {
         $self->info("Target $target is a file or directory.  Won't pull it");
-        return;
+        return $self;
     }
 
     my $target_spec = Pinto::SpecFactory->make_spec($target);
-    my ($dist, $did_pull) = $self->repos->get_or_pull( target => $target_spec,
-                                                       stack  => $stack );
+    my ($dist, $did_pull) = $self->repos->find_or_pull(target => $target_spec);
 
-    $did_pull += $self->repos->pull_prerequisites( dist  => $dist,
-                                                   stack => $stack );
+    my $did_register = $dist ? $dist->register(stack => $stack) : undef;
+    $did_pull += $self->repos->pull_prerequisites(dist => $dist, stack => $stack);
 
-    $self->result->changed if $did_pull;
+    $self->result->changed if $did_pull or $did_register;
 
     return $self;
 }
@@ -161,6 +158,15 @@ sub _install {
 
 #------------------------------------------------------------------------------
 
+sub message_primer {
+    my ($self) = @_;
+
+    my $targets  = join ', ', $self->targets;
+    return "Pulled ${targets}.";
+}
+
+#------------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
@@ -178,7 +184,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

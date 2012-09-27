@@ -49,14 +49,6 @@ __PACKAGE__->belongs_to(
 
 
 __PACKAGE__->has_many(
-  "registration_changes",
-  "Pinto::Schema::Result::RegistrationChange",
-  { "foreign.stack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
-);
-
-
-__PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
   { "foreign.stack" => "self.id" },
@@ -84,8 +76,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-17 14:51:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:iiRBkYCaNapPwU/nGcqQzQ
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-20 20:30:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NfAOBa7alfkRkaNY42pUhg
 
 #-------------------------------------------------------------------------------
 
@@ -93,7 +85,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -386,7 +378,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 NAME
 
@@ -456,12 +448,6 @@ Pinto::Schema::Result::Stack
 Type: belongs_to
 
 Related object: L<Pinto::Schema::Result::Revision>
-
-=head2 registration_changes
-
-Type: has_many
-
-Related object: L<Pinto::Schema::Result::RegistrationChange>
 
 =head2 registrations
 

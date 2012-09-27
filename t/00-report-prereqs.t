@@ -30,7 +30,6 @@ my @modules = qw(
   Digest::MD5
   Digest::SHA
   Dist::Metadata
-  Dist::Requires
   Exporter
   ExtUtils::MakeMaker
   File::Basename
@@ -49,6 +48,7 @@ my @modules = qw(
   Log::Dispatch::File
   Log::Dispatch::Handle
   Module::Build
+  Module::CoreList
   Module::Faker::Dist
   Moose
   Moose::Role
@@ -66,6 +66,7 @@ my @modules = qw(
   Pinto::Exception
   Pinto::PackageSpec
   Pinto::Role::PauseConfig
+  Pinto::Store::File
   Pinto::Types
   Readonly
   SQL::Translator
@@ -77,6 +78,7 @@ my @modules = qw(
   Test::File
   Test::Log::Dispatch
   Test::More
+  Text::Wrap
   Try::Tiny
   URI
   autodie

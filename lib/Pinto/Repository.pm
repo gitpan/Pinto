@@ -22,7 +22,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ has db => (
 
 has store => (
     is         => 'ro',
-    isa        => 'Pinto::Store::File',
+    isa        => 'Pinto::Store',
     lazy       => 1,
     default    => sub { Pinto::Store::File->new( config => $_[0]->config,
                                                  logger => $_[0]->logger ) },
@@ -70,15 +70,6 @@ has locker  => (
     handles    => [ qw(lock unlock) ],
     default    => sub { Pinto::Locker->new( config => $_[0]->config,
                                             logger => $_[0]->logger ) },
-);
-
-
-has extractor => (
-    is         => 'ro',
-    isa        => 'Pinto::PackageExtractor',
-    lazy       => 1,
-    default    => sub { Pinto::PackageExtractor->new( config => $_[0]->config,
-                                                      logger => $_[0]->logger ) },
 );
 
 #-------------------------------------------------------------------------------
@@ -227,7 +218,7 @@ sub get_default_stack {
 sub open_stack {
     my ($self, %args) = @_;
 
-    my $stack = $self->get_stack(%args, nocroak => 0);
+    my $stack = $args{stack} || $self->get_stack(%args, nocroak => 0);
     my $revision = $self->open_revision(stack => $stack);
 
     return $stack;
@@ -265,11 +256,58 @@ sub get_package {
 sub get_distribution {
     my ($self, %args) = @_;
 
-    my $attrs = { prefetch => 'packages' };
-    my $where = { author => $args{author}, archive => $args{archive} };
-    my $dist  = $self->db->select_distributions( $where, $attrs )->first;
+    my %where;
+    my %attrs = (key => 'author_archive_unique');
 
-    return $dist;
+    if (my $spec = $args{spec}) {
+        $where{author}  = $spec->author;
+        $where{archive} = $spec->archive;
+    }
+    elsif (my $path = $args{path}) {
+        my ($author, $archive) = Pinto::Util::parse_dist_path($path);
+        $where{author}  = $author;
+        $where{archive} = $archive;
+    }
+    elsif (my $md5 = $args{md5}){
+         $where{md5} = $md5;
+         $attrs{key} = 'md5_unique';
+     }
+    else {
+        %where = %args;
+    }
+
+    return $self->db->select_distribution( \%where, \%attrs );
+
+}
+
+#-------------------------------------------------------------------------------
+
+sub get_distribution_by_spec {
+    my ($self, %args) = @_;
+
+    my $spec  = $args{spec};
+    my $stack = $args{stack};
+
+
+    if ($spec->isa('Pinto::PackageSpec')) {
+        my $pkg_name = $spec->name;
+        my $pkg = $self->get_package(name => $pkg_name, stack => $stack);
+        throw "Package $pkg_name is not on stack $stack" if not $pkg;
+
+        return $pkg->distribution;
+    }
+
+
+    if ($spec->isa('Pinto::DistributionSpec')) {
+        my $dist = $self->get_distribution(author => $spec->author, archive => $spec->archive);
+        throw "Distribution $spec does not exist" if not $dist;
+
+        return $dist;
+    }
+
+
+    my $type = ref $spec;
+    throw "Don't know how to resolve target of type $type";
 }
 
 #-------------------------------------------------------------------------------
@@ -282,34 +320,29 @@ sub add {
     my $author  = $args{author};
     my $source  = $args{source} || 'LOCAL';
 
-    throw "Archive $archive does not exist"  if not -e $archive;
-    throw "Archive $archive is not readable" if not -r $archive;
-
-    my $archive_basename = $archive->basename;
-    my $dist_pretty      = "$author/$archive_basename";
-
-    $self->get_distribution(author => $author, archive => $archive_basename)
-        and throw "Distribution $dist_pretty already exists";
+    $self->_validate_archive($author, $archive);
 
     # Assemble the basic structure...
     my $dist_struct = { author   => $author,
                         source   => $source,
-                        archive  => $archive_basename,
+                        archive  => $archive->basename,
                         mtime    => Pinto::Util::mtime($archive),
                         md5      => Pinto::Util::md5($archive),
                         sha256   => Pinto::Util::sha256($archive) };
 
+    my $extractor = Pinto::PackageExtractor->new( logger  => $self->logger,
+                                                  archive => $archive );
     # Add provided packages...
-    my @provides = $self->extractor->provides( archive => $archive );
+    my @provides = $extractor->provides;
     $dist_struct->{packages} = \@provides;
 
     # Add required packages...
-    my @requires = $self->extractor->requires( archive => $archive );
+    my @requires = $extractor->requires;
     $dist_struct->{prerequisites} = \@requires;
 
     my $p = @provides;
     my $r = @requires;
-    $self->info("Distribution $dist_pretty provides $p and requires $r packages");
+    $self->info("Distribution $archive provides $p and requires $r packages");
 
     # Always update database *before* moving the archive into the
     # repository, so if there is an error in the DB, we can stop and
@@ -317,11 +350,31 @@ sub add {
 
     my $dist = $self->db->create_distribution( $dist_struct );
     my $basedir = $self->config->authors_id_dir;
-    my $archive_in_repos = $dist->native_path( $basedir );
-    $self->fetch( from => $archive, to => $archive_in_repos );
-    $self->store->add_archive( $archive_in_repos );
+    my $destination = $dist->native_path( $basedir );
+    $self->store->add_archive( $archive => $destination );
 
     return $dist;
+}
+
+#------------------------------------------------------------------------------
+
+sub _validate_archive {
+    my ($self, $author, $archive) = @_;
+
+    throw "Archive $archive does not exist"  if not -e $archive;
+    throw "Archive $archive is not readable" if not -r $archive;
+
+    my $basename = $archive->basename;
+    if (my $same_path = $self->get_distribution(author => $author, archive => $basename)) {
+        throw "A distribution already exists as $same_path";
+    }
+
+    my $md5 = Pinto::Util::md5($archive);
+    if (my $same_md5 = $self->get_distribution(md5 => $md5)) {
+        throw "Archive $archive is identical to $same_md5";
+    }
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -331,11 +384,12 @@ sub pull {
     my ($self, %args) = @_;
 
     my $url = $args{url};
-    my ($host, $path, $author) = Pinto::Util::parse_dist_url($url);
+    my $path = $url->path;
 
-    throw "Distribution $path already exists"
-        if $self->get_distribution(path => $path);
+    my $existing = $self->get_distribution(path => $path);
+    throw "Distribution $existing already exists" if $existing;
 
+    my ($author, undef) = Pinto::Util::parse_dist_path($path);
     my $archive = $self->fetch_temporary(url => $url);
 
     my $dist = $self->add( archive   => $archive,
@@ -346,17 +400,16 @@ sub pull {
 
 #------------------------------------------------------------------------------
 
-sub get_or_pull {
+sub find_or_pull {
     my ($self, %args) = @_;
 
     my $target = $args{target};
-    my $stack  = $args{stack};
 
     if ( $target->isa('Pinto::PackageSpec') ){
-        return $self->_pull_by_package_spec($target, $stack);
+        return $self->_find_or_pull_by_package_spec($target);
     }
     elsif ($target->isa('Pinto::DistributionSpec') ){
-        return $self->_pull_by_distribution_spec($target, $stack);
+        return $self->_find_or_pull_by_distribution_spec($target);
     }
     else {
         my $type = ref $target;
@@ -366,8 +419,8 @@ sub get_or_pull {
 
 #------------------------------------------------------------------------------
 
-sub _pull_by_package_spec {
-    my ($self, $pspec, $stack) = @_;
+sub _find_or_pull_by_package_spec {
+    my ($self, $pspec) = @_;
 
     $self->info("Looking for package $pspec");
 
@@ -377,7 +430,6 @@ sub _pull_by_package_spec {
     if (defined $latest && ($latest->version >= $pkg_ver)) {
         my $got_dist = $latest->distribution;
         $self->debug( sub {"Already have package $pspec or newer as $latest"} );
-        my $did_register = $got_dist->register(stack => $stack);
         return ($got_dist, 0);
     }
 
@@ -398,15 +450,13 @@ sub _pull_by_package_spec {
     $self->notice("Pulling distribution $dist_url");
     my $pulled_dist = $self->pull(url => $dist_url);
 
-    $pulled_dist->register( stack => $stack );
-
     return ($pulled_dist, 1);
 }
 
 #------------------------------------------------------------------------------
 
-sub _pull_by_distribution_spec {
-    my ($self, $dspec, $stack) = @_;
+sub _find_or_pull_by_distribution_spec {
+    my ($self, $dspec) = @_;
 
     $self->info("Looking for distribution $dspec");
 
@@ -415,7 +465,6 @@ sub _pull_by_distribution_spec {
 
     if ($got_dist) {
         $self->info("Already have distribution $dspec");
-        my $did_register = $got_dist->register(stack => $stack);
         return ($got_dist, 0);
     }
 
@@ -431,8 +480,6 @@ sub _pull_by_distribution_spec {
 
     $self->notice("Pulling distribution $dist_url");
     my $pulled_dist = $self->pull(url => $dist_url);
-
-    $pulled_dist->register( stack => $stack );
 
     return ($pulled_dist, 1);
 }
@@ -453,10 +500,12 @@ sub pull_prerequisites {
   PREREQ:
     while (my $prereq = shift @prereq_queue) {
 
-        my ($required_dist, $did_pull) = $self->get_or_pull( target => $prereq,
-                                                             stack  => $stack );
-        next PREREQ if not ($required_dist and $did_pull);
-        push @pulled, $required_dist if $did_pull;
+        my ($required_dist, $did_pull) = $self->find_or_pull(target => $prereq);
+        next PREREQ if not $required_dist;
+
+        my $did_register = $required_dist->register(stack => $stack);
+
+        push @pulled, $required_dist if $did_pull || $did_register;
 
         if ( $visited{$required_dist->path} ) {
             # We don't need to recurse into prereqs more than once
@@ -510,8 +559,6 @@ sub create_stack {
 
     $revision->update( {stack => $stack} );
 
-    $self->create_stack_filesystem(stack => $stack);
-
     return $stack;
 }
 
@@ -529,22 +576,9 @@ sub copy_stack {
 
     $revision->update( {stack => $copy} );
 
-    $self->create_stack_filesystem(stack => $copy);
-
     $copy->refresh;  # Make sure $copy has reference to the new $revision
 
     return $copy;
-}
-
-#-------------------------------------------------------------------------------
-
-sub delete_stack {
-   my ($self, %args) = @_;
-
-   $args{stack}->delete;
-   $self->delete_stack_filesystem(%args);
-
-   return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -604,9 +638,12 @@ sub delete_stack_filesystem {
 
 
 sub clean_files {
-    my ($self) = @_;
+    my ($self, %args) = @_;
 
     my $deleted  = 0;
+    my $dists_rs = $self->db->select_distributions(undef, {prefetch => {}});
+    my %known_dists = map { ($_->to_string => 1) } $dists_rs->all;
+
     my $callback = sub {
         return if not -f $_;
 
@@ -616,18 +653,15 @@ sub clean_files {
 
         return if $archive eq 'CHECKSUMS';
         return if $archive eq '01mailrc.txt.gz';
+        return if exists $known_dists{"$author/$archive"};
 
-        # TODO: Optimize by fetching all known distributions in one query.
-        # Then stash in hash keyed by path.  Delete any path not in hash.
-        return if $self->get_distribution(author => $author, archive => $archive);
-
-        $self->notice("Removing orphaned archive at $path");
+        $self->info("Removing orphaned archive at $path");
         $self->store->remove_archive($path);
         $deleted++;
     };
 
     my $authors_dir = $self->config->authors_dir;
-    $self->debug("Cleaning orphaned archives beneath $authors_dir");
+    $self->notice("Cleaning orphaned archives beneath $authors_dir");
     File::Find::find({no_chdir => 1, wanted => $callback}, $authors_dir);
 
     return $deleted;
@@ -689,7 +723,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 ATTRIBUTES
 
@@ -700,8 +734,6 @@ version 0.055
 =head2 cache
 
 =head2 locker
-
-=head2 extractor
 
 =head1 METHODS
 
@@ -780,9 +812,18 @@ there is no such package on that stack, returns nothing.
 
 =head2 get_distribution( author => $author, archive => $archive )
 
+=head2 get_distribution( spec => $dist_spec )
+
+=head2 get_distribution( path => $dist_path )
+
+=head2 get_distribution( md5 => $md5 )
+
 Returns the L<Pinto::Schema::Result::Distribution> with the given
-author ID and archive name.  If there is no distribution in the
-respoistory, returns nothing.
+author ID and archive name.  If given a L<Pinto::DistributionSpec>
+object, it will get the author ID and archive name from it instead.
+If given a distribution path like those from an 02packages file, it
+parses the author ID and archive name from that instead.  If there is
+no matching distribution in the respoistory, returns nothing.
 
 =head2 add( archive => $path, author => $id )
 

@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -45,13 +45,11 @@ with qw( Pinto::Role::Configurable
 sub run {
     my ($self, $action_name, @action_args) = @_;
 
-    my $action = $self->action_factory->create_action($action_name => @action_args);
-
+    my $action    = $self->action_factory->create_action($action_name => @action_args);
     my $lock_type = $action->does('Pinto::Role::Committable') ? 'EX' : 'SH';
-    $self->repos->lock($lock_type);
 
-    my $result = try   { $action->execute }
-                 catch { $self->repos->unlock; die $_ };
+    my $result = try   { $self->repos->lock($lock_type); $action->execute }
+                 catch { $self->repos->unlock; die $self->fatal($_) };
 
     $self->repos->unlock;
 
@@ -90,7 +88,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 SYNOPSIS
 
@@ -105,7 +103,7 @@ See L<Pinto::Manual> for more information about the Pinto tools.
 Pinto is a suite of tools and libraries for creating and managing a
 custom CPAN-like repository of Perl modules.  The purpose of such a
 repository is to provide a stable, curated stack of dependencies from
-which you can reliably build, test, and delploy your application using
+which you can reliably build, test, and deploy your application using
 the standard Perl tool chain. Pinto supports various operations for
 gathering and managing distribution dependencies within the
 repository, so that you can control precisely which dependencies go

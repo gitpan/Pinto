@@ -3,16 +3,15 @@
 package Pinto::Action::Pin;
 
 use Moose;
-use MooseX::Types::Moose qw(Undef);
 
-use Pinto::Types qw(Specs StackName);
+use Pinto::Types qw(Specs StackName StackDefault);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -26,7 +25,7 @@ with qw( Pinto::Role::Committable );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | Undef,
+    isa       => StackName | StackDefault,
     default   => undef,
     coerce    => 1
 );
@@ -46,12 +45,10 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->open_stack(name => $self->stack);
-    $self->_execute($_, $stack) for $self->targets;
-    $self->result->changed if $stack->refresh->has_changed;
+    $self->_pin($_, $stack) for $self->targets;
 
-    if ( $stack->has_changed and not $self->dryrun ) {
-        my $message_primer = $stack->head_revision->change_details;
-        my $message = $self->edit_message(primer => $message_primer);
+    if ($self->result->made_changes and not $self->dryrun) {
+        my $message = $self->edit_message(stacks => [$stack]);
         $stack->close(message => $message);
     }
 
@@ -60,35 +57,23 @@ sub execute {
 
 #------------------------------------------------------------------------------
 
-sub _execute {
-    my ($self, $target, $stack) = @_;
+sub _pin {
+    my ($self, $spec, $stack) = @_;
 
-    my $dist;
-    if ($target->isa('Pinto::PackageSpec')) {
-
-        my $pkg_name = $target->name;
-        my $pkg = $self->repos->get_package(name => $pkg_name, stack => $stack)
-            or throw "Package $pkg_name is not on stack $stack";
-
-        $dist = $pkg->distribution;
-    }
-    elsif ($target->isa('Pinto::DistributionSpec')) {
-
-        $dist = $self->repos->get_distribution( author => $target->author,
-                                                archive => $target->archive );
-
-        throw "Distribution $target does not exist" if not $dist;
-    }
-    else {
-
-        my $type = ref $target;
-        throw "Don't know how to pin target of type $type";
-    }
-
-    $self->notice("Pinning $dist on stack $stack");
-    $dist->pin(stack => $stack);
+    my $dist = $self->repos->get_distribution_by_spec(spec => $spec, stack => $stack);
+    $self->result->changed if $dist->pin(stack => $stack);
 
     return;
+}
+
+#------------------------------------------------------------------------------
+
+sub message_primer {
+    my ($self) = @_;
+
+    my $targets  = join ', ', $self->targets;
+
+    return "Pinned ${targets}.";
 }
 
 #------------------------------------------------------------------------------
@@ -111,7 +96,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -43,16 +43,24 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->create_stack(name => $self->stack);
-
     $stack->set_property(description => $self->description) if $self->has_description;
 
-    my $message_primer = $stack->head_revision->change_details;
-    my $message = $self->edit_message(primer => $message_primer);
-    $stack->close(message => $message);
+    $stack->close(message => $self->edit_message);
 
+    $self->repos->create_stack_filesystem(stack => $stack);
     $self->repos->write_index(stack => $stack);
 
     return $self->result->changed;
+}
+
+#------------------------------------------------------------------------------
+
+sub message_primer {
+    my ($self) = @_;
+
+    my $stack = $self->stack;
+
+    return "Created new stack $stack.";
 }
 
 #------------------------------------------------------------------------------
@@ -75,7 +83,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

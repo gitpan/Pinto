@@ -41,6 +41,12 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("author_archive_unique", ["author", "archive"]);
 
 
+__PACKAGE__->add_unique_constraint("md5_unique", ["md5"]);
+
+
+__PACKAGE__->add_unique_constraint("sha256_unique", ["sha256"]);
+
+
 __PACKAGE__->has_many(
   "packages",
   "Pinto::Schema::Result::Package",
@@ -61,8 +67,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-05-09 09:12:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HqbbygyiJcg0vCTHPiKzHw
+# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-21 14:48:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lo9xjZQaCJQ7jdjcCKKygw
 
 #-------------------------------------------------------------------------------
 
@@ -83,7 +89,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -102,6 +108,7 @@ sub register {
     my ($self, %args) = @_;
 
     my $stack = $args{stack};
+    my $pin   = $args{pin};
     my $did_register = 0;
     my $errors       = 0;
 
@@ -116,7 +123,7 @@ sub register {
 
       if (not $incumbent) {
           $self->debug(sub {"Registering $pkg on stack $stack"} );
-          $pkg->register(stack => $stack);
+          $pkg->register(stack => $stack, pin => $pin);
           $did_register++;
           next;
       }
@@ -142,7 +149,7 @@ sub register {
 
       $incumbent->delete;
       $self->$log_as("$direction package $incumbent_pkg to $pkg in stack $stack");
-      $pkg->register(stack => $stack);
+      $pkg->register(stack => $stack, pin => $pin);
       $did_register++;
     }
 
@@ -159,6 +166,8 @@ sub pin {
     my $stack   = $args{stack};
     my $errors  = 0;
     my $did_pin = 0;
+
+    $self->notice("Pinning $self to stack $stack");
 
     for my $pkg ($self->packages) {
         my $registration = $pkg->registration(stack => $stack);
@@ -193,6 +202,8 @@ sub unpin {
     my $stack     = $args{stack};
     my $errors    = 0;
     my $did_unpin = 0;
+
+    $self->notice("Unpinning $self from stack $stack");
 
     for my $pkg ($self->packages) {
         my $registration = $pkg->registration(stack => $stack);
@@ -305,10 +316,19 @@ sub package {
 
 #------------------------------------------------------------------------------
 
-sub registered_packages {
-    my ($self, %args) = @_;
+sub registered_stacks {
+    my ($self) = @_;
 
-    # TODO...
+    my %stacks;
+
+    for my $pkg ($self->packages) {
+        for my $reg ($pkg->registrations) {
+            my $stack = $reg->stack;
+            $stacks{$stack->name} = $stack;
+        }
+    }
+
+    return values %stacks;
 }
 
 #------------------------------------------------------------------------------
@@ -338,14 +358,6 @@ sub as_spec {
 #------------------------------------------------------------------------------
 
 sub to_string {
-    my ($self) = @_;
-
-    return $self->author . '/' . $self->archive ;
-}
-
-#------------------------------------------------------------------------------
-
-sub to_formatted_string {
     my ($self, $format) = @_;
 
     my %fspec = (
@@ -394,7 +406,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 NAME
 
@@ -457,6 +469,22 @@ Pinto::Schema::Result::Distribution
 =item * L</author>
 
 =item * L</archive>
+
+=back
+
+=head2 C<md5_unique>
+
+=over 4
+
+=item * L</md5>
+
+=back
+
+=head2 C<sha256_unique>
+
+=over 4
+
+=item * L</sha256>
 
 =back
 

@@ -20,7 +20,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -34,19 +34,18 @@ sub author_dir {                                  ## no critic (ArgUnpacking)
 
 #-------------------------------------------------------------------------------
 
-sub parse_dist_url {
-    my ($url) = @_;
+sub parse_dist_path {
+    my ($path) = @_;
 
-    #  $path = '/yadda/yadda/authors/id/A/AU/AUTHOR/Foo-1.2.tar.gz'
-    my $path = $url->path();
+    # /yadda/authors/id/A/AU/AUTHOR/subdir1/subdir2/Foo-1.0.tar.gz
 
     if ( $path =~ s{^ (.*) /authors/id/(.*) $}{$2}mx ) {
 
-        # $path = 'A/AU/AUTHOR/Foo-1.2.tar.gz'
-        my $source     = $url->isa('URI::file') ? $1 : $url->authority();
-        my @path_parts = split m{ / }mx, $path; # qw( A AU AUTHOR Foo-1.2.tar.gz )
-        my $author     = $path_parts[2];
-        return ($source, $path, $author);
+        # $path = 'A/AU/AUTHOR/subdir/Foo-1.2.tar.gz'
+        my @path_parts = split m{ / }mx, $path;
+        my $author  = $path_parts[2];  # AUTHOR
+        my $archive = $path_parts[-1]; # Foo-1.0.tar.gz
+        return ($author, $archive);
     }
     else {
 
@@ -169,7 +168,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 DESCRIPTION
 

@@ -90,6 +90,32 @@ my $t = Pinto::Tester->new;
 #------------------------------------------------------------------------------
 
 {
+  no warnings qw(once redefine);
+  # Cause actions to fail just before they touch the file system
+  local *Pinto::Action::New::edit_message = sub { die "action failed"};
+  local *Pinto::Action::Copy::edit_message = sub { die "action failed"};
+
+  # Try creating a new stack
+  $t->run_throws_ok('New' => {stack => 'foobar'},
+                             qr/action failed/);
+
+  # Stack directory should not exist because commit failed
+  $t->path_not_exists_ok( [ qw(foobar) ] );
+
+
+  # Try copying a stack
+  $t->run_throws_ok('Copy' => {from_stack => 'init',
+                               to_stack   => 'foobar'},
+                               qr/action failed/);
+
+  # Stack directory should not exist becasue commit failed
+  $t->path_not_exists_ok( [ qw(foobar) ] );
+
+}
+
+#------------------------------------------------------------------------------
+
+{
   # Copy from a stack that doesn't exist
   $t->run_throws_ok('Copy', {from_stack => 'nowhere',
                              to_stack   => 'somewhere'},

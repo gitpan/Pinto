@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,12 +46,11 @@ sub execute {
     my $stack   = $self->repos->get_stack(name => $self->stack);
     my $revnum  = $self->_compute_target_revnum($stack);
 
-    $self->_execute($stack, $revnum);
+    $self->_revert($stack, $revnum);
     $self->result->changed if $stack->refresh->has_changed;
 
     if ($stack->has_changed and not $self->dryrun) {
-        my $message_primer = $stack->head_revision->change_details;
-        my $message = $self->edit_message(primer => $message_primer);
+        my $message = $self->edit_message(stacks => [$stack]);
         $stack->close(message => $message);
         $self->repos->write_index(stack => $stack);
     }
@@ -69,21 +68,18 @@ sub _compute_target_revnum {
     my $revnum  = $self->revision;
     $revnum     = ($headnum + $revnum) if $revnum < 0;
 
-    $self->fatal("Stack $stack is already at revision 0")
-      if $headnum == 0;
+    throw "Stack $stack is already at revision 0" if $headnum == 0;
 
-    $self->fatal("No such revision $revnum on stack $stack")
-      if $revnum > $headnum;
+    throw "No such revision $revnum on stack $stack" if $revnum > $headnum;
 
-    $self->fatal("Revision $revnum is the head of stack $stack")
-      if $revnum == $headnum;
+    throw "Revision $revnum is the head of stack $stack" if $revnum == $headnum;
 
     return $revnum;
 }
 
 #------------------------------------------------------------------------------
 
-sub _execute {
+sub _revert {
     my ($self, $stack, $revnum) = @_;
 
     $self->notice("Reverting stack $stack to revision $revnum");
@@ -100,6 +96,16 @@ sub _execute {
         if $previous_revision->md5 ne $new_head->compute_md5;
 
     return $self;
+}
+
+#------------------------------------------------------------------------------
+
+sub message_primer {
+    my ($self) = @_;
+
+    my $revnum = $self->revision;
+
+    return "Reverted to $revnum.";
 }
 
 #------------------------------------------------------------------------------
@@ -122,7 +128,7 @@ Pinto::Action::Revert - Restore stack to a prior revision
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

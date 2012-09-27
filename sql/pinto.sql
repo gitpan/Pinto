@@ -64,13 +64,11 @@ CREATE TABLE registration (
 
 CREATE TABLE registration_change (
        id           INTEGER PRIMARY KEY NOT NULL,
-       stack        INTEGER             NOT NULL,
+       event        TEXT                NOT NULL,
        package      INTEGER             NOT NULL,
        is_pinned    INTEGER             NOT NULL,
        revision     INTEGER             NOT NULL,
-       event        TEXT                NOT NULL,
 
-       FOREIGN KEY(stack)    REFERENCES stack(id),
        FOREIGN KEY(package)  REFERENCES package(id),
        FOREIGN KEY(revision) REFERENCES revision(id)
 );
@@ -102,17 +100,19 @@ CREATE TABLE revision (
 
 /* Schema::Loader names the indexes for us */
 CREATE UNIQUE INDEX a ON distribution(author, archive);
-CREATE UNIQUE INDEX b ON package(name, distribution);
-CREATE UNIQUE INDEX c ON stack(name);
-CREATE UNIQUE INDEX d ON stack(head_revision);
-CREATE UNIQUE INDEX e ON registration(stack, package_name);
-CREATE UNIQUE INDEX f ON registration(stack, package);
-CREATE UNIQUE INDEX g ON registration_change(stack, package, is_pinned, revision, event);
-CREATE UNIQUE INDEX h ON revision(stack, number);
-CREATE UNIQUE INDEX i ON prerequisite(distribution, package_name);
-CREATE UNIQUE INDEX j ON stack_property(stack, key);
-CREATE UNIQUE INDEX k ON repository_property(key);
+CREATE UNIQUE INDEX b ON distribution(md5);
+CREATE UNIQUE INDEX c ON distribution(sha256);
+CREATE UNIQUE INDEX d ON package(name, distribution);
+CREATE UNIQUE INDEX e ON stack(name);
+CREATE UNIQUE INDEX f ON stack(head_revision);
+CREATE UNIQUE INDEX g ON registration(stack, package_name);
+CREATE UNIQUE INDEX h ON registration(stack, package);
+CREATE UNIQUE INDEX i ON registration_change(event, package, is_pinned, revision);
+CREATE UNIQUE INDEX j ON revision(stack, number);
+CREATE UNIQUE INDEX k ON prerequisite(distribution, package_name);
+CREATE UNIQUE INDEX l ON stack_property(stack, key);
+CREATE UNIQUE INDEX m ON repository_property(key);
 
-CREATE        INDEX l ON registration(stack);
-CREATE        INDEX m ON package(name);
-CREATE        INDEX n ON distribution(author);
+CREATE        INDEX n ON registration(stack);
+CREATE        INDEX o ON package(name);
+CREATE        INDEX p ON distribution(author);

@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ extends qw( Pinto::Action );
 sub execute {
     my ($self) = @_;
 
-    $self->repos->clean_files;
+    $self->repos->clean_files(force => 1);
 
     return $self->result;
 }
@@ -46,7 +46,7 @@ Pinto::Action::Clean - Remove orphaned archives
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 

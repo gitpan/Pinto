@@ -6,12 +6,13 @@ use Moose;
 use MooseX::Types::Moose qw(Bool Int Undef);
 
 use Pinto::Types qw(StackName StackDefault);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.055'; # VERSION
+our $VERSION = '0.056'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ sub execute {
     my $revnum = $self->revision;
     my @revisions = $stack->revision(number => $revnum);
 
-    $self->fatal("No such revision $revnum on stack $stack")
+    throw "No such revision $revnum on stack $stack"
       if !@revisions && defined $revnum;
 
     my $format = "%k\@%b | %j | %u\n\n%g\n";
@@ -83,7 +84,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.055
+version 0.056
 
 =head1 AUTHOR
 
