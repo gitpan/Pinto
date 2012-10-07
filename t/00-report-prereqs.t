@@ -66,7 +66,6 @@ my @modules = qw(
   Pinto::Exception
   Pinto::PackageSpec
   Pinto::Role::PauseConfig
-  Pinto::Store::File
   Pinto::Types
   Readonly
   SQL::Translator

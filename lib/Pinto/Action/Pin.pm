@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -61,6 +61,11 @@ sub _pin {
     my ($self, $spec, $stack) = @_;
 
     my $dist = $self->repos->get_distribution_by_spec(spec => $spec, stack => $stack);
+
+    throw "$spec does not exist in the repository" if not $dist;
+
+    $self->notice("Pinning distribution $dist to stack $stack");
+
     $self->result->changed if $dist->pin(stack => $stack);
 
     return;
@@ -96,7 +101,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 AUTHOR
 

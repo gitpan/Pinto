@@ -23,7 +23,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.056",
+  "dist_version" => "0.057",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -73,7 +73,6 @@ my %module_build_args = (
     "Pinto::Exception" => 0,
     "Pinto::PackageSpec" => 0,
     "Pinto::Role::PauseConfig" => 0,
-    "Pinto::Store::File" => 0,
     "Pinto::Types" => "0.048",
     "Readonly" => 0,
     "SQL::Translator" => "0.11009",

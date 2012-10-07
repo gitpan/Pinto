@@ -20,7 +20,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ sub parse_dist_path {
 sub isa_perl {
     my ($path_or_url) = @_;
 
-    return $path_or_url =~ m{ / perl-[\d.]+ \.tar \.gz $ }mx;
+    return $path_or_url =~ m{ / perl-[\d.]+ \.tar \.(?: gz|bz2 ) $ }mx;
 }
 
 #-------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 DESCRIPTION
 

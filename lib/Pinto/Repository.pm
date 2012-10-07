@@ -9,11 +9,11 @@ use File::Find;
 use Scalar::Util qw(blessed);
 
 use Pinto::Util;
+use Pinto::Store;
 use Pinto::Locker;
 use Pinto::Database;
 use Pinto::IndexCache;
 use Pinto::IndexWriter;
-use Pinto::Store::File;
 use Pinto::PackageExtractor;
 use Pinto::Exception qw(throw);
 use Pinto::Types qw(Dir);
@@ -22,7 +22,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -47,8 +47,8 @@ has store => (
     is         => 'ro',
     isa        => 'Pinto::Store',
     lazy       => 1,
-    default    => sub { Pinto::Store::File->new( config => $_[0]->config,
-                                                 logger => $_[0]->logger ) },
+    default    => sub { Pinto::Store->new( config => $_[0]->config,
+                                           logger => $_[0]->logger ) },
 );
 
 
@@ -286,12 +286,11 @@ sub get_distribution_by_spec {
     my ($self, %args) = @_;
 
     my $spec  = $args{spec};
-    my $stack = $args{stack};
-
 
     if ($spec->isa('Pinto::PackageSpec')) {
         my $pkg_name = $spec->name;
-        my $pkg = $self->get_package(name => $pkg_name, stack => $stack);
+        my $stack    = $args{stack} or throw "Must specify a stack";
+        my $pkg      = $self->get_package(name => $pkg_name, stack => $stack);
         throw "Package $pkg_name is not on stack $stack" if not $pkg;
 
         return $pkg->distribution;
@@ -299,7 +298,9 @@ sub get_distribution_by_spec {
 
 
     if ($spec->isa('Pinto::DistributionSpec')) {
-        my $dist = $self->get_distribution(author => $spec->author, archive => $spec->archive);
+        my $author  = $spec->author;
+        my $archive = $spec->archive;
+        my $dist = $self->get_distribution(author => $author, archive => $archive);
         throw "Distribution $spec does not exist" if not $dist;
 
         return $dist;
@@ -443,7 +444,7 @@ sub _find_or_pull_by_package_spec {
     $self->debug("Found package $pspec or newer in $dist_url");
 
     if ( Pinto::Util::isa_perl($dist_url) ) {
-        $self->debug("Distribution $dist_url is a perl. Skipping it.");
+        $self->debug("Distribution $dist_url is a perl. Skipping it");
         return (undef, 0);
     }
 
@@ -474,7 +475,7 @@ sub _find_or_pull_by_distribution_spec {
     $self->debug("Found package $dspec at $dist_url");
 
     if ( Pinto::Util::isa_perl($dist_url) ) {
-        $self->debug("Distribution $dist_url is a perl. Skipping it.");
+        $self->debug("Distribution $dist_url is a perl. Skipping it");
         return (undef, 0);
     }
 
@@ -723,7 +724,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 ATTRIBUTES
 
@@ -800,9 +801,9 @@ and properties.
 
 =head2 get_package( name => $pkg_name )
 
-Returns the latest version of L<Pinto:Schema::Result::Package> with
-the given C<$pkg_name>.  If there is no such package with that name in the
-repository, returns nothing.
+Returns a L<Pinto:Schema::Result::Package> representing the latest
+version of the package with the given C<$pkg_name>.  If there is no
+such package with that name in the repository, returns nothing.
 
 =head2 get_package( name => $pkg_name, stack => $stk_name )
 

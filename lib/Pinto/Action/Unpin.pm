@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,6 +62,11 @@ sub _unpin {
     my ($self, $spec, $stack) = @_;
 
     my $dist = $self->repos->get_distribution_by_spec(spec => $spec, stack => $stack);
+
+    throw "$spec does not exist in the repository" if not $dist;
+
+    $self->notice("Unpinning distribution $dist from stack $stack");
+
     $self->result->changed if $dist->unpin(stack => $stack);
 
     return;
@@ -97,7 +102,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 AUTHOR
 

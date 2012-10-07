@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -169,7 +169,7 @@ sub _record_change {
     # during one of those past revisions.
 
     if ( my $change = $rs->find($hist) ) {
-        $self->debug("$change already applied to revision $revision. Skipping");
+        $self->debug("$change already applied to revision $revision. Skipping it");
     }
     else {
         my $verb = $event eq 'delete' ? 'deleted' : 'inserted';
@@ -365,7 +365,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 NAME
 

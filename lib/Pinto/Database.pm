@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.056'; # VERSION
+our $VERSION = '0.057'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -102,7 +102,7 @@ sub select_registrations {
     my ($self, $where, $attrs) = @_;
 
     $attrs ||= {};
-    $attrs->{pefetch} ||= [ qw( package stack pin ) ];
+    $attrs->{prefetch} ||= [ qw( package stack ) ];
 
     return $self->schema->resultset('Registration')->search($where, $attrs);
 }
@@ -206,7 +206,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.056
+version 0.057
 
 =head1 AUTHOR
 
