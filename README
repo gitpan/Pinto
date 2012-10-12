@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.057
+    version 0.058
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.

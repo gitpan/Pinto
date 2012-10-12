@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.057'; # VERSION
+our $VERSION = '0.058'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ sub _pull {
         return;
     }
 
-    my ($dist, $did_pull) = $self->repos->find_or_pull(target => $target);
+    my ($dist, $did_pull) = $self->repos->find_or_pull(target => $target, stack => $stack);
     my $did_register = $dist ? $dist->register(stack => $stack, pin => $self->pin) : undef;
 
     if ($dist and not $self->norecurse) {
@@ -142,7 +142,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.057
+version 0.058
 
 =head1 AUTHOR
 

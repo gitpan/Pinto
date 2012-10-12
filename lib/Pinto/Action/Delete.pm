@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.057'; # VERSION
+our $VERSION = '0.058'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ Pinto::Action::Delete - Delete a stack
 
 =head1 VERSION
 
-version 0.057
+version 0.058
 
 =head1 AUTHOR
 

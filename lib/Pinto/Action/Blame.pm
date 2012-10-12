@@ -1,13 +1,12 @@
-# ABSTRACT: Show stack properties
+# ABSTRACT: Show who added packages to the stack
 
-package Pinto::Action::Props;
+package Pinto::Action::Blame;
 
 use Moose;
-use MooseX::Types::Moose qw(Str Maybe);
-
-use String::Format;
+use MooseX::Types::Moose qw(Bool Int Undef);
 
 use Pinto::Types qw(StackName StackDefault);
+use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
@@ -21,7 +20,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has stack  => (
+has stack => (
     is        => 'ro',
     isa       => StackName | StackDefault,
     default   => undef,
@@ -29,10 +28,10 @@ has stack  => (
 );
 
 
-has format => (
-    is      => 'ro',
-    isa     => Str,
-    default => "%n = %v",
+has revision => (
+    is        => 'ro',
+    isa       => Int | Undef,
+    default   => undef,
 );
 
 #------------------------------------------------------------------------------
@@ -41,10 +40,25 @@ sub execute {
     my ($self) = @_;
 
     my $stack = $self->repos->get_stack(name => $self->stack);
+    my $rcrs  = $self->repos->db->schema->resultset('RegistrationChange');
 
-    my $props = $stack->get_properties;
-    while ( my ($prop, $value) = each %{$props} ) {
-        $self->say(stringf($self->format, {n => $prop, v => $value}));
+    # STRATEGY: For each registration in the current head of the stack, find
+    # the most recent registration change which inserted the package referenced
+    # in the registration.  I think you can probably optimize this by using
+    # a correlated subquery.
+
+    for my $reg ($stack->registrations) {
+        my $pkg   = $reg->package;
+        my $attrs = {prefetch => 'revision'};
+        my $where = {'revision.stack' => $stack->id, package => $pkg->id, event => 'insert'};
+        my $last_insert = $rcrs->search($where, $attrs)->get_column('id')->max;
+
+        my $change = $rcrs->find({id => $last_insert}, $attrs);
+        my $revno  = $change->revision->number;
+        my $user   = $change->revision->committed_by;
+        my $regstr = $reg->to_string('%y %a/%f/%N');
+
+        $self->say( sprintf('%4d %s %s', $revno, $user, $regstr) );
     }
 
     return $self->result;
@@ -66,7 +80,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Props - Show stack properties
+Pinto::Action::Blame - Show who added packages to the stack
 
 =head1 VERSION
 

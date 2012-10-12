@@ -22,7 +22,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.057'; # VERSION
+our $VERSION = '0.058'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -405,12 +405,13 @@ sub find_or_pull {
     my ($self, %args) = @_;
 
     my $target = $args{target};
+    my $stack  = $args{stack};
 
     if ( $target->isa('Pinto::PackageSpec') ){
-        return $self->_find_or_pull_by_package_spec($target);
+        return $self->_find_or_pull_by_package_spec($target, $stack);
     }
     elsif ($target->isa('Pinto::DistributionSpec') ){
-        return $self->_find_or_pull_by_distribution_spec($target);
+        return $self->_find_or_pull_by_distribution_spec($target, $stack);
     }
     else {
         my $type = ref $target;
@@ -421,16 +422,24 @@ sub find_or_pull {
 #------------------------------------------------------------------------------
 
 sub _find_or_pull_by_package_spec {
-    my ($self, $pspec) = @_;
+    my ($self, $pspec, $stack) = @_;
 
     $self->info("Looking for package $pspec");
-
     my ($pkg_name, $pkg_ver) = ($pspec->name, $pspec->version);
-    my $latest = $self->get_package(name => $pkg_name);
 
-    if (defined $latest && ($latest->version >= $pkg_ver)) {
-        my $got_dist = $latest->distribution;
-        $self->debug( sub {"Already have package $pspec or newer as $latest"} );
+
+    my $latest_in_stack = $stack->registration(package => $pspec);
+    if (defined $latest_in_stack && $latest_in_stack->package->version >= $pkg_ver) {
+        my $got_dist = $latest_in_stack->package->distribution;
+        $self->debug( sub {"Stack $stack already has package $pspec or newer as $latest_in_stack"} );
+        return ($got_dist, 0);
+    }
+
+
+    my $latest_in_repos = $self->get_package(name => $pkg_name);
+    if (defined $latest_in_repos && ($latest_in_repos->version >= $pkg_ver)) {
+        my $got_dist = $latest_in_repos->distribution;
+        $self->debug( sub {"Repository already has package $pspec or newer as $latest_in_repos"} );
         return ($got_dist, 0);
     }
 
@@ -501,7 +510,7 @@ sub pull_prerequisites {
   PREREQ:
     while (my $prereq = shift @prereq_queue) {
 
-        my ($required_dist, $did_pull) = $self->find_or_pull(target => $prereq);
+        my ($required_dist, $did_pull) = $self->find_or_pull(target => $prereq, stack => $stack);
         next PREREQ if not $required_dist;
 
         my $did_register = $required_dist->register(stack => $stack);
@@ -724,7 +733,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.057
+version 0.058
 
 =head1 ATTRIBUTES
 

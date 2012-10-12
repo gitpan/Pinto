@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.057'; # VERSION
+our $VERSION = '0.058'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -84,6 +84,7 @@ use Pinto::Util;
 use Pinto::Exception qw(throw);
 
 use overload ( '""'     => 'to_string',
+               'cmp'    => 'string_compare',
                '<=>'    => 'compare',
                fallback => undef );
 
@@ -301,6 +302,22 @@ sub compare {
 
 #------------------------------------------------------------------------------
 
+sub string_compare {
+    my ($reg_a, $reg_b) = @_;
+
+    my $pkg = __PACKAGE__;
+      throw "Can only compare $pkg objects"
+        if not ( $reg_a->isa($pkg) && $reg_b->isa($pkg) );
+
+    return 0 if $reg_a->id == $reg_b->id;
+
+    return    ($reg_a->package->distribution->author cmp $reg_b->package->distribution->author)
+           || ($reg_a->package->distribution->vname  cmp $reg_b->package->distribution->vname)
+           || ($reg_a->package->vname                cmp $reg_b->package->vname);
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ($self, $format) = @_;
 
@@ -365,7 +382,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.057
+version 0.058
 
 =head1 NAME
 
