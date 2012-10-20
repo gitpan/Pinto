@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,6 @@ has from_stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
-    coerce   => 1,
 );
 
 
@@ -35,7 +34,6 @@ has to_stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
-    coerce   => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -65,10 +63,10 @@ sub execute {
 sub message_primer {
     my ($self) = @_;
 
-    my $from_stack = $self->from_stack;
-    my $to_stack   = $self->to_stack;
+    my $from = $self->repos->get_stack(name => $self->from_stack);
+    my $into = $self->repos->get_stack(name => $self->to_stack);
 
-    return "Merged stack $from_stack into stack $to_stack.";
+    return "Merged stack $from into stack $into.";
 }
 
 #------------------------------------------------------------------------------
@@ -90,7 +88,7 @@ Pinto::Action::Merge - Merge packages from one stack into another
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

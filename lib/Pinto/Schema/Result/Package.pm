@@ -39,7 +39,7 @@ __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
   { id => "distribution" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -63,8 +63,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-17 14:51:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Uhv4DkCpUuJH9XuRVRejg
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 17:28:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IdF0zr75XRiWOqSuoqj9Xg
 
 #------------------------------------------------------------------------------
 
@@ -75,13 +75,18 @@ with 'Pinto::Role::Schema::Result';
 use Carp;
 use String::Format;
 
+use Pinto::Util qw(itis);
+use Pinto::Exception qw(throw);
+use Pinto::PackageSpec;
+
 use overload ( '""'     => 'to_string',
                '<=>'    => 'compare',
+               'cmp'    => 'string_compare',
                fallback => undef );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -116,7 +121,9 @@ sub register {
     my $stack = $args{stack};
     my $pin   = $args{pin};
 
-    $self->create_related('registrations', {stack => $stack->id, is_pinned => $pin});
+    $self->create_related( registrations => {stack        => $stack,
+                                             distribution => $self->distribution, 
+                                             is_pinned    => $pin} );
 
     return $self;
 }
@@ -169,6 +176,7 @@ sub to_string {
          's' => sub { $self->distribution->is_local()   ? 'l' : 'f'   },
          'S' => sub { $self->distribution->source()                   },
          'a' => sub { $self->distribution->author()                   },
+         'A' => sub { $self->distribution->author_canonical()         },
          'd' => sub { $self->distribution->name()                     },
          'D' => sub { $self->distribution->vname()                    },
          'w' => sub { $self->distribution->version()                  },
@@ -189,7 +197,7 @@ sub to_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%a/%D/%N';  # AUTHOR/DIST-VNAME/PKG-VNAME
+    return '%A/%D/%N';  # AUTHOR/DIST-VNAME/PKG-VNAME
 }
 
 #-------------------------------------------------------------------------------
@@ -197,19 +205,37 @@ sub default_format {
 sub compare {
     my ($pkg_a, $pkg_b) = @_;
 
-    confess "Can only compare Pinto::Package objects"
-        if __PACKAGE__ ne ref $pkg_a || __PACKAGE__ ne ref $pkg_b;
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($pkg_a, $pkg) && itis($pkg_b, $pkg) );
 
-    return 0 if $pkg_a->id() == $pkg_b->id();
+    return 0 if $pkg_a->id == $pkg_b->id;
 
     confess "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
-        if $pkg_a->name() ne $pkg_b->name();
+        if $pkg_a->name ne $pkg_b->name;
 
-    my $r =   ( $pkg_a->version()             <=> $pkg_b->version()             )
-           || ( $pkg_a->distribution->mtime() <=> $pkg_b->distribution->mtime() );
+    my $r =   ( $pkg_a->version             <=> $pkg_b->version             )
+           || ( $pkg_a->distribution->mtime <=> $pkg_b->distribution->mtime );
 
     # No two non-identical packages can be considered equal!
     confess "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
+
+    return $r;
+};
+
+#-------------------------------------------------------------------------------
+
+sub string_compare {
+    my ($pkg_a, $pkg_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($pkg_a, $pkg) && itis($pkg_b, $pkg) );
+
+    return 0 if $pkg_a->id() == $pkg_b->id();
+
+    my $r =   ( $pkg_a->name    cmp $pkg_b->name    )
+           || ( $pkg_a->version <=> $pkg_b->version );
 
     return $r;
 };
@@ -233,7 +259,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 

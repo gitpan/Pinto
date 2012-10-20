@@ -11,16 +11,24 @@ use Try::Tiny;
 use Path::Class;
 use Digest::MD5;
 use Digest::SHA;
+use Scalar::Util;
 use DateTime;
 use Readonly;
 
+use Pinto::Constants qw($PINTO_STACK_NAME_REGEX $PINTO_PROPERTY_NAME_REGEX);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
+use base qw(Exporter);
+
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
+
+#-------------------------------------------------------------------------------
+
+our @EXPORT_OK = qw(itis mtime);
 
 #-------------------------------------------------------------------------------
 
@@ -30,6 +38,14 @@ sub author_dir {                                  ## no critic (ArgUnpacking)
     my @base =  @_;
 
     return dir(@base, substr($author, 0, 1), substr($author, 0, 2), $author);
+}
+
+#-------------------------------------------------------------------------------
+
+sub itis {
+    my ($var, $class) = @_;
+
+    return ref $var && Scalar::Util::blessed($var) && $var->isa($class);
 }
 
 #-------------------------------------------------------------------------------
@@ -116,12 +132,10 @@ sub sha256 {
 #-------------------------------------------------------------------------------
 
 
-sub normalize_property_name {
+sub validate_property_name {
     my ($prop_name) = @_;
 
-    $prop_name = lc  $prop_name;
-    # TODO: make sure this regex matches the PropertykName type constraint
-    throw "Invalid property name $prop_name" if $prop_name =~ m{[^a-z0-9._:-]};
+    throw "Invalid property name $prop_name" if $prop_name !~ $PINTO_PROPERTY_NAME_REGEX;
 
     return $prop_name;
 }
@@ -129,12 +143,10 @@ sub normalize_property_name {
 #-------------------------------------------------------------------------------
 
 
-sub normalize_stack_name {
+sub validate_stack_name {
     my ($stack_name) = @_;
 
-    $stack_name = lc  $stack_name;
-    # TODO: make sure this regex matches the StackName type constraint
-    throw "Invalid stack name $stack_name" if $stack_name =~ m{[^a-z0-9._:-]};
+    throw "Invalid stack name $stack_name" if $stack_name !~ $PINTO_STACK_NAME_REGEX;
 
     return $stack_name;
 }
@@ -168,7 +180,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 DESCRIPTION
 
@@ -185,17 +197,15 @@ optional C<@base> can be a series of L<Path::Class:Dir> or path parts
 (as strings).  If C<@base> is given, it will be prepended to the
 directory that is returned.
 
-=head2 normalize_property_name( $prop_name )
+=head2 validate_property_name( $prop_name )
 
-Normalizes the property name and returns it.  Throws an exception if
-the property name is invalid.  Currently, property names must be
-alphanumeric plus any of C<m/[._:-]/>.
+Throws an exception if the property name is invalid.  Currently, property names 
+must be alphanumeric plus any underscores or hyphens.
 
-=head2 normalize_stack_name( $stack_name )
+=head2 validate_stack_name( $stack_name )
 
-Normalizes the stack name and returns it.  Throws an exception if the
-stack name is invalid.  Currently, stack names must be alphanumeric
-plus any of C<m/[._:-]/>.
+Throws an exception if the stack name is invalid.  Currently, stack names must 
+be alphanumeric plus underscores or hyphens.
 
 =head2 ls_time_format( $seconds_since_epoch )
 

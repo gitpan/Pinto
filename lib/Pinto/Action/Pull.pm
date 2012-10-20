@@ -7,13 +7,14 @@ use MooseX::Types::Moose qw(Bool);
 
 use Module::CoreList;
 
+use Pinto::Util qw(itis);
 use Pinto::Types qw(Specs StackName StackDefault);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,7 +39,6 @@ has stack => (
     is        => 'ro',
     isa       => StackName | StackDefault,
     default   => undef,
-    coerce    => 1,
 );
 
 
@@ -79,7 +79,7 @@ sub execute {
 sub _pull {
     my ($self, $target, $stack) = @_;
 
-    if ($target->isa('Pinto::PackageSpec') && $self->_is_core_package($target, $stack)) {
+    if (itis($target, 'Pinto::PackageSpec') && $self->_is_core_package($target, $stack)) {
         $self->debug("$target is part of the perl core.  Skipping it");
         return;
     }
@@ -142,7 +142,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

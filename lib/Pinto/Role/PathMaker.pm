@@ -7,13 +7,14 @@ use Moose::Role;
 use Path::Class;
 use Try::Tiny;
 
+use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -26,8 +27,7 @@ with qw(Pinto::Role::Loggable);
 sub mkpath {
     my ($self, $path) = @_;
 
-    $path = dir($path) if not eval {$path->isa('Path::Class')};
-
+    $path = dir($path) if not itis($path, 'Path::Class');
     throw "$path is not a Path::Class::Dir" if not $path->is_dir;
     throw "$path is an existing file" if -f $path;
 
@@ -57,7 +57,7 @@ Pinto::Role::PathMaker - Something that makes directory paths
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 METHODS
 

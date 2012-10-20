@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,7 +24,6 @@ has stack => (
     is        => 'ro',
     isa       => StackName | StackAll | StackDefault,
     default   => undef,
-    coerce    => 1,
 );
 
 
@@ -37,7 +36,6 @@ has pinned => (
 has author => (
     is     => 'ro',
     isa    => Author,
-    coerce => 1,
 );
 
 
@@ -85,7 +83,7 @@ sub _build_where {
     }
 
     if (my $author = $self->author) {
-        $where->{'distribution.author'} = $author;
+        $where->{'distribution.author_canonical'} = uc $author;
     }
 
     if (my $pinned = $self->pinned) {
@@ -165,7 +163,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

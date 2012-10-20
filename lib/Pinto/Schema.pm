@@ -19,7 +19,7 @@ __PACKAGE__->load_namespaces;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ use Readonly;
 
 #-------------------------------------------------------------------------------
 
-Readonly::Scalar our $SCHEMA_VERSION => 3;
+Readonly::Scalar our $SCHEMA_VERSION => 4;
 
 #-------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

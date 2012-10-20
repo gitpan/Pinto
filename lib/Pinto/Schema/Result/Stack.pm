@@ -22,6 +22,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "name",
   { data_type => "text", is_nullable => 0 },
+  "name_canonical",
+  { data_type => "text", is_nullable => 0 },
   "is_default",
   { data_type => "integer", is_nullable => 0 },
   "head_revision",
@@ -37,6 +39,9 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("head_revision_unique", ["head_revision"]);
 
 
+__PACKAGE__->add_unique_constraint("name_canonical_unique", ["name_canonical"]);
+
+
 __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 
@@ -44,7 +49,7 @@ __PACKAGE__->belongs_to(
   "head_revision",
   "Pinto::Schema::Result::Revision",
   { id => "head_revision" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -76,8 +81,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-20 20:30:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NfAOBa7alfkRkaNY42pUhg
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 19:06:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:arbQma2ymR1dN68xnB77tQ
 
 #-------------------------------------------------------------------------------
 
@@ -85,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -106,6 +111,7 @@ sub FOREIGNBUILDARGS {
   $args ||= {};
   $args->{is_default}  ||= 0;
   $args->{has_changed} ||= 0;
+  $args->{name_canonical} = lc $args->{name};
 
   return $args;
 }
@@ -143,22 +149,42 @@ sub close {
 sub registration {
     my ($self, %args) = @_;
 
-    my $pkg_name = ref $args{package} ? $args{package}->name : $args{package};
-    my $attrs = {key => 'stack_package_name_unique', prefetch => 'package'};
+    my $pkg_name = ref $args{package} ? $args{package}->name
+                                      : $args{package};
 
-    return $self->find_related('registrations', {package_name => $pkg_name}, $attrs);
+    my $attrs = { key      => 'stack_package_name_unique',
+                  prefetch => {package => 'distribution'} };
+
+    my $where = {package_name => $pkg_name};
+
+    return $self->find_related(registrations => $where, $attrs);
 }
 
+#------------------------------------------------------------------------------
+
+sub registered_distributions {
+    my ($self) = @_;
+
+    my $attrs = {prefetch => {package => 'distribution'}};
+
+    my %dists;
+    for my $reg ($self->registrations({}, $attrs)) {
+      # TODO: maybe use 'DISTINCT'
+      $dists{$reg->distribution} = $reg->distribution;
+    }
+
+    return values %dists;
+}
 #------------------------------------------------------------------------------
 
 sub copy {
     my ($self, $changes) = @_;
 
-    $changes ||= {};
-    my $to_stack_name = Pinto::Util::normalize_stack_name( $changes->{name} );
+    my $new_stack = $changes->{name};
+    my $new_stack_canon = $changes->{name_canonical} = lc $new_stack;
 
-    throw "Stack $to_stack_name already exists"
-      if $self->result_source->resultset->find({name => $to_stack_name});
+    throw "Stack $new_stack already exists"
+      if $self->result_source->resultset->find( {name_canonical => $new_stack_canon} );
 
     $changes->{is_default} = 0; # Never duplicate the default flag
 
@@ -278,10 +304,10 @@ sub set_property {
 sub set_properties {
     my ($self, $props) = @_;
 
-    my $attrs  = {key => 'stack_key_unique'};
+    my $attrs  = {key => 'stack_key_canonical_unique'};
     while (my ($key, $value) = each %{$props}) {
-        $key = Pinto::Util::normalize_property_name($key);
-        my $kv_pair = {key => $key, value => $value};
+        Pinto::Util::validate_property_name($key);
+        my $kv_pair = {key => $key, key_canonical => lc($key), value => $value};
         $self->update_or_create_related('stack_properties', $kv_pair, $attrs);
     }
 
@@ -293,10 +319,10 @@ sub set_properties {
 sub delete_property {
     my ($self, @prop_keys) = @_;
 
-    my $attrs = {key => 'stack_key_unique'};
+    my $attrs = {key => 'stack_key_canonical_unique'};
 
     for my $prop_key (@prop_keys) {
-          my $where = {key => $prop_key};
+          my $where = {key_canonical => lc $prop_key};
           my $prop = $self->find_related('stack_properties', $where, $attrs);
           $prop->delete if $prop;
     }
@@ -378,7 +404,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 
@@ -395,6 +421,11 @@ Pinto::Schema::Result::Stack
   is_nullable: 0
 
 =head2 name
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 name_canonical
 
   data_type: 'text'
   is_nullable: 0
@@ -430,6 +461,14 @@ Pinto::Schema::Result::Stack
 =over 4
 
 =item * L</head_revision>
+
+=back
+
+=head2 C<name_canonical_unique>
+
+=over 4
+
+=item * L</name_canonical>
 
 =back
 

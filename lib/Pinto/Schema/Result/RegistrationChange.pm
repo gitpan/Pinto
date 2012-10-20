@@ -24,6 +24,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "package",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "distribution",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "is_pinned",
   { data_type => "integer", is_nullable => 0 },
   "revision",
@@ -35,8 +37,16 @@ __PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->add_unique_constraint(
-  "event_package_is_pinned_revision_unique",
-  ["event", "package", "is_pinned", "revision"],
+  "event_package_revision_unique",
+  ["event", "package", "revision"],
+);
+
+
+__PACKAGE__->belongs_to(
+  "distribution",
+  "Pinto::Schema::Result::Distribution",
+  { id => "distribution" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -44,7 +54,7 @@ __PACKAGE__->belongs_to(
   "package",
   "Pinto::Schema::Result::Package",
   { id => "package" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -52,7 +62,7 @@ __PACKAGE__->belongs_to(
   "revision",
   "Pinto::Schema::Result::Revision",
   { id => "revision" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -60,8 +70,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-20 20:30:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:F9THyblUg5XM6rx5oIH7Ag
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 18:30:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MwLxVeacLGbWT842dnvlEQ
 
 #-------------------------------------------------------------------------------
 
@@ -69,7 +79,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -86,9 +96,10 @@ sub undo {
 
     my $stack = $args{stack};
 
-    my $state = { stack     => $stack->id,
-                  package   => $self->package->id,
-                  is_pinned => $self->is_pinned };
+    my $state = { stack        => $stack->id,
+                  package      => $self->package->id,
+                  distribution => $self->distribution->id,
+                  is_pinned    => $self->is_pinned };
 
     my $event = $self->event;
     if ($event eq 'insert') {
@@ -178,7 +189,7 @@ Pinto::Schema::Result::RegistrationChange - A single change to the registry
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 
@@ -205,6 +216,12 @@ Pinto::Schema::Result::RegistrationChange
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 distribution
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 is_pinned
 
   data_type: 'integer'
@@ -226,7 +243,7 @@ Pinto::Schema::Result::RegistrationChange
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<event_package_is_pinned_revision_unique>
+=head2 C<event_package_revision_unique>
 
 =over 4
 
@@ -234,13 +251,17 @@ Pinto::Schema::Result::RegistrationChange
 
 =item * L</package>
 
-=item * L</is_pinned>
-
 =item * L</revision>
 
 =back
 
 =head1 RELATIONS
+
+=head2 distribution
+
+Type: belongs_to
+
+Related object: L<Pinto::Schema::Result::Distribution>
 
 =head2 package
 

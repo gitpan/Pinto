@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -36,7 +36,6 @@ has stack => (
     is        => 'ro',
     isa       => StackName | StackDefault,
     default   => undef,
-    coerce    => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -102,7 +101,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

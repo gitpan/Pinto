@@ -22,15 +22,17 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "author",
   { data_type => "text", is_nullable => 0 },
+  "author_canonical",
+  { data_type => "text", is_nullable => 0 },
   "archive",
   { data_type => "text", is_nullable => 0 },
   "source",
   { data_type => "text", is_nullable => 0 },
   "mtime",
   { data_type => "integer", is_nullable => 0 },
-  "md5",
-  { data_type => "text", is_nullable => 0 },
   "sha256",
+  { data_type => "text", is_nullable => 0 },
+  "md5",
   { data_type => "text", is_nullable => 0 },
 );
 
@@ -38,7 +40,10 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("author_archive_unique", ["author", "archive"]);
+__PACKAGE__->add_unique_constraint(
+  "author_canonical_archive_unique",
+  ["author_canonical", "archive"],
+);
 
 
 __PACKAGE__->add_unique_constraint("md5_unique", ["md5"]);
@@ -63,12 +68,28 @@ __PACKAGE__->has_many(
 );
 
 
+__PACKAGE__->has_many(
+  "registration_changes",
+  "Pinto::Schema::Result::RegistrationChange",
+  { "foreign.distribution" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
+__PACKAGE__->has_many(
+  "registrations",
+  "Pinto::Schema::Result::Registration",
+  { "foreign.distribution" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 1 },
+);
+
+
 
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-21 14:48:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:lo9xjZQaCJQ7jdjcCKKygw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 20:13:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+TAXWVdLE3xvkBVryoeunQ
 
 #-------------------------------------------------------------------------------
 
@@ -81,15 +102,16 @@ use Path::Class;
 use CPAN::DistnameInfo;
 use String::Format;
 
-use Pinto::Util;
+use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 use Pinto::DistributionSpec;
 
-use overload ( '""' => 'to_string' );
+use overload ( '""'  => 'to_string',
+               'cmp' => 'string_compare');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -98,6 +120,7 @@ sub FOREIGNBUILDARGS {
 
     $args ||= {};
     $args->{source} ||= 'LOCAL';
+    $args->{author_canonical} = uc $args->{author};
 
     return $args;
 }
@@ -253,9 +276,9 @@ has is_devel => (
 sub path {
     my ($self) = @_;
 
-    return join '/', substr($self->author, 0, 1),
-                     substr($self->author, 0, 2),
-                     $self->author,
+    return join '/', substr($self->author_canonical, 0, 1),
+                     substr($self->author_canonical, 0, 2),
+                     $self->author_canonical,
                      $self->archive;
 }
 
@@ -265,9 +288,9 @@ sub native_path {
     my ($self, @base) = @_;
 
     return Path::Class::file( @base,
-                              substr($self->author, 0, 1),
-                              substr($self->author, 0, 2),
-                              $self->author,
+                              substr($self->author_canonical, 0, 1),
+                              substr($self->author_canonical, 0, 2),
+                              $self->author_canonical,
                               $self->archive );
 }
 
@@ -317,11 +340,9 @@ sub registered_stacks {
 
     my %stacks;
 
-    for my $pkg ($self->packages) {
-        for my $reg ($pkg->registrations) {
-            my $stack = $reg->stack;
-            $stacks{$stack->name} = $stack;
-        }
+    for my $reg ($self->registrations) {
+      # TODO: maybe use 'DISTICT'
+      $stacks{$reg->stack} = $reg->stack;
     }
 
     return values %stacks;
@@ -353,6 +374,23 @@ sub as_spec {
 
 #------------------------------------------------------------------------------
 
+sub string_compare {
+    my ($dist_a, $dist_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($dist_a, $pkg) && itis($dist_b, $pkg) );
+        
+    return 0 if $dist_a->id == $dist_b->id;
+
+    my $r =   ($dist_a->author_canonical cmp $dist_b->author_canonical)
+           || ($dist_a->archive          cmp $dist_b->archive);
+
+    return $r;
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ($self, $format) = @_;
 
@@ -367,6 +405,7 @@ sub to_string {
          's' => sub { $self->is_local()   ? 'l' : 'f'         },
          'S' => sub { $self->source()                         },
          'a' => sub { $self->author()                         },
+         'A' => sub { $self->author_canonical()               },
          'u' => sub { $self->url()                            },
          'c' => sub { $self->package_count()                  },
     );
@@ -380,7 +419,7 @@ sub to_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%a/%f',
+    return '%A/%f',
 }
 
 #------------------------------------------------------------------------------
@@ -402,7 +441,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 
@@ -423,6 +462,11 @@ Pinto::Schema::Result::Distribution
   data_type: 'text'
   is_nullable: 0
 
+=head2 author_canonical
+
+  data_type: 'text'
+  is_nullable: 0
+
 =head2 archive
 
   data_type: 'text'
@@ -438,12 +482,12 @@ Pinto::Schema::Result::Distribution
   data_type: 'integer'
   is_nullable: 0
 
-=head2 md5
+=head2 sha256
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 sha256
+=head2 md5
 
   data_type: 'text'
   is_nullable: 0
@@ -458,11 +502,11 @@ Pinto::Schema::Result::Distribution
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<author_archive_unique>
+=head2 C<author_canonical_archive_unique>
 
 =over 4
 
-=item * L</author>
+=item * L</author_canonical>
 
 =item * L</archive>
 
@@ -497,6 +541,18 @@ Related object: L<Pinto::Schema::Result::Package>
 Type: has_many
 
 Related object: L<Pinto::Schema::Result::Prerequisite>
+
+=head2 registration_changes
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::RegistrationChange>
+
+=head2 registrations
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Registration>
 
 =head1 L<Moose> ROLES APPLIED
 

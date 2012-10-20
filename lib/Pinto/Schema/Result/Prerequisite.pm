@@ -42,7 +42,7 @@ __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
   { id => "distribution" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -50,8 +50,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-30 14:24:07
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0deC0FNUyI51MUzBgm7Q9Q
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 17:28:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QH+RDon4U7Fdokx8bLefBQ
 
 #------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ use Pinto::PackageSpec;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -107,7 +107,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 

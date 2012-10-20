@@ -8,13 +8,14 @@ use File::Temp;
 use Path::Class;
 use LWP::UserAgent;
 
+use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -40,7 +41,7 @@ sub fetch {
 
     my $from     = $args{from};
     my $from_uri = _make_uri($from);
-    my $to       = eval {$args{to}->isa('Path::Class')} ? $args{to} : file($args{to});
+    my $to       = itis($args{to}, 'Path::Class') ? $args{to} : file($args{to});
 
     $self->debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
 
@@ -112,12 +113,12 @@ sub _make_uri {
     my ($it) = @_;
 
     return $it
-        if eval { $it->isa('URI') };
+        if itis($it, 'URI');
 
-    return URI::file->new( $it->absolute() )
-        if eval { $it->isa('Path::Class::File') };
+    return URI::file->new( $it->absolute )
+        if itis($it, 'Path::Class::File');
 
-    return URI::file->new( file($it)->absolute() )
+    return URI::file->new( file($it)->absolute )
         if -e $it;
 
     return URI->new($it);
@@ -139,7 +140,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 METHODS
 

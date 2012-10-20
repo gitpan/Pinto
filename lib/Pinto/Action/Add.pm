@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,8 +27,7 @@ with qw( Pinto::Role::PauseConfig Pinto::Role::Committable );
 has author => (
     is         => 'ro',
     isa        => Author,
-    default    => sub { uc ($_[0]->pausecfg->{user} || $_[0]->config->username) },
-    coerce     => 1,
+    default    => sub { uc($_[0]->pausecfg->{user} || '') || $_[0]->config->username },
     lazy       => 1,
 );
 
@@ -46,7 +45,6 @@ has stack => (
     is       => 'ro',
     isa      => StackName | StackDefault,
     default  => undef,
-    coerce   => 1,
 );
 
 
@@ -144,7 +142,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

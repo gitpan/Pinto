@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,6 @@ has stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
-    coerce   => 1,
 );
 
 
@@ -83,7 +82,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

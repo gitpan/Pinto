@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -28,7 +28,6 @@ has stack => (
     is        => 'ro',
     isa       => StackName | StackDefault,
     default   => undef,
-    coerce    => 1,
 );
 
 
@@ -93,7 +92,7 @@ sub _revert {
     }
 
     throw "Checksum does not match for revision $revnum.  Aborting"
-        if $previous_revision->md5 ne $new_head->compute_md5;
+        if $previous_revision->sha256 ne $new_head->compute_sha256;
 
     return $self;
 }
@@ -128,7 +127,7 @@ Pinto::Action::Revert - Restore stack to a prior revision
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

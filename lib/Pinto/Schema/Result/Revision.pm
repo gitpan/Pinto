@@ -37,7 +37,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "message",
   { data_type => "text", is_nullable => 0 },
-  "md5",
+  "sha256",
   { data_type => "text", default_value => "", is_nullable => 1 },
 );
 
@@ -69,10 +69,10 @@ __PACKAGE__->belongs_to(
   "Pinto::Schema::Result::Stack",
   { id => "stack" },
   {
-    is_deferrable => 1,
+    is_deferrable => 0,
     join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
   },
 );
 
@@ -81,8 +81,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-17 14:51:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZspKGFKEbeq4j/t1lZHnTw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 20:13:59
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B2mX6SpJ7pGHqqoLlv5UUg
 
 #------------------------------------------------------------------------------
 
@@ -90,13 +90,14 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
 use Pinto::Exception qw(throw);
 
 use String::Format;
+use Digest::SHA;
 
 use overload ( '""'  => 'to_string' );
 
@@ -191,14 +192,14 @@ sub close {
     $self->update( { %args,
                      committed_on => time,
                      is_committed => 1,
-                     md5          => $self->compute_md5 } );
+                     sha256       => $self->compute_sha256 } );
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
-sub compute_md5 {
+sub compute_sha256 {
     my ($self) = @_;
 
     throw "Must bind revision to a stack before computing checksum"
@@ -207,10 +208,10 @@ sub compute_md5 {
     my $attrs   = {select => [qw(package_name package_version distribution_path)] };
     my $rs      = $self->stack->search_related_rs('registrations', {}, $attrs);
 
-    my $md5 = Digest::MD5->new;
-    $md5->add( join '/', @{$_} ) for $rs->cursor->all;
+    my $sha = Digest::SHA->new(256);
+    $sha->add( join '/', @{$_} ) for $rs->cursor->all;
 
-    return $md5->hexdigest;
+    return $sha->hexdigest;
 }
 
 #------------------------------------------------------------------------------
@@ -289,7 +290,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 
@@ -337,7 +338,7 @@ Pinto::Schema::Result::Revision
   data_type: 'text'
   is_nullable: 0
 
-=head2 md5
+=head2 sha256
 
   data_type: 'text'
   default_value: (empty string)

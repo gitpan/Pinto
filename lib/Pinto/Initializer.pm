@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -156,7 +156,7 @@ sub _create_db {
 sub _create_stack {
     my ($self, %args) = @_;
 
-    my $stk_name  = Pinto::Util::normalize_stack_name( $args{name} || 'init');
+    my $stk_name  = Pinto::Util::validate_stack_name($args{name} || 'init');
     my $stk_description = $args{description} || 'the initial stack';
 
     my $repos = Pinto::Repository->new(config => $self->config);
@@ -191,7 +191,7 @@ Pinto::Initializer - Initializes a new Pinto repository
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

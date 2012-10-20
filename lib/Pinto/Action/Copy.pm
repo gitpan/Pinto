@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,6 @@ has from_stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
-    coerce   => 1,
 );
 
 
@@ -35,7 +34,6 @@ has to_stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
-    coerce   => 1,
 );
 
 
@@ -70,9 +68,10 @@ sub execute {
 sub message_primer {
     my ($self) = @_;
 
-    my ($from, $to) = ($self->from_stack, $self->to_stack);
+    my $orig = $self->repos->get_stack(name => $self->from_stack);
+    my $copy = $self->repos->get_stack(name => $self->to_stack);
 
-    return "Copied stack $from to stack $to.";
+    return "Copied stack $orig to stack $copy.";
 }
 
 #------------------------------------------------------------------------------
@@ -95,7 +94,7 @@ Pinto::Action::Copy - An action to create a new stack by copying another
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 

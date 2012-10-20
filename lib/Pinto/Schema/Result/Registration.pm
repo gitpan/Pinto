@@ -24,6 +24,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "package",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "distribution",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "is_pinned",
   { data_type => "integer", is_nullable => 0 },
   "package_name",
@@ -45,10 +47,18 @@ __PACKAGE__->add_unique_constraint("stack_package_unique", ["stack", "package"])
 
 
 __PACKAGE__->belongs_to(
+  "distribution",
+  "Pinto::Schema::Result::Distribution",
+  { id => "distribution" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
+
+__PACKAGE__->belongs_to(
   "package",
   "Pinto::Schema::Result::Package",
   { id => "package" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -56,7 +66,7 @@ __PACKAGE__->belongs_to(
   "stack",
   "Pinto::Schema::Result::Stack",
   { id => "stack" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
@@ -64,8 +74,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07025 @ 2012-09-14 13:53:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vVMTiTt58Vt2uqE5hPFjTA
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 20:30:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i+MzutuKn9wDz25eRwmUBw
 
 #------------------------------------------------------------------------------
 
@@ -73,14 +83,14 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
 use Carp;
 use String::Format;
 
-use Pinto::Util;
+use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
 use overload ( '""'     => 'to_string',
@@ -123,7 +133,7 @@ sub insert {
     # Compute values for denormalized attributes...
     $self->package_name($self->package->name);
     $self->package_version($self->package->version->stringify);
-    $self->distribution_path($self->package->distribution->path);
+    $self->distribution_path($self->distribution->path);
 
     my $return = $self->next::method(@args);
 
@@ -155,10 +165,11 @@ sub _record_change {
     throw "Stack $stack is not open for revision"
       if $revision->is_committed;
 
-    my $hist = { event      => $event,
-                 package    => $self->package,
-                 is_pinned  => $self->is_pinned,
-                 revision   => $revision };
+    my $hist = { event        => $event,
+                 package      => $self->package,
+                 distribution => $self->distribution,
+                 is_pinned    => $self->is_pinned,
+                 revision     => $revision };
 
     # Update history....
     my $rs = $self->result_source->schema->resultset('RegistrationChange');
@@ -293,7 +304,7 @@ sub compare {
 
     my $pkg = __PACKAGE__;
     throw "Can only compare $pkg objects"
-        if not ( $reg_a->isa($pkg) && $reg_b->isa($pkg) );
+        if not ( itis($reg_a, $pkg) && itis($reg_b, $pkg) );
 
     return 0 if $reg_a->id == $reg_b->id;
 
@@ -306,14 +317,14 @@ sub string_compare {
     my ($reg_a, $reg_b) = @_;
 
     my $pkg = __PACKAGE__;
-      throw "Can only compare $pkg objects"
-        if not ( $reg_a->isa($pkg) && $reg_b->isa($pkg) );
+    throw "Can only compare $pkg objects"
+        if not ( itis($reg_a, $pkg) && itis($reg_b, $pkg) );
 
     return 0 if $reg_a->id == $reg_b->id;
 
-    return    ($reg_a->package->distribution->author cmp $reg_b->package->distribution->author)
-           || ($reg_a->package->distribution->vname  cmp $reg_b->package->distribution->vname)
-           || ($reg_a->package->vname                cmp $reg_b->package->vname);
+    return    ($reg_a->package->distribution->author_canonical cmp $reg_b->package->distribution->author_canonical)
+           || ($reg_a->package->distribution->vname            cmp $reg_b->package->distribution->vname)
+           || ($reg_a->package->vname                          cmp $reg_b->package->vname);
 }
 
 #------------------------------------------------------------------------------
@@ -335,6 +346,7 @@ sub to_string {
          s => sub { $self->package->distribution->is_local  ? 'l' : 'f'         },
          S => sub { $self->package->distribution->source                        },
          a => sub { $self->package->distribution->author                        },
+         A => sub { $self->package->distribution->author_canonical              },
          d => sub { $self->package->distribution->name                          },
          D => sub { $self->package->distribution->vname                         },
          w => sub { $self->package->distribution->version                       },
@@ -360,7 +372,7 @@ sub to_string {
 
 sub default_format {
 
-    return '%a/%D/%N/%k';
+    return '%A/%D/%N/%k';
 }
 
 #------------------------------------------------------------------------------
@@ -382,7 +394,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 NAME
 
@@ -405,6 +417,12 @@ Pinto::Schema::Result::Registration
   is_nullable: 0
 
 =head2 package
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 0
+
+=head2 distribution
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -461,6 +479,12 @@ Pinto::Schema::Result::Registration
 =back
 
 =head1 RELATIONS
+
+=head2 distribution
+
+Type: belongs_to
+
+Related object: L<Pinto::Schema::Result::Distribution>
 
 =head2 package
 

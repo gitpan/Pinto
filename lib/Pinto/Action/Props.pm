@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.058'; # VERSION
+our $VERSION = '0.059'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,6 @@ has stack  => (
     is        => 'ro',
     isa       => StackName | StackDefault,
     default   => undef,
-    coerce    => 1,
 );
 
 
@@ -70,7 +69,7 @@ Pinto::Action::Props - Show stack properties
 
 =head1 VERSION
 
-version 0.058
+version 0.059
 
 =head1 AUTHOR
 
