@@ -3,7 +3,7 @@
 package Pinto::Action::New;
 
 use Moose;
-use MooseX::Types::Moose qw(Str);
+use MooseX::Types::Moose qw(Str Bool);
 
 use Pinto::Types qw(StackName);
 
@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -30,6 +30,13 @@ has stack => (
 );
 
 
+has default => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+
 has description => (
     is         => 'ro',
     isa        => Str,
@@ -41,13 +48,15 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->create_stack(name => $self->stack);
+    my $stack = $self->repo->create_stack(name => $self->stack);
     $stack->set_property(description => $self->description) if $self->has_description;
 
     $stack->close(message => $self->edit_message);
 
-    $self->repos->create_stack_filesystem(stack => $stack);
-    $self->repos->write_index(stack => $stack);
+    $stack->mark_as_default if $self->default;
+
+    $self->repo->create_stack_filesystem(stack => $stack);
+    $self->repo->write_index(stack => $stack);
 
     return $self->result->changed;
 }
@@ -82,7 +91,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

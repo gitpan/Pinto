@@ -1,9 +1,9 @@
-# ABSTRACT: An action to create a new stack by copying another
+# ABSTRACT: Create a new stack by copying another
 
 package Pinto::Action::Copy;
 
 use Moose;
-use MooseX::Types::Moose qw(Str);
+use MooseX::Types::Moose qw(Str Bool);
 
 use Pinto::Types qw(StackName);
 
@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,6 +37,13 @@ has to_stack => (
 );
 
 
+has default => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+
 has description => (
     is         => 'ro',
     isa        => Str,
@@ -48,8 +55,8 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my $orig = $self->repos->get_stack(name => $self->from_stack);
-    my $copy = $self->repos->copy_stack(from => $orig, to => $self->to_stack);
+    my $orig = $self->repo->get_stack(name => $self->from_stack);
+    my $copy = $self->repo->copy_stack(from => $orig, to => $self->to_stack);
 
     my $description = $self->description || "copy of stack $orig";
     $copy->set_property(description => $description);
@@ -57,8 +64,10 @@ sub execute {
     my $message = $self->edit_message(stacks => [$copy]);
     $copy->close(message => $message);
 
-    $self->repos->create_stack_filesystem(stack => $copy);
-    $self->repos->write_index(stack => $copy);
+    $copy->mark_as_default if $self->default;
+
+    $self->repo->create_stack_filesystem(stack => $copy);
+    $self->repo->write_index(stack => $copy);
 
     return $self->result->changed;
 }
@@ -68,8 +77,8 @@ sub execute {
 sub message_primer {
     my ($self) = @_;
 
-    my $orig = $self->repos->get_stack(name => $self->from_stack);
-    my $copy = $self->repos->get_stack(name => $self->to_stack);
+    my $orig = $self->repo->get_stack(name => $self->from_stack);
+    my $copy = $self->repo->get_stack(name => $self->to_stack);
 
     return "Copied stack $orig to stack $copy.";
 }
@@ -90,11 +99,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Copy - An action to create a new stack by copying another
+Pinto::Action::Copy - Create a new stack by copying another
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

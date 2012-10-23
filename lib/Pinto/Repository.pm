@@ -23,7 +23,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -442,10 +442,10 @@ sub _find_or_pull_by_package_spec {
     }
 
 
-    my $latest_in_repos = $self->get_package(name => $pkg_name);
-    if (defined $latest_in_repos && ($latest_in_repos->version >= $pkg_ver)) {
-        my $got_dist = $latest_in_repos->distribution;
-        $self->debug( sub {"Repository already has package $pspec or newer as $latest_in_repos"} );
+    my $latest_in_repo = $self->get_package(name => $pkg_name);
+    if (defined $latest_in_repo && ($latest_in_repo->version >= $pkg_ver)) {
+        my $got_dist = $latest_in_repo->distribution;
+        $self->debug( sub {"Repository already has package $pspec or newer as $latest_in_repo"} );
         return ($got_dist, 0);
     }
 
@@ -738,7 +738,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 ATTRIBUTES
 

@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -111,30 +111,18 @@ sub execute {
     else{
         # Otherwise, list only the named stack, falling back to
         # the default stack if no stack was named at all.
-        my $stack = $self->repos->get_stack(name => $stk_name);
+        my $stack = $self->repo->get_stack(name => $stk_name);
         $where->{'stack.name'} = $stack->name;
         $format = $self->format;
     }
 
-    ##################################################################
-    # NOTE: The 'join' attribute on this next query should actually be
-    # a 'prefetch' but that stopped working in DBIx::Class-0.08198.
-    # See RT #78456 for discussion.  It seems to generate the right
-    # SQL, but it doesn't actually populate the related objects from
-    # the prefetched data.  Our other queries that use 'prefetch' seem
-    # to work fine, so I'm not sure why this one fails.
-    #
-    # In the meantime, I've discovered (by trial-and-error) that this
-    # version of the query seems to work, although it may require us
-    # to make extra trips to the database to get the related objects
-    # when we stringify the registration.
 
-    my $attrs = { order_by => [ qw(package_name package_version distribution_path) ],
-                  join     => ['stack', {package => 'distribution'}] };
+    my $attrs = {prefetch => ['stack', {package => 'distribution'}],
+                 order_by => [ qw(package.name) ] };
 
     ################################################################
 
-    my $rs = $self->repos->db->select_registrations($where, $attrs);
+    my $rs = $self->repo->db->select_registrations($where, $attrs);
 
     while( my $registration = $rs->next ) {
         $self->say($registration->to_string($format));
@@ -163,7 +151,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

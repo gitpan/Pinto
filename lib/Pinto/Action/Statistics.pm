@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -31,9 +31,9 @@ sub execute {
     my ($self) = @_;
 
     # FIXME!
-    my $stack = $self->repos->get_stack(name => $self->stack);
+    my $stack = $self->repo->get_stack(name => $self->stack);
 
-    my $stats = Pinto::Statistics->new(db    => $self->repos->db,
+    my $stats = Pinto::Statistics->new(db    => $self->repo->db,
                                        stack => $stack->name);
 
     $self->say($stats->to_formatted_string);
@@ -61,7 +61,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

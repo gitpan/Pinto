@@ -9,7 +9,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ sub execute {
     my ($self) = @_;
 
     my $attrs = { order_by => 'name' };
-    my @stacks = $self->repos->db->select_stacks(undef, $attrs)->all;
+    my @stacks = $self->repo->db->select_stacks(undef, $attrs)->all;
 
     for my $stack ( @stacks ) {
         $self->say($stack->to_string($self->format));
@@ -58,7 +58,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

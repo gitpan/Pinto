@@ -11,11 +11,11 @@ use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has repos => (
+has repo  => (
     is       => 'ro',
     isa      => 'Pinto::Repository',
     required => 1,
@@ -38,7 +38,7 @@ with qw( Pinto::Role::Configurable
 sub create_action {
     my ($self, $action_name, %action_args) = @_;
 
-    @action_args{qw(config logger repos)} = ($self->config, $self->logger, $self->repos);
+    @action_args{qw(config logger repo)} = ($self->config, $self->logger, $self->repo);
     my $action_class = $self->load_class_for_action(name => $action_name);
     my $action = $action_class->new(%action_args);
 
@@ -76,7 +76,7 @@ Pinto::ActionFactory - Construct Action objects
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

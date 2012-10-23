@@ -24,7 +24,7 @@ use base qw(Exporter);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 DESCRIPTION
 

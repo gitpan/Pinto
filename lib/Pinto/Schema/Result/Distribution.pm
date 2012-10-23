@@ -111,7 +111,7 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -380,7 +380,7 @@ sub string_compare {
     my $pkg = __PACKAGE__;
     throw "Can only compare $pkg objects"
         if not ( itis($dist_a, $pkg) && itis($dist_b, $pkg) );
-        
+
     return 0 if $dist_a->id == $dist_b->id;
 
     my $r =   ($dist_a->author_canonical cmp $dist_b->author_canonical)
@@ -441,7 +441,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 NAME
 

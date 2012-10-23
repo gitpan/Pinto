@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,10 +23,10 @@ sub execute {
 
 
     # FIXME!
-    my $rs  = $self->repos->db->schema->resultset('Distribution')->search;
+    my $rs  = $self->repo->db->schema->resultset('Distribution')->search;
 
     while ( my $dist = $rs->next ) {
-        my $archive = $dist->archive( $self->repos->root_dir );
+        my $archive = $dist->archive( $self->repo->root_dir );
         $self->say("Missing distribution $archive") if not -e $archive;
     }
 
@@ -53,7 +53,7 @@ Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 

@@ -10,7 +10,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.059'; # VERSION
+our $VERSION = '0.060'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,9 +29,9 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repos->get_stack(name => $self->stack);
+    my $stack = $self->repo->get_stack(name => $self->stack);
 
-    $self->repos->delete_stack_filesystem(stack => $stack);
+    $self->repo->delete_stack_filesystem(stack => $stack);
     $stack->delete;
 
     return $self->result->changed;
@@ -57,7 +57,7 @@ Pinto::Action::Delete - Delete a stack
 
 =head1 VERSION
 
-version 0.059
+version 0.060
 
 =head1 AUTHOR
 
