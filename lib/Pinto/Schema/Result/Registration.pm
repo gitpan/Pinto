@@ -27,7 +27,7 @@ __PACKAGE__->add_columns(
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "is_pinned",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "boolean", is_nullable => 0 },
   "package_name",
   { data_type => "text", is_nullable => 0 },
   "package_version",
@@ -74,8 +74,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 20:30:28
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:i+MzutuKn9wDz25eRwmUBw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-25 20:35:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7jmobCKYXjmFssykoC07nA
 
 #------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.060'; # VERSION
+our $VERSION = '0.061'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -394,7 +394,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.060
+version 0.061
 
 =head1 NAME
 
@@ -430,7 +430,7 @@ Pinto::Schema::Result::Registration
 
 =head2 is_pinned
 
-  data_type: 'integer'
+  data_type: 'boolean'
   is_nullable: 0
 
 =head2 package_name

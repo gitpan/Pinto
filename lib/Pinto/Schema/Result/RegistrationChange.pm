@@ -27,7 +27,7 @@ __PACKAGE__->add_columns(
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "is_pinned",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "boolean", is_nullable => 0 },
   "revision",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -70,8 +70,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 18:30:59
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MwLxVeacLGbWT842dnvlEQ
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-25 20:35:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/efY64VLacYqHj3+7RAdrA
 
 #-------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.060'; # VERSION
+our $VERSION = '0.061'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -189,7 +189,7 @@ Pinto::Schema::Result::RegistrationChange - A single change to the registry
 
 =head1 VERSION
 
-version 0.060
+version 0.061
 
 =head1 NAME
 
@@ -224,7 +224,7 @@ Pinto::Schema::Result::RegistrationChange
 
 =head2 is_pinned
 
-  data_type: 'integer'
+  data_type: 'boolean'
   is_nullable: 0
 
 =head2 revision

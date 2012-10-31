@@ -25,7 +25,7 @@ __PACKAGE__->add_columns(
   "name_canonical",
   { data_type => "text", is_nullable => 0 },
   "is_default",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "boolean", is_nullable => 0 },
   "head_revision",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "has_changed",
@@ -81,8 +81,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 19:06:47
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:arbQma2ymR1dN68xnB77tQ
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-25 20:35:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZKEl+71n2p5Tjg3MRHulXw
 
 #-------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.060'; # VERSION
+our $VERSION = '0.061'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -98,10 +98,11 @@ use MooseX::Types::Moose qw(Bool);
 
 use String::Format;
 
-use Pinto::Util;
+use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
-use overload ( '""' => 'to_string' );
+use overload ( '""'  => 'to_string',
+               'cmp' => 'string_compare' );
 
 #------------------------------------------------------------------------------
 
@@ -165,12 +166,13 @@ sub registration {
 sub registered_distributions {
     my ($self) = @_;
 
-    my $attrs = {prefetch => {package => 'distribution'}};
+    my $attrs = { prefetch => {distribution => 'packages'},
+                  order_by => [qw(distribution.author distribution.archive)] };
 
     my %dists;
     for my $reg ($self->registrations({}, $attrs)) {
       # TODO: maybe use 'DISTINCT'
-      $dists{$reg->distribution} = $reg->distribution;
+      $dists{$reg->distribution->id} = $reg->distribution;
     }
 
     return values %dists;
@@ -361,6 +363,39 @@ sub merge {
 
 #------------------------------------------------------------------------------
 
+sub compare {
+    my ($stack_a, $stack_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($stack_a, $pkg) && itis($stack_b, $pkg) );
+
+    return 0 if $stack_a->id == $stack_b->id;
+
+    my $r = ($stack_a->head_revision <=> $stack_b->head_revision);
+
+    return $r;
+}
+
+#------------------------------------------------------------------------------
+
+sub string_compare {
+    my ($stack_a, $stack_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($stack_a, $pkg) && itis($stack_b, $pkg) );
+
+    return 0 if $stack_a->id == $stack_b->id;
+
+    my $r =   ($stack_a->name          cmp $stack_b->name)
+           || ($stack_a->head_revision <=> $stack_b->head_revision);
+
+    return $r;
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ($self, $format) = @_;
 
@@ -404,7 +439,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.060
+version 0.061
 
 =head1 NAME
 
@@ -432,7 +467,7 @@ Pinto::Schema::Result::Stack
 
 =head2 is_default
 
-  data_type: 'integer'
+  data_type: 'boolean'
   is_nullable: 0
 
 =head2 head_revision

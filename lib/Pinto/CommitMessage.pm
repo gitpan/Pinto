@@ -12,7 +12,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.060'; # VERSION
+our $VERSION = '0.061'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::CommitMessage - Utility class for constructing commit messages
 
 =head1 VERSION
 
-version 0.060
+version 0.061
 
 =head1 AUTHOR
 

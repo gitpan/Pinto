@@ -30,7 +30,7 @@ __PACKAGE__->add_columns(
   "number",
   { data_type => "integer", is_nullable => 0 },
   "is_committed",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "boolean", is_nullable => 0 },
   "committed_on",
   { data_type => "integer", is_nullable => 0 },
   "committed_by",
@@ -81,8 +81,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 20:13:59
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:B2mX6SpJ7pGHqqoLlv5UUg
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-25 20:35:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pdEMqaUVlpZmFgHEwSEFww
 
 #------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.060'; # VERSION
+our $VERSION = '0.061'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -99,7 +99,8 @@ use Pinto::Exception qw(throw);
 use String::Format;
 use Digest::SHA;
 
-use overload ( '""'  => 'to_string' );
+use overload ( '""'  => 'to_string',
+               '<=>' => 'compare' );
 
 #------------------------------------------------------------------------------
 
@@ -236,6 +237,22 @@ sub change_details {
 
 #------------------------------------------------------------------------------
 
+sub compare {
+    my ($rev_a, $rev_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($rev_a, $pkg) && itis($rev_b, $pkg) );
+
+    return 0 if $rev_a->id == $rev_b->id;
+
+    my $r = ($rev_a->number <=> $rev_b->number);
+
+    return $r;
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ($self, $format) = @_;
 
@@ -290,7 +307,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.060
+version 0.061
 
 =head1 NAME
 
@@ -320,7 +337,7 @@ Pinto::Schema::Result::Revision
 
 =head2 is_committed
 
-  data_type: 'integer'
+  data_type: 'boolean'
   is_nullable: 0
 
 =head2 committed_on
