@@ -5,13 +5,13 @@ package Pinto::Action::Copy;
 use Moose;
 use MooseX::Types::Moose qw(Str Bool);
 
-use Pinto::Types qw(StackName);
+use Pinto::Types qw(StackName StackObject);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ with qw( Pinto::Role::Committable );
 
 has from_stack => (
     is       => 'ro',
-    isa      => StackName,
+    isa      => StackName | StackObject,
     required => 1,
 );
 
@@ -55,7 +55,7 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my $orig = $self->repo->get_stack(name => $self->from_stack);
+    my $orig = $self->repo->get_stack($self->from_stack);
     my $copy = $self->repo->copy_stack(from => $orig, to => $self->to_stack);
 
     my $description = $self->description || "copy of stack $orig";
@@ -77,8 +77,8 @@ sub execute {
 sub message_primer {
     my ($self) = @_;
 
-    my $orig = $self->repo->get_stack(name => $self->from_stack);
-    my $copy = $self->repo->get_stack(name => $self->to_stack);
+    my $orig = $self->repo->get_stack($self->from_stack);
+    my $copy = $self->repo->get_stack($self->to_stack);
 
     return "Copied stack $orig to stack $copy.";
 }
@@ -103,7 +103,7 @@ Pinto::Action::Copy - Create a new stack by copying another
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

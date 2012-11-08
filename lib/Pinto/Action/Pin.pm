@@ -4,14 +4,14 @@ package Pinto::Action::Pin;
 
 use Moose;
 
-use Pinto::Types qw(Specs StackName StackDefault);
+use Pinto::Types qw(Specs StackName StackDefault StackObject);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ with qw( Pinto::Role::Committable );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | StackDefault,
+    isa       => StackName | StackDefault | StackObject,
     default   => undef,
 );
 
@@ -43,7 +43,7 @@ has targets => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->open_stack(name => $self->stack);
+    my $stack = $self->repo->open_stack($self->stack);
     $self->_pin($_, $stack) for $self->targets;
 
     if ($self->result->made_changes and not $self->dryrun) {
@@ -100,7 +100,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

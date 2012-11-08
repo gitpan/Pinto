@@ -27,7 +27,6 @@ my @modules = qw(
   DBIx::Class::Core
   DBIx::Class::Schema
   DateTime
-  Digest::MD5
   Digest::SHA
   Dist::Metadata
   Exporter
@@ -39,7 +38,6 @@ my @modules = qw(
   File::Temp
   File::Which
   HTTP::Date
-  IO::Interactive
   IO::String
   JSON
   LWP::UserAgent
@@ -64,9 +62,11 @@ my @modules = qw(
   Pinto::Constants
   Pinto::DistributionSpec
   Pinto::Exception
+  Pinto::Globals
   Pinto::PackageSpec
   Pinto::Role::PauseConfig
   Pinto::Types
+  Pinto::Util
   Readonly
   SQL::Translator
   Scalar::Util

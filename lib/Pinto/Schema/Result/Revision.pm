@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ sub close {
       if $self->is_committed;
 
     throw "Must specify a message to close revision $self"
-       unless $args{message} or $self->messsage;
+       unless $args{message} or $self->message;
 
     throw "Must specify a username to close revision $self"
        unless $args{committed_by} or $self->committed_by;
@@ -246,7 +246,7 @@ sub compare {
 
     return 0 if $rev_a->id == $rev_b->id;
 
-    my $r = ($rev_a->number <=> $rev_b->number);
+    my $r = ($rev_a->committed_on <=> $rev_b->committed_on);
 
     return $r;
 }
@@ -307,7 +307,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 NAME
 

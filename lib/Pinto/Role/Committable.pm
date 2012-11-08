@@ -6,14 +6,14 @@ use Moose::Role;
 use MooseX::Types::Moose qw(Bool Str);
 
 use Try::Tiny;
-use IO::Interactive qw(is_interactive);
 
 use Pinto::CommitMessage;
 use Pinto::Exception qw(throw);
+use Pinto::Util qw(is_interactive);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,6 +27,12 @@ has message => (
     is        => 'ro',
     isa       => Str,
     predicate => 'has_message',
+);
+
+has use_default_message => (
+    is         => 'ro',
+    isa        => Bool,
+    default    => 0,
 );
 
 #------------------------------------------------------------------------------
@@ -68,8 +74,10 @@ sub edit_message {
     my $stacks = $args{stacks} || [];
     my $primer = $args{primer} || $self->message_primer || '';
 
-    return $self->message if $self->has_message;
-    return $primer if not is_interactive;
+    return $self->message if $self->has_message and $self->message =~ /\S+/;
+    return $primer        if $self->has_message and $self->message !~ /\S+/;
+    return $primer        if $self->use_default_message;
+    return $primer        if not is_interactive;
 
     my $message = Pinto::CommitMessage->new(stacks => $stacks, primer => $primer)->edit;
     throw 'Aborting due to empty commit message' if $message !~ /\S+/;
@@ -92,7 +100,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

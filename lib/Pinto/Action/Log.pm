@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ has detailed => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack(name => $self->stack);
+    my $stack = $self->repo->get_stack($self->stack);
 
     my $revnum = $self->revision;
     my @revisions = $stack->revision(number => $revnum);
@@ -83,7 +83,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

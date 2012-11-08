@@ -17,7 +17,7 @@ use namespace::autoclean;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -136,9 +136,9 @@ sub requires {
 
     my @prereqs;
     for my $pkg_name (sort keys %prereqs) {
-        my $pkg_ver = version->parse( $prereqs{$pkg_name} );
-
         next if $pkg_name eq 'perl';
+
+        my $pkg_ver = version->parse( $prereqs{$pkg_name} );
 
         next if exists $self->prereq_filter->{$pkg_name}
           and $self->prereq_filter->{$pkg_name} >= $pkg_ver;
@@ -189,7 +189,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

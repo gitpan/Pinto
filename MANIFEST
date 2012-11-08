@@ -65,7 +65,6 @@ lib/Pinto/Statistics.pm
 lib/Pinto/Store.pm
 lib/Pinto/Tester.pm
 lib/Pinto/Tester/Util.pm
-lib/Pinto/Util.pm
 notes/big-picture.txt
 notes/commands.txt
 notes/errors.txt
@@ -96,6 +95,7 @@ t/29-pin-rjbs.t
 t/30-stack.t
 t/31-stack-props.t
 t/32-dryrun.t
+t/34-commit.t
 t/35-install.t
 t/36-revert.t
 t/37-replace.t

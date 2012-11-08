@@ -63,8 +63,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 17:28:53
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IdF0zr75XRiWOqSuoqj9Xg
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-08 10:28:25
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hemySTbuq5F7Ys0BhRF8FQ
 
 #------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -259,7 +259,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 NAME
 

@@ -5,14 +5,14 @@ package Pinto::Action::Blame;
 use Moose;
 use MooseX::Types::Moose qw(Bool Int Undef);
 
-use Pinto::Types qw(StackName StackDefault);
+use Pinto::Types qw(StackName StackDefault StackObject);
 use Pinto::Exception qw(throw);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ extends qw( Pinto::Action );
 
 has stack => (
     is        => 'ro',
-    isa       => StackName | StackDefault,
+    isa       => StackName | StackDefault | StackObject,
     default   => undef,
 );
 
@@ -38,7 +38,7 @@ has revision => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack(name => $self->stack);
+    my $stack = $self->repo->get_stack($self->stack);
     my $rcrs  = $self->repo->db->schema->resultset('RegistrationChange');
 
     # STRATEGY: For each registration in the current head of the stack, find
@@ -86,7 +86,7 @@ Pinto::Action::Blame - Show who added packages to the stack
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 AUTHOR
 

@@ -1,3 +1,18 @@
+0.062     2012-11-08 10:52:02 America/Los_Angeles
+
+     Interface Changes:
+
+     * If the commit message for a Committable action is empty (but defined)
+       then we automatically fall back to using the default message.
+
+     Interal API Changes:
+
+     * Actions that take a stack name argument can now accept a stack
+       object as well.
+
+     * Pinto::Util has been moved from this distribution to Pinto-Common.
+
+
 0.061     2012-10-30 17:19:10 America/Los_Angeles
 
      Interface Changes:
@@ -6,9 +21,11 @@
 
      Interal API Changes:
 
-     Some query optimizations, to benefit alpha.stratopan.com
+     * Some query optimizations, to benefit alpha.stratopan.com
 
-     Stack and Revision objects are now sortable.
+     * Stack and Revision objects are now sortable.  In string context,
+       Stacks sort by name.  In numeric context, they sort by Revision.
+       Revisions sort chronologically.
 
 0.060     2012-10-23 10:57:41 America/Los_Angeles
 

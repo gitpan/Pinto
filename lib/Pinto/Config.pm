@@ -12,12 +12,13 @@ use MooseX::Aliases;
 use URI;
 
 use Pinto::Types qw(Dir File);
+use Pinto::Util qw(current_user);
 
 use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.061'; # VERSION
+our $VERSION = '0.062'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -34,7 +35,7 @@ has root       => (
 has username  => (
     is        => 'ro',
     isa       => Str,
-    default   => sub { return $ENV{USER} || $ENV{USERNAME} || $ENV{LOGNAME} },
+    default   => sub { return current_user },
 );
 
 
@@ -232,7 +233,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.061
+version 0.062
 
 =head1 DESCRIPTION
 
