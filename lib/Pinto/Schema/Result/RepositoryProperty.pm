@@ -42,8 +42,8 @@ __PACKAGE__->add_unique_constraint("key_unique", ["key"]);
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-19 19:06:47
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CduUfaynDUMYglq+5apIXw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:48:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pT7O2c2JHonL/JGkkYv1Rw
 
 #-------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.062'; # VERSION
+our $VERSION = '0.063'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ Pinto::Schema::Result::RepositoryProperty - Repository metadata
 
 =head1 VERSION
 
-version 0.062
+version 0.063
 
 =head1 NAME
 

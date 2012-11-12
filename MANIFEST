@@ -27,6 +27,7 @@ lib/Pinto/Action/Nop.pm
 lib/Pinto/Action/Pin.pm
 lib/Pinto/Action/Props.pm
 lib/Pinto/Action/Pull.pm
+lib/Pinto/Action/Rename.pm
 lib/Pinto/Action/Replace.pm
 lib/Pinto/Action/Revert.pm
 lib/Pinto/Action/Stacks.pm
@@ -99,6 +100,8 @@ t/34-commit.t
 t/35-install.t
 t/36-revert.t
 t/37-replace.t
+t/38-delete.t
+t/39-rename.t
 t/40-locking.t
 tools/import
 tools/provides

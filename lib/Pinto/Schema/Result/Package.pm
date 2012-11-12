@@ -24,6 +24,10 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "version",
   { data_type => "text", is_nullable => 0 },
+  "file",
+  { data_type => "text", is_nullable => 0 },
+  "sha256",
+  { data_type => "text", is_nullable => 0 },
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -47,7 +51,7 @@ __PACKAGE__->has_many(
   "registration_changes",
   "Pinto::Schema::Result::RegistrationChange",
   { "foreign.package" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -55,7 +59,7 @@ __PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
   { "foreign.package" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -63,8 +67,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-08 10:28:25
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hemySTbuq5F7Ys0BhRF8FQ
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:50:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:By+ckGtS4cjL76RnJ+6T8A
 
 #------------------------------------------------------------------------------
 
@@ -86,7 +90,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.062'; # VERSION
+our $VERSION = '0.063'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -259,7 +263,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.062
+version 0.063
 
 =head1 NAME
 
@@ -281,6 +285,16 @@ Pinto::Schema::Result::Package
   is_nullable: 0
 
 =head2 version
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 file
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 sha256
 
   data_type: 'text'
   is_nullable: 0

@@ -6,6 +6,7 @@ use Moose;
 
 use Path::Class;
 use File::Find;
+use File::Copy qw(move);
 use Scalar::Util qw(blessed);
 
 use Pinto::Util;
@@ -23,7 +24,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.062'; # VERSION
+our $VERSION = '0.063'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -578,6 +579,18 @@ sub create_stack {
 
 #-------------------------------------------------------------------------------
 
+sub rename_stack {
+    my ($self, %args) = @_;
+
+    my $stack = $self->get_stack( $args{from} )->rename( $args{to} );
+
+    $self->rename_stack_filesystem(%args);
+
+    return $stack;
+}
+
+#-------------------------------------------------------------------------------
+
 sub copy_stack {
     my ($self, %args) = @_;
 
@@ -644,6 +657,26 @@ sub delete_stack_filesystem {
 
     $self->debug("Removing stack directory $stack_dir");
     $stack_dir->rmtree or throw "Failed to remove $stack_dir" if -e $stack_dir;
+
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub rename_stack_filesystem {
+    my ($self, %args) = @_;
+
+    my $from = $args{from};
+    my $to   = $args{to};
+
+    my $from_stack_dir = $self->root_dir->subdir($from);
+    throw "Directory $from_stack_dir does not exist" if not -e $from_stack_dir;
+
+    my $to_stack_dir   = $self->root_dir->subdir($to);
+    throw "Directory $to_stack_dir already exists" if -e $to_stack_dir;
+
+    $self->debug("Renaming $from_stack_dir to $to_stack_dir");
+    move($from_stack_dir, $to_stack_dir) or throw "Rename failed: $!";
 
     return $self;
 }
@@ -737,7 +770,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.062
+version 0.063
 
 =head1 ATTRIBUTES
 

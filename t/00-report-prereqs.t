@@ -32,6 +32,7 @@ my @modules = qw(
   Exporter
   ExtUtils::MakeMaker
   File::Basename
+  File::Copy
   File::Find
   File::NFSLock
   File::Spec::Functions

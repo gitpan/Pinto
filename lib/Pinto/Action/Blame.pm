@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.062'; # VERSION
+our $VERSION = '0.063'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ Pinto::Action::Blame - Show who added packages to the stack
 
 =head1 VERSION
 
-version 0.062
+version 0.063
 
 =head1 AUTHOR
 

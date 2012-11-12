@@ -49,7 +49,7 @@ __PACKAGE__->belongs_to(
   "head_revision",
   "Pinto::Schema::Result::Revision",
   { id => "head_revision" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
@@ -57,7 +57,7 @@ __PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
   { "foreign.stack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -65,7 +65,7 @@ __PACKAGE__->has_many(
   "revisions",
   "Pinto::Schema::Result::Revision",
   { "foreign.stack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -73,7 +73,7 @@ __PACKAGE__->has_many(
   "stack_properties",
   "Pinto::Schema::Result::StackProperty",
   { "foreign.stack" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 1 },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -81,8 +81,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-10-25 20:35:40
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ZKEl+71n2p5Tjg3MRHulXw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:50:21
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:A9778V24lWaQPgjf0nAjDg
 
 #-------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.062'; # VERSION
+our $VERSION = '0.063'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -173,6 +173,24 @@ sub registered_distributions {
 
     my @sorted = sort {$a cmp $b} values %dists;
     return @sorted;
+}
+
+#------------------------------------------------------------------------------
+
+sub rename {
+    my ($self, $new_name) = @_;
+
+    my $new_name_canon = lc $new_name;
+
+    throw "Source and destination stacks are the same"
+      if $self->name_canonical eq $new_name_canon;
+
+    throw "Stack $new_name already exists"
+      if $self->result_source->resultset->find( {name_canonical => $new_name_canon} );
+
+    my $changes = {name => $new_name, name_canonical => $new_name_canon};
+
+    return $self->update($changes);
 }
 
 #------------------------------------------------------------------------------
@@ -437,7 +455,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.062
+version 0.063
 
 =head1 NAME
 
