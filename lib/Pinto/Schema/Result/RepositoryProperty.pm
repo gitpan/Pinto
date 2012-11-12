@@ -51,7 +51,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.063'; # VERSION
+our $VERSION = '0.064'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ Pinto::Schema::Result::RepositoryProperty - Repository metadata
 
 =head1 VERSION
 
-version 0.063
+version 0.064
 
 =head1 NAME
 

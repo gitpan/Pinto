@@ -13,7 +13,7 @@ use Pinto::Util qw(is_interactive);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.063'; # VERSION
+our $VERSION = '0.064'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.063
+version 0.064
 
 =head1 AUTHOR
 

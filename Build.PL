@@ -24,7 +24,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.063",
+  "dist_version" => "0.064",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -50,6 +50,7 @@ my %module_build_args = (
     "File::Temp" => 0,
     "File::Which" => 0,
     "HTTP::Date" => 0,
+    "IO::Pipe" => 0,
     "IO::String" => 0,
     "JSON" => 0,
     "LWP::UserAgent" => 0,

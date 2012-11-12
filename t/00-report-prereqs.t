@@ -39,6 +39,7 @@ my @modules = qw(
   File::Temp
   File::Which
   HTTP::Date
+  IO::Pipe
   IO::String
   JSON
   LWP::UserAgent

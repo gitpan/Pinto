@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.063'; # VERSION
+our $VERSION = '0.064'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ Pinto::Action::Revert - Restore stack to a prior revision
 
 =head1 VERSION
 
-version 0.063
+version 0.064
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.063'; # VERSION
+our $VERSION = '0.064'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.063
+version 0.064
 
 =head1 SYNOPSIS
 
