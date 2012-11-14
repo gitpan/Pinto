@@ -90,7 +90,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -102,6 +102,7 @@ use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
 use overload ( '""'  => 'to_string',
+               '<=>' => 'numeric_compare',
                'cmp' => 'string_compare' );
 
 #------------------------------------------------------------------------------
@@ -379,7 +380,7 @@ sub merge {
 
 #------------------------------------------------------------------------------
 
-sub compare {
+sub numeric_compare {
     my ($stack_a, $stack_b) = @_;
 
     my $pkg = __PACKAGE__;
@@ -404,8 +405,7 @@ sub string_compare {
 
     return 0 if $stack_a->id == $stack_b->id;
 
-    my $r =   ($stack_a->name          cmp $stack_b->name)
-           || ($stack_a->head_revision <=> $stack_b->head_revision);
+    my $r =   ($stack_a->name cmp $stack_b->name);
 
     return $r;
 }
@@ -416,12 +416,11 @@ sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
-           k => sub { $self->name                                                     },
-           M => sub { $self->is_default                          ? '*' : ' '          },
-           j => sub { $self->head_revision->committed_by                              },
-           u => sub { $self->head_revision->committed_on                              },
-           U => sub { Pinto::Util::ls_time_format($self->head_revision->committed_on) },
-           e => sub { $self->get_property('description')                              },
+           k => sub { $self->name                                             },
+           M => sub { $self->is_default                          ? '*' : ' '  },
+           j => sub { $self->head_revision->committed_by                      },
+           u => sub { $self->head_revision->committed_on->strftime('%c')      },
+           e => sub { $self->get_property('description')                      },
     );
 
     $format ||= $self->default_format();
@@ -455,7 +454,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 NAME
 

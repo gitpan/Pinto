@@ -24,7 +24,7 @@ use namespace::autoclean;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -226,6 +226,14 @@ sub open_stack {
     return $got_stack;
 }
 
+#-------------------------------------------------------------------------------
+
+
+sub get_all_stacks {
+    my ($self) = @_;
+
+    return $self->db->select_stacks->all;
+}
 
 #-------------------------------------------------------------------------------
 
@@ -770,7 +778,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 ATTRIBUTES
 
@@ -849,6 +857,12 @@ will automatically rollback.
 
 Use C<get_stack> instead if you just want to read the registrations
 and properties.
+
+=head2 get_all_stacks()
+
+Returns a list of all the L<Pinto::Schema::Result::Stack> objects in the
+repository.  You can sort them as strings (by name) or numerically (by
+last modification time).
 
 =head2 get_package( name => $pkg_name )
 

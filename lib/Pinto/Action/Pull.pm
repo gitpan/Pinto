@@ -14,7 +14,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ sub _is_core_package {
 
 #------------------------------------------------------------------------------
 
-sub message_primer {
+sub message_title {
     my ($self) = @_;
 
     my $targets  = join ', ', $self->targets;
@@ -142,7 +142,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 AUTHOR
 

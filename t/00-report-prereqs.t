@@ -79,7 +79,6 @@ my @modules = qw(
   Test::File
   Test::Log::Dispatch
   Test::More
-  Text::Wrap
   Try::Tiny
   URI
   autodie

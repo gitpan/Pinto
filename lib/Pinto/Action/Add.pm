@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ sub _add {
 
 #------------------------------------------------------------------------------
 
-sub message_primer {
+sub message_title {
     my ($self) = @_;
 
     my $archives  = join ', ', map {$_->basename} $self->archives;
@@ -142,7 +142,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 AUTHOR
 

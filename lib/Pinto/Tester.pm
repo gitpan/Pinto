@@ -21,7 +21,7 @@ use Pinto::Types qw(Uri Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -407,7 +407,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 AUTHOR
 

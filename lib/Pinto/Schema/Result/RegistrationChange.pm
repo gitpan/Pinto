@@ -79,7 +79,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -189,7 +189,7 @@ Pinto::Schema::Result::RegistrationChange - A single change to the registry
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 NAME
 

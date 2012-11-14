@@ -90,17 +90,27 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
 use Pinto::Exception qw(throw);
 
+use DateTime;
 use String::Format;
 use Digest::SHA;
 
+use Pinto::Util qw(itis trim);
+
 use overload ( '""'  => 'to_string',
-               '<=>' => 'compare' );
+               '<=>' => 'compare',
+               'cmp' => 'compare' );
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->inflate_column('committed_on' => {
+   inflate => sub { DateTime->from_epoch(epoch => $_[0]) }
+});
 
 #------------------------------------------------------------------------------
 
@@ -229,10 +239,28 @@ sub undo {
 
 #------------------------------------------------------------------------------
 
-sub change_details {
+sub message_title {
+    my ($self, $max_chars) = @_;
+
+    my $message = $self->message;
+    my $title = trim( (split /\n/, $message)[0] );
+
+    if ($max_chars and length $title > $max_chars) {
+      $title = substr($title, 0, $max_chars - 3,) . '...';
+    }
+
+    return $title;
+}
+
+#------------------------------------------------------------------------------
+
+sub message_body {
     my ($self) = @_;
 
-    return join "\n", $self->registration_changes;
+    my $message = $self->message;
+    my $body = ($message =~ m/^ [^\n]+ \n+ (.*)/xms) ? $1 : '';
+
+    return trim($body);
 }
 
 #------------------------------------------------------------------------------
@@ -268,11 +296,7 @@ sub to_string {
            b => sub { $self->number                                        },
            g => sub { $self->message                                       },
            j => sub { $self->committed_by                                  },
-
-           # TODO: Use DateTime to format the commit date into pretty
-           # strings.  Should also use DBIC's own mechanism to inflate
-           # date values into objects for us.
-           u => sub { scalar localtime $self->committed_on                 },
+           u => sub { $self->committed_on->strftime('%c') . ' UTC'         },
 
     );
 
@@ -307,7 +331,7 @@ Pinto::Schema::Result::Revision - A group of changes to a stack
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 NAME
 

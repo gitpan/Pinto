@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -57,7 +57,10 @@ sub execute {
     for my $revision (reverse @revisions) {
         $self->say('-' x 79);
         $self->say($revision->to_string($format));
-        $self->say($revision->change_details) if $self->detailed;
+
+        if ($self->detailed) {
+            $self->say($_) for $revision->registration_changes;
+        }
     }
 
     return $self->result;
@@ -83,7 +86,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 AUTHOR
 

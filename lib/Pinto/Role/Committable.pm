@@ -9,11 +9,11 @@ use Try::Tiny;
 
 use Pinto::CommitMessage;
 use Pinto::Exception qw(throw);
-use Pinto::Util qw(is_interactive);
+use Pinto::Util qw(is_interactive interpolate);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.064'; # VERSION
+our $VERSION = '0.065'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ has use_default_message => (
 
 #------------------------------------------------------------------------------
 
-requires qw( execute message_primer );
+requires qw( execute message_title );
 
 #------------------------------------------------------------------------------
 
@@ -71,15 +71,22 @@ around execute => sub {
 sub edit_message {
     my ($self, %args) = @_;
 
-    my $stacks = $args{stacks} || [];
-    my $primer = $args{primer} || $self->message_primer || '';
+    my $stacks =  $args{stacks} || [];
+    my $title  =  $args{title}  || $self->message_title || '';
 
-    return $self->message if $self->has_message and $self->message =~ /\S+/;
-    return $primer        if $self->has_message and $self->message !~ /\S+/;
-    return $primer        if $self->use_default_message;
-    return $primer        if not is_interactive;
+    return interpolate($self->message)
+        if $self->has_message and $self->message =~ /\S+/;
 
-    my $message = Pinto::CommitMessage->new(stacks => $stacks, primer => $primer)->edit;
+    return $title
+        if $self->has_message and $self->message !~ /\S+/;
+
+    return $title
+        if $self->use_default_message;
+
+    return $title
+        if not is_interactive;
+
+    my $message = Pinto::CommitMessage->new(stacks => $stacks, title => $title)->edit;
     throw 'Aborting due to empty commit message' if $message !~ /\S+/;
 
     return $message;
@@ -100,7 +107,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.064
+version 0.065
 
 =head1 AUTHOR
 
