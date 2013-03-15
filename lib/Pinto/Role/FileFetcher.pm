@@ -3,6 +3,7 @@
 package Pinto::Role::FileFetcher;
 
 use Moose::Role;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use File::Temp;
 use Path::Class;
@@ -11,11 +12,9 @@ use LWP::UserAgent;
 use Pinto::Util qw(itis);
 use Pinto::Exception qw(throw);
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -30,8 +29,7 @@ has ua => (
 #------------------------------------------------------------------------------
 # Roles
 
-with qw( Pinto::Role::PathMaker
-         Pinto::Role::Loggable );
+with qw( Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
@@ -45,7 +43,7 @@ sub fetch {
 
     $self->debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
 
-    $self->mkpath( $to->parent() );
+    $to->parent->mkpath if not -e $to->parent;
     my $has_changed = $self->_fetch($from_uri, $to);
 
     return $has_changed;
@@ -125,10 +123,9 @@ sub _make_uri {
 }
 
 #------------------------------------------------------------------------------
-
 1;
 
-
+__END__
 
 =pod
 
@@ -140,7 +137,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 METHODS
 
@@ -177,6 +174,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

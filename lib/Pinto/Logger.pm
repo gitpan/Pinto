@@ -4,6 +4,7 @@ package Pinto::Logger;
 
 use Moose;
 use MooseX::Types::Moose qw(Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use DateTime;
 use Log::Dispatch;
@@ -13,11 +14,9 @@ use Pinto::Util qw(itis);
 use Pinto::Types qw(Dir File);
 use Pinto::Exception qw(throw);
 
-use namespace::autoclean;
-
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Roles
@@ -122,7 +121,7 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
-
+__END__
 
 =pod
 
@@ -134,7 +133,7 @@ Pinto::Logger - Record events in the repository log file (and elsewhere).
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 METHODS
 
@@ -180,7 +179,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

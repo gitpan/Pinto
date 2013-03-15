@@ -1,24 +1,22 @@
-package Pinto::Config;
-
 # ABSTRACT: Internal configuration for a Pinto repository
 
-use Moose;
+package Pinto::Config;
 
+use Moose;
+use MooseX::Types::Moose qw(Str Bool Int ArrayRef);
+use MooseX::MarkAsMethods (autoclean => 1);
 use MooseX::Configuration;
-use MooseX::Types::Moose qw(Str Bool Int);
-use MooseX::Types::Log::Dispatch qw(LogLevel);
 use MooseX::Aliases;
 
 use URI;
+use English qw(-no_match_vars);
 
-use Pinto::Types qw(Dir File);
-use Pinto::Util qw(current_user);
-
-use namespace::autoclean;
+use Pinto::Types qw(Dir File Username Version);
+use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -34,8 +32,26 @@ has root       => (
 
 has username  => (
     is        => 'ro',
-    isa       => Str,
-    default   => sub { return current_user },
+    isa       => Username,
+    default   => sub { return current_username },
+    lazy      => 1,
+);
+
+
+has time_offset  => (
+    is        => 'ro',
+    isa       => Int,
+    default   => sub { return current_time_offset },
+    lazy      => 1,
+);
+
+
+has stacks_dir => (
+    is        => 'ro',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->root_dir->subdir('stacks') },
+    lazy      => 1,
 );
 
 
@@ -43,7 +59,7 @@ has authors_dir => (
     is        => 'ro',
     isa       => Dir,
     init_arg  => undef,
-    default   => sub { return $_[0]->pinto_dir->subdir('authors') },
+    default   => sub { return $_[0]->root_dir->subdir('authors') },
     lazy      => 1,
 );
 
@@ -61,7 +77,7 @@ has modules_dir => (
     is        => 'ro',
     isa       => Dir,
     init_arg  => undef,
-    default   => sub { return $_[0]->pinto_dir->subdir('modules') },
+    default   => sub { return $_[0]->root_dir->subdir('modules') },
     lazy      => 1,
 );
 
@@ -71,15 +87,6 @@ has mailrc_file => (
     isa       => File,
     init_arg  => undef,
     default   => sub { return $_[0]->authors_dir->file('01mailrc.txt.gz') },
-    lazy      => 1,
-);
-
-
-has modlist_file => (
-    is        => 'ro',
-    isa       => File,
-    init_arg  => undef,
-    default   => sub { return $_[0]->modules_dir->file('03modlist.data.gz') },
     lazy      => 1,
 );
 
@@ -152,16 +159,16 @@ has log_level  => (
     isa        => Str,
     key        => 'log_level',
     default    => 'notice',
-    documentation => 'Minimum logging level for the log file',
+    documentation => 'Minimum log level for the internal log file',
 );
 
 
-has devel => (
-    is        => 'ro',
-    isa       => Bool,
-    key       => 'devel',
-    default   => 0,
-    documentation => 'Include development releases in the index',
+has no_history => (
+    is         => 'ro',
+    isa        => Bool,
+    key        => 'no_history',
+    default    => 0,
+    documentation => 'Do not keep stack snapshots at each revision',
 );
 
 
@@ -169,18 +176,35 @@ has sources  => (
     is        => 'ro',
     isa       => Str,
     key       => 'sources',
-    default   => 'http://cpan.perl.org',
-    documentation => 'URLs of repositories for foreign distributions (space delimited)',
+    default   => 'http://cpan.perl.org http://backpan.perl.org',
+    documentation => 'URLs of upstream repositories (space delimited)',
 );
 
 
 has sources_list => (
-    isa        => 'ArrayRef[URI]',
+    isa        => ArrayRef['URI'],
     builder    => '_build_sources_list',
     traits     => ['Array'],
     handles    => { sources_list => 'elements' },
     init_arg   => undef,
     lazy       => 1,
+);
+
+
+has target_perl_version => (
+    is        => 'ro',
+    isa       => Version,
+    default   => sub { $PERL_VERSION },
+    coerce    => 1,
+);
+
+
+has version_file => (
+    is           => 'ro',
+    isa          => File,
+    init_arg     => undef,
+    default      => sub { return $_[0]->pinto_dir->file('version') },
+    lazy         => 1,
 );
 
 
@@ -215,13 +239,13 @@ sub _build_sources_list {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
 1;
 
-
+__END__
 
 =pod
 
@@ -233,7 +257,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 DESCRIPTION
 
@@ -252,7 +276,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

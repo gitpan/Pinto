@@ -25,9 +25,9 @@ __PACKAGE__->add_columns(
   "version",
   { data_type => "text", is_nullable => 0 },
   "file",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "text", default_value => \"null", is_nullable => 1 },
   "sha256",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "text", default_value => \"null", is_nullable => 1 },
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
@@ -43,15 +43,7 @@ __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
   { id => "distribution" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-
-__PACKAGE__->has_many(
-  "registration_changes",
-  "Pinto::Schema::Result::RegistrationChange",
-  { "foreign.package" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
@@ -67,8 +59,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:50:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:By+ckGtS4cjL76RnJ+6T8A
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-04 12:39:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wYrDViIlHDocM5byRBn1Qg
 
 #------------------------------------------------------------------------------
 
@@ -84,13 +76,13 @@ use Pinto::Exception qw(throw);
 use Pinto::PackageSpec;
 
 use overload ( '""'     => 'to_string',
-               '<=>'    => 'compare',
+               '<=>'    => 'numeric_compare',
                'cmp'    => 'string_compare',
                fallback => undef );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -103,8 +95,7 @@ __PACKAGE__->inflate_column( 'version' => { inflate => sub { version->parse($_[0
 # Schema::Loader does not create many-to-many relationships for us.  So we
 # must create them by hand here...
 
-__PACKAGE__->many_to_many( stacks => 'registration', 'stack' );
-
+__PACKAGE__->many_to_many( revisions => 'registration', 'revision' );
 
 #------------------------------------------------------------------------------
 
@@ -125,23 +116,14 @@ sub register {
     my $stack = $args{stack};
     my $pin   = $args{pin};
 
-    $self->create_related( registrations => {stack        => $stack,
-                                             distribution => $self->distribution, 
-                                             is_pinned    => $pin} );
+    my $struct = { revision     => $stack->head->id,
+                   is_pinned    => $pin,
+                   package_name => $self->name,
+                   distribution => $self->get_column('distribution') };
+
+    $self->create_related( registrations => $struct );
 
     return $self;
-}
-
-#------------------------------------------------------------------------------
-
-sub registration {
-    my ($self, %args) = @_;
-
-    my $stack = $args{stack};
-    my $where = {stack => $stack};
-    my $attrs = {key   => 'stack_package_unique'};
-
-    return $self->find_related('registrations', $where, $attrs);
 }
 
 #------------------------------------------------------------------------------
@@ -149,7 +131,7 @@ sub registration {
 sub vname {
     my ($self) = @_;
 
-    return $self->name() . '~' . $self->version();
+    return $self->name . '~' . $self->version;
 }
 
 #------------------------------------------------------------------------------
@@ -170,20 +152,19 @@ sub to_string {
     # warn __PACKAGE__ . " stringified from $file at line $line";
 
     my %fspec = (
-         'n' => sub { $self->name()                                   },
-         'N' => sub { $self->vname()                                  },
+         'p' => sub { $self->name()                                   },
+         'P' => sub { $self->vname()                                  },
          'v' => sub { $self->version->stringify()                     },
          'm' => sub { $self->distribution->is_devel()   ? 'd' : 'r'   },
-         'p' => sub { $self->distribution->path()                     },
-         'P' => sub { $self->distribution->native_path()              },
+         'h' => sub { $self->distribution->path()                     },
+         'H' => sub { $self->distribution->native_path()              },
          'f' => sub { $self->distribution->archive                    },
          's' => sub { $self->distribution->is_local()   ? 'l' : 'f'   },
          'S' => sub { $self->distribution->source()                   },
          'a' => sub { $self->distribution->author()                   },
-         'A' => sub { $self->distribution->author_canonical()         },
          'd' => sub { $self->distribution->name()                     },
          'D' => sub { $self->distribution->vname()                    },
-         'w' => sub { $self->distribution->version()                  },
+         'V' => sub { $self->distribution->version()                  },
          'u' => sub { $self->distribution->url()                      },
     );
 
@@ -201,12 +182,12 @@ sub to_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%A/%D/%N';  # AUTHOR/DIST-VNAME/PKG-VNAME
+    return '%a/%D/%P';  # AUTHOR/DIST_VNAME/PKG_VNAME
 }
 
 #-------------------------------------------------------------------------------
 
-sub compare {
+sub numeric_compare {
     my ($pkg_a, $pkg_b) = @_;
 
     my $pkg = __PACKAGE__;
@@ -251,7 +232,7 @@ __PACKAGE__->meta->make_immutable;
 #-------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -263,7 +244,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 NAME
 
@@ -292,12 +273,14 @@ Pinto::Schema::Result::Package
 =head2 file
 
   data_type: 'text'
-  is_nullable: 0
+  default_value: null
+  is_nullable: 1
 
 =head2 sha256
 
   data_type: 'text'
-  is_nullable: 0
+  default_value: null
+  is_nullable: 1
 
 =head2 distribution
 
@@ -333,12 +316,6 @@ Type: belongs_to
 
 Related object: L<Pinto::Schema::Result::Distribution>
 
-=head2 registration_changes
-
-Type: has_many
-
-Related object: L<Pinto::Schema::Result::RegistrationChange>
-
 =head2 registrations
 
 Type: has_many
@@ -365,7 +342,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

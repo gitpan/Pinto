@@ -3,17 +3,16 @@
 package Pinto::Store;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
 use CPAN::Checksums;
 
-use Pinto::Exception;
-
-use namespace::autoclean;
+use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Roles
@@ -79,10 +78,11 @@ sub update_checksums {
     my ($self, %args) = @_;
     my $dir = $args{directory};
 
-    #return 0 if not -e $dir;  # Smells fishy
-
-    my @children = grep { ! Pinto::Util::is_vcs_file($_) } $dir->children;
-    return 0 if not @children;
+    return 0 if $ENV{PINTO_NO_CHECKSUMS};
+    return 0 if not -e $dir; # Would be fishy!
+    
+    my @children = $dir->children;
+    return if not @children;
 
     my $cs_file = $dir->file('CHECKSUMS');
 
@@ -103,7 +103,7 @@ sub update_checksums {
 
 1;
 
-
+__END__
 
 =pod
 
@@ -115,7 +115,7 @@ Pinto::Store - Base class for storage of a Pinto repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 DESCRIPTION
 
@@ -136,7 +136,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

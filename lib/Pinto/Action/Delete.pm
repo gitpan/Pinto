@@ -1,16 +1,17 @@
-# ABSTRACT: Delete a stack
+# ABSTRACT: Delete archives from the repository
 
 package Pinto::Action::Delete;
 
 use Moose;
+use MooseX::Types::Moose qw(Bool);
+use MooseX::MarkAsMethods (autoclean => 1);
 
-use Pinto::Types qw(StackName StackObject);
-
-use namespace::autoclean;
+use Pinto::Exception qw(throw);
+use Pinto::Types qw(DistSpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,21 +19,36 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has stack => (
-    is       => 'ro',
-    isa      => StackName | StackObject,
+with qw( Pinto::Role::Transactional );
+
+#------------------------------------------------------------------------------
+
+has targets   => (
+    isa      => DistSpecList,
+    traits   => [ qw(Array) ],
+    handles  => {targets => 'elements'},
     required => 1,
+    coerce   => 1,
+);
+
+
+has force => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
 );
 
 #------------------------------------------------------------------------------
 
+
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack($self->stack);
-
-    $self->repo->delete_stack_filesystem(stack => $stack);
-    $stack->delete;
+    for my $target ( $self->targets ) {
+        my $dist = $self->repo->get_distribution(spec => $target);
+        throw "Distribution $target is not in the repository" if not defined $dist;
+        $self->repo->delete_distribution(dist => $dist, force => $self->force);
+    }
 
     return $self->result->changed;
 }
@@ -45,7 +61,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -53,11 +69,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Delete - Delete a stack
+Pinto::Action::Delete - Delete archives from the repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -71,6 +87,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

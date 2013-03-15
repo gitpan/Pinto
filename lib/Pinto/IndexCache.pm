@@ -1,16 +1,15 @@
+# ABSTRACT: Manages indexes files from upstream repositories
+
 package Pinto::IndexCache;
 
-# ABSTRACT: Manages indexes files from remote repositories
-
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Package::Locator;
 
-use namespace::autoclean;
-
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Attributes
@@ -18,7 +17,9 @@ our $VERSION = '0.065'; # VERSION
 has locator => (
     is         => 'ro',
     isa        => 'Package::Locator',
-    lazy_build => 1,
+    handles    => [ qw(clear_cache) ],
+    builder    => '_build_locator',
+    lazy       => 1,
 );
 
 #-------------------------------------------------------------------------------
@@ -65,6 +66,7 @@ sub contents {
     return @seen{ sort keys %seen };
 
 }
+
 #-------------------------------------------------------------------------------
 
 __PACKAGE__->meta->make_immutable();
@@ -73,7 +75,7 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
-
+__END__
 
 =pod
 
@@ -81,11 +83,11 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 NAME
 
-Pinto::IndexCache - Manages indexes files from remote repositories
+Pinto::IndexCache - Manages indexes files from upstream repositories
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -99,6 +101,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

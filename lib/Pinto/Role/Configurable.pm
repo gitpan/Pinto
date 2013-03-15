@@ -3,14 +3,13 @@
 package Pinto::Role::Configurable;
 
 use Moose::Role;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Config;
 
-use namespace::autoclean;
-
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -33,9 +32,10 @@ around BUILDARGS => sub {
     return $args;
 };
 
+#-----------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -47,7 +47,7 @@ Pinto::Role::Configurable - Something that has a configuration
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -61,6 +61,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

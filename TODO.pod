@@ -2,15 +2,17 @@
 
 =over 4
 
-=item Lookup dists without the extension (e.g. .zip or .tar.gz or .tgz)
+=item Finish FastForward merge (note this is not a committable action)
 
-=item Contemplate API for getting/opening/committing stacks
+=item Implement a reset command to move head (also not committable)
 
-=item Heirarchy of exception classes
+=item Put username back into the log file
+
+=item Test cases for Pop, Reindex, Delete
 
 =item Move repository configuration into the DB
 
-=item Write more test cases for Stack operations
+=item Heirarchy of exception classes
 
 =item Re-examine log mechanism
 
@@ -18,15 +20,7 @@
 
 =item Create command to populate repository from current modules in @INC
 
-=item Create command to dump repository to a file
-
-=item Create command to load repository from a dump
-
-=item Create command to unregister a pkg/dist
-
-=item Create command to diff two stacks or revisions
-
-=item Refactor the Initializer class
+=item Create command to undo one or more specific revisions
 
 =back
 
@@ -36,6 +30,10 @@
 
 =item Improve locking mechanism (one lock per stack, maybe in db).
 
+=item Enable locks on all stacks.
+
+=item Lookup dists without the extension (e.g. .zip or .tar.gz or .tgz)
+
 =item Consider pinning at dist level, not pkg
 
 =item Create command to list dependors and dependants
@@ -43,8 +41,6 @@
 =item Create command to verify prereqs on a stack
 
 =item Create command to list outdated packages
-
-=item Stack property: target perl version
 
 =item Stack property: source repositories
 
@@ -60,8 +56,6 @@
 
 =item Profile and look for performance optimizations.
 
-=item Prettier stack listing and stack prop listing
-
 =item Verify archive checksums during 'verify'
 
 =item Standardize API, using named parameters except where it makes sense not to.
@@ -75,8 +69,6 @@
 =over 4
 
 =item Optimize generation of CHECKSUMS files.
-
-=item Way to pin/unpin all packages in a stack
 
 =item Improve Perl::Critic compliance.
 
@@ -93,8 +85,6 @@
 =over 4
 
 =item Give revisions properties
-
-=item Allow revisions to be tagged
 
 =item Try to ensure integrity of commits (what does this mean?)
 
@@ -113,8 +103,6 @@
 =item Attribute to indicate if package was explicitly requested for stack
 
 =item Mark stacks as merged after merge
-
-=item Mark stacks as deleted after delete
 
 =item Warn if an unmerged stack is being deleted
 
@@ -135,6 +123,8 @@
 =item ack: Do an ack command across all distributions
 
 =item look: Unpack archive in temp dir and launch shell there
+
+=item Mark stacks as deleted after delete
 
 =back
 

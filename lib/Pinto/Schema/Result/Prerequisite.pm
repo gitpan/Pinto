@@ -42,7 +42,7 @@ __PACKAGE__->belongs_to(
   "distribution",
   "Pinto::Schema::Result::Distribution",
   { id => "distribution" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
@@ -50,8 +50,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:48:20
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1QfmJh/TSCYFDwAt3J7NFw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-12-01 01:42:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:D0QsMZShrg9ZgENP03Qqlw
 
 #------------------------------------------------------------------------------
 
@@ -63,7 +63,17 @@ use Pinto::PackageSpec;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
+
+#------------------------------------------------------------------------------
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+ 
+    $sqlt_table->add_index(name => 'prerequisite_idx_package_name', fields => ['package_name']);
+
+    return;
+}
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -95,7 +105,7 @@ __PACKAGE__->meta->make_immutable;
 #------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -107,7 +117,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 NAME
 
@@ -187,6 +197,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

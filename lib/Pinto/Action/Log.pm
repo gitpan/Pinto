@@ -3,20 +3,24 @@
 package Pinto::Action::Log;
 
 use Moose;
-use MooseX::Types::Moose qw(Bool Int Undef);
+use MooseX::Types::Moose qw(Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
+use Pinto::RevisionWalker;
 use Pinto::Types qw(StackName StackDefault);
-use Pinto::Exception qw(throw);
 
-use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Colorable );
 
 #------------------------------------------------------------------------------
 
@@ -27,17 +31,11 @@ has stack => (
 );
 
 
-has revision => (
-    is        => 'ro',
-    isa       => Int | Undef,
-    default   => undef,
-);
-
-
-has detailed => (
-    is        => 'ro',
-    isa       => Bool,
-    default   => 0,
+has format => (
+    is      => 'ro',
+    isa     => Str,
+    builder => '_build_format',
+    lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -45,25 +43,32 @@ has detailed => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack($self->stack);
+    my $stack  = $self->repo->get_stack($self->stack);
+    my $walker = Pinto::RevisionWalker->new(start => $stack->head);
 
-    my $revnum = $self->revision;
-    my @revisions = $stack->revision(number => $revnum);
-
-    throw "No such revision $revnum on stack $stack"
-      if !@revisions && defined $revnum;
-
-    my $format = "%k\@%b | %j | %u\n\n%g\n";
-    for my $revision (reverse @revisions) {
-        $self->say('-' x 79);
-        $self->say($revision->to_string($format));
-
-        if ($self->detailed) {
-            $self->say($_) for $revision->registration_changes;
-        }
+    while (my $revision = $walker->next) {
+        $self->say( $revision->to_string($self->format) ); 
     }
 
     return $self->result;
+}
+
+#------------------------------------------------------------------------------
+
+sub _build_format {
+    my ($self) = @_;
+
+    my $c = $self->color_2;
+    my $r = $self->color_0;
+
+    return <<"END_FORMAT";
+${c}revision %I${r}
+Date: %u
+User: %j 
+
+%{4}G
+END_FORMAT
+
 }
 
 #------------------------------------------------------------------------------
@@ -74,7 +79,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -86,7 +91,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -100,6 +105,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

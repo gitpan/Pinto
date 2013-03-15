@@ -4,6 +4,7 @@ package Pinto::Role::Committable;
 
 use Moose::Role;
 use MooseX::Types::Moose qw(Bool Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
 
@@ -13,11 +14,11 @@ use Pinto::Util qw(is_interactive interpolate);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has dryrun => (
+has dry_run => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
@@ -37,30 +38,29 @@ has use_default_message => (
 
 #------------------------------------------------------------------------------
 
-requires qw( execute message_title );
+requires qw( execute repo );
 
 #------------------------------------------------------------------------------
 
 around execute => sub {
     my ($orig, $self, @args) = @_;
 
-    $self->repo->db->txn_begin;
+    $self->repo->txn_begin;
 
     my $result = try   { $self->$orig(@args) }
-                 catch { $self->repo->db->txn_rollback; die $_ };
+                 catch { $self->repo->txn_rollback; die $_ };
 
-    if ($self->dryrun) {
-        $self->notice('Dryrun -- rolling back database');
-        $self->repo->db->txn_rollback;
+    if ($self->dry_run) {
+        $self->notice('Dry run -- rolling back database');
+        $self->repo->txn_rollback;
         $self->repo->clean_files;
     }
     elsif (not $result->made_changes) {
         $self->notice('No changes were actually made');
-        $self->repo->db->txn_rollback;
+        $self->repo->txn_rollback;
     }
     else {
-        $self->debug('Committing changes to database');
-        $self->repo->db->txn_commit;
+        $self->repo->txn_commit;
     }
 
     return $self->result;
@@ -68,11 +68,12 @@ around execute => sub {
 
 #------------------------------------------------------------------------------
 
-sub edit_message {
+sub compose_message {
     my ($self, %args) = @_;
 
-    my $stacks =  $args{stacks} || [];
-    my $title  =  $args{title}  || $self->message_title || '';
+    my $title   = $args{title} || '';
+    my $stack   = $args{stack} || throw "Must specify a stack";
+    my $diff    = $args{diff}  || $stack->diff;
 
     return interpolate($self->message)
         if $self->has_message and $self->message =~ /\S+/;
@@ -86,16 +87,30 @@ sub edit_message {
     return $title
         if not is_interactive;
 
-    my $message = Pinto::CommitMessage->new(stacks => $stacks, title => $title)->edit;
+    my $cm = Pinto::CommitMessage->new(title => $title, details => $diff->to_string); 
+    my $message = $cm->edit;
+                                            
     throw 'Aborting due to empty commit message' if $message !~ /\S+/;
 
     return $message;
 }
 
 #------------------------------------------------------------------------------
+
+sub generate_message_title {
+    my ($self, @items, $extra) = @_;
+
+    my $class    = ref $self;
+    my ($action) = $class =~ m/ ( [^:]* ) $/x;
+    my $title    = "$action ". join(', ', @items) . ($extra ? " $extra" : '');
+
+    return $title;
+}
+
+#------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -107,7 +122,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -121,6 +136,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

@@ -4,6 +4,7 @@ package Pinto::ActionFactory;
 
 use Moose;
 use MooseX::Types::Moose qw(Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Class::Load;
 
@@ -11,7 +12,7 @@ use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -64,7 +65,7 @@ __PACKAGE__->meta->make_immutable;
 #------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -76,7 +77,7 @@ Pinto::ActionFactory - Construct Action objects
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -90,6 +91,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

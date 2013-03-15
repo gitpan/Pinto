@@ -4,18 +4,18 @@ package Pinto::Action;
 
 use Moose;
 use MooseX::Types::Moose qw(Str);
-use IO::Pipe;
+use MooseX::MarkAsMethods (autoclean => 1);
+
+use IO::Handle;
 
 use Pinto::Result;
 use Pinto::Exception;
 use Pinto::Types qw(Io);
 use Pinto::Util qw(is_interactive);
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,6 +62,13 @@ sub say {
 
 #------------------------------------------------------------------------------
 
+sub chat {
+    my ($self, $message) = @_;
+    return print {$self->out} $message;
+}
+
+#------------------------------------------------------------------------------
+
 sub _build_out {
     my ($self) = @_;
 
@@ -84,7 +91,7 @@ __PACKAGE__->meta->make_immutable;
 #------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -96,7 +103,7 @@ Pinto::Action - Base class for all Actions
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -110,6 +117,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

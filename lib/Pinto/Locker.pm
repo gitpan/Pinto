@@ -3,6 +3,7 @@
 package Pinto::Locker;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Path::Class;
 use File::NFSLock;
@@ -10,11 +11,9 @@ use File::NFSLock;
 use Pinto::Types qw(File);
 use Pinto::Exception qw(throw);
 
-use namespace::autoclean;
-
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -83,7 +82,7 @@ __PACKAGE__->meta->make_immutable;
 #-----------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -95,7 +94,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 DESCRIPTION
 
@@ -134,7 +133,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

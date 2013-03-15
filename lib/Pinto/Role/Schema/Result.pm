@@ -3,12 +3,11 @@
 package Pinto::Role::Schema::Result;
 
 use Moose::Role;
-
-use namespace::autoclean;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -17,6 +16,16 @@ has logger  => (
    isa      => 'Pinto::Logger',
    handles  => [ qw(debug info notice warning error fatal) ],
    default  => sub { $_[0]->result_source->schema->logger },
+   init_arg => undef,
+   lazy     => 1,
+);
+
+
+has repo  => (
+   is       => 'ro',
+   isa      => 'Pinto::Repository',
+   default  => sub { $_[0]->result_source->schema->repo },
+   init_arg => undef,
    lazy     => 1,
 );
 
@@ -34,7 +43,7 @@ sub refresh {
 
 1;
 
-
+__END__
 
 =pod
 
@@ -46,7 +55,7 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 DESCRIPTION
 
@@ -71,7 +80,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

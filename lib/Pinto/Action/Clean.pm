@@ -3,15 +3,11 @@
 package Pinto::Action::Clean;
 
 use Moose;
-
-use Path::Class;
-use File::Find;
-
-use namespace::autoclean;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +18,11 @@ extends qw( Pinto::Action );
 sub execute {
     my ($self) = @_;
 
-    $self->repo->clean_files(force => 1);
+    $self->repo->optimize_database;
+    
+    my $did_delete = $self->repo->clean_files;
+
+    $self->result->changed if $did_delete;
 
     return $self->result;
 }
@@ -34,7 +34,7 @@ __PACKAGE__->meta->make_immutable;
 #-----------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -46,7 +46,7 @@ Pinto::Action::Clean - Remove orphaned archives
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -60,6 +60,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

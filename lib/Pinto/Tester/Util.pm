@@ -1,6 +1,6 @@
-package Pinto::Tester::Util;
-
 # ABSTRACT: Static helper functions for testing
+
+package Pinto::Tester::Util;
 
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -140,13 +140,13 @@ sub parse_reg_spec {
     $dist_archive .= '.tar.gz' unless $dist_archive =~ m{\.tar\.gz$}x;
 
     # Normalize the is_pinned flag
-    $is_pinned = ($is_pinned eq '+' ? 1 : 0) if defined $is_pinned;
+    $is_pinned = ($is_pinned eq '*' ? 1 : 0) if defined $is_pinned;
 
     # Parse package name/version
     my ($pkg_name, $pkg_version) = split m{~}x, $pkg;
 
     # Set defaults
-    $stack_name  ||= 'init';
+    $stack_name  ||= 'master';
     $pkg_version ||= 0;
 
     return ($author, $dist_archive, $pkg_name, $pkg_version, $stack_name, $is_pinned);
@@ -156,7 +156,7 @@ sub parse_reg_spec {
 
 1;
 
-
+__END__
 
 =pod
 
@@ -168,7 +168,7 @@ Pinto::Tester::Util - Static helper functions for testing
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -182,6 +182,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

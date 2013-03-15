@@ -22,8 +22,6 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
   "author",
   { data_type => "text", is_nullable => 0 },
-  "author_canonical",
-  { data_type => "text", is_nullable => 0 },
   "archive",
   { data_type => "text", is_nullable => 0 },
   "source",
@@ -40,10 +38,7 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint(
-  "author_canonical_archive_unique",
-  ["author_canonical", "archive"],
-);
+__PACKAGE__->add_unique_constraint("author_archive_unique", ["author", "archive"]);
 
 
 __PACKAGE__->add_unique_constraint("md5_unique", ["md5"]);
@@ -69,14 +64,6 @@ __PACKAGE__->has_many(
 
 
 __PACKAGE__->has_many(
-  "registration_changes",
-  "Pinto::Schema::Result::RegistrationChange",
-  { "foreign.distribution" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-__PACKAGE__->has_many(
   "registrations",
   "Pinto::Schema::Result::Registration",
   { "foreign.distribution" => "self.id" },
@@ -88,8 +75,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:50:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ANnPDZEqb47L28lc94IxxA
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-04 12:39:54
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5o3MQdpey2pBAPUoMuPTNQ
 
 #-------------------------------------------------------------------------------
 
@@ -111,7 +98,17 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
+
+#------------------------------------------------------------------------------
+
+sub sqlt_deploy_hook {
+    my ($self, $sqlt_table) = @_;
+ 
+    $sqlt_table->add_index(name => 'distribution_idx_author', fields => ['author']);
+
+    return;
+}
 
 #------------------------------------------------------------------------------
 
@@ -120,7 +117,6 @@ sub FOREIGNBUILDARGS {
 
     $args ||= {};
     $args->{source} ||= 'LOCAL';
-    $args->{author_canonical} = uc $args->{author};
 
     return $args;
 }
@@ -130,21 +126,24 @@ sub FOREIGNBUILDARGS {
 sub register {
     my ($self, %args) = @_;
 
-    my $stack = $args{stack};
-    my $pin   = $args{pin};
+    my $stack  = $args{stack};
+    my $pin    = $args{pin};
     my $did_register = 0;
     my $errors       = 0;
 
+    $stack->assert_is_open;
+    $stack->assert_not_locked;
+
+    # TODO: This process makes a of trips to the database.  You could
+    # optimize this by fetching all the incumbents at once, checking
+    # for pins, and then bulk-insert the new registrations.
+    
     for my $pkg ($self->packages) {
 
-      if (defined $pkg->registrations_rs->find( {stack => $stack->id} ) ) {
-          $self->debug( sub {"Package $pkg is already on stack $stack"} );
-          next;
-      }
+      my $where = {package_name => $pkg->name};
+      my $incumbent = $stack->head->find_related(registrations => $where);
 
-      my $incumbent = $stack->registration(package => $pkg->name);
-
-      if (not $incumbent) {
+      if (not defined $incumbent) {
           $self->debug(sub {"Registering $pkg on stack $stack"} );
           $pkg->register(stack => $stack, pin => $pin);
           $did_register++;
@@ -154,10 +153,11 @@ sub register {
       my $incumbent_pkg = $incumbent->package;
 
       if ( $incumbent_pkg == $pkg ) {
-        # TODO: should this be an exception?
-        $self->warning("Package $pkg is already on stack $stack");
+        $self->debug( sub {"Package $pkg is already on stack $stack"} );
+        $incumbent->pin && $did_register++ if $pin and not $incumbent->is_pinned;
         next;
       }
+
 
       if ( $incumbent->is_pinned ) {
         my $pkg_name = $pkg->name;
@@ -165,7 +165,6 @@ sub register {
         $errors++;
         next;
       }
-
 
       my ($log_as, $direction) = ($incumbent_pkg > $pkg) ? ('warning', 'Downgrading')
                                                          : ('notice',  'Upgrading');
@@ -178,7 +177,44 @@ sub register {
 
     throw "Unable to register distribution $self on stack $stack" if $errors;
 
+    $stack->mark_as_changed if $did_register;
+
     return $did_register;
+}
+
+#------------------------------------------------------------------------------
+
+sub unregister {
+  my ($self, %args) = @_;
+
+  my $stack  = $args{stack};
+  my $force  = $args{force};
+  my $did_unregister = 0;
+  my $conflicts      = 0;
+
+  $stack->assert_is_open;
+  $stack->assert_not_locked;
+
+  my $rs = $self->registrations( {revision => $stack->head->id} );
+  for my $reg ($rs->all) {
+
+    if ($reg->is_pinned and not $force ) {
+      my $pkg = $reg->package;
+      $self->warning("Cannot unregister package $pkg because it is pinned to stack $stack");
+      $conflicts++;
+      next;
+    }
+
+    $did_unregister++;
+  }
+
+  throw "Unable to unregister distribution $self on stack $stack" if $conflicts;
+
+  $rs->delete;
+
+  $stack->mark_as_changed if $did_unregister;
+
+  return $did_unregister;
 }
 
 #------------------------------------------------------------------------------
@@ -186,33 +222,24 @@ sub register {
 sub pin {
     my ($self, %args) = @_;
 
-    my $stack   = $args{stack};
-    my $errors  = 0;
-    my $did_pin = 0;
+    my $stack = $args{stack};
+    $stack->assert_not_locked;
 
-    for my $pkg ($self->packages) {
-        my $registration = $pkg->registration(stack => $stack);
+    my $rev = $stack->head;
+    $rev->assert_is_open;
 
-        if (not $registration) {
-            $self->error("Package $pkg is not registered on stack $stack");
-            $errors++;
-            next;
-        }
-
-
-        if ($registration->is_pinned) {
-            $self->warning("Package $pkg is already pinned on stack $stack");
-            next;
-        }
-
-        $registration->pin;
-        $did_pin++;
+    my $where = {revision => $rev->id, is_pinned => 0};
+    my $regs  = $self->registrations($where);
+    
+    if (! $regs->count) {
+      $self->warning("Distribution $self is already pinned on stack $stack");
+      return 0;
     }
 
-    throw "Unable to pin distribution $self to stack $stack" if $errors;
+    $regs->update( {is_pinned => 1} );
+    $stack->mark_as_changed;
 
-    return $did_pin;
-
+    return 1;
 }
 
 #------------------------------------------------------------------------------
@@ -220,32 +247,24 @@ sub pin {
 sub unpin {
     my ($self, %args) = @_;
 
-    my $stack     = $args{stack};
-    my $errors    = 0;
-    my $did_unpin = 0;
+    my $stack = $args{stack};
+    $stack->assert_not_locked;
 
-    for my $pkg ($self->packages) {
-        my $registration = $pkg->registration(stack => $stack);
+    my $rev = $stack->head;
+    $rev->assert_is_open;
 
-        if (not $registration) {
-            $self->error("Package $pkg is not registered on stack $stack");
-            $errors++;
-            next;
-        }
+    my $where = {revision => $rev->id, is_pinned => 1};
+    my $regs  = $self->registrations($where);
 
-
-        if (not $registration->is_pinned) {
-            $self->warning("Package $pkg is not pinned on stack $stack");
-            next;
-        }
-
-        $registration->unpin;
-        $did_unpin++;
+    if (! $regs->count) {
+      $self->warning("Distribution $self is not pinned on stack $stack");
+      return 0;
     }
 
-    throw "Unable to unpin distribution $self to stack $stack" if $errors;
+    $regs->update( {is_pinned => 0} );
+    $stack->mark_as_changed;
 
-    return $did_unpin;
+    return 1;
 }
 
 #------------------------------------------------------------------------------
@@ -276,9 +295,9 @@ has is_devel => (
 sub path {
     my ($self) = @_;
 
-    return join '/', substr($self->author_canonical, 0, 1),
-                     substr($self->author_canonical, 0, 2),
-                     $self->author_canonical,
+    return join '/', substr($self->author, 0, 1),
+                     substr($self->author, 0, 2),
+                     $self->author,
                      $self->archive;
 }
 
@@ -288,9 +307,9 @@ sub native_path {
     my ($self, @base) = @_;
 
     return Path::Class::file( @base,
-                              substr($self->author_canonical, 0, 1),
-                              substr($self->author_canonical, 0, 2),
-                              $self->author_canonical,
+                              substr($self->author, 0, 1),
+                              substr($self->author, 0, 2),
+                              $self->author,
                               $self->archive );
 }
 
@@ -383,8 +402,8 @@ sub string_compare {
 
     return 0 if $dist_a->id == $dist_b->id;
 
-    my $r =   ($dist_a->author_canonical cmp $dist_b->author_canonical)
-           || ($dist_a->archive          cmp $dist_b->archive);
+    my $r =   ($dist_a->author  cmp $dist_b->author)
+           || ($dist_a->archive cmp $dist_b->archive);
 
     return $r;
 }
@@ -397,15 +416,14 @@ sub to_string {
     my %fspec = (
          'd' => sub { $self->name()                           },
          'D' => sub { $self->vname()                          },
-         'w' => sub { $self->version()                        },
+         'V' => sub { $self->version()                        },
          'm' => sub { $self->is_devel()   ? 'd' : 'r'         },
-         'p' => sub { $self->path()                           },
-         'P' => sub { $self->native_path()                    },
+         'h' => sub { $self->path()                           },
+         'H' => sub { $self->native_path()                    },
          'f' => sub { $self->archive()                        },
          's' => sub { $self->is_local()   ? 'l' : 'f'         },
          'S' => sub { $self->source()                         },
          'a' => sub { $self->author()                         },
-         'A' => sub { $self->author_canonical()               },
          'u' => sub { $self->url()                            },
          'c' => sub { $self->package_count()                  },
     );
@@ -419,7 +437,7 @@ sub to_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%A/%f',
+    return '%a/%f', # AUTHOR/Dist-Name-1.0.tar.gz
 }
 
 #------------------------------------------------------------------------------
@@ -429,7 +447,7 @@ __PACKAGE__->meta->make_immutable;
 #------------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -441,7 +459,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 NAME
 
@@ -458,11 +476,6 @@ Pinto::Schema::Result::Distribution
   is_nullable: 0
 
 =head2 author
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 author_canonical
 
   data_type: 'text'
   is_nullable: 0
@@ -502,11 +515,11 @@ Pinto::Schema::Result::Distribution
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<author_canonical_archive_unique>
+=head2 C<author_archive_unique>
 
 =over 4
 
-=item * L</author_canonical>
+=item * L</author>
 
 =item * L</archive>
 
@@ -542,12 +555,6 @@ Type: has_many
 
 Related object: L<Pinto::Schema::Result::Prerequisite>
 
-=head2 registration_changes
-
-Type: has_many
-
-Related object: L<Pinto::Schema::Result::RegistrationChange>
-
 =head2 registrations
 
 Type: has_many
@@ -574,6 +581,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

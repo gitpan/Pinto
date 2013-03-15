@@ -3,15 +3,14 @@
 package Pinto::Action::Unpin;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
-use Pinto::Types qw(Specs StackName StackDefault StackObject);
+use Pinto::Types qw(SpecList StackName StackDefault StackObject);
 use Pinto::Exception qw(throw);
-
-use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,7 +23,7 @@ with qw( Pinto::Role::Committable );
 #------------------------------------------------------------------------------
 
 has targets => (
-    isa      => Specs,
+    isa      => SpecList,
     traits   => [ qw(Array) ],
     handles  => {targets => 'elements'},
     required => 1,
@@ -43,42 +42,33 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->open_stack($self->stack);
+    my $stack = $self->repo->get_stack($self->stack)->start_revision;
 
-    $self->_unpin($_, $stack) for $self->targets;
+    my @dists = map { $self->_unpin($_, $stack) } $self->targets;
+    return $self->result if $self->dry_run or $stack->has_not_changed;
 
-    if ( $self->result->made_changes and not $self->dryrun ) {
-        my $message = $self->edit_message(stacks => [$stack]);
-        $stack->close(message => $message);
-    }
+    my $msg_title = $self->generate_message_title(@dists);
+    my $msg = $self->compose_message(stack => $stack, title => $msg_title);
 
-    return $self->result;
+    $stack->commit_revision(message => $msg);
+
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
 
 sub _unpin {
-    my ($self, $spec, $stack) = @_;
+    my ($self, $target, $stack) = @_;
 
-    my $dist = $self->repo->get_distribution_by_spec(spec => $spec, stack => $stack);
+    my $dist = $stack->get_distribution(spec => $target);
 
-    throw "$spec does not exist in the repository" if not $dist;
+    throw "$target is not registered on stack $stack" if not defined $dist;
 
     $self->notice("Unpinning distribution $dist from stack $stack");
 
-    $self->result->changed if $dist->unpin(stack => $stack);
+    my $did_unpin = $dist->unpin(stack => $stack);
 
-    return;
-}
-
-#------------------------------------------------------------------------------
-
-sub message_title {
-    my ($self) = @_;
-
-    my $targets  = join ', ', $self->targets;
-
-    return "Unpinned ${targets}.";
+    return $did_unpin ? $dist : ();
 }
 
 #------------------------------------------------------------------------------
@@ -89,7 +79,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -101,7 +91,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -115,6 +105,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

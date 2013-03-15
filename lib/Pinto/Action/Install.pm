@@ -4,17 +4,17 @@ package Pinto::Action::Install;
 
 use Moose;
 use MooseX::Types::Moose qw(Bool HashRef ArrayRef Maybe Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use File::Which qw(which);
 
 use Pinto::Types qw(StackName StackDefault StackObject);
 use Pinto::Exception qw(throw);
-
-use namespace::autoclean;
+use Pinto::SpecFactory;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -90,15 +90,21 @@ sub BUILD {
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->pull ? $self->repo->open_stack($self->stack)
-                            : $self->repo->get_stack($self->stack);
+    my $stack = $self->repo->get_stack($self->stack);
 
-    do { $self->_pull($stack, $_) for $self->targets } if $self->pull;
+    if ($self->pull) {
 
-    if ($self->pull and $self->result->made_changes and not $self->dryrun) {
-        my $message = $self->edit_message(stacks => [$stack]);
-        $stack->close(message => $message);
-        $self->repo->write_index(stack => $stack);
+        my $old_head = $stack->head;
+        my $new_head = $stack->start_revision;
+
+        my @pulled_dists = map { $self->_pull($stack, $_) } $self->targets; 
+
+        if ($stack->has_changed and not $self->dry_run) {
+            $self->generate_message_title('Pulled', @pulled_dists);
+            $self->generate_message_details($stack, $old_head, $new_head);
+            $stack->commit_revision(message => $self->edit_message);
+            $self->result->changed;
+        }
     }
 
     $self->_install($stack, $self->targets);
@@ -116,15 +122,17 @@ sub _pull {
         return $self;
     }
 
-    my $target_spec = Pinto::SpecFactory->make_spec($target);
-    my ($dist, $did_pull) = $self->repo->find_or_pull(target => $target_spec, stack => $stack);
+    $target = Pinto::SpecFactory->make_spec($target);
 
-    my $did_register = $dist ? $dist->register(stack => $stack) : undef;
-    $did_pull += $self->repo->pull_prerequisites(dist => $dist, stack => $stack);
+    my $dist =         $stack->get_distribution(spec => $target)
+               || $self->repo->get_distribution(spec => $target)
+               || $self->repo->ups_distribution(spec => $target);
 
-    $self->result->changed if $did_pull or $did_register;
 
-    return $self;
+    $dist->register(stack => $stack);
+    $self->repo->pull_prerequisites(dist => $dist, stack => $stack);
+
+    return $dist;
 }
 
 #------------------------------------------------------------------------------
@@ -135,7 +143,9 @@ sub _install {
     # Wire cpanm to our repo
     my $opts = $self->cpanm_options;
     $opts->{'mirror-only'} = '';
-    $opts->{mirror} = 'file://' . $self->repo->root->absolute . "/$stack";
+
+    my $stack_dir = defined $stack ? "/stacks/$stack" : '';
+    $opts->{mirror} = 'file://' . $self->repo->root->absolute . $stack_dir;
 
     # Process other cpanm options
     my @cpanm_opts;
@@ -157,21 +167,12 @@ sub _install {
 
 #------------------------------------------------------------------------------
 
-sub message_title {
-    my ($self) = @_;
-
-    my $targets  = join ', ', $self->targets;
-    return "Pulled ${targets}.";
-}
-
-#------------------------------------------------------------------------------
-
 __PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -183,7 +184,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -197,6 +198,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

@@ -3,17 +3,16 @@
 package Pinto;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
 
 use Pinto::Repository;
 use Pinto::ActionFactory;
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -48,11 +47,21 @@ sub run {
     my $action    = $self->action_factory->create_action($action_name => @action_args);
     my $lock_type = $action->does('Pinto::Role::Committable') ? 'EX' : 'SH';
 
-    my $result = try   { $self->repo->lock($lock_type); $action->execute }
-                 catch { $self->repo->unlock; die $self->fatal($_) };
+    my $result = try { 
+        $self->repo->assert_sanity_ok;
+        $self->repo->assert_version_ok;
+        $self->repo->lock($lock_type);
 
-    $self->repo->unlock;
-
+        $action->execute;
+    }
+    catch { 
+        $self->repo->unlock; 
+        $self->fatal($_);
+    }
+    finally {
+        $self->repo->unlock;
+    };
+    
     return $result;
 }
 
@@ -74,7 +83,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -88,7 +97,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 SYNOPSIS
 
@@ -285,7 +294,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-

@@ -3,15 +3,14 @@
 package Pinto::Action::New;
 
 use Moose;
-use MooseX::Types::Moose qw(Str Bool);
+use MooseX::Types::Moose qw(Bool Str);
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Types qw(StackName);
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,7 +18,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Committable );
+with qw( Pinto::Role::Transactional );
 
 #------------------------------------------------------------------------------
 
@@ -38,9 +37,9 @@ has default => (
 
 
 has description => (
-    is         => 'ro',
-    isa        => Str,
-    predicate  => 'has_description',
+    is        => 'ro',
+    isa       => Str,
+    predicate => 'has_description',
 );
 
 #------------------------------------------------------------------------------
@@ -48,27 +47,14 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->create_stack(name => $self->stack);
-    $stack->set_property(description => $self->description) if $self->has_description;
+    my %attrs = (name => $self->stack);
+    my $stack = $self->repo->create_stack(%attrs);
 
-    $stack->close(message => $self->edit_message);
-
+    $stack->set_properties($stack->default_properties);
+    $stack->set_description($self->description) if $self->has_description;
     $stack->mark_as_default if $self->default;
 
-    $self->repo->create_stack_filesystem(stack => $stack);
-    $self->repo->write_index(stack => $stack);
-
     return $self->result->changed;
-}
-
-#------------------------------------------------------------------------------
-
-sub message_title {
-    my ($self) = @_;
-
-    my $stack = $self->stack;
-
-    return "Created new stack $stack.";
 }
 
 #------------------------------------------------------------------------------
@@ -79,7 +65,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -91,7 +77,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -105,6 +91,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

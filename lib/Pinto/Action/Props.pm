@@ -1,19 +1,19 @@
-# ABSTRACT: Show stack properties
+# ABSTRACT: Show or change stack properties
 
 package Pinto::Action::Props;
 
 use Moose;
-use MooseX::Types::Moose qw(Str Maybe);
+use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::Types::Moose qw(Str HashRef);
 
-use String::Format;
+use String::Format qw(stringf);
 
+use Pinto::Util qw(is_system_prop);
 use Pinto::Types qw(StackName StackDefault StackObject);
-
-use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,17 +21,28 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has stack  => (
+with qw( Pinto::Role::Transactional
+         Pinto::Role::Colorable );
+
+#------------------------------------------------------------------------------
+
+has stack => (
     is        => 'ro',
     isa       => StackName | StackDefault | StackObject,
-    default   => undef,
+);
+
+
+has properties => (
+    is        => 'ro',
+    isa       => HashRef,
+    predicate => 'has_properties',
 );
 
 
 has format => (
     is      => 'ro',
     isa     => Str,
-    default => "%n = %v",
+    default => "%p = %v",
 );
 
 #------------------------------------------------------------------------------
@@ -41,12 +52,39 @@ sub execute {
 
     my $stack = $self->repo->get_stack($self->stack);
 
-    my $props = $stack->get_properties;
-    while ( my ($prop, $value) = each %{$props} ) {
-        $self->say(stringf($self->format, {n => $prop, v => $value}));
-    }
+    $self->has_properties ? $self->_set_properties($stack)
+                          : $self->_show_properties($stack);
 
     return $self->result;
+}
+
+#------------------------------------------------------------------------------
+
+sub _set_properties {
+    my ($self, $target) = @_;
+
+    $target->set_properties($self->properties);
+    $self->result->changed;
+
+    return;
+}
+
+#------------------------------------------------------------------------------
+
+sub _show_properties {
+    my ($self, $target) = @_;
+
+    my $props = $target->get_properties;
+    while ( my ($prop, $value) = each %{$props} ) {
+
+        my $string = stringf($self->format, {p => $prop, v => $value});
+        my $color  = is_system_prop($prop) ? $self->color_3 : undef; 
+        $string = $self->colorize_with_color($string, $color);
+
+        $self->say($string);
+    }
+
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -57,7 +95,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -65,11 +103,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Pinto::Action::Props - Show stack properties
+Pinto::Action::Props - Show or change stack properties
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -83,6 +121,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

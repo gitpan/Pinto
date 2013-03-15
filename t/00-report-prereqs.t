@@ -21,27 +21,32 @@ my @modules = qw(
   CPAN::DistnameInfo
   Carp
   Class::Load
-  Cwd::Guard
   DBD::SQLite
   DBIx::Class
   DBIx::Class::Core
+  DBIx::Class::ResultSet
   DBIx::Class::Schema
   DateTime
+  DateTime::TimeZone
+  DateTime::TimeZone::OffsetOnly
   Digest::SHA
   Dist::Metadata
+  English
   Exporter
   ExtUtils::MakeMaker
-  File::Basename
   File::Copy
   File::Find
   File::NFSLock
+  File::ShareDir
   File::Spec::Functions
   File::Temp
   File::Which
   HTTP::Date
-  IO::Pipe
+  IO::Handle
   IO::String
+  IO::Zlib
   JSON
+  JSON::PP
   LWP::UserAgent
   List::Util
   Log::Dispatch
@@ -56,34 +61,33 @@ my @modules = qw(
   MooseX::Configuration
   MooseX::MarkAsMethods
   MooseX::NonMoose
-  MooseX::Types::Log::Dispatch
+  MooseX::SetOnce
   MooseX::Types::Moose
   Package::Locator
   Path::Class
-  PerlIO::gzip
   Pinto::Constants
   Pinto::DistributionSpec
   Pinto::Exception
   Pinto::Globals
   Pinto::PackageSpec
   Pinto::Role::PauseConfig
+  Pinto::SpecFactory
   Pinto::Types
   Pinto::Util
   Readonly
-  SQL::Translator
-  Scalar::Util
   String::Format
+  Term::ANSIColor
   Term::EditorEdit
   Test::Builder::Module
+  Test::CPAN::Meta
   Test::Exception
   Test::File
   Test::Log::Dispatch
   Test::More
+  Test::Pod
   Try::Tiny
   URI
-  autodie
   base
-  namespace::autoclean
   overload
   perl
   strict

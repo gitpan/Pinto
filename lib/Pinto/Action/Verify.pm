@@ -3,14 +3,11 @@
 package Pinto::Action::Verify;
 
 use Moose;
-
-use Pinto::Util;
-
-use namespace::autoclean;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,13 +18,17 @@ extends qw( Pinto::Action );
 sub execute {
     my ($self) = @_;
 
+    my $dist_rs = $self->repo->db->schema->distribution_rs;
 
-    # FIXME!
-    my $rs  = $self->repo->db->schema->resultset('Distribution')->search;
+    while ( my $dist = $dist_rs->next ) {
 
-    while ( my $dist = $rs->next ) {
-        my $archive = $dist->archive( $self->repo->root_dir );
-        $self->say("Missing distribution $archive") if not -e $archive;
+    	my $authors_id_dir = $self->repo->config->authors_id_dir;
+        my $archive = $dist->native_path( $authors_id_dir );
+
+        if (not -e $archive) {
+	        $self->say("Missing distribution $dist");
+	        $self->result->failed;
+	    }
     }
 
     return $self->result;
@@ -35,13 +36,13 @@ sub execute {
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->meta->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
 1;
 
-
+__END__
 
 =pod
 
@@ -53,7 +54,7 @@ Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -67,6 +68,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

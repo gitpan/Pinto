@@ -3,18 +3,21 @@
 package Pinto::Action::Rename;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Types qw(StackName StackObject);
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
+
+#------------------------------------------------------------------------------
+
+with qw( Pinto::Role::Transactional );
 
 #------------------------------------------------------------------------------
 
@@ -36,8 +39,9 @@ has to_stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->rename_stack( from => $self->from_stack,
-                                           to   => $self->to_stack );
+    my $stack = $self->repo->get_stack($self->from_stack);
+
+    $self->repo->rename_stack(stack => $stack, to => $self->to_stack);
 
     return $self->result->changed;
 }
@@ -50,7 +54,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -62,7 +66,7 @@ Pinto::Action::Rename - Change the name of a stack
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -76,6 +80,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

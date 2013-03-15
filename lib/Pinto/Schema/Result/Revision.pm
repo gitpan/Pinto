@@ -20,60 +20,58 @@ __PACKAGE__->table("revision");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "stack",
-  {
-    data_type      => "integer",
-    default_value  => \"null",
-    is_foreign_key => 1,
-    is_nullable    => 1,
-  },
-  "number",
-  { data_type => "integer", is_nullable => 0 },
-  "is_committed",
-  { data_type => "boolean", is_nullable => 0 },
-  "committed_on",
-  { data_type => "integer", is_nullable => 0 },
-  "committed_by",
+  "uuid",
   { data_type => "text", is_nullable => 0 },
   "message",
   { data_type => "text", is_nullable => 0 },
-  "sha256",
-  { data_type => "text", default_value => "", is_nullable => 1 },
+  "username",
+  { data_type => "text", is_nullable => 0 },
+  "utc_time",
+  { data_type => "integer", is_nullable => 0 },
+  "time_offset",
+  { data_type => "integer", is_nullable => 0 },
+  "is_committed",
+  { data_type => "boolean", is_nullable => 0 },
+  "has_changes",
+  { data_type => "boolean", is_nullable => 0 },
 );
 
 
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("stack_number_unique", ["stack", "number"]);
+__PACKAGE__->add_unique_constraint("uuid_unique", ["uuid"]);
 
 
-__PACKAGE__->might_have(
-  "active_stack",
-  "Pinto::Schema::Result::Stack",
-  { "foreign.head_revision" => "self.id" },
+__PACKAGE__->has_many(
+  "ancestry_children",
+  "Pinto::Schema::Result::Ancestry",
+  { "foreign.child" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 __PACKAGE__->has_many(
-  "registration_changes",
-  "Pinto::Schema::Result::RegistrationChange",
+  "ancestry_parents",
+  "Pinto::Schema::Result::Ancestry",
+  { "foreign.parent" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+__PACKAGE__->has_many(
+  "registrations",
+  "Pinto::Schema::Result::Registration",
   { "foreign.revision" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-__PACKAGE__->belongs_to(
-  "stack",
+__PACKAGE__->has_many(
+  "stacks",
   "Pinto::Schema::Result::Stack",
-  { id => "stack" },
-  {
-    is_deferrable => 0,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "NO ACTION",
-  },
+  { "foreign.head" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
@@ -81,202 +79,240 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-11-12 10:50:21
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:o2TjxJl1rLE6Uae0Eic6Lg
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-07 12:56:52
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:u3EeZBioyg8H9+azCHQYNA
 
 #------------------------------------------------------------------------------
 
-# ABSTRACT: A group of changes to a stack
+# ABSTRACT: Represents a set of changes to a stack
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-use Pinto::Exception qw(throw);
+use MooseX::Types::Moose qw(Str Bool);
 
 use DateTime;
+use DateTime::TimeZone;
+use DateTime::TimeZone::OffsetOnly;
 use String::Format;
 use Digest::SHA;
 
-use Pinto::Util qw(itis trim);
+use Pinto::Exception qw(throw);
+use Pinto::Util qw(:all);
 
 use overload ( '""'  => 'to_string',
-               '<=>' => 'compare',
-               'cmp' => 'compare' );
+               '<=>' => 'numeric_compare',
+               'eq'  => 'equals' );
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->inflate_column('committed_on' => {
-   inflate => sub { DateTime->from_epoch(epoch => $_[0]) }
-});
+has uuid_prefix => (
+  is          => 'ro',
+  isa         => Str,
+  default     => sub { substr($_[0]->uuid, 0, 8) },
+  init_arg    => undef,
+  lazy        => 1,
+);
+
+
+has message_title => (
+  is          => 'ro',
+  isa         => Str,
+  default     => sub { trim_text( title_text($_[0]->message) ) },
+  init_arg    => undef,
+  lazy        => 1,
+);
+
+
+has message_body => (
+  is          => 'ro',
+  isa         => Str,
+  default     => sub { trim_text( body_text($_[0]->message) ) },
+  init_arg    => undef,
+  lazy        => 1,
+);
+
+
+has is_root => (
+  is          => 'ro',
+  isa         => Bool,
+  default     => sub { $_[0]->id == 1 },
+  init_arg    => undef,
+  lazy        => 1,
+);
+
+
+has datetime => (
+  is         => 'ro',
+  isa        => 'DateTime',
+  default    => sub { DateTime->from_epoch(epoch => $_[0]->utc_time, time_zone => $_[0]->timezone) },
+  init_arg   => undef,
+  lazy       => 1,
+);
+
+
+has timezone => (
+  is         => 'ro',
+  isa        => 'DateTime::TimeZone',
+  default    => sub { my $offset = DateTime::TimeZone->offset_as_string($_[0]->repo->config->time_offset);
+                      return DateTime::TimeZone::OffsetOnly->new(offset => $offset) },
+  init_arg   => undef,
+  lazy       => 1,
+);
 
 #------------------------------------------------------------------------------
 
 sub FOREIGNBUILDARGS {
   my ($class, $args) = @_;
 
-  # TODO: Should we really default these here or in the DB?
-
   $args ||= {};
+  $args->{uuid}         ||= uuid;
+  $args->{username}     ||= '';
+  $args->{utc_time}     ||= 0;
+  $args->{time_offset}  ||= 0;
+  $args->{is_committed} ||= 0;
+  $args->{has_changes}  ||= 0;
   $args->{message}      ||= '';
-  $args->{committed_by} ||= '';
-  $args->{committed_on}   = 0;
-  $args->{is_committed}   = 0;
 
   return $args;
 }
 
 #------------------------------------------------------------------------------
 
-sub insert {
-    my ($self) = @_;
+sub add_parent {
+    my ($self, $parent) = @_;
 
-    my $new_revnum = $self->new_revision_number;
-    $self->number($new_revnum);
+    # TODO: Figure out how to do merges
+    $self->create_related(ancestry_children => {parent => $parent->id});
 
-    return $self->next::method;
+    return;
 }
 
 #------------------------------------------------------------------------------
 
-sub new_revision_number {
-    my ($self) = @_;
+sub add_child {
+    my ($self, $child) = @_;
 
-    my $stack = $self->stack;
+    # TODO: Figure out how to do merges
+    $self->create_related(ancestry_parents => {child => $child->id});
 
-    # If we don't have a stack attribute, it probably means that it
-    # doesn't exist yet and we are about to create it in this revision.
-    return 0 if not $stack;
-
-    my $where = { stack => $self->stack->id };
-    my $revision_rs = $self->result_source->resultset->search($where);
-
-    # Revision numbers are zero-based.  So just counting the number
-    # of revisions will give us the number for the next one.
-    return $revision_rs->count;
+    return;
 }
 
 #------------------------------------------------------------------------------
 
-sub previous_revision {
-    my ($self) = @_;
+sub parents {
+  my ($self) = @_;
 
-    my $attrs = { key => 'stack_number_unique' };
-    my $where = { stack => $self->stack, number => ($self->number - 1) };
-    my $previous_revision = $self->result_source->resultset->find($where, $attrs);
+  my $where = {child => $self->id};
+  my $attrs = {join => 'ancestry_parents', order_by => 'me.utc_time'};
 
-    return defined $previous_revision ? $previous_revision : ();
+  return $self->result_source->resultset->search($where, $attrs)->all;
 }
 
 #------------------------------------------------------------------------------
 
-sub next_revision {
-    my ($self) = @_;
+sub children {
+  my ($self) = @_;
 
-    my $attrs = { key => 'stack_number_unique' };
-    my $where = { stack => $self->stack, number => ($self->number + 1) };
-    my $previous_revision = $self->result_source->resultset->find($where, $attrs);
+  my $where = {parent => $self->id};
+  my $attrs = {join => 'ancestry_children', order_by => 'me.utc_time'};
 
-    return defined $previous_revision ? $previous_revision : ();
+  return $self->result_source->resultset->search($where, $attrs)->all;
 }
-
 
 #------------------------------------------------------------------------------
 
-sub close {
+sub commit {
     my ($self, %args) = @_;
 
-    throw "Revision $self is already closed"
-      if $self->is_committed;
+    throw "Must specify a message to commit" if not $args{message};
 
-    throw "Must specify a message to close revision $self"
-       unless $args{message} or $self->message;
+    $args{is_committed}   = 1;
+    $args{username}     ||= $self->repo->config->username;
+    $args{time_offset}  ||= $self->repo->config->time_offset;
+    $args{utc_time}     ||= current_utc_time;
 
-    throw "Must specify a username to close revision $self"
-       unless $args{committed_by} or $self->committed_by;
-
-    throw "Must specify a stack to close revision $self"
-       unless $args{stack} or $self->stack;
-
-    $self->update( { %args,
-                     committed_on => time,
-                     is_committed => 1,
-                     sha256       => $self->compute_sha256 } );
+    $self->update(\%args);
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
-sub compute_sha256 {
+sub assert_is_open {
     my ($self) = @_;
 
-    throw "Must bind revision to a stack before computing checksum"
-      if not $self->stack;
+    throw "PANIC: Revision $self is already committed"
+      if $self->get_column('is_committed');
 
-    my $attrs   = {select => [qw(package_name package_version distribution_path)] };
-    my $rs      = $self->stack->search_related_rs('registrations', {}, $attrs);
-
-    my $sha = Digest::SHA->new(256);
-    $sha->add( join '/', @{$_} ) for $rs->cursor->all;
-
-    return $sha->hexdigest;
+    return $self;
 }
 
-#------------------------------------------------------------------------------
 
-sub undo {
+#-------------------------------------------------------------------------------
+
+sub assert_is_committed {
     my ($self) = @_;
 
-    $self->info("Undoing revision $self");
+    throw "PANIC: Revision $self is still open"
+      if not $self->get_column('is_committed');
 
-    $_->undo(stack => $self->stack) for reverse $self->registration_changes;
+    return $self;
+}
+
+#-------------------------------------------------------------------------------
+
+sub assert_has_changed {
+    my ($self) = @_;
+
+    throw "PANIC: Revision $self has not changed"
+      if not $self->get_column('has_changes');
 
     return $self;
 }
 
 #------------------------------------------------------------------------------
 
-sub message_title {
-    my ($self, $max_chars) = @_;
+sub diff {
+  my ($self, $other) = @_;
 
-    my $message = $self->message;
-    my $title = trim( (split /\n/, $message)[0] );
+    my $left  = $other || ($self->parents)[0];
+    my $right = $self;
 
-    if ($max_chars and length $title > $max_chars) {
-      $title = substr($title, 0, $max_chars - 3,) . '...';
-    }
-
-    return $title;
+    require Pinto::Difference;
+    return  Pinto::Difference->new(left => $left, right => $right);
 }
 
 #------------------------------------------------------------------------------
 
-sub message_body {
-    my ($self) = @_;
-
-    my $message = $self->message;
-    my $body = ($message =~ m/^ [^\n]+ \n+ (.*)/xms) ? $1 : '';
-
-    return trim($body);
-}
-
-#------------------------------------------------------------------------------
-
-sub compare {
-    my ($rev_a, $rev_b) = @_;
+sub numeric_compare {
+    my ($revision_a, $revision_b) = @_;
 
     my $pkg = __PACKAGE__;
     throw "Can only compare $pkg objects"
-        if not ( itis($rev_a, $pkg) && itis($rev_b, $pkg) );
+        if not ( itis($revision_a, $pkg) && itis($revision_b, $pkg) );
 
-    return 0 if $rev_a->id == $rev_b->id;
+    return 0 if $revision_a->id == $revision_b->id;
 
-    my $r = ($rev_a->committed_on <=> $rev_b->committed_on);
+    my $r = ($revision_a->utc_time <=> $revision_b->utc_time);
 
     return $r;
+}
+
+#------------------------------------------------------------------------------
+
+sub equals {
+    my ($revision_a, $revision_b) = @_;
+
+    my $pkg = __PACKAGE__;
+    throw "Can only compare $pkg objects"
+        if not ( itis($revision_a, $pkg) && itis($revision_b, $pkg) );
+
+    return $revision_a->id == $revision_b->id;
 }
 
 #------------------------------------------------------------------------------
@@ -285,19 +321,14 @@ sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
-
-           # NOTE: It is possible to define a Revision without a
-           # Stack.  This should only happen when creating a new
-           # Stack.  There is a circular reference between Stacks and
-           # Revisions, so one of them must come first.  Therefore, we
-           # must be prepared for $self->stack to be undefined below.
-           k => sub { defined $self->stack ? $self->stack->name : '()'    },
-
-           b => sub { $self->number                                        },
-           g => sub { $self->message                                       },
-           j => sub { $self->committed_by                                  },
-           u => sub { $self->committed_on->strftime('%c') . ' UTC'         },
-
+           i => sub { $self->uuid_prefix                              },
+           I => sub { $self->uuid                                     },
+           j => sub { $self->username                                 },
+           u => sub { $self->datetime->strftime($_[0] || '%c')        },
+           g => sub { $self->message_body                             },
+           G => sub { indent_text( trim_text($self->message), $_[0] ) },
+           t => sub { $self->message_title                            },
+           T => sub { truncate_text( $self->message_title, $_[0] )    },
     );
 
     $format ||= $self->default_format;
@@ -309,7 +340,7 @@ sub to_string {
 sub default_format {
     my ($self) = @_;
 
-    return '%k@%b';
+    return '%i';
 }
 
 #------------------------------------------------------------------------------
@@ -319,19 +350,19 @@ __PACKAGE__->meta->make_immutable;
 #------------------------------------------------------------------------------
 1;
 
-
 __END__
+
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
 
 =head1 NAME
 
-Pinto::Schema::Result::Revision - A group of changes to a stack
+Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 NAME
 
@@ -347,29 +378,7 @@ Pinto::Schema::Result::Revision
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 stack
-
-  data_type: 'integer'
-  default_value: null
-  is_foreign_key: 1
-  is_nullable: 1
-
-=head2 number
-
-  data_type: 'integer'
-  is_nullable: 0
-
-=head2 is_committed
-
-  data_type: 'boolean'
-  is_nullable: 0
-
-=head2 committed_on
-
-  data_type: 'integer'
-  is_nullable: 0
-
-=head2 committed_by
+=head2 uuid
 
   data_type: 'text'
   is_nullable: 0
@@ -379,11 +388,30 @@ Pinto::Schema::Result::Revision
   data_type: 'text'
   is_nullable: 0
 
-=head2 sha256
+=head2 username
 
   data_type: 'text'
-  default_value: (empty string)
-  is_nullable: 1
+  is_nullable: 0
+
+=head2 utc_time
+
+  data_type: 'integer'
+  is_nullable: 0
+
+=head2 time_offset
+
+  data_type: 'integer'
+  is_nullable: 0
+
+=head2 is_committed
+
+  data_type: 'boolean'
+  is_nullable: 0
+
+=head2 has_changes
+
+  data_type: 'boolean'
+  is_nullable: 0
 
 =head1 PRIMARY KEY
 
@@ -395,33 +423,37 @@ Pinto::Schema::Result::Revision
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<stack_number_unique>
+=head2 C<uuid_unique>
 
 =over 4
 
-=item * L</stack>
-
-=item * L</number>
+=item * L</uuid>
 
 =back
 
 =head1 RELATIONS
 
-=head2 active_stack
-
-Type: might_have
-
-Related object: L<Pinto::Schema::Result::Stack>
-
-=head2 registration_changes
+=head2 ancestry_children
 
 Type: has_many
 
-Related object: L<Pinto::Schema::Result::RegistrationChange>
+Related object: L<Pinto::Schema::Result::Ancestry>
 
-=head2 stack
+=head2 ancestry_parents
 
-Type: belongs_to
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Ancestry>
+
+=head2 registrations
+
+Type: has_many
+
+Related object: L<Pinto::Schema::Result::Registration>
+
+=head2 stacks
+
+Type: has_many
 
 Related object: L<Pinto::Schema::Result::Stack>
 
@@ -445,4 +477,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

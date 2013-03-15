@@ -4,17 +4,17 @@ package Pinto::Action::Pull;
 
 use Moose;
 use MooseX::Types::Moose qw(Bool);
+use MooseX::MarkAsMethods (autoclean => 1);
 
+use Try::Tiny;
 use Module::CoreList;
 
 use Pinto::Util qw(itis);
-use Pinto::Types qw(Specs StackName StackDefault StackObject);
-
-use namespace::autoclean;
+use Pinto::Types qw(SpecList StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ with qw( Pinto::Role::Committable );
 #------------------------------------------------------------------------------
 
 has targets => (
-    isa      => Specs,
+    isa      => SpecList,
     traits   => [ qw(Array) ],
     handles  => {targets => 'elements'},
     required => 1,
@@ -49,7 +49,14 @@ has pin => (
 );
 
 
-has norecurse => (
+has no_recurse => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
+);
+
+
+has no_fail => (
     is        => 'ro',
     isa       => Bool,
     default   => 0,
@@ -61,17 +68,45 @@ has norecurse => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->open_stack($self->stack);
+    my $stack = $self->repo->get_stack($self->stack)->start_revision;
 
-    $self->_pull($_, $stack) for $self->targets;
+    my (@successful, @failed);
+    for my $target ($self->targets) {
 
-    if ($self->result->made_changes and not $self->dryrun) {
-        my $message = $self->edit_message(stacks => [$stack]);
-        $stack->close(message => $message);
-        $self->repo->write_index(stack => $stack);
+        if (itis($target, 'Pinto::PackageSpec') && $self->_is_core_package($target, $stack)) {
+            $self->debug("$target is part of the perl core.  Skipping it");
+            next;
+        }
+
+
+        try   {
+            $self->repo->db->schema->storage->svp_begin; 
+            my $dist = $self->_pull($target, $stack); 
+            push @successful, $dist;
+        }
+        catch {
+            die $_ unless $self->no_fail;
+
+            $self->repo->db->schema->storage->svp_rollback;
+
+            $self->error("$_");
+            $self->error("$target failed...continuing anyway");
+            push @failed, $target;
+        }
+        finally {
+            my ($error) = @_;
+            $self->repo->db->schema->storage->svp_release unless $error;
+        };
     }
 
-    return $self->result;
+    return $self->result if $self->dry_run or $stack->has_not_changed;
+
+    my $msg_title = $self->generate_message_title(@successful);
+    my $msg = $self->compose_message(stack => $stack, title => $msg_title);
+
+    $stack->commit_revision(message => $msg);
+
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
@@ -79,21 +114,16 @@ sub execute {
 sub _pull {
     my ($self, $target, $stack) = @_;
 
-    if (itis($target, 'Pinto::PackageSpec') && $self->_is_core_package($target, $stack)) {
-        $self->debug("$target is part of the perl core.  Skipping it");
-        return;
-    }
+    $self->notice("Pulling $target");
 
-    my ($dist, $did_pull) = $self->repo->find_or_pull(target => $target, stack => $stack);
-    my $did_register = $dist ? $dist->register(stack => $stack, pin => $self->pin) : undef;
+    my $dist =         $stack->get_distribution(spec => $target)
+               || $self->repo->get_distribution(spec => $target)
+               || $self->repo->ups_distribution(spec => $target);
 
-    if ($dist and not $self->norecurse) {
-        $did_pull += $self->repo->pull_prerequisites(dist => $dist, stack => $stack);
-    }
+    $dist->register(stack => $stack, pin => $self->pin);
+    $self->repo->pull_prerequisites(dist => $dist, stack => $stack) if not $self->no_recurse;
 
-    $self->result->changed if $did_pull or $did_register;
-
-    return;
+    return $dist;
 }
 
 #------------------------------------------------------------------------------
@@ -112,25 +142,13 @@ sub _is_core_package {
 
 #------------------------------------------------------------------------------
 
-sub message_title {
-    my ($self) = @_;
-
-    my $targets  = join ', ', $self->targets;
-    my $pinned   = $self->pin       ? ' and pinned'            : '';
-    my $prereqs  = $self->norecurse ? ' without prerequisites' : '';
-
-    return "Pulled${pinned} ${targets}$prereqs.";
-}
-
-#------------------------------------------------------------------------------
-
 __PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
 
 1;
 
-
+__END__
 
 =pod
 
@@ -142,7 +160,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -156,6 +174,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

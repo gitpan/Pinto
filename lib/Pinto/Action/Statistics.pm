@@ -3,15 +3,14 @@
 package Pinto::Action::Statistics;
 
 use Moose;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Types qw(StackName StackDefault StackObject);
 use Pinto::Statistics;
 
-use namespace::autoclean;
-
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -30,11 +29,10 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    # FIXME!
     my $stack = $self->repo->get_stack($self->stack);
 
-    my $stats = Pinto::Statistics->new(db    => $self->repo->db,
-                                       stack => $stack->name);
+    my $stats = Pinto::Statistics->new( repo  => $self->repo,
+                                        stack => $stack );
 
     $self->say($stats->to_formatted_string);
 
@@ -49,7 +47,7 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
-
+__END__
 
 =pod
 
@@ -61,7 +59,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -75,6 +73,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__

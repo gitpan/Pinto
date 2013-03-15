@@ -3,25 +3,22 @@
 package Pinto::IndexWriter;
 
 use Moose;
-use MooseX::Types::Moose qw(Bool);
+use MooseX::MarkAsMethods (autoclean => 1);
 
-use PerlIO::gzip;
+use IO::Zlib;
 use Path::Class qw(file);
 use HTTP::Date qw(time2str);
 
+use Pinto::Types qw(File);
 use Pinto::Exception qw(throw);
-use Pinto::Types qw(File Io);
-
-use namespace::autoclean;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
+with qw( Pinto::Role::Loggable );
 
 #------------------------------------------------------------------------------
 
@@ -35,9 +32,8 @@ has stack => (
 has index_file  => (
     is      => 'ro',
     isa     => File,
+    default => sub { $_[0]->stack->modules_dir->file('02packages.details.txt.gz') },
     lazy    => 1,
-    default => sub { file( $_[0]->config->root, $_[0]->stack->name,
-                           qw(modules 02packages.details.txt.gz)) }
 );
 
 #------------------------------------------------------------------------------
@@ -49,10 +45,12 @@ sub write_index {
     my $stack = $self->stack;
 
     $self->info("Writing index for stack $stack at $index_file");
-    open my $handle, ">:gzip", $index_file or throw "Cannot open $index_file: $!";
+
+    my $handle = IO::Zlib->new($index_file->stringify, 'wb') 
+        or throw "Cannot open $index_file: $!";
 
     my @records = $self->_get_index_records($stack);
-    my $count = @records;
+    my $count   = scalar @records;
 
     $self->_write_header($handle, $index_file, $count);
     $self->_write_records($handle, @records);
@@ -68,7 +66,10 @@ sub _write_header {
 
     my $base    = $filename->basename;
     my $url     = 'file://' . $filename->absolute->as_foreign('Unix');
-    my $version = $Pinto::IndexWriter::VERSION || 'UNKNOWN VERSION';
+
+    my $writer  = ref $self;
+    my $version = $self->VERSION || 'UNKNOWN';
+    my $date    = time2str(time);
 
     print {$fh} <<"END_PACKAGE_HEADER";
 File:         $base
@@ -76,9 +77,9 @@ URL:          $url
 Description:  Package names found in directory \$CPAN/authors/id/
 Columns:      package name, version, path
 Intended-For: Automated fetch routines, namespace documentation.
-Written-By:   Pinto::IndexWriter $version
+Written-By:   $writer version $version
 Line-Count:   $line_count
-Last-Updated: @{[ time2str(time) ]}
+Last-Updated: $date
 
 END_PACKAGE_HEADER
 
@@ -91,7 +92,8 @@ sub _write_records {
     my ($self, $fh, @records) = @_;
 
     for my $record ( @records ) {
-        my ($name, $version, $path) = @{ $record };
+        my ($name, $version, $author, $archive) = @{ $record };
+        my $path = join '/', substr($author, 0, 1), substr($author, 0, 2), $author, $archive;
         my $width = 38 - length $version;
         $width = length $name if $width < length $name;
         printf {$fh} "%-${width}s %s  %s\n", $name, $version, $path;
@@ -116,9 +118,12 @@ sub _get_index_records {
     # like one produced by PAUSE.  Also, this is about twice as fast
     # as using an iterator to read each record lazily.
 
-    my $attrs   = {select => [qw(package_name package_version distribution_path)] };
-    my $rs      = $stack->search_related_rs('registrations', {}, $attrs);
-    my @records =  sort {$a->[0] cmp $b->[0]} $rs->cursor->all;
+    my @joins   = qw(package distribution);
+    my @selects = qw(package.name package.version distribution.author distribution.archive);
+
+    my $attrs   = {join => \@joins, select => \@selects};
+    my $rs      = $stack->head->search_related('registrations', {}, $attrs);
+    my @records = sort {$a->[0] cmp $b->[0]} $rs->cursor->all;
 
     return @records;
 
@@ -133,7 +138,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+__END__
 
 =pod
 
@@ -145,7 +150,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -159,11 +164,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-
-
-
-
-

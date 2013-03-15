@@ -3,14 +3,13 @@
 package Pinto::Role::Loggable;
 
 use Moose::Role;
+use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Logger;
 
-use namespace::autoclean;
-
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065'; # VERSION
+our $VERSION = '0.065_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -33,9 +32,10 @@ around BUILDARGS => sub {
     return $args;
 };
 
+#-----------------------------------------------------------------------------
 1;
 
-
+__END__
 
 =pod
 
@@ -47,7 +47,7 @@ Pinto::Role::Loggable - Something that wants to log its activity
 
 =head1 VERSION
 
-version 0.065
+version 0.065_01
 
 =head1 AUTHOR
 
@@ -61,6 +61,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
