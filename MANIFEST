@@ -103,6 +103,7 @@ t/22-add-deep.t
 t/23-pull-multi.t
 t/31-pin.t
 t/32-pin-rjbs.t
+t/35-delete.t
 t/40-list.t
 t/41-log.t
 t/42-install.t
@@ -117,7 +118,6 @@ t/73-stack-lock.t
 t/74-stack-default.t
 t/75-stack-props.t
 t/80-repo-lock.t
-tmp/pinto.db
 tools/benchmark
 tools/findists
 tools/import

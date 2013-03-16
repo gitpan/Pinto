@@ -22,7 +22,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@imaginative-software.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.065_01",
+  "dist_version" => "0.065_02",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},

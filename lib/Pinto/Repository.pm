@@ -23,7 +23,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_01'; # VERSION
+our $VERSION = '0.065_02'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -356,6 +356,8 @@ sub delete_distribution {
     }
 
     $dist->delete;
+    my $basedir = $self->config->authors_id_dir;
+    $self->store->remove_archive($dist->native_path($basedir));
 
     return $self;
 }
@@ -758,7 +760,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.065_01
+version 0.065_02
 
 =head1 ATTRIBUTES
 

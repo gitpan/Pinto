@@ -16,7 +16,7 @@ use Pinto::Exception qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_01'; # VERSION
+our $VERSION = '0.065_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 # Roles
@@ -133,7 +133,7 @@ Pinto::Logger - Record events in the repository log file (and elsewhere).
 
 =head1 VERSION
 
-version 0.065_01
+version 0.065_02
 
 =head1 METHODS
 
