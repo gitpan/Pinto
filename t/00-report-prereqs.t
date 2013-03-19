@@ -50,10 +50,7 @@ my @modules = qw(
   LWP::UserAgent
   List::Util
   Log::Dispatch
-  Log::Dispatch::File
-  Log::Dispatch::Handle
   Module::Build
-  Module::CoreList
   Module::Faker::Dist
   Moose
   Moose::Role
@@ -62,6 +59,7 @@ my @modules = qw(
   MooseX::MarkAsMethods
   MooseX::NonMoose
   MooseX::SetOnce
+  MooseX::StrictConstructor
   MooseX::Types::Moose
   Package::Locator
   Path::Class
@@ -82,7 +80,6 @@ my @modules = qw(
   Test::CPAN::Meta
   Test::Exception
   Test::File
-  Test::Log::Dispatch
   Test::More
   Test::Pod
   Try::Tiny

@@ -3,16 +3,24 @@
 package Pinto::IndexCache;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Package::Locator;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #-------------------------------------------------------------------------------
-# Attributes
+
+has repo => (
+   is         => 'ro',
+   isa        => 'Pinto::Repository',
+   weak_ref   => 1,
+   required   => 1,
+);
+
 
 has locator => (
     is         => 'ro',
@@ -23,19 +31,14 @@ has locator => (
 );
 
 #-------------------------------------------------------------------------------
-# Roles
-
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
-
-#-------------------------------------------------------------------------------
 
 sub _build_locator {
     my ($self) = @_;
 
-    my @urls    = $self->config->sources_list();
-    my $locator = Package::Locator->new( repository_urls => \@urls,
-                                         cache_dir       => $self->config->cache_dir() );
+    my @urls      = $self->repo->config->sources_list;
+    my $cache_dir = $self->repo->config->cache_dir;
+    my $locator   = Package::Locator->new(repository_urls => \@urls,
+                                          cache_dir       => $cache_dir);
 
     return $locator;
 }
@@ -87,7 +90,7 @@ Pinto::IndexCache - Manages indexes files from upstream repositories
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

@@ -63,7 +63,7 @@ use Pinto::PackageSpec;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 NAME
 

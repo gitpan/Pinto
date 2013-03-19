@@ -3,24 +3,22 @@
 package Pinto::Action::Log;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Str);
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::RevisionWalker;
+use Pinto::Constants qw(:color);
 use Pinto::Types qw(StackName StackDefault);
 
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Colorable );
 
 #------------------------------------------------------------------------------
 
@@ -32,10 +30,9 @@ has stack => (
 
 
 has format => (
-    is      => 'ro',
-    isa     => Str,
-    builder => '_build_format',
-    lazy    => 1,
+    is        => 'ro',
+    isa       => Str,
+    predicate => 'has_format',
 );
 
 #------------------------------------------------------------------------------
@@ -47,28 +44,15 @@ sub execute {
     my $walker = Pinto::RevisionWalker->new(start => $stack->head);
 
     while (my $revision = $walker->next) {
-        $self->say( $revision->to_string($self->format) ); 
+
+        my $revid = $revision->to_string("revision %I");
+        $self->show($revid, {color => $PINTO_COLOR_1});
+
+        my $rest = $revision->to_string("Date: %u\nUser: %j\n\n%{4}G\n");
+        $self->show($rest);
     }
 
     return $self->result;
-}
-
-#------------------------------------------------------------------------------
-
-sub _build_format {
-    my ($self) = @_;
-
-    my $c = $self->color_2;
-    my $r = $self->color_0;
-
-    return <<"END_FORMAT";
-${c}revision %I${r}
-Date: %u
-User: %j 
-
-%{4}G
-END_FORMAT
-
 }
 
 #------------------------------------------------------------------------------
@@ -91,7 +75,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

@@ -16,7 +16,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -136,33 +136,6 @@ has cache_dir => (
 );
 
 
-has log_dir => (
-    is        => 'ro',
-    isa       => Dir,
-    init_arg  => undef,
-    default   => sub { return $_[0]->pinto_dir->subdir('log') },
-    lazy      => 1,
-);
-
-
-has log_file => (
-    is        => 'ro',
-    isa       => File,
-    init_arg  => undef,
-    default   => sub { return $_[0]->log_dir->file('pinto.log') },
-    lazy      => 1,
-);
-
-
-has log_level  => (
-    is         => 'ro',
-    isa        => Str,
-    key        => 'log_level',
-    default    => 'notice',
-    documentation => 'Minimum log level for the internal log file',
-);
-
-
 has no_history => (
     is         => 'ro',
     isa        => Bool,
@@ -216,7 +189,6 @@ has basename => (
 );
 
 #------------------------------------------------------------------------------
-# Builders
 
 sub _build_config_file {
     my ($self) = @_;
@@ -239,6 +211,19 @@ sub _build_sources_list {
 
 #------------------------------------------------------------------------------
 
+sub directories {
+    my ($self) = @_;
+
+    return ( 
+        $self->root_dir,
+        $self->config_dir,
+        $self->cache_dir,
+        $self->authors_dir,
+        $self->db_dir
+    );
+}
+#------------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
@@ -257,7 +242,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 DESCRIPTION
 

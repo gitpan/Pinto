@@ -3,17 +3,19 @@
 package Pinto::Action::Props;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 use MooseX::Types::Moose qw(Str HashRef);
 
 use String::Format qw(stringf);
 
+use Pinto::Constants qw(:color);
 use Pinto::Util qw(is_system_prop);
 use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,8 +23,7 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Transactional
-         Pinto::Role::Colorable );
+with qw( Pinto::Role::Transactional );
 
 #------------------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ sub _set_properties {
     my ($self, $target) = @_;
 
     $target->set_properties($self->properties);
+
     $self->result->changed;
 
     return;
@@ -78,10 +80,9 @@ sub _show_properties {
     while ( my ($prop, $value) = each %{$props} ) {
 
         my $string = stringf($self->format, {p => $prop, v => $value});
-        my $color  = is_system_prop($prop) ? $self->color_3 : undef; 
-        $string = $self->colorize_with_color($string, $color);
+        my $color  = is_system_prop($prop) ? $PINTO_COLOR_2 : undef; 
 
-        $self->say($string);
+        $self->show($string, {color => $color});
     }
 
     return;
@@ -107,7 +108,7 @@ Pinto::Action::Props - Show or change stack properties
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

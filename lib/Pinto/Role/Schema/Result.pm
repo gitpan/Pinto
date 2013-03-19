@@ -7,19 +7,9 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
-
-has logger  => (
-   is       => 'ro',
-   isa      => 'Pinto::Logger',
-   handles  => [ qw(debug info notice warning error fatal) ],
-   default  => sub { $_[0]->result_source->schema->logger },
-   init_arg => undef,
-   lazy     => 1,
-);
-
 
 has repo  => (
    is       => 'ro',
@@ -41,6 +31,16 @@ sub refresh {
 
 #------------------------------------------------------------------------------
 
+sub refresh_column {
+    my ($self, $column) = @_;
+
+    $self->mark_column_dirty($column);
+
+    return $self->get_column($column);
+}
+
+#------------------------------------------------------------------------------
+
 1;
 
 __END__
@@ -55,13 +55,13 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 DESCRIPTION
 
-This role adds a L<Pinto::Logger> attributes.  It should only be
+This role adds a L<Pinto::Repository> attributes.  It should only be
 applied to L<Pinto::Schema::Result> subclasses, as it will reach into
-the underlying L<Pinto::Schema> object to get at the logger.
+the underlying L<Pinto::Schema> object to get at the repo.
 
 This gives us a back door for injecting additional attributes into
 L<Pinto::Schema::Result> objects, since those are usually created by

@@ -10,19 +10,19 @@ use Carp;
 use IO::String;
 use Path::Class;
 use File::Temp qw(tempdir);
-use Test::Log::Dispatch;
 use Test::Exception;
 
 use Pinto;
 use Pinto::Util;
 use Pinto::Globals;
 use Pinto::Initializer;
-use Pinto::Tester::Util qw(make_dist_struct make_dist_archive parse_reg_spec);
+use Pinto::Chrome::Term;
+use Pinto::Tester::Util qw(:all);
 use Pinto::Types qw(Uri Dir);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -81,10 +81,24 @@ has root => (
 );
 
 
+has outstr => (
+    is      => 'rw',
+    isa     => ScalarRef,
+    default => sub { my $str = ''; return \$str },
+);
+
+
+has errstr => (
+    is      => 'rw',
+    isa     => ScalarRef,
+    default => sub { my $str = ''; return \$str },
+);
+
+
 has tb => (
    is       => 'ro',
    isa      => 'Test::Builder',
-   handles  => [ qw(ok is_eq isnt_eq diag) ],
+   handles  => [ qw(ok is_eq isnt_eq diag like unlike) ],
    default  => sub { my $tb = __PACKAGE__->builder; $tb->level(2); return $tb },
    init_arg => undef,
 );
@@ -101,24 +115,16 @@ sub BUILD { $_[0]->pinto }
 sub _build_pinto {
     my ($self) = @_;
 
-    my %defaults     = ( root => $self->root );
-    my %log_defaults = ( log_handler => Test::Log::Dispatch->new, verbose => 3 );
+    my $chrome = Pinto::Chrome::Term->new( verbose => 2, 
+                                           stdout  => $self->outstr,
+                                           stderr  => $self->errstr );
+
+    my %defaults = ( root => $self->root );
 
     my $initializer = Pinto::Initializer->new;
-    $initializer->init( %defaults, %log_defaults, $self->init_args );
+    $initializer->init( %defaults, $self->init_args );
 
-    my $pinto = Pinto->new(%defaults, %log_defaults, $self->pinto_args);
-    return $pinto;
-}
-
-#------------------------------------------------------------------------------
-
-sub reset_log {
-    my ($self) = @_;
-
-    $self->pinto->logger->log_handler->clear;
-
-    return $self;
+    return Pinto->new(%defaults, chrome => $chrome, $self->pinto_args);
 }
 
 #------------------------------------------------------------------------------
@@ -126,8 +132,8 @@ sub reset_log {
 sub path_exists_ok {
     my ($self, $path, $name) = @_;
 
-    $path = file( $self->root(), @{$path} );
-    $name ||= "Path $path exists";
+    $path = ref $path eq 'ARRAY' ? file( $self->root, @{$path} ) : $path;
+    $name ||= "Path $path should exist";
 
     $self->ok(-e $path, $name);
 
@@ -139,7 +145,7 @@ sub path_exists_ok {
 sub path_not_exists_ok {
     my ($self, $path, $name) = @_;
 
-    $path = file( $self->root(), @{$path} );
+    $path = ref $path eq 'ARRAY' ? file( $self->root, @{$path} ) : $path;
     $name ||= "Path $path should not exist";
 
     $self->ok(! -e $path, $name);
@@ -152,9 +158,11 @@ sub path_not_exists_ok {
 sub run_ok {
     my ($self, $action_name, $args, $test_name) = @_;
 
-    my $result = $self->pinto->run($action_name, %{ $args });
     local $Pinto::Globals::is_interactive = 0;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $self->clear_buffers;
+    my $result = $self->pinto->run($action_name, %{ $args });
     $self->result_ok($result, $test_name);
 
     return $result;
@@ -167,10 +175,12 @@ sub run_throws_ok {
 
     local $Pinto::Globals::is_interactive = 0;
     local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    $self->clear_buffers;
     my $ok = throws_ok { $self->pinto->run($action_name, %{$args}) }
         $error_regex, $test_name;
 
-    $self->diag_log_contents if not $ok;
+    $self->diag_stderr if not $ok;
 
     return $ok;
 }
@@ -195,7 +205,9 @@ sub registration_ok {
         if not $reg;
 
 
+    #-------------------------------------
     # Test package object...
+
     my $pkg = $reg->package;
     $self->is_eq($pkg->name,    $pkg_name, "Package has correct name");
     $self->is_eq($pkg->version, $pkg_ver,  "Package has correct version");
@@ -211,12 +223,18 @@ sub registration_ok {
     $self->ok(!$reg->is_pinned, "Registration $reg should not be pinned") 
         if not $is_pinned;
 
-
+    #-------------------------------------
     # Test file paths...
+    
     local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     $self->path_exists_ok( [qw(authors id), $author_dir, 'CHECKSUMS'] );
-    $self->path_exists_ok( ['stacks', $stack_name, qw(authors id), $dist->native_path] );
-    $self->path_exists_ok( [ qw(authors id), $dist->native_path ] );
+
+    # Reach file through the stack's authors/id directory
+    $self->path_exists_ok( $dist->native_path($stack->authors_dir->subdir('id')) );
+
+    # Reach file through the top authors/id directory 
+    $self->path_exists_ok( $dist->native_path );
 
     return;
 }
@@ -247,23 +265,23 @@ sub registration_not_ok {
 #------------------------------------------------------------------------------
 
 sub result_ok {
-    my ($self, $result, $test_name) = @_;
+    my ($self, $result) = @_;
 
-    $test_name ||= 'Result indicates action was succesful';
+    my $test_name = 'Result indicates action was succesful';
     my $ok = $self->ok($result->was_successful, $test_name);
-    $self->diag_log_contents if not $ok;
+    $self->diag_stderr if not $ok;
 
-    return $ok;
+    return;
 }
 
 #------------------------------------------------------------------------------
 
 sub result_not_ok {
-    my ($self, $result, $test_name) = @_;
+    my ($self, $result) = @_;
 
-    $test_name ||= 'Result indicates action was not succesful';
+    my $test_name = 'Result indicates action was not succesful';
     my $ok = $self->ok(!$result->was_successful, $test_name);
-    $self->diag_log_contents if not $ok;
+    $self->diag_stderr if not $ok;
 
     return;
 }
@@ -271,25 +289,25 @@ sub result_not_ok {
 #------------------------------------------------------------------------------
 
 sub result_changed_ok {
-    my ($self, $result, $test_name) = @_;
+    my ($self, $result) = @_;
 
-    $test_name ||= 'Result indicates changes were made';
+    my $test_name = 'Result indicates changes were made';
     my $ok = $self->ok( $result->made_changes, $test_name );
-    $self->diag_log_contents if not $ok;
+    $self->diag_stderr if not $ok;
 
-    return $ok;
+    return;
 }
 
 #------------------------------------------------------------------------------
 
 sub result_not_changed_ok {
-    my ($self, $result, $test_name) = @_;
+    my ($self, $result) = @_;
 
-    $test_name ||= 'Result indicates changes were not made';
+    my $test_name = 'Result indicates changes were not made';
     my $ok = $self->ok( !$result->made_changes, $test_name );
-    $self->diag_log_contents if not $ok;
+    $self->diag_stderr if not $ok;
 
-    return $ok;
+    return;
 }
 
 #------------------------------------------------------------------------------
@@ -310,7 +328,7 @@ sub repository_clean_ok {
     $self->is_eq($stack->name, 'master',  'The stack is called "master"');
     $self->is_eq($stack->is_default, 1,  'The stack is marked as default');
 
-    my $authors_id_dir = $self->pinto->config->authors_id_dir;
+    my $authors_id_dir = $self->pinto->repo->config->authors_id_dir;
     $self->ok(! -e $authors_id_dir, 'The authors/id dir should be gone');
 
     return;
@@ -318,38 +336,53 @@ sub repository_clean_ok {
 
 #------------------------------------------------------------------------------
 
-sub diag_log_contents {
+sub diag_stderr {
     my ($self) = @_;
-    my $msgs = $self->pinto->logger->log_handler->msgs;
+    my $errs = ${ $self->errstr };
     $self->diag('Log messages are...');
-    $self->diag($_->{message}) for @$msgs;
-    $self->diag('No log messages seen') if not @$msgs;
+    $self->diag($errs)
 }
 
 #------------------------------------------------------------------------------
 
-sub log_like {
+sub stdout_like {
     my ($self, $rx, $name) = @_;
 
-    $name ||= 'Log output matches';
-
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
-
-    $self->pinto->logger->log_handler->contains_ok($rx, $name);
+    $name ||= 'stdout output matches';
+    $self->like(${ $self->outstr }, $rx, $name);
 
     return;
 }
 
 #------------------------------------------------------------------------------
 
-sub log_unlike {
+sub stdout_unlike {
     my ($self, $rx, $name) = @_;
 
-    $name ||= 'Log output does not match';
+    $name ||= 'stdout does not match';
+    $self->unlike(${ $self->outstr }, $rx, $name);
 
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    return;
+}
 
-    $self->pinto->logger->log_handler->does_not_contain_ok($rx, $name);
+#------------------------------------------------------------------------------
+
+sub stderr_like {
+    my ($self, $rx, $name) = @_;
+
+    $name ||= 'stderr output matches';
+    $self->like(${ $self->errstr }, $rx, $name);
+
+    return;
+}
+
+#------------------------------------------------------------------------------
+
+sub stderr_unlike {
+    my ($self, $rx, $name) = @_;
+
+    $name ||= 'stderr does not match';
+    $self->unlike(${ $self->errstr }, $rx, $name);
 
     return;
 }
@@ -376,7 +409,7 @@ sub stack_is_default_ok {
 
     $self->is_eq($inode1, $inode2, "The modules dir is linked to $stack $test_name");
 
-    return;
+    return $stack;
 }
 
 #------------------------------------------------------------------------------
@@ -398,21 +431,19 @@ sub stack_is_not_default_ok {
     $test_name ||= "The modules dir is not linked to stack $stack";
     $self->isnt_eq($inode1, $inode2, $test_name);
 
-    return;
+    return $stack;
 }
 
 #------------------------------------------------------------------------------
 
 sub no_default_stack_ok {
-    my ($self, $test_name) = @_;
-
-    $test_name ||= '';
+    my ($self) = @_;
 
     my $stack = eval { $self->pinto->repo->get_stack };
-    $self->ok(!$stack, "No stack is marked as default $test_name");
+    $self->ok(!$stack, "No stack is marked as default");
 
     my $modules_dir = $self->pinto->repo->config->modules_dir; 
-    $self->ok(! -l $modules_dir, "The modules dir is not linked anywhere $test_name");
+    $self->ok(! -l $modules_dir, "The modules dir is not linked anywhere");
 
     return;
 }
@@ -420,15 +451,13 @@ sub no_default_stack_ok {
 #------------------------------------------------------------------------------
 
 sub stack_exists_ok {
-    my ($self, $stack_name, $test_name) = @_;
-
-    $test_name ||= '';
+    my ($self, $stack_name) = @_;
 
     my $stack = $self->pinto->repo->get_stack($stack_name);
-    $self->ok($stack, "Stack $stack_name exists in DB $test_name");
+    $self->ok($stack, "Stack $stack_name should exist in DB");
 
     my $stack_dir = $self->pinto->repo->config->stacks_dir->subdir($stack_name);
-    $self->ok(-e $stack_dir, "Directory for $stack_name exists $test_name");
+    $self->ok(-e $stack_dir, "Directory for $stack_name should exist");
 
     return $stack;
 }
@@ -436,15 +465,13 @@ sub stack_exists_ok {
 #------------------------------------------------------------------------------
 
 sub stack_not_exists_ok {
-    my ($self, $stack_name, $test_name) = @_;
-
-    $test_name ||= '';
+    my ($self, $stack_name) = @_;
 
     my $stack = eval { $self->pinto->repo->get_stack($stack_name) };
-    $self->ok(!$stack, "Stack $stack_name does not exist in DB $test_name");
+    $self->ok(!$stack, "Stack $stack_name should not exist in DB");
 
     my $stack_dir = $self->pinto->repo->config->stacks_dir->subdir($stack_name);
-    $self->ok(!-e $stack_dir, "Directory for $stack_name does not exist $test_name");
+    $self->ok(!-e $stack_dir, "Directory for $stack_name should not exist");
 
     return;
 }
@@ -452,13 +479,11 @@ sub stack_not_exists_ok {
 #------------------------------------------------------------------------------
 
 sub stack_is_locked_ok {
-    my ($self, $stack_name, $test_name) = @_;
-
-    $test_name ||= '';
+    my ($self, $stack_name) = @_;
 
     my $stack = eval { $self->pinto->repo->get_stack($stack_name) };
-    $self->ok($stack, "Stack $stack_name exists in DB $test_name") or return;
-    $self->ok($stack->is_locked, "Stack $stack_name is locked");
+    $self->ok($stack, "Stack $stack_name should exist in DB") or return;
+    $self->ok($stack->is_locked, "Stack $stack_name should be locked");
 
     return;
 }
@@ -466,13 +491,11 @@ sub stack_is_locked_ok {
 #------------------------------------------------------------------------------
 
 sub stack_is_not_locked_ok {
-    my ($self, $stack_name, $test_name) = @_;
-
-    $test_name ||= '';
+    my ($self, $stack_name) = @_;
 
     my $stack = eval { $self->pinto->repo->get_stack($stack_name) };
-    $self->ok($stack, "Stack $stack_name exists in DB $test_name") or return;
-    $self->ok(!$stack->is_locked, "Stack $stack_name is not locked");
+    $self->ok($stack, "Stack $stack_name should exist in DB") or return;
+    $self->ok(!$stack->is_locked, "Stack $stack_name should not be locked");
 
     return;
 }
@@ -511,6 +534,17 @@ sub clear_cache {
 
 #------------------------------------------------------------------------------
 
+sub clear_buffers {
+    my ($self) = @_;
+
+    $self->pinto->chrome->stderr->truncate;
+    $self->pinto->chrome->stdout->truncate;
+
+    return $self;
+}
+
+#------------------------------------------------------------------------------
+
 sub stack_url {
     my ($self, $stack_name) = @_;
 
@@ -534,7 +568,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

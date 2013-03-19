@@ -9,12 +9,12 @@ use File::Temp;
 use Path::Class;
 use LWP::UserAgent;
 
-use Pinto::Util qw(itis);
+use Pinto::Util qw(itis debug);
 use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -27,11 +27,6 @@ has ua => (
 );
 
 #------------------------------------------------------------------------------
-# Roles
-
-with qw( Pinto::Role::Loggable );
-
-#------------------------------------------------------------------------------
 
 
 sub fetch {
@@ -41,7 +36,7 @@ sub fetch {
     my $from_uri = _make_uri($from);
     my $to       = itis($args{to}, 'Path::Class') ? $args{to} : file($args{to});
 
-    $self->debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
+    debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
 
     $to->parent->mkpath if not -e $to->parent;
     my $has_changed = $self->_fetch($from_uri, $to);
@@ -73,7 +68,7 @@ sub fetch_temporary {
 sub _fetch {
     my ($self, $url, $to) = @_;
 
-    $self->debug("Fetching $url");
+    debug("Fetching $url");
 
     my $result = eval { $self->ua->mirror($url, $to) }
         or throw $@;
@@ -137,7 +132,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 METHODS
 

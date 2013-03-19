@@ -38,8 +38,6 @@ $source->populate('PAUL/Nuts-2.3 = Nuts~2.3');
   # Re-pulling
   $result = $local->run_ok('Pull', {targets => 'Baz~1.2'});
   $local->result_not_changed_ok($result);
-  $local->log_like(qr{Package JOHN/Baz-1.2/Baz~1.2 is already on stack});
-  $local->log_like(qr{Package PAUL/Nuts-2.3/Nuts~2.3 is already on stack});
 }
 
 #------------------------------------------------------------------------------
@@ -54,8 +52,6 @@ $source->populate('PAUL/Nuts-2.3 = Nuts~2.3');
   # Re-pulling
   $result = $local->run_ok('Pull', {targets => 'JOHN/Baz-1.2.tar.gz'});
   $local->result_not_changed_ok($result);
-  $local->log_like(qr{Package JOHN/Baz-1.2/Baz~1.2 is already on stack});
-  $local->log_like(qr{Package PAUL/Nuts-2.3/Nuts~2.3 is already on stack});
 }
 
 #------------------------------------------------------------------------------
@@ -84,6 +80,8 @@ $source->populate('PAUL/Nuts-2.3 = Nuts~2.3');
   # Pull a core-only module (should be ignored)
   my $local = Pinto::Tester->new(init_args => {sources => $source->stack_url});
   $local->run_ok(Pull => {targets => 'IPC::Open3'});
+  $local->stderr_like(qr/Skipping IPC::Open3~0: included in perl/);
+  $local->repository_clean_ok;
 
 }
 

@@ -16,7 +16,7 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -27,6 +27,8 @@ our @EXPORT_OK = qw( make_dist_obj
                      parse_pkg_spec
                      parse_dist_spec
                      parse_reg_spec );
+
+our %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 #-------------------------------------------------------------------------------
 
@@ -170,7 +172,7 @@ Pinto::Tester::Util - Static helper functions for testing
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

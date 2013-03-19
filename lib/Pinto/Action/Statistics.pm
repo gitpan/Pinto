@@ -10,7 +10,7 @@ use Pinto::Statistics;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -31,10 +31,9 @@ sub execute {
 
     my $stack = $self->repo->get_stack($self->stack);
 
-    my $stats = Pinto::Statistics->new( repo  => $self->repo,
-                                        stack => $stack );
-
-    $self->say($stats->to_formatted_string);
+    my $stats = Pinto::Statistics->new(stack => $stack);
+    
+    $self->show($stats->to_string);
 
     return $self->result;
 }
@@ -59,7 +58,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

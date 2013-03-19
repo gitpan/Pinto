@@ -11,7 +11,7 @@ use Pinto::Types qw(DistSpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -45,8 +45,13 @@ sub execute {
     my ($self) = @_;
 
     for my $target ( $self->targets ) {
+
         my $dist = $self->repo->get_distribution(spec => $target);
+        
         throw "Distribution $target is not in the repository" if not defined $dist;
+
+        $self->notice("Deleting $dist from the repository");
+        
         $self->repo->delete_distribution(dist => $dist, force => $self->force);
     }
 
@@ -73,7 +78,7 @@ Pinto::Action::Delete - Delete archives from the repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

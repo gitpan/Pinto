@@ -9,30 +9,22 @@ use String::Format;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
-# Attributes
 
 has stack => (
-    is      => 'ro',
-    isa     => 'Pinto::Schema::Result::Stack',
-);
-
-
-has repo => (
     is       => 'ro',
-    isa      => 'Pinto::Repository',
+    isa      => 'Pinto::Schema::Result::Stack',
     required => 1,
 );
 
 #------------------------------------------------------------------------------
-# Methods
 
 sub total_distributions {
     my ($self) = @_;
 
-    return $self->repo->db->schema->distribution_rs->count;
+    return $self->stack->repo->distribution_count;
 }
 
 #------------------------------------------------------------------------------
@@ -48,7 +40,7 @@ sub stack_distributions {
 sub total_packages {
     my ($self) = @_;
 
-    return $self->repo->db->schema->package_rs->count;
+    return $self->stack->repo->package_count;
 }
 
 #------------------------------------------------------------------------------
@@ -75,7 +67,7 @@ sub stack_packages {
 
 #------------------------------------------------------------------------------
 
-sub to_formatted_string {
+sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
@@ -127,7 +119,7 @@ Pinto::Statistics - Report statistics about a Pinto repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

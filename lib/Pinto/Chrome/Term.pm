@@ -1,0 +1,233 @@
+# ABSTRACT: Interface for terminal-based interaction
+
+package Pinto::Chrome::Term;
+
+use Moose;
+use MooseX::StrictConstructor;
+use MooseX::Types::Moose qw(Bool ArrayRef);
+use MooseX::MarkAsMethods (autoclean => 1);
+
+use Carp;
+use Term::ANSIColor ();
+
+use Pinto::Types qw(Io);
+use Pinto::Exception qw(throw);
+use Pinto::Util qw(user_colors is_interactive itis);
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '0.065_03'; # VERSION
+
+#-----------------------------------------------------------------------------
+
+extends qw( Pinto::Chrome );
+
+#-----------------------------------------------------------------------------
+
+has no_color => (
+    is       => 'ro',
+    isa      => Bool,
+    default  => sub { return !!$ENV{PINTO_NO_COLOR} or 0 },
+);
+
+
+has colors => (
+    is        => 'ro',
+    isa       => ArrayRef,
+    default   => sub { return user_colors },
+    lazy      => 1,
+);
+
+
+has stdout => (
+    is      => 'ro',
+    isa     => Io,
+    builder => '_build_stdout',
+    coerce  => 1,
+    lazy    => 1,
+);
+
+
+has stderr => (
+    is      => 'ro',
+    isa     => Io,
+    default => sub { [fileno(*STDERR), '>'] },
+    coerce  => 1,
+    lazy    => 1,
+);
+
+
+#-----------------------------------------------------------------------------
+
+sub BUILD {
+    my ($self) = @_;
+
+    my @colors = @{ $self->colors };
+
+    throw "Must specify exactly three colors" if @colors != 3;
+
+    Term::ANSIColor::colorvalid($_) || throw "Color $_ is not valid" for @colors;
+
+    return $self;
+};
+
+#------------------------------------------------------------------------------
+
+sub _build_stdout {
+    my ($self) = @_;
+
+    my $stdout = [fileno(*STDOUT), '>'];
+    my $pager = $ENV{PINTO_PAGER} || $ENV{PAGER};
+
+    return $stdout if not is_interactive;
+    return $stdout if not $pager;
+
+    open my $pager_fh, q<|->, $pager
+        or throw "Failed to open pipe to pager $pager: $!";
+
+    return bless $pager_fh, 'IO::Handle'; # HACK!
+}
+
+#------------------------------------------------------------------------------
+
+sub show { 
+    my ($self, $msg, $opts) = @_;
+
+    $opts ||= {};
+
+    $msg = $self->colorize($msg, $opts->{color});
+
+    $msg .= "\n" unless $opts->{no_newline};
+
+    print { $self->stdout } $msg or croak $!;
+
+    return $self
+}
+
+#-----------------------------------------------------------------------------
+
+sub diag {
+    my ($self, $msg, $opts) = @_;
+
+    $opts ||= {};
+
+    $msg = $msg->() if ref $msg eq 'CODE';
+
+    if ( itis($msg, 'Pinto::Exception') ) {
+        # Show full stack trace if we are debugging
+        $msg = $ENV{PINTO_DEBUG} ? $msg->as_string : $msg->message;
+    }
+
+
+    $msg = $self->colorize($msg, $opts->{color});
+
+    $msg .= "\n" unless $opts->{no_newline};
+
+    print { $self->stderr } $msg or croak $!;
+}
+
+#-----------------------------------------------------------------------------
+
+sub should_show_progress {
+    my ($self) = @_;
+
+    return 0 if not is_interactive;
+    return 0 if $self->verbose;
+    return 0 if $self->quiet;
+    return 1;
+};
+
+#-----------------------------------------------------------------------------
+
+sub show_progress {
+    my ($self) = @_;
+
+    return if not $self->should_show_progress;
+
+    # Make sure pipes are hot
+    $self->stderr->autoflush;
+    print {$self->stderr} '.' or croak $!;
+}
+
+#-----------------------------------------------------------------------------
+
+sub progress_done {
+    my ($self) = @_;
+
+    return unless $self->should_show_progress;
+
+    print {$self->stderr} "\n" or croak $!;
+}
+
+#-----------------------------------------------------------------------------
+
+sub colorize {
+    my ($self, $string, $color_number) = @_;
+
+    return ''      if not $string;
+    return $string if not defined $color_number;
+    return $string if $self->no_color;
+
+    my $color = $self->get_color($color_number);
+
+    return $color . $string . Term::ANSIColor::color('reset');
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_color {
+    my ($self, $color_number) = @_;
+
+    return '' if not defined $color_number;
+
+    my $color = $self->colors->[$color_number];
+
+    throw "Invalid color number: $color_number" if not defined $color;
+
+    return Term::ANSIColor::color($color);
+}
+
+#-----------------------------------------------------------------------------
+
+my %color_map = (warning => 1, error => 2);
+while ( my ($level, $color) = each %color_map)  {
+    around $level => sub {
+        my ($orig, $self, $msg, $opts) = @_;
+        $opts ||= {}; $opts->{color} = $color;
+        return $self->$orig($msg, $opts); 
+    }; 
+}
+
+#-----------------------------------------------------------------------------
+
+__PACKAGE__->meta->make_immutable;
+
+#-----------------------------------------------------------------------------
+1;
+
+__END__
+
+=pod
+
+=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
+
+=head1 NAME
+
+Pinto::Chrome::Term - Interface for terminal-based interaction
+
+=head1 VERSION
+
+version 0.065_03
+
+=head1 AUTHOR
+
+Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Imaginative Software Systems.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

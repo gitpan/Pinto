@@ -28,44 +28,22 @@ warn "You will see some messages from cpanm, don't be alarmed...\n";
 
 #------------------------------------------------------------------------------
 
-my $t = Pinto::Tester->new;
-$t->populate('JOHN/DistA-1 = PkgA~1 & PkgB~1,PkgC~1');
-$t->populate('PAUL/DistB-1 = PkgB~1 & PkgD~2');
-$t->populate('MARK/DistC-1 = PkgC~1');
-$t->populate('MARK/DistC-2 = PkgC~2,PkgD~2');
+my $upstream = Pinto::Tester->new;
+$upstream->populate('JOHN/DistA-1 = PkgA~1');
+
+my $local = Pinto::Tester->new(init_args => {sources => $upstream->stack_url});
+$local->populate('MARK/DistB-1 = PkgB~1 & PkgA~1');
 
 #------------------------------------------------------------------------------
 
 {
-
   my $sandbox = File::Temp->newdir;
   my $p5_dir = dir($sandbox, qw(lib perl5));
   my %cpanm_opts = (cpanm_options => {q => undef, L => $sandbox->dirname});
-  $t->run_ok(Install => {targets => ['PkgA'], %cpanm_opts});
+  $local->run_ok(Install => {targets => ['PkgB'], %cpanm_opts, do_pull =>1});
+
   file_exists_ok($p5_dir->file('PkgA.pm'));
   file_exists_ok($p5_dir->file('PkgB.pm'));
-  file_exists_ok($p5_dir->file('PkgC.pm'));
-  file_exists_ok($p5_dir->file('PkgD.pm'));
-}
-
-#------------------------------------------------------------------------------
-
-{
-
-  # Make a new stack, and pull over one dist
-  $t->run_ok('New'  => {stack => 'dev'} );
-  $t->run_ok('Pull' => {targets => 'MARK/DistC-1.tar.gz', stack => 'dev'});
-
-  my $sandbox = File::Temp->newdir;
-  my $p5_dir = dir($sandbox, qw(lib perl5));
-  my %cpanm_opts = (cpanm_options => {q => undef, L => $sandbox->dirname});
-  $t->run_ok(Install => {targets => ['PkgC'], stack => 'dev', %cpanm_opts});
-
-  file_exists_ok($p5_dir->file('PkgC.pm'));
-
-
-  $t->run_throws_ok(Install => {targets => ['PkgA'], stack => 'dev', %cpanm_opts},
-                    qr/Installation failed/);
 }
 
 #------------------------------------------------------------------------------

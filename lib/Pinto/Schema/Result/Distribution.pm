@@ -89,7 +89,7 @@ use Path::Class;
 use CPAN::DistnameInfo;
 use String::Format;
 
-use Pinto::Util qw(itis);
+use Pinto::Util qw(itis debug whine);
 use Pinto::Exception qw(throw);
 use Pinto::DistributionSpec;
 
@@ -98,7 +98,7 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -129,7 +129,6 @@ sub register {
     my $stack  = $args{stack};
     my $pin    = $args{pin};
     my $did_register = 0;
-    my $errors       = 0;
 
     $stack->assert_is_open;
     $stack->assert_not_locked;
@@ -144,7 +143,7 @@ sub register {
       my $incumbent = $stack->head->find_related(registrations => $where);
 
       if (not defined $incumbent) {
-          $self->debug(sub {"Registering $pkg on stack $stack"} );
+          debug( sub {"Registering $pkg on stack $stack"} );
           $pkg->register(stack => $stack, pin => $pin);
           $did_register++;
           next;
@@ -153,7 +152,7 @@ sub register {
       my $incumbent_pkg = $incumbent->package;
 
       if ( $incumbent_pkg == $pkg ) {
-        $self->debug( sub {"Package $pkg is already on stack $stack"} );
+        debug( sub {"Package $pkg is already on stack $stack"} );
         $incumbent->pin && $did_register++ if $pin and not $incumbent->is_pinned;
         next;
       }
@@ -161,21 +160,18 @@ sub register {
 
       if ( $incumbent->is_pinned ) {
         my $pkg_name = $pkg->name;
-        $self->error("Cannot add $pkg to stack $stack because $pkg_name is pinned to $incumbent_pkg");
-        $errors++;
-        next;
+        throw "Unable to register distribution $self: package $pkg_name is pinned to $incumbent_pkg";
       }
 
-      my ($log_as, $direction) = ($incumbent_pkg > $pkg) ? ('warning', 'Downgrading')
-                                                         : ('notice',  'Upgrading');
+      whine "Downgrading package $incumbent_pkg to $pkg on stack $stack"
+        if $incumbent_pkg > $pkg;
+ 
 
       $incumbent->delete;
-      $self->$log_as("$direction package $incumbent_pkg to $pkg in stack $stack");
       $pkg->register(stack => $stack, pin => $pin);
       $did_register++;
     }
 
-    throw "Unable to register distribution $self on stack $stack" if $errors;
 
     $stack->mark_as_changed if $did_register;
 
@@ -200,7 +196,7 @@ sub unregister {
 
     if ($reg->is_pinned and not $force ) {
       my $pkg = $reg->package;
-      $self->warning("Cannot unregister package $pkg because it is pinned to stack $stack");
+      whine "Cannot unregister package $pkg because it is pinned to stack $stack";
       $conflicts++;
       next;
     }
@@ -231,10 +227,7 @@ sub pin {
     my $where = {revision => $rev->id, is_pinned => 0};
     my $regs  = $self->registrations($where);
     
-    if (! $regs->count) {
-      $self->warning("Distribution $self is already pinned on stack $stack");
-      return 0;
-    }
+    return 0 if not $regs->count;
 
     $regs->update( {is_pinned => 1} );
     $stack->mark_as_changed;
@@ -256,10 +249,7 @@ sub unpin {
     my $where = {revision => $rev->id, is_pinned => 1};
     my $regs  = $self->registrations($where);
 
-    if (! $regs->count) {
-      $self->warning("Distribution $self is not pinned on stack $stack");
-      return 0;
-    }
+    return 0 if not $regs->count;
 
     $regs->update( {is_pinned => 0} );
     $stack->mark_as_changed;
@@ -295,10 +285,12 @@ has is_devel => (
 sub path {
     my ($self) = @_;
 
-    return join '/', substr($self->author, 0, 1),
-                     substr($self->author, 0, 2),
-                     $self->author,
-                     $self->archive;
+    return join '/', (
+        substr($self->author, 0, 1),
+        substr($self->author, 0, 2),
+        $self->author,
+        $self->archive
+    );
 }
 
 #------------------------------------------------------------------------------
@@ -306,11 +298,15 @@ sub path {
 sub native_path {
     my ($self, @base) = @_;
 
-    return Path::Class::file( @base,
-                              substr($self->author, 0, 1),
-                              substr($self->author, 0, 2),
-                              $self->author,
-                              $self->archive );
+    @base = ($self->repo->config->authors_id_dir) if not @base;
+
+    return Path::Class::file(
+        @base,
+        substr($self->author, 0, 1),
+        substr($self->author, 0, 2),
+        $self->author,
+        $self->archive 
+    );
 }
 
 #------------------------------------------------------------------------------
@@ -414,21 +410,21 @@ sub to_string {
     my ($self, $format) = @_;
 
     my %fspec = (
-         'd' => sub { $self->name()                           },
-         'D' => sub { $self->vname()                          },
-         'V' => sub { $self->version()                        },
-         'm' => sub { $self->is_devel()   ? 'd' : 'r'         },
-         'h' => sub { $self->path()                           },
-         'H' => sub { $self->native_path()                    },
-         'f' => sub { $self->archive()                        },
-         's' => sub { $self->is_local()   ? 'l' : 'f'         },
-         'S' => sub { $self->source()                         },
-         'a' => sub { $self->author()                         },
-         'u' => sub { $self->url()                            },
-         'c' => sub { $self->package_count()                  },
+         'd' => sub { $self->name                           },
+         'D' => sub { $self->vname                          },
+         'V' => sub { $self->version                        },
+         'm' => sub { $self->is_devel   ? 'd' : 'r'         },
+         'h' => sub { $self->path                           },
+         'H' => sub { $self->native_path                    },
+         'f' => sub { $self->archive                        },
+         's' => sub { $self->is_local   ? 'l' : 'f'         },
+         'S' => sub { $self->source                         },
+         'a' => sub { $self->author                         },
+         'u' => sub { $self->url                            },
+         'c' => sub { $self->package_count                  },
     );
 
-    $format ||= $self->default_format();
+    $format ||= $self->default_format;
     return String::Format::stringf($format, %fspec);
 }
 
@@ -459,7 +455,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 NAME
 

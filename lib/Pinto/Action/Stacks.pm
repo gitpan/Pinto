@@ -3,22 +3,20 @@
 package Pinto::Action::Stacks;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Str);
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use List::Util qw(max);
 
+use Pinto::Constants qw(:color);
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends 'Pinto::Action';
-
-#------------------------------------------------------------------------------
-
-with 'Pinto::Role::Colorable';
 
 #------------------------------------------------------------------------------
 
@@ -42,11 +40,10 @@ sub execute {
 	for my $stack (@stacks) {
 		my $string = $stack->to_string($format);
 
-		my $color =   $stack->is_default ? $self->color_1 
-		            : $stack->is_locked  ? $self->color_3 : undef;
+		my $color =   $stack->is_default ? $PINTO_COLOR_0 
+		            : $stack->is_locked  ? $PINTO_COLOR_2 : undef;
 
-		$string = $self->colorize_with_color($string, $color);
-		$self->say( $string ); 
+		$self->show($string, {color => $color}); 
 	}
 
 
@@ -73,7 +70,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

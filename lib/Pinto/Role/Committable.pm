@@ -10,13 +10,22 @@ use Try::Tiny;
 
 use Pinto::CommitMessage;
 use Pinto::Exception qw(throw);
+use Pinto::Types qw(StackName StackDefault StackObject);
 use Pinto::Util qw(is_interactive interpolate);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
+
+has stack   => (
+    is      => 'ro',
+    isa     => StackName | StackDefault | StackObject,
+    writer  => '_set_stack',
+    default => undef,
+);  
+
 
 has dry_run => (
     is      => 'ro',
@@ -24,11 +33,13 @@ has dry_run => (
     default => 0,
 );
 
+
 has message => (
     is        => 'ro',
     isa       => Str,
     predicate => 'has_message',
 );
+
 
 has use_default_message => (
     is         => 'ro',
@@ -42,24 +53,41 @@ requires qw( execute repo );
 
 #------------------------------------------------------------------------------
 
+around BUILD => sub {
+    my ($orig, $self) = @_;
+
+    $self->_set_stack( $self->repo->get_stack($self->stack) );
+
+    return $self->$orig;
+};
+
+#------------------------------------------------------------------------------
+
+
 around execute => sub {
     my ($orig, $self, @args) = @_;
 
     $self->repo->txn_begin;
+    my $stack = $self->stack->start_revision;
 
-    my $result = try   { $self->$orig(@args) }
-                 catch { $self->repo->txn_rollback; die $_ };
+    my @ok = try   { $self->$orig(@args) }
+             catch { $self->repo->txn_rollback; die $_ };
 
     if ($self->dry_run) {
         $self->notice('Dry run -- rolling back database');
         $self->repo->txn_rollback;
         $self->repo->clean_files;
     }
-    elsif (not $result->made_changes) {
+    elsif ($stack->refresh->has_not_changed) {
         $self->notice('No changes were actually made');
         $self->repo->txn_rollback;
     }
     else {
+        my $msg_title = $self->generate_message_title(@ok);
+        my $msg = $self->compose_message(title => $msg_title, stack => $stack);
+        $stack->commit_revision(message => $msg);
+
+        $self->result->changed;
         $self->repo->txn_commit;
     }
 
@@ -72,7 +100,7 @@ sub compose_message {
     my ($self, %args) = @_;
 
     my $title   = $args{title} || '';
-    my $stack   = $args{stack} || throw "Must specify a stack";
+    my $stack   = $args{stack} || throw 'Must specify a stack';
     my $diff    = $args{diff}  || $stack->diff;
 
     return interpolate($self->message)
@@ -122,7 +150,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

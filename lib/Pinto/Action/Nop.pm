@@ -3,12 +3,13 @@
 package Pinto::Action::Nop;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Int);
 use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -28,11 +29,11 @@ sub execute {
     my ($self) = @_;
 
     if (my $sleep = $self->sleep) {
-        $self->debug("Process $$ sleeping for $sleep seconds");
+        $self->notice("Process $$ sleeping for $sleep seconds");
         sleep $self->sleep;
     }
 
-    return $self->result->new;
+    return $self->result;
 }
 
 #------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 DESCRIPTION
 

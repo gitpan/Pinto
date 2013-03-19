@@ -3,22 +3,19 @@
 package Pinto::Action::Unpin;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Pinto::Types qw(SpecList StackName StackDefault StackObject);
+use Pinto::Types qw(SpecList);
 use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
 extends qw( Pinto::Action );
-
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
@@ -30,29 +27,20 @@ has targets => (
     coerce   => 1,
 );
 
+#------------------------------------------------------------------------------
 
-has stack => (
-    is        => 'ro',
-    isa       => StackName | StackDefault | StackObject,
-    default   => undef,
-);
+with qw( Pinto::Role::Committable );
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack($self->stack)->start_revision;
+    my $stack = $self->stack;
 
     my @dists = map { $self->_unpin($_, $stack) } $self->targets;
-    return $self->result if $self->dry_run or $stack->has_not_changed;
 
-    my $msg_title = $self->generate_message_title(@dists);
-    my $msg = $self->compose_message(stack => $stack, title => $msg_title);
-
-    $stack->commit_revision(message => $msg);
-
-    return $self->result->changed;
+    return @dists;
 }
 
 #------------------------------------------------------------------------------
@@ -67,6 +55,8 @@ sub _unpin {
     $self->notice("Unpinning distribution $dist from stack $stack");
 
     my $did_unpin = $dist->unpin(stack => $stack);
+
+    $self->warning("Distribution $dist is not pinned to stack $stack") unless $did_unpin;
 
     return $did_unpin ? $dist : ();
 }
@@ -91,7 +81,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

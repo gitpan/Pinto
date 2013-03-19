@@ -1,36 +1,22 @@
-# ABSTRACT: Something that has a configuration
+# ABSTRACT: Something that has chrome plating
 
-package Pinto::Role::Configurable;
+package Pinto::Role::Plated;
 
 use Moose::Role;
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Pinto::Config;
+#-----------------------------------------------------------------------------
+
+our $VERSION = '0.065_03'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
-
-#-----------------------------------------------------------------------------
-
-has config => (
+has chrome => (
     is         => 'ro',
-    isa        => 'Pinto::Config',
-    handles    => [ qw( root root_dir ) ],
+    isa        => 'Pinto::Chrome',
+    handles    => [ qw(show info notice warning error) ],
     required   => 1,
 );
-
-#-----------------------------------------------------------------------------
-
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
-
-    my $args = $class->$orig(@_);
-
-    $args->{config} ||= Pinto::Config->new( $args );
-    return $args;
-};
 
 #-----------------------------------------------------------------------------
 1;
@@ -43,11 +29,11 @@ __END__
 
 =head1 NAME
 
-Pinto::Role::Configurable - Something that has a configuration
+Pinto::Role::Plated - Something that has chrome plating
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

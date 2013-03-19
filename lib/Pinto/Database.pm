@@ -3,21 +3,30 @@
 package Pinto::Database;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Path::Class qw(file);
 use File::ShareDir qw(dist_file);
 
 use Pinto::Schema;
+use Pinto::Util qw(debug);
 use Pinto::Types qw(File);
 use Pinto::Exception qw(throw);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #-------------------------------------------------------------------------------
-# Attributes
+
+has repo => (
+   is         => 'ro',
+   isa        => 'Pinto::Repository',
+   weak_ref   => 1,
+   required   => 1,
+);
+
 
 has schema => (
    is         => 'ro',
@@ -25,14 +34,6 @@ has schema => (
    builder    => '_build_schema',
    init_arg   => undef,
    lazy       => 1,
-);
-
-
-has repo => (
-   is         => 'ro',
-   isa        => 'Pinto::Repository',
-   weak_ref   => 1,
-   required   => 1,
 );
 
 
@@ -45,20 +46,13 @@ has ddl_file => (
 );
 
 #-------------------------------------------------------------------------------
-# Roles
-
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
-
-#-------------------------------------------------------------------------------
-# Builders
 
 sub _build_schema {
     my ($self) = @_;
 
     my $schema = Pinto::Schema->new;
 
-    my $db_file = $self->config->db_file;
+    my $db_file = $self->repo->config->db_file;
     my $dsn     = "dbi:SQLite:$db_file";
     my $xtra    = {on_connect_call => 'use_foreign_keys'};
     my @args    = ($dsn, undef, undef, $xtra);
@@ -66,7 +60,6 @@ sub _build_schema {
     my $connected = $schema->connect(@args);
 
     # Inject attributes thru back door
-    $connected->logger($self->logger);
     $connected->repo($self->repo);
 
     # Tune sqlite (taken from monotone)...
@@ -103,13 +96,12 @@ sub _build_schema {
 sub deploy {
     my ($self) = @_;
 
-    $self->config->db_dir->mkpath;
-
-    my $dbh = $self->schema->storage->dbh;
-    my $ddl = $self->ddl_file->slurp;
+    my $db_dir = $self->repo->config->db_dir;
+    debug("Makding db directory at $db_dir");
+    $db_dir->mkpath;
 
     my $guard = $self->schema->storage->txn_scope_guard;
-    $dbh->do("$_;") for split /;/, $ddl;
+    $self->create_database_schema;
     $self->create_root_revision;
     $guard->commit;
 
@@ -118,12 +110,28 @@ sub deploy {
 
 #-------------------------------------------------------------------------------
 
+sub create_database_schema {
+    my ($self) = @_;
+
+    my $ddl_file = $self->ddl_file;
+    debug("Creating database schema from $ddl_file");
+
+    my $dbh = $self->schema->storage->dbh;
+    
+    $dbh->do("$_;") for split /;/, $ddl_file->slurp;
+
+    return $self;
+}
+#-------------------------------------------------------------------------------
+
 sub create_root_revision {
     my ($self) = @_;
 
     my $attrs = { uuid         => $self->root_revision_uuid, 
                   message      => 'root commit', 
                   is_committed => 1 };
+
+    debug("Creating root revision");
 
     return $self->schema->create_revision($attrs);   
 }
@@ -166,7 +174,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

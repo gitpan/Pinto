@@ -1,25 +1,33 @@
-# ABSTRACT: Base class for storage of a Pinto repository
+# ABSTRACT: Storage for distribution archives
 
 package Pinto::Store;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
 use CPAN::Checksums;
 
+use Pinto::Util qw(debug);
 use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
-# Roles
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable
-         Pinto::Role::FileFetcher );
+with qw( Pinto::Role::FileFetcher );
+
+#------------------------------------------------------------------------------
+
+has repo => (
+   is         => 'ro',
+   isa        => 'Pinto::Repository',
+   weak_ref   => 1,
+   required   => 1,
+);
 
 #------------------------------------------------------------------------------
 # TODO: Use named arguments here...
@@ -45,7 +53,7 @@ sub remove_archive {
 
     $self->remove_path( path => $archive_file );
 
-    $self->update_checksums( directory => $archive_file->parent() );
+    $self->update_checksums( directory => $archive_file->parent );
 
     return $self;
 }
@@ -64,7 +72,7 @@ sub remove_path {
 
     while (my $dir = $path->parent) {
         last if $dir->children;
-        $self->debug("Removing empty directory $dir");
+        debug("Removing empty directory $dir");
         $dir->remove or throw "Failed to remove directory $dir: $!";
         $path = $dir;
     }
@@ -91,7 +99,7 @@ sub update_checksums {
         return 0;
     }
 
-    $self->debug("Generating $cs_file");
+    debug("Generating $cs_file");
 
     try   { CPAN::Checksums::updatedir($dir) }
     catch { throw "CHECKSUM generation failed for $dir: $_" };
@@ -111,11 +119,11 @@ __END__
 
 =head1 NAME
 
-Pinto::Store - Base class for storage of a Pinto repository
+Pinto::Store - Storage for distribution archives
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 DESCRIPTION
 

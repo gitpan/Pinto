@@ -1,36 +1,29 @@
-# ABSTRACT: Something that wants to log its activity
+# ABSTRACT: Black hole interface
 
-package Pinto::Role::Loggable;
+package Pinto::Chrome::Null;
 
-use Moose::Role;
+use Moose;
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Pinto::Logger;
+#-----------------------------------------------------------------------------
+
+our $VERSION = '0.065_03'; # VERSION
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+extends qw( Pinto::Chrome );
 
 #-----------------------------------------------------------------------------
 
-has logger => (
-    is         => 'ro',
-    isa        => 'Pinto::Logger',
-    handles    => [ qw(debug info notice warning error fatal) ],
-    required   => 1,
-);
+sub show { return 1 };
 
 #-----------------------------------------------------------------------------
 
-around BUILDARGS => sub {
-    my $orig = shift;
-    my $class = shift;
+sub diag { return 1 };
 
-    my $args = $class->$orig(@_);
+#-----------------------------------------------------------------------------
 
-    $args->{logger} = Pinto::Logger->new( %$args ) if not exists $args->{logger};
-    return $args;
-};
+__PACKAGE__->meta->make_immutable;
 
 #-----------------------------------------------------------------------------
 1;
@@ -43,11 +36,11 @@ __END__
 
 =head1 NAME
 
-Pinto::Role::Loggable - Something that wants to log its activity
+Pinto::Chrome::Null - Black hole interface
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

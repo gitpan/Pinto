@@ -88,7 +88,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -232,6 +232,7 @@ sub commit {
     throw "Must specify a message to commit" if not $args{message};
 
     $args{is_committed}   = 1;
+    $args{has_changes}    = 0;
     $args{username}     ||= $self->repo->config->username;
     $args{time_offset}  ||= $self->repo->config->time_offset;
     $args{utc_time}     ||= current_utc_time;
@@ -246,8 +247,9 @@ sub commit {
 sub assert_is_open {
     my ($self) = @_;
 
+    # TODO: mark column dirty rather than refresh whole object.
     throw "PANIC: Revision $self is already committed"
-      if $self->get_column('is_committed');
+      if $self->refresh->get_column('is_committed');
 
     return $self;
 }
@@ -258,8 +260,9 @@ sub assert_is_open {
 sub assert_is_committed {
     my ($self) = @_;
 
+    # TODO: mark column dirty rather than refresh whole object.
     throw "PANIC: Revision $self is still open"
-      if not $self->get_column('is_committed');
+      if not $self->refresh->get_column('is_committed');
 
     return $self;
 }
@@ -269,8 +272,9 @@ sub assert_is_committed {
 sub assert_has_changed {
     my ($self) = @_;
 
+    # TODO: mark column dirty rather than refresh whole object.
     throw "PANIC: Revision $self has not changed"
-      if not $self->get_column('has_changes');
+      if not $self->refresh->get_column('has_changes');
 
     return $self;
 }
@@ -362,7 +366,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 NAME
 

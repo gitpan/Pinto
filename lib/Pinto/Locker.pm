@@ -3,23 +3,33 @@
 package Pinto::Locker;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Path::Class;
 use File::NFSLock;
 
+use Pinto::Util qw(debug);
 use Pinto::Types qw(File);
 use Pinto::Exception qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 our $LOCKFILE_TIMEOUT = $ENV{PINTO_LOCKFILE_TIMEOUT} || 50; # Seconds
 
 #-----------------------------------------------------------------------------
+
+has repo => (
+   is         => 'ro',
+   isa        => 'Pinto::Repository',
+   weak_ref   => 1,
+   required   => 1,
+);
+
 
 has _lock => (
     is         => 'rw',
@@ -28,11 +38,6 @@ has _lock => (
     clearer    => '_clear_lock',
     init_arg   => undef,
 );
-
-#-----------------------------------------------------------------------------
-
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable );
 
 #-----------------------------------------------------------------------------
 
@@ -47,12 +52,13 @@ sub lock {                                   ## no critic qw(Homonym)
     local $File::NFSLock::LOCK_EXTENSION = '';
     local @File::NFSLock::CATCH_SIGS = ();
 
-    my $root_dir  = $self->root_dir;
+    my $root_dir  = $self->repo->config->root_dir;
     my $lock_file = $root_dir->file('.lock')->stringify;
     my $lock = File::NFSLock->new($lock_file, $lock_type, $LOCKFILE_TIMEOUT)
         or throw 'Unable to lock the repository -- please try later';
 
-    $self->debug("Process $$ got $lock_type lock on $root_dir");
+    debug("Process $$ got $lock_type lock on $root_dir");
+
     $self->_lock($lock);
 
     return $self;
@@ -66,11 +72,13 @@ sub unlock {
 
     return $self if not $self->_is_locked;
 
+    # I'm not sure if failure to unlock is really a problem
     $self->_lock->unlock or warn 'Unable to unlock repository';
+
     $self->_clear_lock;
 
-    my $root_dir = $self->config->root_dir;
-    $self->debug("Process $$ released the lock on $root_dir");
+    my $root_dir = $self->repo->config->root_dir;
+    debug("Process $$ released the lock on $root_dir");
 
     return $self;
 }
@@ -94,7 +102,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 DESCRIPTION
 

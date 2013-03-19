@@ -12,7 +12,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -95,7 +95,6 @@ sub _build_diffs {
         return ($key => $value);
     };
 
-    $DB::single = 1;
     my $attrs = {select => ['id', @fields]};
     my %left  = $self->left->registrations({},  $attrs)->as_hash($cb);
     my %right = $self->right->registrations({}, $attrs)->as_hash($cb);
@@ -180,7 +179,7 @@ Pinto::Difference - Compute difference between two sets of registrations
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 AUTHOR
 

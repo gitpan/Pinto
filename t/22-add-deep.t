@@ -62,12 +62,15 @@ $source->populate('PAUL/Nuts-2.3 = Nuts~2.3');
 {
   my $local = Pinto::Tester->new;
 
-  my $foo1 = make_dist_archive('Foo-1 = Foo~1');
   my $foo2 = make_dist_archive('Foo-2 = Foo~2');
+  my $foo1 = make_dist_archive('Foo-1 = Foo~1');
 
   $local->run_ok(Add => {author => 'ME', archives => $foo2});
   $local->run_ok(Add => {author => 'ME', archives => $foo1});
   
+  # Notice we added Foo~1 and *then* Foo~1.  So we are downgrading
+  $local->stderr_like(qr{Downgrading package ME/Foo-2/Foo~2 to ME/Foo-1/Foo~1} );
+
   # Repository now contains both Foo~1 and Foo~2, but only the 
   # older Foo~1 is actually registered on the stack.
 
@@ -84,12 +87,10 @@ $source->populate('PAUL/Nuts-2.3 = Nuts~2.3');
   $local->registration_ok('ME/Bar-1.tar.gz/Bar~1');
 
   # Now add Bar-2, which requires newer Foo~2
-
   my $bar2 = make_dist_archive('Bar-2 = Bar~2 & Foo~2');
   $local->run_ok(Add => {author => 'ME', archives => $bar2});
 
   # The stack should upgrade to Foo~2 to satisfy prereqs
-
   $local->registration_ok('ME/Foo-2.tar.gz/Foo~2');
   $local->registration_ok('ME/Bar-2.tar.gz/Bar~2');
 

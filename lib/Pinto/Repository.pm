@@ -10,20 +10,21 @@ use File::Find;
 use Path::Class;
 
 use Pinto::Store;
+use Pinto::Config;
 use Pinto::Locker;
 use Pinto::Database;
 use Pinto::IndexCache;
 use Pinto::PackageExtractor;
 use Pinto::PrerequisiteWalker;
-use Pinto::PrerequisiteFilter::Core;
 use Pinto::Exception qw(throw);
-use Pinto::Util qw(itis mksymlink);
+use Pinto::Util qw(itis debug mksymlink);
+use Pinto::Types qw(Dir);
 
 use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_02'; # VERSION
+our $VERSION = '0.065_03'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -31,50 +32,59 @@ Readonly::Scalar our $REPOSITORY_VERSION => 1;
 
 #-------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Configurable
-         Pinto::Role::Loggable
-         Pinto::Role::FileFetcher );
+with qw( Pinto::Role::FileFetcher );
 
 #-------------------------------------------------------------------------------
+
+
+has root => (
+    is       => 'ro',
+    isa      => Dir,
+    required => 1,
+    coerce   => 1,
+);
+
+
+has config => (
+    is         => 'ro',
+    isa        => 'Pinto::Config',
+    default    => sub { Pinto::Config->new(root => $_[0]->root) },
+    lazy       => 1,
+);
 
 
 has db => (
     is         => 'ro',
     isa        => 'Pinto::Database',
+    default    => sub { Pinto::Database->new(repo => $_[0]) },
     lazy       => 1,
-    default    => sub { Pinto::Database->new( config => $_[0]->config,
-                                              logger => $_[0]->logger,
-                                              repo   => $_[0] ) },
 );
 
 
 has store => (
     is         => 'ro',
     isa        => 'Pinto::Store',
+    default    => sub { Pinto::Store->new(repo => $_[0]) },
     lazy       => 1,
-    default    => sub { Pinto::Store->new( config => $_[0]->config,
-                                           logger => $_[0]->logger ) },
 );
 
 
 has cache => (
     is         => 'ro',
     isa        => 'Pinto::IndexCache',
-    lazy       => 1,
     handles    => [ qw(locate) ],
     clearer    => '_clear_cache',
-    default    => sub { Pinto::IndexCache->new( config => $_[0]->config,
-                                                logger => $_[0]->logger ) },
+    default    => sub { Pinto::IndexCache->new(repo => $_[0]) },
+    lazy       => 1,
 );
 
 
 has locker  => (
     is         => 'ro',
     isa        => 'Pinto::Locker',
-    lazy       => 1,
     handles    => [ qw(lock unlock) ],
-    default    => sub { Pinto::Locker->new( config => $_[0]->config,
-                                            logger => $_[0]->logger ) },
+    default    => sub { Pinto::Locker->new(repo => $_[0]) },
+    lazy       => 1,
 );
 
 #-------------------------------------------------------------------------------
@@ -294,8 +304,8 @@ sub add_distribution {
                         md5      => Pinto::Util::md5($archive),
                         sha256   => Pinto::Util::sha256($archive) };
 
-    my $extractor = Pinto::PackageExtractor->new( logger  => $self->logger,
-                                                  archive => $archive );
+    my $extractor = Pinto::PackageExtractor->new( archive => $archive );
+    
     # Add provided packages...
     my @provides = $extractor->provides;
     $dist_struct->{packages} = \@provides;
@@ -306,16 +316,14 @@ sub add_distribution {
 
     my $p = scalar @provides;
     my $r = scalar @requires;
-    $self->info("Distribution $archive provides $p and requires $r packages");
+    debug "Distribution $archive provides $p and requires $r packages";
 
     # Update database *before* moving the archive into the
     # repository, so if there is an error in the DB, we can stop and
     # the repository will still be clean.
 
-    my $dist = $self->db->schema->create_distribution( $dist_struct );
-    my $basedir = $self->config->authors_id_dir;
-    my $destination = $dist->native_path( $basedir );
-    $self->store->add_archive( $archive => $destination );
+    my $dist = $self->db->schema->create_distribution($dist_struct);
+    $self->store->add_archive($archive => $dist->native_path);
 
     return $dist;
 }
@@ -364,34 +372,6 @@ sub delete_distribution {
 
 #------------------------------------------------------------------------------
 
-sub pull_prerequisites {
-    my ($self, %args) = @_;
-
-    my $dist  = $args{dist};
-    my $stack = $args{stack};
-
-    my $cb = sub {
-        my ($walker, $prereq) = @_;
-
-        my $dist =   $stack->get_distribution(spec => $prereq)
-                   || $self->get_distribution(spec => $prereq) 
-                   || $self->ups_distribution(spec => $prereq);
-
-        return if not defined $dist;
-        $dist->register(stack => $stack);
-        return $dist;
-    };
-
-    my $filter = Pinto::PrerequisiteFilter::Core->new(perl_version => $stack->target_perl_version);
-    my $walker = Pinto::PrerequisiteWalker->new(start => $dist, filter => $filter, callback => $cb);
-
-    $walker->walk;
-
-    return $self;
-}
-
-#-------------------------------------------------------------------------------
-
 sub package_count {
     my ($self) = @_;
 
@@ -427,7 +407,7 @@ sub revision_count {
 sub txn_begin {
     my ($self) = @_;
 
-    $self->debug('Beginning db transaction');
+    debug 'Beginning db transaction';
     $self->db->schema->txn_begin;
 
     return $self;
@@ -438,7 +418,7 @@ sub txn_begin {
 sub txn_rollback {
     my ($self) = @_;
 
-    $self->debug('Rolling back db transaction');
+    debug 'Rolling back db transaction';
     $self->db->schema->txn_rollback;
 
     return $self;
@@ -449,7 +429,7 @@ sub txn_rollback {
 sub txn_commit {
     my ($self) = @_;
 
-    $self->debug('Committing db transaction');
+    debug 'Committing db transaction';
     $self->db->schema->txn_commit;
 
     return $self;
@@ -460,7 +440,7 @@ sub txn_commit {
 sub svp_begin {
     my ($self, $name) = @_;
 
-    $self->debug('Beginning db savepoint ($name)');
+    debug 'Beginning db savepoint';
     $self->db->schema->svp_begin($name);
 
     return $self;
@@ -471,7 +451,7 @@ sub svp_begin {
 sub svp_rollback {
     my ($self, $name) = @_;
 
-    $self->debug('Rolling back db savepoint ($name)');
+    debug 'Rolling back db savepoint';
     $self->db->schema->svp_rollback($name);
 
     return $self;
@@ -481,7 +461,7 @@ sub svp_rollback {
 sub svp_release {
     my ($self, $name) = @_;
 
-    $self->debug('Releasing db savepoint ($name)');
+    debug 'Releasing db savepoint';
     $self->db->schema->svp_release($name);
 
     return $self;
@@ -569,11 +549,11 @@ sub link_modules_dir {
     my $root_dir    = $self->config->root_dir;
 
     if (-e $modules_dir or -l $modules_dir) {
-        $self->debug("Unlinking $modules_dir");
+        debug "Unlinking $modules_dir";
         unlink $modules_dir or die $!;
     }
 
-    $self->debug("Linking $modules_dir to $target_dir");
+    debug "Linking $modules_dir to $target_dir";
     mksymlink($modules_dir => $target_dir->relative($root_dir));
 
     return $self;
@@ -587,7 +567,7 @@ sub unlink_modules_dir {
     my $modules_dir = $self->config->modules_dir;
 
     if (-e $modules_dir or -l $modules_dir) {
-        $self->debug("Unlinking $modules_dir");
+        debug "Unlinking $modules_dir";
         unlink $modules_dir or die $!;
     }
 
@@ -615,13 +595,13 @@ sub clean_files {
         return if $archive eq '01mailrc.txt.gz';
         return if exists $known_dists{"$author/$archive"};
 
-        $self->info("Removing orphaned archive at $path");
+        debug "Removing orphaned archive at $path";
         $self->store->remove_archive($path);
         $deleted++;
     };
 
     my $authors_dir = $self->config->authors_dir;
-    $self->notice("Cleaning orphaned archives beneath $authors_dir");
+    debug "Cleaning orphaned archives beneath $authors_dir";
     File::Find::find({no_chdir => 1, wanted => $callback}, $authors_dir);
 
     return $deleted;
@@ -632,10 +612,10 @@ sub clean_files {
 sub optimize_database {
     my ($self) = @_;
 
-    $self->notice('Removing empty database pages');
+    debug 'Removing empty database pages';
     $self->db->schema->storage->dbh->do('VACUUM;');
 
-    $self->notice('Updating database statistics');
+    debug 'Updating database statistics';
     $self->db->schema->storage->dbh->do('ANALYZE;');
 
     return $self;
@@ -760,9 +740,13 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.065_02
+version 0.065_03
 
 =head1 ATTRIBUTES
+
+=head2 root
+
+=head2 config
 
 =head2 db
 

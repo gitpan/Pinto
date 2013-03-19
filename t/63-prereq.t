@@ -8,7 +8,6 @@ use Test::More;
 use Pinto::Tester;
 use Pinto::Tester::Util qw(make_dist_archive);
 use Pinto::PrerequisiteWalker;
-use Pinto::PrerequisiteFilter::Core;
 
 #------------------------------------------------------------------------------
 
@@ -27,10 +26,15 @@ is scalar @total_prereqs, 3, 'Dist Foo has correct number of prereqs';
 
 #------------------------------------------------------------------------------
 
+my %bar  = ('Bar'           => '1');
+my %mb   = ('Module::Build' => '0.2808_01');
+my %core = ('perl'          => 'v5.6.0', 'strict' => '0');
+
 my %test_cases = (
-	'v5.10.0' => {'Bar' => '1'                                },
-	'v5.9.4'  => {'Bar' => '1', 'Module::Build' => '0.2808_01'},
-	'v5.6.0'  => {'Bar' => '1', 'Module::Build' => '0.2808_01'},
+	'v5.10.0' => {%bar             },
+	'v5.9.4'  => {%bar, %mb        },
+	'v5.6.0'  => {%bar, %mb        },
+	'0'       => {%bar, %mb, %core },
 );
 
 while( my($pv, $expect) = each %test_cases) {
@@ -38,16 +42,17 @@ while( my($pv, $expect) = each %test_cases) {
 	my $walked_prereqs = {};
 
 	my $cb  = sub { 
-		my ($walker, $prereq) = @_;
+		my ($prereq) = @_;
 		$walked_prereqs->{$prereq->name} = $prereq->version;
 	    return $t->pinto->repo->get_distribution(spec => $prereq);
 	};
 
-	my $filter = Pinto::PrerequisiteFilter::Core->new(perl_version => $pv);
-	my $walker = Pinto::PrerequisiteWalker->new(start => $dist, callback => $cb, filter => $filter);
-	$walker->walk;
+	# If $pv is not a true value, then do not make a filter
+	my %filter = $pv ? (filter => sub {$_[0]->is_perl || $_[0]->is_core(in => $pv)} ) : ();
 
-	# NB: 'perl' itself should never be listed as a prereq
+	my $walker = Pinto::PrerequisiteWalker->new(start => $dist, callback => $cb, %filter);
+	while ($walker->next) {};
+
 	my $test_name = "Got expected prereqs against perl version $pv";
 	is_deeply $walked_prereqs, $expect, $test_name;
 }
