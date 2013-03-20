@@ -3,6 +3,7 @@
 package Pinto::Config;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Str Bool Int ArrayRef);
 use MooseX::MarkAsMethods (autoclean => 1);
 use MooseX::Configuration;
@@ -16,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -242,7 +243,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 DESCRIPTION
 
@@ -251,7 +252,7 @@ you to see here (yet).
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -3,6 +3,7 @@
 package Pinto;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
@@ -12,11 +13,11 @@ use Pinto::Result;
 use Pinto::Repository;
 use Pinto::Chrome::Term;
 use Pinto::Types qw(Dir);
-use Pinto::Exception qw(throw);
+use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,13 +63,13 @@ around BUILDARGS => sub {
 sub run {
     my ($self, $action_name, @action_args) = @_;
 
-    my $action    = $self->create_action($action_name => @action_args);
-    my $lock_type = $action->does('Pinto::Role::Committable') ? 'EX' : 'SH';
+    # Divert all warnings through our chrome 
+    local $SIG{__WARN__} = sub { $self->warning($_) for @_ };
 
     my $result = try {
 
-        # Divert all warnings through our chrome 
-        local $SIG{__WARN__} = sub { $self->warning(@_) };
+        my $action = $self->create_action($action_name => @action_args);
+        my $lock_type = $action->lock_type;
 
         $self->repo->assert_sanity_ok;
         $self->repo->assert_version_ok;
@@ -79,7 +80,8 @@ sub run {
     catch { 
         $self->repo->unlock;
         $self->error($_);
-        die $_;
+
+        Pinto::Result->new->failed(because => $_);
     }
     finally {
         $self->repo->unlock;
@@ -134,7 +136,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 SYNOPSIS
 
@@ -234,7 +236,7 @@ permission of modules to specific people.  Pinto does not have any
 such permission system.  All activity is logged so you can identify
 the culprit, but Pinto expects you to be accountable for your actions.
 
-=item * Pinto is not (always) secure
+=item * Pinto does not enforce security
 
 PAUSE requires authors to authenticate themselves before they can
 upload or remove modules.  Pinto does not require authentication, so
@@ -331,7 +333,7 @@ L<https://github.com/thaljef/Pinto>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

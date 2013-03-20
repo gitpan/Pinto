@@ -7,16 +7,14 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool ArrayRef);
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Carp;
 use Term::ANSIColor ();
 
 use Pinto::Types qw(Io);
-use Pinto::Exception qw(throw);
-use Pinto::Util qw(user_colors is_interactive itis);
+use Pinto::Util qw(user_colors is_interactive itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -118,6 +116,7 @@ sub diag {
         $msg = $ENV{PINTO_DEBUG} ? $msg->as_string : $msg->message;
     }
 
+    chomp $msg;
 
     $msg = $self->colorize($msg, $opts->{color});
 
@@ -128,24 +127,13 @@ sub diag {
 
 #-----------------------------------------------------------------------------
 
-sub should_show_progress {
-    my ($self) = @_;
-
-    return 0 if not is_interactive;
-    return 0 if $self->verbose;
-    return 0 if $self->quiet;
-    return 1;
-};
-
-#-----------------------------------------------------------------------------
-
 sub show_progress {
     my ($self) = @_;
 
-    return if not $self->should_show_progress;
+    return if not $self->should_render_progress;
 
-    # Make sure pipes are hot
-    $self->stderr->autoflush;
+    $self->stderr->autoflush; # Make sure pipes are hot
+
     print {$self->stderr} '.' or croak $!;
 }
 
@@ -154,7 +142,7 @@ sub show_progress {
 sub progress_done {
     my ($self) = @_;
 
-    return unless $self->should_show_progress;
+    return unless $self->should_render_progress;
 
     print {$self->stderr} "\n" or croak $!;
 }
@@ -217,11 +205,11 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

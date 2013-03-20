@@ -10,13 +10,12 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use Try::Tiny;
 use Dist::Metadata;
 
-use Pinto::Util qw(debug);
-use Pinto::Exception qw(throw);
 use Pinto::Types qw(File);
+use Pinto::Util qw(debug throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -133,11 +132,11 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -68,12 +68,11 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-use Carp;
+
 use String::Format;
 
-use Pinto::Util qw(itis);
-use Pinto::Exception qw(throw);
 use Pinto::PackageSpec;
+use Pinto::Util qw(itis throw);
 
 use overload ( '""'     => 'to_string',
                '<=>'    => 'numeric_compare',
@@ -82,7 +81,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -196,14 +195,14 @@ sub numeric_compare {
 
     return 0 if $pkg_a->id == $pkg_b->id;
 
-    confess "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
+    throw "Cannot compare packages with different names: $pkg_a <=> $pkg_b"
         if $pkg_a->name ne $pkg_b->name;
 
     my $r =   ( $pkg_a->version             <=> $pkg_b->version             )
            || ( $pkg_a->distribution->mtime <=> $pkg_b->distribution->mtime );
 
     # No two non-identical packages can be considered equal!
-    confess "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
+    throw "Unable to determine ordering: $pkg_a <=> $pkg_b" if not $r;
 
     return $r;
 };
@@ -244,7 +243,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 NAME
 
@@ -332,7 +331,7 @@ Related object: L<Pinto::Schema::Result::Registration>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

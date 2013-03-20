@@ -10,12 +10,12 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use IO::Handle;
 
 use Pinto::Result;
-use Pinto::Exception;
-use Pinto::Util qw(is_interactive);
+use Pinto::Util qw(throw);
+use Pinto::Constants qw($PINTO_LOCK_TYPE_SHARED);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,6 +37,14 @@ has result => (
     default  => sub { Pinto::Result->new },
     init_arg => undef,
     lazy     => 1,
+);
+
+
+has lock_type => (
+    is        => 'ro',
+    isa       => Str,
+    default   => $PINTO_LOCK_TYPE_SHARED,
+    init_arg  => undef,
 );
 
 #------------------------------------------------------------------------------
@@ -66,11 +74,11 @@ Pinto::Action - Base class for all Actions
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

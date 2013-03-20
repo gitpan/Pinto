@@ -9,13 +9,13 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use Try::Tiny;
 
 use Pinto::CommitMessage;
-use Pinto::Exception qw(throw);
+use Pinto::Constants qw($PINTO_LOCK_TYPE_EXCLUSIVE);
 use Pinto::Types qw(StackName StackDefault StackObject);
-use Pinto::Util qw(is_interactive interpolate);
+use Pinto::Util qw(is_interactive interpolate throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -47,6 +47,14 @@ has use_default_message => (
     default    => 0,
 );
 
+
+has lock_type => (
+    is        => 'ro',
+    isa       => Str,
+    default   => $PINTO_LOCK_TYPE_EXCLUSIVE,
+    init_arg  => undef,
+);
+
 #------------------------------------------------------------------------------
 
 requires qw( execute repo );
@@ -71,7 +79,7 @@ around execute => sub {
     my $stack = $self->stack->start_revision;
 
     my @ok = try   { $self->$orig(@args) }
-             catch { $self->repo->txn_rollback; die $_ };
+             catch { $self->repo->txn_rollback; throw $_ };
 
     if ($self->dry_run) {
         $self->notice('Dry run -- rolling back database');
@@ -79,7 +87,7 @@ around execute => sub {
         $self->repo->clean_files;
     }
     elsif ($stack->refresh->has_not_changed) {
-        $self->notice('No changes were actually made');
+        $self->warning('No changes were actually made');
         $self->repo->txn_rollback;
     }
     else {
@@ -150,11 +158,11 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

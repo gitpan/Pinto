@@ -89,8 +89,7 @@ use Path::Class;
 use CPAN::DistnameInfo;
 use String::Format;
 
-use Pinto::Util qw(itis debug whine);
-use Pinto::Exception qw(throw);
+use Pinto::Util qw(itis debug whine throw);
 use Pinto::DistributionSpec;
 
 use overload ( '""'  => 'to_string',
@@ -98,7 +97,7 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -204,7 +203,7 @@ sub unregister {
     $did_unregister++;
   }
 
-  throw "Unable to unregister distribution $self on stack $stack" if $conflicts;
+  throw "Unable to unregister distribution $self from stack $stack" if $conflicts;
 
   $rs->delete;
 
@@ -455,7 +454,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 NAME
 
@@ -567,7 +566,7 @@ Related object: L<Pinto::Schema::Result::Registration>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

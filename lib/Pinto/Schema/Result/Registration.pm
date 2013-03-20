@@ -76,15 +76,13 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
-use Carp;
 use String::Format;
 
-use Pinto::Util qw(itis);
-use Pinto::Exception qw(throw);
+use Pinto::Util qw(itis throw);
 
 use overload ( '""'     => 'to_string',
                'cmp'    => 'string_compare',
@@ -215,7 +213,7 @@ sub to_string {
 
 sub default_format {
 
-    return '%a/%D/%P/%i'; # AUTHOR/DIST_VNAME/PKG_VNAME/STACK
+    return '%a/%D/%P/%y'; # AUTHOR/DIST_VNAME/PKG_VNAME/PIN_STATUS
 }
 
 #------------------------------------------------------------------------------
@@ -237,7 +235,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 NAME
 
@@ -331,7 +329,7 @@ Related object: L<Pinto::Schema::Result::Revision>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

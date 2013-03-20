@@ -60,7 +60,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -72,7 +72,6 @@ use JSON qw(encode_json decode_json);
 
 use Pinto::Util qw(:all);
 use Pinto::Types qw(Dir File Version);
-use Pinto::Exception qw(throw);
 
 use version;
 use overload ( '""'  => 'to_string',
@@ -752,7 +751,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 METHODS
 
@@ -845,7 +844,7 @@ Related object: L<Pinto::Schema::Result::Revision>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -3,14 +3,15 @@
 package Pinto::Chrome;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Int Bool);
 
-use Pinto::Util qw(user_colors);
-use Pinto::Exception qw(throw);
+use Pinto::Util qw(is_interactive);
+
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,28 +30,40 @@ has quiet   => (
 
 #-----------------------------------------------------------------------------
 
-sub show { throw 'Abstract method' }
+sub show { return shift }
 
 #-----------------------------------------------------------------------------
 
-sub diag { throw 'Abstract method' }
+sub diag { return shift }
 
 #-----------------------------------------------------------------------------
 
-sub show_progress { throw 'Abstract method' }
+sub show_progress { return shift }
 
 #-----------------------------------------------------------------------------
 
-sub progress_done { throw 'Abstract method' }
+sub progress_done { return shift }
 
 #-----------------------------------------------------------------------------
 
-sub should_display {
+sub should_render_progress {
+    my ($self) = @_;
+
+    return 0 if not is_interactive;
+    return 0 if $self->verbose;
+    return 0 if $self->quiet;
+    return 1;
+};
+
+#-----------------------------------------------------------------------------
+
+sub should_render_diag {
     my ($self, $level) = @_;
 
     return 1 if $level == 0;           # Always, always display errors
     return 0 if $self->quiet;          # Don't display anything else if quiet
-    return $self->verbose + 1 >= $level;
+    return 1 if $self->verbose + 1 >= $level;
+    return 0;
 }
 
 #-----------------------------------------------------------------------------
@@ -70,7 +83,7 @@ sub __generate_method {
     my $template = <<'END_METHOD';
 sub %s {
     my ($self, $msg, $opts) = @_;
-    return unless $self->should_display(%s);
+    return unless $self->should_render_diag(%s);
     $self->diag($msg, $opts);
 }
 END_METHOD
@@ -98,11 +111,11 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

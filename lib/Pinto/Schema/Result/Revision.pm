@@ -88,7 +88,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -100,7 +100,6 @@ use DateTime::TimeZone::OffsetOnly;
 use String::Format;
 use Digest::SHA;
 
-use Pinto::Exception qw(throw);
 use Pinto::Util qw(:all);
 
 use overload ( '""'  => 'to_string',
@@ -366,7 +365,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 NAME
 
@@ -471,7 +470,7 @@ Related object: L<Pinto::Schema::Result::Stack>
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

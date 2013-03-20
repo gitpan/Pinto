@@ -19,7 +19,6 @@ else {
 my @modules = qw(
   CPAN::Checksums
   CPAN::DistnameInfo
-  Carp
   Class::Load
   DBD::SQLite
   DBIx::Class
@@ -42,12 +41,11 @@ my @modules = qw(
   File::Temp
   File::Which
   HTTP::Date
+  HTTP::Tiny
   IO::Handle
-  IO::String
   IO::Zlib
   JSON
   JSON::PP
-  LWP::UserAgent
   List::Util
   Log::Dispatch
   Module::Build
@@ -65,7 +63,6 @@ my @modules = qw(
   Path::Class
   Pinto::Constants
   Pinto::DistributionSpec
-  Pinto::Exception
   Pinto::Globals
   Pinto::PackageSpec
   Pinto::Role::PauseConfig

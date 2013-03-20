@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.065_03
+    version 0.065_04
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -94,7 +94,7 @@ Pinto vs PAUSE
         the culprit, but Pinto expects you to be accountable for your
         actions.
 
-    *   Pinto is not (always) secure
+    *   Pinto does not enforce security
 
         PAUSE requires authors to authenticate themselves before they can
         upload or remove modules. Pinto does not require authentication, so
@@ -172,7 +172,7 @@ SUPPORT
       git clone git://github.com/thaljef/Pinto.git
 
 AUTHOR
-    Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+    Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 COPYRIGHT AND LICENSE
     This software is copyright (c) 2011 by Imaginative Software Systems.

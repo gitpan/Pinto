@@ -3,6 +3,7 @@
 package Pinto::Repository;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Readonly;
@@ -16,15 +17,14 @@ use Pinto::Database;
 use Pinto::IndexCache;
 use Pinto::PackageExtractor;
 use Pinto::PrerequisiteWalker;
-use Pinto::Exception qw(throw);
-use Pinto::Util qw(itis debug mksymlink);
+use Pinto::Util qw(itis debug mksymlink throw);
 use Pinto::Types qw(Dir);
 
 use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -550,7 +550,7 @@ sub link_modules_dir {
 
     if (-e $modules_dir or -l $modules_dir) {
         debug "Unlinking $modules_dir";
-        unlink $modules_dir or die $!;
+        unlink $modules_dir or throw $!;
     }
 
     debug "Linking $modules_dir to $target_dir";
@@ -568,7 +568,7 @@ sub unlink_modules_dir {
 
     if (-e $modules_dir or -l $modules_dir) {
         debug "Unlinking $modules_dir";
-        unlink $modules_dir or die $!;
+        unlink $modules_dir or throw $!;
     }
 
     return $self;
@@ -740,7 +740,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 ATTRIBUTES
 
@@ -905,7 +905,7 @@ prematurely.
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

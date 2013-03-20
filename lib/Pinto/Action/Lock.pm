@@ -3,13 +3,14 @@
 package Pinto::Action::Lock;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -32,9 +33,15 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    my $did_lock = $self->repo->get_stack( $self->stack )->lock;
+    my $stack = $self->repo->get_stack( $self->stack );
 
-    return $did_lock ? $self->result->changed : $self->result;
+    if ($stack->is_locked) {
+    	$self->warning("Stack $stack is already locked");
+    	return $self->result;
+    }
+
+    $stack->lock;
+    return $self->result->changed;
 }
 
 #------------------------------------------------------------------------------
@@ -57,11 +64,11 @@ Pinto::Action::Lock - Lock a stack to prevent future changes
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -8,13 +8,12 @@ use MooseX::Types::Moose qw(Bool);
 use MooseX::MarkAsMethods (autoclean => 1);
 use Try::Tiny;
 
-use Pinto::Util qw(sha256 current_author_id);
+use Pinto::Util qw(sha256 current_author_id throw);
 use Pinto::Types qw(AuthorID FileList);
-use Pinto::Exception qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_03'; # VERSION
+our $VERSION = '0.065_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +79,7 @@ sub execute {
             push @successful, $dist ? $dist : ();
         }
         catch {
-            die $_ unless $self->no_fail; 
+            throw $_ unless $self->no_fail; 
 
             $self->repo->svp_rollback;
 
@@ -153,11 +152,11 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.065_03
+version 0.065_04
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
