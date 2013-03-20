@@ -15,7 +15,7 @@ use Pinto::Util qw(itis debug mtime throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_04'; # VERSION
+our $VERSION = '0.065_05'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -108,7 +108,7 @@ sub _fetch_remote {
 
     my $rsp = eval { $self->ua->mirror($url, $to) } or throw $@;
 
-    return $rsp->{code} == 304 ? 1 : 0 if $rsp->{success}; # Modified ?
+    return $rsp->{status} == 304 ? 1 : 0 if $rsp->{success}; # Modified ?
 
     throw "Failed to fetch $url: " . $rsp->{reason};
 }
@@ -145,7 +145,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.065_04
+version 0.065_05
 
 =head1 METHODS
 

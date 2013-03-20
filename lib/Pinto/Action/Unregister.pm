@@ -12,7 +12,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_04'; # VERSION
+our $VERSION = '0.065_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ Pinto::Action::Unregister - Unregister packages from a stack
 
 =head1 VERSION
 
-version 0.065_04
+version 0.065_05
 
 =head1 AUTHOR
 

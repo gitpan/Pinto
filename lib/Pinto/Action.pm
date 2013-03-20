@@ -15,7 +15,7 @@ use Pinto::Constants qw($PINTO_LOCK_TYPE_SHARED);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_04'; # VERSION
+our $VERSION = '0.065_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ Pinto::Action - Base class for all Actions
 
 =head1 VERSION
 
-version 0.065_04
+version 0.065_05
 
 =head1 AUTHOR
 

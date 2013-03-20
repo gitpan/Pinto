@@ -12,7 +12,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_04'; # VERSION
+our $VERSION = '0.065_05'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ Pinto::Role::Installer - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.065_04
+version 0.065_05
 
 =head1 AUTHOR
 
