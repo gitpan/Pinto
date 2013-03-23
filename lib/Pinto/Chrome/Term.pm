@@ -8,13 +8,14 @@ use MooseX::Types::Moose qw(Bool ArrayRef);
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Term::ANSIColor ();
+use Term::EditorEdit;
 
 use Pinto::Types qw(Io);
 use Pinto::Util qw(user_colors is_interactive itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -149,6 +150,16 @@ sub progress_done {
 
 #-----------------------------------------------------------------------------
 
+sub edit {
+    my ($self, $document) = @_;
+
+    local $ENV{VISUAL} = $ENV{PINTO_EDITOR} if $ENV{PINTO_EDITOR};
+
+    return Term::EditorEdit->edit(document => $document);
+}
+
+#-----------------------------------------------------------------------------
+
 sub colorize {
     my ($self, $string, $color_number) = @_;
 
@@ -205,7 +216,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

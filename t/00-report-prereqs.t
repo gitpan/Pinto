@@ -17,9 +17,12 @@ else {
 }
 
 my @modules = qw(
+  Archive::Extract
   CPAN::Checksums
   CPAN::DistnameInfo
   Class::Load
+  Cwd
+  Cwd::Guard
   DBD::SQLite
   DBIx::Class
   DBIx::Class::Core
@@ -63,6 +66,7 @@ my @modules = qw(
   Path::Class
   Pinto::Constants
   Pinto::DistributionSpec
+  Pinto::Exception
   Pinto::Globals
   Pinto::PackageSpec
   Pinto::Role::PauseConfig

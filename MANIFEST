@@ -35,6 +35,7 @@ lib/Pinto/Action/Unlock.pm
 lib/Pinto/Action/Unpin.pm
 lib/Pinto/Action/Unregister.pm
 lib/Pinto/Action/Verify.pm
+lib/Pinto/ArchiveUnpacker.pm
 lib/Pinto/Chrome.pm
 lib/Pinto/Chrome/Term.pm
 lib/Pinto/CommitMessage.pm

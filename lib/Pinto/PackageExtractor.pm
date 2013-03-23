@@ -9,13 +9,17 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 use Try::Tiny;
 use Dist::Metadata;
+use Path::Class qw(dir);
+use File::Temp qw(tempdir);
+use Archive::Extract;
 
-use Pinto::Types qw(File);
+use Pinto::Types qw(File Dir);
 use Pinto::Util qw(debug throw);
+use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -27,10 +31,19 @@ has archive => (
 );
 
 
+has unpacker => (
+    is       => 'ro',
+    isa      => 'Pinto::ArchiveUnpacker',
+    default  => sub { Pinto::ArchiveUnpacker->new(archive => $_[0]->archive) }, 
+    init_arg => undef,
+    lazy     => 1,
+);
+
+
 has dm => (
     is       => 'ro',
     isa      => 'Dist::Metadata',
-    default  => sub { Dist::Metadata->new(file => $_[0]->archive->stringify) },
+    default  => sub { Dist::Metadata->new(dir => $_[0]->unpacker->unpack) },
     init_arg => undef,
     lazy     => 1,
 );
@@ -41,7 +54,7 @@ sub provides {
     my ($self) = @_;
 
     my $archive = $self->archive;
-    debug("Extracting packages provided by archive $archive");
+    debug "Extracting packages provided by archive $archive";
 
     my $mod_info =   try { $self->dm->module_info( {checksum => 'sha256'} )     }
                    catch { throw "Unable to extract packages from $archive: $_" };
@@ -51,7 +64,7 @@ sub provides {
 
         my $info = $mod_info->{$pkg_name};
         my $pkg_ver = version->parse( $info->{version} );
-        debug("Archive $archive provides: $pkg_name-$pkg_ver");
+        debug "Archive $archive provides: $pkg_name-$pkg_ver";
 
         push @provides, { name => $pkg_name,     version => $pkg_ver, 
                           file => $info->{file}, sha256  => $info->{sha256} };
@@ -69,7 +82,7 @@ sub requires {
     my ($self) = @_;
 
     my $archive = $self->archive;
-    debug("Extracting packages required by archive $archive");
+    debug "Extracting packages required by archive $archive";
 
     my $prereqs_meta =   try { $self->dm->meta->prereqs }
                        catch { throw "Unable to extract prereqs from $archive: $_" };
@@ -86,7 +99,7 @@ sub requires {
 
         my $pkg_ver = version->parse( $prereqs{$pkg_name} );
 
-        debug("Archive $archive requires: $pkg_name-$pkg_ver");
+        debug "Archive $archive requires: $pkg_name-$pkg_ver";
         push @prereqs, {name => $pkg_name, version => $pkg_ver};
     }
 
@@ -132,7 +145,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

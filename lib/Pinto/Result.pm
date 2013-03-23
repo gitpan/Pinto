@@ -13,7 +13,7 @@ use overload (q{""} => 'to_string');
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ has was_successful => (
 has exceptions => (
     traits    => [ qw(Array) ],
     handles   => {exceptions => 'elements', add_exception => 'push'},
-    isa       => ArrayRef['Pinto::Exception'],
+    isa       => ArrayRef,
     default   => sub { [] },
 );
 
@@ -55,6 +55,8 @@ sub failed {
         # If the message already contains a full stack trace,
         # then it will be really ugly.  God I wish Perl had
         # sane native exeptions.
+
+        require Pinto::Exception;
 
         $reason = Pinto::Exception->new(message => $reason) 
             if not itis($reason, 'Pinto::Exception');
@@ -88,13 +90,13 @@ sub exit_status {
 sub to_string {
     my ($self) = @_;
 
-    return 'OK' if $self->was_successful;
+    return 'ok' if $self->was_successful;
 
     if (my @exceptions = $self->exceptions) {
-        return join "\n", map { $ENV{PINTO_DEBUG} ? "$_" : $_->message } @exceptions;
+        return join "\n", @exceptions;
     }
 
-    return 'Unknown error';
+    return 'unknown error';
 }
 
 #-----------------------------------------------------------------------------
@@ -116,7 +118,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

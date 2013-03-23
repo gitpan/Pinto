@@ -14,7 +14,7 @@ use Pinto::Types qw(StackName StackDefault);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

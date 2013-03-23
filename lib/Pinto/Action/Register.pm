@@ -12,7 +12,7 @@ use Pinto::Types qw(DistSpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -65,8 +65,6 @@ sub _register {
 
     my $did_register = $dist->register(stack => $stack, pin => $self->pin);
 
-    $self->warning("Distribution $dist is already registered on stack $stack");
-
     return $did_register ? $dist : ();
 }
 
@@ -90,7 +88,7 @@ Pinto::Action::Register - Register packages from existing archives on a stack
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

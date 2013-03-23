@@ -14,7 +14,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -57,11 +57,12 @@ sub execute {
         }
         catch {
             throw $_ unless $self->no_fail;
+            $self->result->failed(because => $_);
 
             $self->repo->svp_rollback;
 
             $self->error($_);
-            $self->error("$target failed...continuing anyway");
+            $self->error("Target $target failed...continuing anyway");
             push @failed, $target;
         }
         finally {
@@ -95,7 +96,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 

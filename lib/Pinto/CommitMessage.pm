@@ -1,4 +1,4 @@
-# ABSTRACT: Utility class for constructing commit messages
+# ABSTRACT: Utility class for commit message templates
 
 package Pinto::CommitMessage;
 
@@ -7,67 +7,58 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Str);
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Term::EditorEdit;
-
 use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_05'; # VERSION
+our $VERSION = '0.065_06'; # VERSION
 
 #------------------------------------------------------------------------------
 
 has title => (
-    is      => 'ro',
-    isa     => Str,
-    default => '',
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
 );
 
 
-has details => (
+has stack => (
     is      => 'ro',
-    isa     => Str,
-    default => '',
+    isa     => 'Pinto::Schema::Result::Stack',
+    required => 1,
 );
 
-#------------------------------------------------------------------------------
 
-sub edit {
-    my ($self) = @_;
-
-    # Term::EditorEdit only honors VISUAL or EDITOR (in that order),
-    # So we locally override one of those with PINTO_EDITOR, if set
-    local $ENV{VISUAL} = $ENV{PINTO_EDITOR} if $ENV{PINTO_EDITOR};
-
-    my $message = Term::EditorEdit->edit(document => $self->to_string);
-    $message =~ s/^ [#] .* $//gmsx;  # Strip comments
-
-    return $message;
-}
+has diff => (
+    is       => 'ro',
+    isa      => 'Pinto::Difference',
+    required => 1,
+);
 
 #------------------------------------------------------------------------------
 
 sub to_string {
     my ($self) = @_;
 
-    my $title   = $self->title;
-    my $details = $self->details || 'No details available';
+    my $title = $self->title;
+    my $stack = $self->stack;
+    my $diff  = $self->diff;
 
-    $details =~ s/^/# /gm;
+    $diff =~ s/^/# /gm;
 
     return <<"END_MESSAGE";
 $title
 
 
-#------------------------------------------------------------------------------
-# Please edit or amend the message above to describe the change.  The first
-# line of the message will be used as the title.  Any line that starts with 
-# a "#" will be ignored.  To abort the commit, delete the entire message above, 
-# save the file, and close the editor. 
+#-------------------------------------------------------------------------------
+# Please edit or amend the message above as you see fit.  The first line of the 
+# message will be used as the title.  Any line that starts with a "#" will be 
+# ignored.  To abort the commit, delete the entire message above, save the file, 
+# and close the editor. 
 #
-# Details of the changes to be committed:
+# Changes to be committed to stack $stack:
 #
-$details
+$diff
 END_MESSAGE
 }
 
@@ -86,11 +77,11 @@ __END__
 
 =head1 NAME
 
-Pinto::CommitMessage - Utility class for constructing commit messages
+Pinto::CommitMessage - Utility class for commit message templates
 
 =head1 VERSION
 
-version 0.065_05
+version 0.065_06
 
 =head1 AUTHOR
 
