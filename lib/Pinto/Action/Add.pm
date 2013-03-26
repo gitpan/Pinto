@@ -13,7 +13,7 @@ use Pinto::Types qw(AuthorID FileList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -125,10 +125,12 @@ sub _add {
 sub _check_for_duplicate {
     my ($self, $archive) = @_;
 
-    my $sha256 = sha256($archive);
-    my $dupe = $self->repo->get_distribution(sha256 => $sha256);
+    return if $self->repo->config->allow_duplicates;
 
-    return if not $dupe;
+    my $sha256 = sha256($archive);
+    my $dupe = $self->repo->db->schema->search_distribution({sha256 => $sha256})->first;
+
+    return if not defined $dupe;
     return $dupe if $archive->basename eq $dupe->archive;
 
     throw "Archive $archive is the same as $dupe but with different name";
@@ -153,7 +155,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 AUTHOR
 

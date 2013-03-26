@@ -13,7 +13,7 @@ use overload (q{""} => 'to_string');
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ sub failed {
         # violations).  So we have to convert them ourselves.
         # If the message already contains a full stack trace,
         # then it will be really ugly.  God I wish Perl had
-        # sane native exeptions.
+        # sane native exceptions.
 
         require Pinto::Exception;
 
@@ -118,7 +118,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 AUTHOR
 

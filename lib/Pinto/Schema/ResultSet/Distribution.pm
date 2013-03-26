@@ -10,7 +10,7 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -18,22 +18,6 @@ sub with_packages {
   my ($self, $where) = @_;
 
   return $self->search($where || {}, {prefetch => 'packages'});
-}
-
-#------------------------------------------------------------------------------
-
-sub find_by_sha256 {
-  my ($self, $sha256) = @_;
-
-  return $self->find({sha256 => $sha256}, {key => 'sha256_unique'});
-}
-
-#------------------------------------------------------------------------------
-
-sub find_by_md5 {
-  my ($self, $md5) = @_;
-
-  return $self->find({md5 => $md5}, {key => 'md5_unique'});
 }
 
 #------------------------------------------------------------------------------
@@ -62,7 +46,7 @@ Pinto::Schema::ResultSet::Distribution - Common queries for Distributions
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 AUTHOR
 

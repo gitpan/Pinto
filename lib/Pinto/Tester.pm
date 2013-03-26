@@ -21,7 +21,7 @@ use Pinto::Util qw(:all);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -138,9 +138,17 @@ sub _build_pinto {
 #------------------------------------------------------------------------------
 
 sub get_stack {
-    my ($self, $stack) = @_;
+    my ($self, @args) = @_;
 
-    return $self->repo->get_stack($stack);
+    return $self->repo->get_stack(@args);
+}
+
+#------------------------------------------------------------------------------
+
+sub get_distribution {
+    my ($self, @args) = @_;
+
+    return $self->repo->get_distribution(@args);
 }
 
 #------------------------------------------------------------------------------
@@ -586,7 +594,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 AUTHOR
 

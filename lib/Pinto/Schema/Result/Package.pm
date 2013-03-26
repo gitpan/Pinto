@@ -81,14 +81,14 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
-
-__PACKAGE__->inflate_column( 'version' => { inflate => sub { version->parse($_[0]) },
-                                            deflate => sub { $_[0]->stringify() } }
-);
+__PACKAGE__->inflate_column( 'version' => { 
+    inflate => sub { version->parse($_[0]) },
+    deflate => sub { $_[0]->stringify() },
+});
 
 #------------------------------------------------------------------------------
 # Schema::Loader does not create many-to-many relationships for us.  So we
@@ -243,7 +243,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 NAME
 

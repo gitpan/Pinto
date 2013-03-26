@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -222,7 +222,6 @@ sub get_distribution {
         throw 'Invalid arguments';
     }
 
-
     # Retrieve a distribution by its path (e.g. AUTHOR/Dist-1.0.tar.gz)
     elsif (my $path = $args{path}) {
         my ($author, $archive) = Pinto::Util::parse_dist_path($path);
@@ -230,22 +229,6 @@ sub get_distribution {
         return $self->db->schema->distribution_rs
                                 ->with_packages
                                 ->find_by_author_archive($author, $archive);
-    }
-
-
-    # Retrieve a distribution by its SHA-256 digest
-    elsif (my $sha256 = $args{sha256}) {
-         return $self->db->schema->distribution_rs
-                                 ->with_packages
-                                 ->find_by_sha256($sha256);
-    }
-
-
-    # Retrieve a distribution by its MD5 digest
-    elsif (my $md5 = $args{md5}) {
-         return $self->db->schema->distribution_rs
-                                 ->with_packages
-                                 ->find_by_md5($md5);
     }
 
     # Retrieve a distribution by author and archive
@@ -313,6 +296,10 @@ sub add_distribution {
     # Add required packages...
     my @requires = $extractor->requires;
     $dist_struct->{prerequisites} = \@requires;
+
+    # Add metadata...
+    my $metadata = $extractor->metadata;
+    $dist_struct->{metadata} = $metadata;
 
     my $p = scalar @provides;
     my $r = scalar @requires;
@@ -663,9 +650,10 @@ sub assert_archive_not_duplicate {
         throw "A distribution already exists as $same_path";
     }
 
-    my $sha256 = Pinto::Util::sha256($archive);
-    if (my $same_sha = $self->get_distribution(sha256 => $sha256)) {
-        throw "Archive $archive is identical to $same_sha";
+    unless ( $self->config->allow_duplicates) {
+        my $sha256 = Pinto::Util::sha256($archive);
+        my $dupe = $self->db->schema->search_distribution({sha256 => $sha256})->first;
+        throw "Archive $archive is identical to $dupe" if $dupe;
     }
 
     return;
@@ -740,7 +728,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 ATTRIBUTES
 
@@ -848,12 +836,6 @@ Given a distribution path, (for example C<AUTHOR/Dist-1.0.tar.gz> or C<A/AU/AUTH
 returns the L<Pinto::Schema::Result::Distribution> from this repository that is 
 identified by the author ID and archive file name in the path.  Returns nothing
 if no such distribution is found.
-
-=head2 get_distribution( sha256 => $sha256 )
-
-Given an SHA-256 digest as a string of hexadecimal characters, returns the
-L<Pinto::Schema::Result::Distribution> from this repository with the same 
-digest.  Returns nothing if no such distribution is found.
 
 =head2 get_distribution( author => $author, archive => $archive )
 

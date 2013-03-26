@@ -17,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -146,6 +146,15 @@ has no_history => (
 );
 
 
+has allow_duplicates => (
+    is         => 'ro',
+    isa        => Bool,
+    key        => 'allow_duplicates',
+    default    => 0,
+    documentation => 'Allow this repository to contain duplicate distributions',
+);
+
+
 has sources  => (
     is        => 'ro',
     isa       => Str,
@@ -243,7 +252,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 DESCRIPTION
 

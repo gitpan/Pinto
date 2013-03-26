@@ -18,8 +18,10 @@ else {
 
 my @modules = qw(
   Archive::Extract
+  Archive::Tar
   CPAN::Checksums
   CPAN::DistnameInfo
+  CPAN::Meta
   Class::Load
   Cwd
   Cwd::Guard
@@ -50,7 +52,6 @@ my @modules = qw(
   JSON
   JSON::PP
   List::Util
-  Log::Dispatch
   Module::Build
   Module::Faker::Dist
   Moose

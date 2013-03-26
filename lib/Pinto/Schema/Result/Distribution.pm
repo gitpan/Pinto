@@ -32,6 +32,8 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "md5",
   { data_type => "text", is_nullable => 0 },
+  "metadata",
+  { data_type => "text", is_nullable => 0 },
 );
 
 
@@ -39,12 +41,6 @@ __PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->add_unique_constraint("author_archive_unique", ["author", "archive"]);
-
-
-__PACKAGE__->add_unique_constraint("md5_unique", ["md5"]);
-
-
-__PACKAGE__->add_unique_constraint("sha256_unique", ["sha256"]);
 
 
 __PACKAGE__->has_many(
@@ -75,8 +71,8 @@ __PACKAGE__->has_many(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-04 12:39:54
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5o3MQdpey2pBAPUoMuPTNQ
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-26 11:05:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vQKIXXk8xddyMmBptwvpUg
 
 #-------------------------------------------------------------------------------
 
@@ -85,6 +81,7 @@ with 'Pinto::Role::Schema::Result';
 #-------------------------------------------------------------------------------
 
 use URI;
+use CPAN::Meta;
 use Path::Class;
 use CPAN::DistnameInfo;
 use String::Format;
@@ -97,17 +94,14 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub sqlt_deploy_hook {
-    my ($self, $sqlt_table) = @_;
- 
-    $sqlt_table->add_index(name => 'distribution_idx_author', fields => ['author']);
-
-    return;
-}
+__PACKAGE__->inflate_column( 'metadata' => { 
+  inflate => sub { CPAN::Meta->load_json_string($_[0]) },
+  deflate => sub { $_[0]->as_string({version => "2"}) } 
+});
 
 #------------------------------------------------------------------------------
 
@@ -454,7 +448,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 NAME
 
@@ -500,6 +494,11 @@ Pinto::Schema::Result::Distribution
   data_type: 'text'
   is_nullable: 0
 
+=head2 metadata
+
+  data_type: 'text'
+  is_nullable: 0
+
 =head1 PRIMARY KEY
 
 =over 4
@@ -517,22 +516,6 @@ Pinto::Schema::Result::Distribution
 =item * L</author>
 
 =item * L</archive>
-
-=back
-
-=head2 C<md5_unique>
-
-=over 4
-
-=item * L</md5>
-
-=back
-
-=head2 C<sha256_unique>
-
-=over 4
-
-=item * L</sha256>
 
 =back
 

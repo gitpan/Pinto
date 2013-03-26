@@ -20,6 +20,8 @@ __PACKAGE__->table("prerequisite");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "phase",
+  { data_type => "text", is_nullable => 0 },
   "distribution",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "package_name",
@@ -33,8 +35,8 @@ __PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->add_unique_constraint(
-  "distribution_package_name_unique",
-  ["distribution", "package_name"],
+  "distribution_phase_package_name_unique",
+  ["distribution", "phase", "package_name"],
 );
 
 
@@ -50,8 +52,8 @@ __PACKAGE__->belongs_to(
 with 'Pinto::Role::Schema::Result';
 
 
-# Created by DBIx::Class::Schema::Loader v0.07033 @ 2012-12-01 01:42:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:D0QsMZShrg9ZgENP03Qqlw
+# Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-26 11:05:47
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:p++Wil511AYW5fZ8Xoe4Jg
 
 #------------------------------------------------------------------------------
 
@@ -63,17 +65,7 @@ use Pinto::PackageSpec;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.065_06'; # VERSION
-
-#------------------------------------------------------------------------------
-
-sub sqlt_deploy_hook {
-    my ($self, $sqlt_table) = @_;
- 
-    $sqlt_table->add_index(name => 'prerequisite_idx_package_name', fields => ['package_name']);
-
-    return;
-}
+our $VERSION = '0.066'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -117,7 +109,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.065_06
+version 0.066
 
 =head1 NAME
 
@@ -131,6 +123,11 @@ Pinto::Schema::Result::Prerequisite
 
   data_type: 'integer'
   is_auto_increment: 1
+  is_nullable: 0
+
+=head2 phase
+
+  data_type: 'text'
   is_nullable: 0
 
 =head2 distribution
@@ -159,11 +156,13 @@ Pinto::Schema::Result::Prerequisite
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<distribution_package_name_unique>
+=head2 C<distribution_phase_package_name_unique>
 
 =over 4
 
 =item * L</distribution>
+
+=item * L</phase>
 
 =item * L</package_name>
 

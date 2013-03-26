@@ -102,6 +102,7 @@ t/60-dryrun.t
 t/61-nofail.t
 t/62-commit.t
 t/63-prereq.t
+t/64-metadata.t
 t/70-stack-copy.t
 t/71-stack-kill.t
 t/72-stack-rename.t
@@ -109,13 +110,16 @@ t/73-stack-lock.t
 t/74-stack-default.t
 t/75-stack-props.t
 t/80-repo-lock.t
+tmp/pinto.db
 tools/benchmark
 tools/findists
 tools/import
+tools/install.sh
 tools/loadcpan
 tools/mkdbic
 tools/provides
 weaver.ini
+xt/release/02-workarounds.t
 xt/release/99-memory-cycle.t
 xt/release/distmeta.t
 xt/release/pod-syntax.t
