@@ -19,7 +19,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -188,7 +188,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 AUTHOR
 

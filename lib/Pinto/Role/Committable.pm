@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,9 @@ requires qw( execute repo );
 around BUILD => sub {
     my ($orig, $self) = @_;
 
-    $self->_set_stack( $self->repo->get_stack($self->stack) );
+    my $stack = $self->repo->get_stack($self->stack);
+    $stack->assert_not_locked;
+    $self->_set_stack($stack);
 
     return $self->$orig;
 };
@@ -166,7 +168,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 AUTHOR
 

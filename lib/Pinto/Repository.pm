@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -656,7 +656,7 @@ sub assert_archive_not_duplicate {
         throw "Archive $archive is identical to $dupe" if $dupe;
     }
 
-    return;
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -679,7 +679,7 @@ sub assert_version_ok {
         throw $msg;
     }
 
-    return;
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -694,7 +694,7 @@ sub assert_sanity_ok {
         throw "Directory $root_dir does not look like a Pinto repository";
     }
 
-    return;
+    return $self;
 }
 
 #-------------------------------------------------------------------------------
@@ -728,7 +728,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 ATTRIBUTES
 

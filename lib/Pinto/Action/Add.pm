@@ -13,7 +13,7 @@ use Pinto::Types qw(AuthorID FileList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -155,7 +155,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 AUTHOR
 

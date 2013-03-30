@@ -7,7 +7,7 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool ArrayRef);
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Term::ANSIColor ();
+use Term::ANSIColor 2.02 (); #First version with colorvalid()
 use Term::EditorEdit;
 
 use Pinto::Types qw(Io);
@@ -15,7 +15,7 @@ use Pinto::Util qw(user_colors is_interactive itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -216,7 +216,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 AUTHOR
 

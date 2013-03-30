@@ -17,7 +17,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.066'; # VERSION
+our $VERSION = '0.067'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.066
+version 0.067
 
 =head1 SYNOPSIS
 

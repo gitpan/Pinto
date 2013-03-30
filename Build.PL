@@ -7,11 +7,7 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   "build_requires" => {
-    "ExtUtils::MakeMaker" => 0,
-    "File::Spec::Functions" => 0,
-    "Module::Build" => "0.3601",
-    "Test::File" => 0,
-    "Test::More" => 0
+    "Module::Build" => "0.3601"
   },
   "configure_requires" => {
     "Module::Build" => "0.3601"
@@ -21,7 +17,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.066",
+  "dist_version" => "0.067",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -83,7 +79,7 @@ my %module_build_args = (
     "Pinto::Util" => "0.066",
     "Readonly" => 0,
     "String::Format" => 0,
-    "Term::ANSIColor" => 0,
+    "Term::ANSIColor" => "2.02",
     "Term::EditorEdit" => 0,
     "Test::Builder::Module" => 0,
     "Test::Exception" => 0,
@@ -100,9 +96,28 @@ my %module_build_args = (
   "script_files" => [],
   "share_dir" => {
     "dist" => "share"
+  },
+  "test_requires" => {
+    "ExtUtils::MakeMaker" => 0,
+    "File::Spec::Functions" => 0,
+    "Test::File" => 0,
+    "Test::More" => 0
   }
 );
 
+
+unless ( eval { Module::Build->VERSION(0.4004) } ) {
+  my $tr = delete $module_build_args{test_requires};
+  my $br = $module_build_args{build_requires};
+  for my $mod ( keys %$tr ) {
+    if ( exists $br->{$mod} ) {
+      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
+    }
+    else {
+      $br->{$mod} = $tr->{$mod};
+    }
+  }
+}
 
 my $build = Module::Build->new(%module_build_args);
 
