@@ -11,7 +11,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.067'; # VERSION
+our $VERSION = '0.068'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.067
+version 0.068
 
 =head1 AUTHOR
 

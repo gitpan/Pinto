@@ -3,21 +3,23 @@ use strict;
 use warnings;
 
 use Module::Build 0.3601;
-
+use lib qw{inc}; use Pinto::Module::Build;
 
 my %module_build_args = (
   "build_requires" => {
-    "Module::Build" => "0.3601"
+    "Module::Build" => "0.3601",
+    "Module::Build::CleanInstall" => "0.05"
   },
   "configure_requires" => {
-    "Module::Build" => "0.3601"
+    "Module::Build" => "0.3601",
+    "Module::Build::CleanInstall" => "0.05"
   },
   "dist_abstract" => "Curate a repository of Perl modules",
   "dist_author" => [
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.067",
+  "dist_version" => "0.068",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -38,6 +40,7 @@ my %module_build_args = (
     "DBIx::Class::Schema" => 0,
     "DateTime" => 0,
     "DateTime::TimeZone" => 0,
+    "DateTime::TimeZone::Local::Unix" => 0,
     "DateTime::TimeZone::OffsetOnly" => 0,
     "Digest::SHA" => 0,
     "Dist::Metadata" => "0.924",
@@ -119,6 +122,6 @@ unless ( eval { Module::Build->VERSION(0.4004) } ) {
   }
 }
 
-my $build = Module::Build->new(%module_build_args);
+my $build = Pinto::Module::Build->new(%module_build_args);
 
 $build->create_build_script;

@@ -7,7 +7,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.067'; # VERSION
+our $VERSION = '0.068'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.067
+version 0.068
 
 =head1 DESCRIPTION
 

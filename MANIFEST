@@ -9,6 +9,7 @@ META.yml
 README
 TODO.pod
 dist.ini
+inc/Pinto/Module/Build.pm
 lib/Pinto.pm
 lib/Pinto/Action.pm
 lib/Pinto/Action/Add.pm
@@ -101,8 +102,10 @@ t/50-diffs.t
 t/60-dryrun.t
 t/61-nofail.t
 t/62-commit.t
+t/63-prereq-circular.t
 t/63-prereq.t
 t/64-metadata.t
+t/65-purity.t
 t/70-stack-copy.t
 t/71-stack-kill.t
 t/72-stack-rename.t

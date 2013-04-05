@@ -60,7 +60,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.067'; # VERSION
+our $VERSION = '0.068'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -665,7 +665,17 @@ sub default_properties {
     my $desc = sprintf('The %s stack', $self->name);
     my $tpv  = $self->repo->config->target_perl_version->stringify;
 
-    return {description => $desc, target_perl_version => $tpv};
+    return { description          => $desc, 
+             target_perl_version  => $tpv };
+}
+
+#-------------------------------------------------------------------------------
+
+sub prohibits_partial_distributions {
+    my ($self) = @_;
+
+    return 1 if $self->get_property('prohibit_partial_distributions');
+    return 0;
 }
 
 #-------------------------------------------------------------------------------
@@ -751,7 +761,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.067
+version 0.068
 
 =head1 METHODS
 

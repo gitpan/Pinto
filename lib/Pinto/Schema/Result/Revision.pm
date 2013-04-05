@@ -88,7 +88,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.067'; # VERSION
+our $VERSION = '0.068'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -105,6 +105,20 @@ use Pinto::Util qw(:all);
 use overload ( '""'  => 'to_string',
                '<=>' => 'numeric_compare',
                'eq'  => 'equals' );
+
+#------------------------------------------------------------------------------
+
+# HACK: On perl-5.14.x (and possibly others) Package::Stash::XS has some funky
+# behavior that causes Class::Load to think that certain modules are already 
+# loaded when they actually are not.  This manifests in an error when
+# DateTime::TimeZone tries to load DateTime::TimeZone::Local::Unix.  I don't
+# know why it happens.  But loading it here explicitly prevents the problem.
+# The module may or may not actually be used depending on your platform, and
+# and forcibly loading it anway seems to be innocuous.  We use Class::Load
+# quite a lot in Pinto, so this same bug may manifest in other places too.  For 
+# the moment, this is the only one that I'm aware of.
+
+use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
@@ -365,7 +379,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.067
+version 0.068
 
 =head1 NAME
 

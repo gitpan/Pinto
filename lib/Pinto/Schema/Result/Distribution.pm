@@ -94,7 +94,7 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.067'; # VERSION
+our $VERSION = '0.068'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -160,7 +160,18 @@ sub register {
         if $incumbent_pkg > $pkg;
  
 
-      $incumbent->delete;
+
+      if ( $stack->prohibits_partial_distributions ) {
+        # If the stack is pure, then completely unregister all the
+        # packages in the incumbent distribution, so there is no overlap
+        $incumbent->distribution->unregister(stack => $stack);
+      }
+      else {
+        # Otherwise, just delete this one registration.  The stack may
+        # end up with some packages from one dist and some from another
+        $incumbent->delete;
+      }
+
       $pkg->register(stack => $stack, pin => $pin);
       $did_register++;
     }
@@ -448,7 +459,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.067
+version 0.068
 
 =head1 NAME
 

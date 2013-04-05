@@ -32,6 +32,7 @@ my @modules = qw(
   DBIx::Class::Schema
   DateTime
   DateTime::TimeZone
+  DateTime::TimeZone::Local::Unix
   DateTime::TimeZone::OffsetOnly
   Digest::SHA
   Dist::Metadata
@@ -53,6 +54,7 @@ my @modules = qw(
   JSON::PP
   List::Util
   Module::Build
+  Module::Build::CleanInstall
   Module::Faker::Dist
   Moose
   Moose::Role
