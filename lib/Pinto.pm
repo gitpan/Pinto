@@ -17,7 +17,21 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.068'; # VERSION
+# HACK: On perl-5.14.x (and possibly others) Package::Stash::XS has some funky
+# behavior that causes Class::Load to think that certain modules are already
+# loaded when they actually are not.  I don't know why it happens.  But loading
+# those modules here explicitly prevents the problem. The module may or may not
+# actually be used depending on your platform, and forcibly loading it anyway
+# seems  to be innocuous.  We use Class::Load quite a lot in Pinto, so this same
+# bug may manifest in other places too.  For  the moment, this these are the
+# only ones that I'm aware of.
+
+use Devel::StackTrace;
+use DateTime::TimeZone::Local::Unix;
+
+#------------------------------------------------------------------------------
+
+our $VERSION = '0.079_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -126,9 +140,8 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems cpan testmatrix url
-annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
-placeholders metacpan
+=for :stopwords Jeffrey Ryan Thalhammer cpan testmatrix url annocpan anno bugtracker rt
+cpants kwalitee diff irc mailto metadata placeholders metacpan
 
 =head1 NAME
 
@@ -136,7 +149,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.068
+version 0.079_01
 
 =head1 SYNOPSIS
 
@@ -279,11 +292,11 @@ in addition to those websites please use your favorite search engine to discover
 
 =item *
 
-Search CPAN
+MetaCPAN
 
-The default CPAN search engine, useful to view POD in HTML format.
+A modern, open-source CPAN search engine, useful to view POD in HTML format.
 
-L<http://search.cpan.org/dist/Pinto>
+L<http://metacpan.org/release/Pinto>
 
 =item *
 
@@ -292,6 +305,14 @@ CPAN Ratings
 The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
 
 L<http://cpanratings.perl.org/d/Pinto>
+
+=item *
+
+CPANTS
+
+The CPANTS is a website that analyzes the Kwalitee ( code metrics ) of a distribution.
+
+L<http://cpants.perl.org/dist/overview/Pinto>
 
 =item *
 
@@ -319,16 +340,82 @@ L<http://deps.cpantesters.org/?module=Pinto>
 
 =back
 
+=head2 Internet Relay Chat
+
+You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
+please read this excellent guide: L<http://en.wikipedia.org/wiki/Internet_Relay_Chat>. Please
+be courteous and patient when talking to us, as we might be busy or sleeping! You can join
+those networks/channels and get help:
+
+=over 4
+
+=item *
+
+irc.perl.org
+
+You can connect to the server at 'irc.perl.org' and join this channel: #pinto then talk to this person for help: thaljef.
+
+=back
+
 =head2 Bugs / Feature Requests
 
 L<https://github.com/thaljef/Pinto/issues>
 
 =head2 Source Code
 
+The code is open to the world, and available for you to hack on. Please feel free to browse it and play
+with it, or whatever. If you want to contribute patches, please send me a diff or prod me to pull
+from your repository :)
 
 L<https://github.com/thaljef/Pinto>
 
   git clone git://github.com/thaljef/Pinto.git
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Cory G Watson <gphat@onemogin.com>
+
+=item *
+
+Jakob Voss <jakob@nichtich.de>
+
+=item *
+
+Jeff <jeff@callahan.local>
+
+=item *
+
+Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Jeffrey Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Karen Etheridge <ether@cpan.org>
+
+=item *
+
+Michael G. Schwern <schwern@pobox.com>
+
+=item *
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=item *
+
+Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
+
+=item *
+
+Yanick Champoux <yanick@babyl.dyndns.org>
+
+=back
 
 =head1 AUTHOR
 
@@ -336,7 +423,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Imaginative Software Systems.
+This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

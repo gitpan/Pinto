@@ -19,7 +19,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.068'; # VERSION
+our $VERSION = '0.079_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -40,10 +40,19 @@ has unpacker => (
 );
 
 
+has work_dir => (
+    is       => 'ro',
+    isa      => Dir,
+    default  => sub { $_[0]->unpacker->unpack }, 
+    init_arg => undef,
+    lazy     => 1,
+);
+
+
 has dm => (
     is       => 'ro',
     isa      => 'Dist::Metadata',
-    default  => sub { Dist::Metadata->new(dir => $_[0]->unpacker->unpack) },
+    default  => sub { Dist::Metadata->new(dir => $_[0]->work_dir, include_inner_packages => 1) },
     init_arg => undef,
     lazy     => 1,
 );
@@ -56,8 +65,17 @@ sub provides {
     my $archive = $self->archive;
     debug "Extracting packages provided by archive $archive";
 
-    my $mod_info =   try { $self->dm->module_info( {checksum => 'sha256'} )     }
-                   catch { throw "Unable to extract packages from $archive: $_" };
+    my $mod_info = try {
+        # Some modules get their VERSION by loading some other
+        # module from lib/.  So make sure that lib/ is in @INC
+        my $lib_dir = $self->work_dir->subdir('lib');
+        local @INC = ($lib_dir->stringify, @INC);
+
+        $self->dm->module_info( {checksum => 'sha256'} );   
+    }
+    catch { 
+         throw "Unable to extract packages from $archive: $_" 
+    };
 
     my @provides;
     for my $pkg_name ( sort keys %{ $mod_info } ) {
@@ -83,7 +101,7 @@ sub requires {
     my $archive = $self->archive;
     debug "Extracting packages required by archive $archive";
 
-    my $prereqs_meta =   try { $self->dm->meta->prereqs }
+    my $prereqs_meta = try   { $self->dm->meta->prereqs }
                        catch { throw "Unable to extract prereqs from $archive: $_" };
 
     my @prereqs;
@@ -180,7 +198,7 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -188,7 +206,53 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.068
+version 0.079_01
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Cory G Watson <gphat@onemogin.com>
+
+=item *
+
+Jakob Voss <jakob@nichtich.de>
+
+=item *
+
+Jeff <jeff@callahan.local>
+
+=item *
+
+Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Jeffrey Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Karen Etheridge <ether@cpan.org>
+
+=item *
+
+Michael G. Schwern <schwern@pobox.com>
+
+=item *
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=item *
+
+Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
+
+=item *
+
+Yanick Champoux <yanick@babyl.dyndns.org>
+
+=back
 
 =head1 AUTHOR
 
@@ -196,7 +260,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Imaginative Software Systems.
+This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

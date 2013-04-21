@@ -4,7 +4,7 @@ package Pinto::Chrome::Term;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::Types::Moose qw(Bool ArrayRef);
+use MooseX::Types::Moose qw(Bool ArrayRef Str);
 use MooseX::MarkAsMethods (autoclean => 1);
 
 use Term::ANSIColor 2.02 (); #First version with colorvalid()
@@ -15,7 +15,7 @@ use Pinto::Util qw(user_colors is_interactive itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.068'; # VERSION
+our $VERSION = '0.079_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -55,6 +55,12 @@ has stderr => (
     lazy    => 1,
 );
 
+
+has diag_prefix => (
+    is      => 'ro',
+    isa     => Str,
+    default => '',
+);
 
 #-----------------------------------------------------------------------------
 
@@ -118,10 +124,13 @@ sub diag {
     }
 
     chomp $msg;
-
-    $msg = $self->colorize($msg, $opts->{color});
-
+    $msg  = $self->colorize($msg, $opts->{color});
     $msg .= "\n" unless $opts->{no_newline};
+
+    # Prepend prefix to each line (not just at the start of the message)
+    # The prefix is used by Pinto::Remote to distinguish between
+    # messages that go to stderr and those that should go to stdout
+    $msg =~ s/^/$self->diag_prefix/gemx if length $self->diag_prefix;
 
     print { $self->stderr } $msg or croak $!;
 }
@@ -150,10 +159,31 @@ sub progress_done {
 
 #-----------------------------------------------------------------------------
 
+override should_render_progress => sub {
+    my ($self) = @_;
+
+    return 0 if not super;
+    return 0 if not is_interactive;
+    return 0 if not -t $self->stderr;
+    return 1;
+};
+
+#-----------------------------------------------------------------------------
+
 sub edit {
     my ($self, $document) = @_;
 
     local $ENV{VISUAL} = $ENV{PINTO_EDITOR} if $ENV{PINTO_EDITOR};
+
+    # If this command is reading input from a pipe or file, then
+    # STDIN will not be connected to a terminal.  This causes vim
+    # and emacs to behave oddly (or even segfault).  After searching
+    # the internets, this seems to a portable way to reconnect STDIN
+    # to the actual terminal.  I haven't actually tried it on Windows.
+    # I'm not sure if/how I should be localizing STDIN here.
+
+    my $term = ($^O eq 'MSWin32') ? 'CON' : '/dev/tty';
+    open(STDIN, '<', $term) or throw $!;
 
     return Term::EditorEdit->edit(document => $document);
 }
@@ -208,7 +238,7 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer Imaginative Software Systems
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -216,7 +246,53 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.068
+version 0.079_01
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Cory G Watson <gphat@onemogin.com>
+
+=item *
+
+Jakob Voss <jakob@nichtich.de>
+
+=item *
+
+Jeff <jeff@callahan.local>
+
+=item *
+
+Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Jeffrey Thalhammer <jeff@imaginative-software.com>
+
+=item *
+
+Karen Etheridge <ether@cpan.org>
+
+=item *
+
+Michael G. Schwern <schwern@pobox.com>
+
+=item *
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=item *
+
+Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
+
+=item *
+
+Yanick Champoux <yanick@babyl.dyndns.org>
+
+=back
 
 =head1 AUTHOR
 
@@ -224,7 +300,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Imaginative Software Systems.
+This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
