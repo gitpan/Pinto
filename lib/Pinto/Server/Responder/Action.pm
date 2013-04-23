@@ -24,7 +24,7 @@ use Pinto::Constants qw(:server);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ sub _run_action {
             # always be in the callback when we get the signal.
 
             ## no critic qw(RequireLocalizedPunctuationVars)
-            $SIG{PIPE} = sub { warn "GOT PIPE"; kill 'TERM', $child_pid };
+            $SIG{PIPE} = sub { kill 'TERM', $child_pid };
             $SIG{CHLD} = 'IGNORE';
             ## use critic
 
@@ -154,7 +154,7 @@ Pinto::Server::Responder::Action - Responder for action requests
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

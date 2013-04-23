@@ -65,7 +65,7 @@ use Pinto::PackageSpec;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -109,7 +109,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 NAME
 

@@ -10,7 +10,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -86,9 +86,9 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
-=head1 SEE ALSO
+=head1 SYNOPSIS
 
 L<pinto> to create and manage a Pinto repository.
 

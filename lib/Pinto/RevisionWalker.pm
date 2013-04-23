@@ -1,4 +1,4 @@
-# ABSTRACT: Iterates through distribution prerequisites
+# ABSTRACT: Iterates through revision history
 
 package Pinto::RevisionWalker;
 
@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # TODO: Rethink this API.  Do we need start?  Can we just use queue?  What
@@ -60,11 +60,11 @@ __END__
 
 =head1 NAME
 
-Pinto::RevisionWalker - Iterates through distribution prerequisites
+Pinto::RevisionWalker - Iterates through revision history
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

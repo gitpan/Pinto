@@ -9,11 +9,12 @@ use MooseX::Types::Moose qw(Undef Bool HashRef ArrayRef Maybe Str);
 use File::Temp;
 use File::Which qw(which);
 
+use Pinto::Result;
 use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,123 +22,77 @@ extends qw( Pinto::Remote::Action );
 
 #------------------------------------------------------------------------------
 
-has cpanm_options => (
-    is      => 'ro',
-    isa     => HashRef[Maybe[Str]],
-    default => sub { $_[0]->args->{cpanm_options} || {} },
-    lazy    => 1,
-);
-
-
-has cpanm_exe => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub { which('cpanm') || throw 'Could not find cpanm in PATH' },
-    lazy    => 1,
-);
-
-
 has targets => (
     isa      => ArrayRef[Str],
     traits   => [ 'Array' ],
     handles  => { targets => 'elements' },
     default  => sub { $_[0]->args->{targets} || [] },
+    lazy     => 1,
 );
 
 
-has pull => (
-    is       => 'ro',
-    isa      => Bool,
-    default  => sub { $_[0]->args->{pull} || 0 },
+has do_pull => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+
+has mirror_url => (
+    is      => 'ro',
+    isa     => Str,
+    builder => '_build_mirror_url',
+    lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
 
-sub BUILD {
+sub _build_mirror_url {
     my ($self) = @_;
 
-    my $cpanm_exe = $self->cpanm_exe;
+    my $stack      = $self->args->{stack};
+    my $stack_dir  = defined $stack ? "/stacks/$stack" : '';
+    my $mirror_url = $self->root . $stack_dir;
 
-    my $cpanm_version_cmd = "$cpanm_exe --version";
-    my $cpanm_version_cmd_output = qx{$cpanm_version_cmd};  ## no critic qw(Backtick)
-    throw "Could not learn version of cpanm: $!" if $?;
-
-    my ($cpanm_version) = $cpanm_version_cmd_output =~ m{version \s+ ([\d.]+)}x
-      or throw "Could not parse cpanm version number from $cpanm_version_cmd_output";
-
-    my $min_cpanm_version = '1.5013';
-    if ($cpanm_version < $min_cpanm_version) {
-      throw "Your cpanm ($cpanm_version) is too old. Must have $min_cpanm_version or newer";
-    }
-
-    # HACK: Prior versions of Pinto had an index file for the default stack
-    # in the modules/ directory at the root of the repository.  So if you
-    # pointed cpanm at the repository root, you'd get stuff from the default
-    # stack.  But this is no longer true.  Now, each request for a file
-    # from the repository must specify a stack.  We could possibly work
-    # around this by sending another request to find out the default stack
-    # is called.  But for now, I'm just going to punt.
-
-    $self->args->{stack}
-      or throw 'Must specify a stack to install from a remote repository';
-
-    return $self;
+    return $mirror_url;
 }
+
+#------------------------------------------------------------------------------
+
+around BUILDARGS => sub {
+    my $orig  = shift;
+    my $class = shift;
+
+    my $args = $class->$orig(@_);
+
+    # Intercept attributes from the action "args" hash
+    $args->{do_pull}       = delete $args->{args}->{do_pull}       || 0;
+    $args->{cpanm_options} = delete $args->{args}->{cpanm_options} || {};
+
+    return $args;
+};
 
 #------------------------------------------------------------------------------
 
 override execute => sub {
     my ($self) = @_;
 
-    $self->_do_pull if $self->pull;
+    my $result;
+    if ($self->do_pull) {
 
-    my $result = $self->_install;
+        my $request = $self->_make_request(name => 'pull');
+        $result = $self->_send_request(req => $request);
 
+        throw 'Failed to pull packages' if not $result->was_successful;
+    }
+
+    # Pinto::Role::Installer will handle installation after execute()
     return $result;
  };
 
 #------------------------------------------------------------------------------
 
-sub _do_pull {
-    my ($self) = @_;
-
-
-    my $request = $self->_make_request(name => 'pull');
-    my $result  = $self->_send_request(req => $request);
-
-    throw 'Failed to pull packages' if not $result->was_successful;
-
-    return $self;
-}
-
-#------------------------------------------------------------------------------
-
-sub _install {
-    my ($self, $index) = @_;
-
-    # Wire cpanm to the index
-    my $opts  = $self->cpanm_options;
-    my $stack = $self->args->{stack};
-    $opts->{mirror}        = $self->config->root->as_string . '/' . $stack;
-    $opts->{'mirror-only'} = '';
-
-    # Process other cpanm options
-    my @cpanm_opts;
-    for my $opt ( keys %{ $opts } ){
-        my $dashes = (length $opt == 1) ? '-' : '--';
-        my $dashed_opt = $dashes . $opt;
-        my $opt_value = $opts->{$opt};
-        push @cpanm_opts, $dashed_opt;
-        push @cpanm_opts, $opt_value if defined $opt_value && length $opt_value;
-    }
-
-    # Run cpanm
-    $self->debug(join ' ', 'Running:', $self->cpanm_exe, @cpanm_opts);
-    0 == system($self->cpanm_exe, @cpanm_opts, $self->targets)
-      or throw "Installation failed.  See the cpanm build log for details";
-
-    return Pinto::Remote::Result->new(was_successful => 1);
-}
+with qw( Pinto::Role::Installer );
 
 #------------------------------------------------------------------------------
 
@@ -158,7 +113,7 @@ Pinto::Remote::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =for Pod::Coverage BUILD
 

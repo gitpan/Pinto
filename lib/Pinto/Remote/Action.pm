@@ -11,13 +11,13 @@ use URI;
 use JSON;
 use HTTP::Request::Common;
 
-use Pinto::Remote::Result;
+use Pinto::Result;
 use Pinto::Constants qw(:server);
 use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -158,10 +158,10 @@ sub _send_request {
 
     if (not $response->is_success) {
         $self->error($response->content);
-        return Pinto::Remote::Result->new(was_successful => 0);
+        return Pinto::Result->new(was_successful => 0);
     }
 
-    return Pinto::Remote::Result->new(was_successful => $status);
+    return Pinto::Result->new(was_successful => $status);
 }
 
 #------------------------------------------------------------------------------
@@ -207,15 +207,14 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 METHODS
 
 =head2 execute
 
 Runs this Action on the remote server by serializing itself and
-sending a POST request to the server.  Returns a
-L<Pinto::Remote::Result>.
+sending a POST request to the server.  Returns a L<Pinto::Result>.
 
 =head1 CONTRIBUTORS
 

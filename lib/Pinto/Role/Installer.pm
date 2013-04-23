@@ -1,4 +1,4 @@
-# ABSTRACT: Something pulls packages to a stack
+# ABSTRACT: Something that installs packages
 
 package Pinto::Role::Installer;
 
@@ -6,13 +6,14 @@ use Moose::Role;
 use MooseX::Types::Moose qw(Str HashRef Maybe);
 use MooseX::MarkAsMethods (autoclean => 1);
 
+use Path::Class qw(dir);
 use File::Which qw(which);
 
 use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -27,13 +28,14 @@ has cpanm_options => (
 has cpanm_exe => (
     is      => 'ro',
     isa     => Str,
-    default => sub { which('cpanm') || throw 'Could not find cpanm in PATH' },
+    builder => '_build_cpanm_exe',
     lazy    => 1,
 );
 
+
 #-----------------------------------------------------------------------------
 
-requires qw( execute targets  );
+requires qw( execute targets mirror_url );
 
 #-----------------------------------------------------------------------------
 
@@ -41,24 +43,28 @@ with qw( Pinto::Role::Plated );
 
 #-----------------------------------------------------------------------------
 
-sub BUILD {
+sub _build_cpanm_exe {
     my ($self) = @_;
 
-    my $cpanm_exe = $self->cpanm_exe;
+    return dir($ENV{PINTO_HOME})->subdir('sbin')->file('cpanm')->stringify
+        if $ENV{PINTO_HOME};
+
+    my $cpanm_exe = which('cpanm') 
+        or throw 'Could not find cpanm in PATH';
 
     my $cpanm_version_cmd = "$cpanm_exe --version";
     my $cpanm_version_cmd_output = qx{$cpanm_version_cmd};  ## no critic qw(Backtick)
     throw "Could not learn version of cpanm: $!" if $?;
 
     my ($cpanm_version) = $cpanm_version_cmd_output =~ m{version ([\d.]+)}
-      or throw "Could not parse cpanm version number from $cpanm_version_cmd_output";
+        or throw "Could not parse cpanm version number from $cpanm_version_cmd_output";
 
     my $min_cpanm_version = '1.5013';
     if ($cpanm_version < $min_cpanm_version) {
-      throw "Your cpanm ($cpanm_version) is too old. Must have $min_cpanm_version or newer";
+        throw "Your cpanm ($cpanm_version) is too old. Must have $min_cpanm_version or newer";
     }
 
-    return $self;
+    return $cpanm_exe;
 }
 
 #-----------------------------------------------------------------------------
@@ -68,12 +74,9 @@ after execute => sub {
 
     # Wire cpanm to our repo
     my $opts = $self->cpanm_options;
+    $opts->{mirror} = $self->mirror_url;
     $opts->{'mirror-only'} = '';
-
-    my $stack = $self->stack;
-    my $stack_dir = defined $stack ? "/stacks/$stack" : '';
-    $opts->{mirror} = 'file://' . $self->repo->root->absolute . $stack_dir;
-
+    
     # Process other cpanm options
     my @cpanm_opts;
     for my $opt ( keys %{ $opts } ){
@@ -101,11 +104,11 @@ __END__
 
 =head1 NAME
 
-Pinto::Role::Installer - Something pulls packages to a stack
+Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ App::Pinto::Command::clean - remove orphaned distribution archives
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 SYNOPSIS
 

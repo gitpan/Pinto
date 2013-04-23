@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.079_01
+    version 0.079_04
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -10,6 +10,9 @@ SYNOPSIS
     See pintod to allow remote access to your Pinto repository.
 
     See Pinto::Manual for more information about the Pinto tools.
+
+    Stratopan <http://stratopan.com> for hosting your Pinto repository in
+    the cloud.
 
 DESCRIPTION
     Pinto is an application for creating and managing a custom CPAN-like
@@ -106,16 +109,6 @@ BUT WHERE IS THE API?
     notice. Any API documentation you see is purely for my own references.
     In the meantime, the command line utilities mentioned in the "SYNOPSIS"
     are your public user interface.
-
-SEE ALSO
-    pinto to create and manage a Pinto repository.
-
-    pintod to allow remote access to your Pinto repository.
-
-    Pinto::Manual for general information on using Pinto.
-
-    Stratopan <http://stratopan.com> for hosting your Pinto repository in
-    the cloud.
 
 SUPPORT
   Perldoc

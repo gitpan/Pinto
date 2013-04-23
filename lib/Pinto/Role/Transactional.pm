@@ -11,7 +11,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ Pinto::Role::Transactional - Role for actions that are transactional
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

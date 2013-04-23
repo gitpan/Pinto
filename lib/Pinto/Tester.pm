@@ -21,7 +21,7 @@ use Pinto::Util qw(:all);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,10 +38,6 @@ BEGIN {
     $Pinto::Globals::current_author_id = 'AUTHOR';
     $Pinto::Globals::current_username  = 'USERNAME';
 
-    # So we can run `prove` without having the ddl installed
-    no warnings 'redefine';
-    my $ddl_file = file( qw(share pinto.ddl) );
-    *Pinto::Database::ddl_file = sub { $ddl_file } if -e $ddl_file;
 }
 
 #------------------------------------------------------------------------------
@@ -594,7 +590,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

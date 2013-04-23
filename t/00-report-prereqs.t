@@ -12,7 +12,6 @@ use List::Util qw/max/;
 my @modules = qw(
   Apache::Htpasswd
   App::Cmd::Setup
-  App::Cmd::Tester
   Archive::Extract
   Archive::Tar
   Authen::Simple::Passwd
@@ -44,7 +43,6 @@ my @modules = qw(
   File::Find
   File::HomeDir
   File::NFSLock
-  File::ShareDir
   File::Spec
   File::Spec::Functions
   File::Temp
@@ -56,6 +54,7 @@ my @modules = qw(
   HTTP::Request
   HTTP::Request::Common
   HTTP::Response
+  HTTP::Server::PSGI
   HTTP::Tiny
   IO::File
   IO::Handle
@@ -101,6 +100,7 @@ my @modules = qw(
   Readonly
   Router::Simple
   Scalar::Util
+  Starman
   String::Format
   Term::ANSIColor
   Term::EditorEdit

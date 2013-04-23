@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.079_01",
+  "dist_version" => "0.079_04",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -55,13 +55,13 @@ my %module_build_args = (
     "File::Find" => 0,
     "File::HomeDir" => 0,
     "File::NFSLock" => 0,
-    "File::ShareDir" => 0,
     "File::Spec" => 0,
     "File::Temp" => 0,
     "File::Which" => 0,
     "Getopt::Long" => 0,
     "HTTP::Date" => 0,
     "HTTP::Request::Common" => 0,
+    "HTTP::Server::PSGI" => 0,
     "HTTP::Tiny" => 0,
     "IO::File" => 0,
     "IO::Handle" => 0,
@@ -81,7 +81,7 @@ my %module_build_args = (
     "Moose" => 0,
     "Moose::Role" => 0,
     "MooseX::Aliases" => 0,
-    "MooseX::ClassAttribute" => 0,
+    "MooseX::ClassAttribute" => "0.27",
     "MooseX::Configuration" => 0,
     "MooseX::MarkAsMethods" => 0,
     "MooseX::NonMoose" => 0,
@@ -104,6 +104,7 @@ my %module_build_args = (
     "Readonly" => 0,
     "Router::Simple" => 0,
     "Scalar::Util" => 0,
+    "Starman" => 0,
     "String::Format" => 0,
     "Term::ANSIColor" => "2.02",
     "Term::EditorEdit" => 0,
@@ -127,12 +128,8 @@ my %module_build_args = (
     "bin/pinto",
     "bin/pintod"
   ],
-  "share_dir" => {
-    "dist" => "share"
-  },
   "test_requires" => {
     "Apache::Htpasswd" => 0,
-    "App::Cmd::Tester" => 0,
     "Authen::Simple::Passwd" => 0,
     "ExtUtils::MakeMaker" => 0,
     "File::Spec::Functions" => 0,

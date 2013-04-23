@@ -7,7 +7,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ Pinto::Exception - Base class for Pinto exceptions
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 

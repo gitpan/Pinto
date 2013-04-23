@@ -3,16 +3,22 @@
 package Pinto::Server::Tester;
 
 use Moose;
+use MooseX::Types::Moose qw(Str Int);
+
+use Carp;
 use IPC::Run;
 use Test::TCP;
 use File::Which;
-use Carp;
+use Proc::Fork;
+use Path::Class qw(dir);
 
-use Pinto::Types qw(File);
+use Pinto::Types qw(File Uri);
+
+use HTTP::Server::PSGI;  # just to make sure we have it
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -23,23 +29,24 @@ extends 'Pinto::Tester';
 
 has server_port => (
   is         => 'ro',
-  isa        => 'Int',
-  default    => sub { empty_port },
+  isa        => Int,
+  default    => sub { empty_port() },
 );
 
 
 
 has server_host => (
   is         => 'ro',
-  isa        => 'Str',
+  isa        => Str,
   init_arg   => undef,
   default    => 'localhost',
 );
 
 
+
 has server_pid => (
   is         => 'rw',
-  isa        => 'Int',
+  isa        => Int,
   init_arg   => undef,
   default    => 0,
 );
@@ -48,9 +55,9 @@ has server_pid => (
 
 has server_url => (
   is         => 'ro',
-  isa        => 'Str',
+  isa        => Uri,
   init_arg   => undef,
-  default    => sub { 'http://' . $_[0]->server_host . ':' . $_[0]->server_port },
+  default    => sub { URI->new('http://' . $_[0]->server_host . ':' . $_[0]->server_port) },
 );
 
 
@@ -58,9 +65,32 @@ has server_url => (
 has pintod_exe => (
   is         => 'ro',
   isa        => File,
-  default    => sub { which('pintod') || croak "Could not find pintod in PATH" },
+  builder    => '_build_pintod_exe',
   coerce     => 1,
+  lazy       => 1,
 );
+
+
+#-------------------------------------------------------------------------------
+
+sub _build_pintod_exe {
+  my ($self) = @_;
+
+  # Look inside the dist directory
+  for my $dir ([qw(blib script)], [qw(bin)]) {
+    my $pintod = dir( @{$dir} )->file('pintod');
+    return $pintod if -e $pintod;
+  }
+
+  # Look at PINTO_HOME
+  return dir($ENV{PINTO_HOME})->file(qw(bin pintod)) 
+    if $ENV{PINTO_HOME};
+
+  # Look anywhere in PATH
+  return which('pintod')
+    || croak 'Unable to find pintod anywhere';
+
+}
 
 #-------------------------------------------------------------------------------
 
@@ -70,25 +100,32 @@ sub start_server {
 
   carp 'Server already started' and return if $self->server_pid;
 
-  local $ENV{PLACK_SERVER} = '';          # Use the default backend
-  local $ENV{PLACK_ENV}    = 'testing';   # Suppresses startup message
-  local $ENV{PINTO_LOCKFILE_TIMEOUT} = 2; # Don't make tests wait!
+  local $ENV{PLACK_ENV}    = 'testing';            # Suppresses startup message
+  local $ENV{PLACK_SERVER} = 'HTTP::Server::PSGI'; # Basic non-forking server
+  local $ENV{PINTO_LOCKFILE_TIMEOUT} = 2;          # Don't make tests wait!
 
-  my $server_pid = fork;
-  croak "Failed to fork: $!" if not defined $server_pid;
+  run_fork {
 
-  if ($server_pid == 0) {
-    my %opts = ('--port' => $self->server_port, '--root' => $self->root);
-    my @cmd = ($^X, $self->pintod_exe, %opts);
-    $self->tb->note(sprintf 'exec(%s)', join ' ', @cmd);
-    exec @cmd;
-  }
+    child {
+      my $xtra_lib = $self->_extra_lib;
+      my %opts = ('--port' => $self->server_port, '--root' => $self->root);
+      my @cmd = ($^X, $xtra_lib, $self->pintod_exe, %opts);
+      $self->tb->note(sprintf 'exec(%s)', join ' ', @cmd);
+      exec @cmd;
+    }
 
-  $self->server_pid($server_pid);
-  $self->server_running_ok or croak 'Sever startup failed';
-  sleep 2; # Let the server warm up
+    parent {
+      my $server_pid = shift;
+      $self->server_pid($server_pid);
+      sleep 2; # Let the server warm up
 
+    }
 
+    error {
+        croak "Failed to fork: $!";
+    }
+  };
+ 
   return $self;
 }
 
@@ -106,8 +143,6 @@ sub stop_server {
   $self->tb->note("Shutting down server $server_pid");
   kill 'TERM', $server_pid;
   sleep 2 and waitpid $server_pid, 0;
-
-  $self->server_not_running_ok;
 
   return $self;
 }
@@ -140,6 +175,19 @@ sub server_not_running_ok {
 
 #-------------------------------------------------------------------------------
 
+sub _extra_lib {
+  my ($self) = @_;
+
+  my $blib = dir( qw(blib lib) );
+  my $lib  = dir( qw(     lib) );
+
+  return "-I$blib" if -e $blib;
+  return "-I$lib"  if -e $lib;
+  return '';
+}
+
+#-------------------------------------------------------------------------------
+
 sub DEMOLISH {
   my ($self) = @_;
 
@@ -168,7 +216,7 @@ Pinto::Server::Tester - A class for testing a Pinto server
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 ATTRIBUTES
 
@@ -191,9 +239,9 @@ Returns the full URL that the server will listen on.  Read-only.
 
 =head2 pintod_exe
 
-Sets the path to the C<pintod> executable.  If not specified, your
-C<PATH> will be searched.  An exception is thrown if C<pintod> cannot
-be found.
+Sets the path to the C<pintod> executable.  If not specified, we will search
+in F<./blib/script>, F<./bin>, C<PINTO_HOME>, and finally your C<PATH>  An 
+exception is thrown if C<pintod> cannot be found.
 
 =head1 METHODS
 

@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -149,7 +149,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 SYNOPSIS
 
@@ -158,6 +158,8 @@ See L<pinto> to create and manage a Pinto repository.
 See L<pintod> to allow remote access to your Pinto repository.
 
 See L<Pinto::Manual> for more information about the Pinto tools.
+
+L<Stratopan|http://stratopan.com> for hosting your Pinto repository in the cloud.
 
 =head1 DESCRIPTION
 
@@ -264,16 +266,6 @@ For now, the Pinto API is private and subject to radical change
 without notice.  Any API documentation you see is purely for my own
 references.  In the meantime, the command line utilities mentioned in
 the L</SYNOPSIS> are your public user interface.
-
-=head1 SEE ALSO
-
-L<pinto> to create and manage a Pinto repository.
-
-L<pintod> to allow remote access to your Pinto repository.
-
-L<Pinto::Manual> for general information on using Pinto.
-
-L<Stratopan|http://stratopan.com> for hosting your Pinto repository in the cloud.
 
 =head1 SUPPORT
 

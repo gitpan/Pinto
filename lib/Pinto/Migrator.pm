@@ -11,7 +11,7 @@ use Pinto::Repository;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_01'; # VERSION
+our $VERSION = '0.079_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ Pinto::Migrator - Migrate an existing repository to a new version
 
 =head1 VERSION
 
-version 0.079_01
+version 0.079_04
 
 =head1 CONTRIBUTORS
 
