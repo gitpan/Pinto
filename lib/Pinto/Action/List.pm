@@ -12,7 +12,7 @@ use Pinto::Types qw(AuthorID StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_04'; # VERSION
+our $VERSION = '0.080'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.079_04
+version 0.080
 
 =head1 CONTRIBUTORS
 

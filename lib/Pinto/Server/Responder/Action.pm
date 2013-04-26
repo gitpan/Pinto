@@ -24,7 +24,7 @@ use Pinto::Constants qw(:server);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.079_04'; # VERSION
+our $VERSION = '0.080'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ Pinto::Server::Responder::Action - Responder for action requests
 
 =head1 VERSION
 
-version 0.079_04
+version 0.080
 
 =head1 CONTRIBUTORS
 

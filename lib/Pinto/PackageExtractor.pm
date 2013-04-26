@@ -10,7 +10,6 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use Try::Tiny;
 use Dist::Metadata;
 use Path::Class qw(dir);
-use File::Temp qw(tempdir);
 use Archive::Extract;
 
 use Pinto::Types qw(File Dir);
@@ -19,7 +18,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.079_04'; # VERSION
+our $VERSION = '0.080'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -206,7 +205,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.079_04
+version 0.080
 
 =head1 CONTRIBUTORS
 

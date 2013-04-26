@@ -121,6 +121,7 @@ lib/Pinto/Schema/Result/Distribution.pm
 lib/Pinto/Schema/Result/Package.pm
 lib/Pinto/Schema/Result/Prerequisite.pm
 lib/Pinto/Schema/Result/Registration.pm
+lib/Pinto/Schema/Result/RegistrationChange.pm
 lib/Pinto/Schema/Result/Revision.pm
 lib/Pinto/Schema/Result/Stack.pm
 lib/Pinto/Schema/ResultSet/Distribution.pm

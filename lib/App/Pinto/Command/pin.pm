@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.079_04'; # VERSION
+our $VERSION = '0.080'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ App::Pinto::Command::pin - force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.079_04
+version 0.080
 
 =head1 SYNOPSIS
 

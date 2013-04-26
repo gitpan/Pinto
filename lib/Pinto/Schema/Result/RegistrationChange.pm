@@ -1,37 +1,22 @@
-# ABSTRACT: Common queries for Distributions
+# ABSTRACT: Not in use -- will be removed
 
-use utf8;
-package Pinto::Schema::ResultSet::Distribution;
+package Pinto::Schema::Result::RegistrationChange;
 
-use strict;
-use warnings;
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+extends 'DBIx::Class::Core';
 
-use base 'DBIx::Class::ResultSet';
-
-#------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 our $VERSION = '0.080'; # VERSION
 
-#------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-sub with_packages {
-  my ($self, $where) = @_;
+__PACKAGE__->table("registration_change");
 
-  return $self->search($where || {}, {prefetch => 'packages'});
-}
+#-----------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------
-
-sub find_by_author_archive {
-  my ($self, $author, $archive) = @_;
-
-  my $where = {author => $author, archive => $archive};
-  my $attrs = {key => 'author_archive_unique'};
-
-  return $self->find($where, $attrs);
-}
-
-#------------------------------------------------------------------------------
 1;
 
 __END__
@@ -42,7 +27,7 @@ __END__
 
 =head1 NAME
 
-Pinto::Schema::ResultSet::Distribution - Common queries for Distributions
+Pinto::Schema::Result::RegistrationChange - Not in use -- will be removed
 
 =head1 VERSION
 
