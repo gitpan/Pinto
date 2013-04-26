@@ -13,7 +13,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.080'; # VERSION
+our $VERSION = '0.081'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.080
+version 0.081
 
 =head1 CONTRIBUTORS
 

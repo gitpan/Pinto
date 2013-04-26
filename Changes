@@ -1,3 +1,8 @@
+0.081     2013-04-26 13:51:32 America/Los_Angeles
+
+       Just a minor change in test code to prevent failure occasionaly
+       seen on Unix boxen.
+
 0.080     2013-04-26 10:41:19 America/Los_Angeles
 
       HEADLINES:

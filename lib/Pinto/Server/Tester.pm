@@ -18,7 +18,7 @@ use HTTP::Server::PSGI;  # just to make sure we have it
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.080'; # VERSION
+our $VERSION = '0.081'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -140,7 +140,6 @@ sub stop_server {
   carp "Server $server_pid not running" and return if not kill 0, $server_pid;
 
   # TODO: Consider using Proc::Terminator instead
-  $self->tb->note("Shutting down server $server_pid");
   kill 'TERM', $server_pid;
   sleep 2 and waitpid $server_pid, 0;
 
@@ -216,7 +215,7 @@ Pinto::Server::Tester - A class for testing a Pinto server
 
 =head1 VERSION
 
-version 0.080
+version 0.081
 
 =head1 ATTRIBUTES
 

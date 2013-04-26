@@ -11,7 +11,7 @@ use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.080'; # VERSION
+our $VERSION = '0.081'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ Pinto::Action::Copy - Create a new stack by copying another
 
 =head1 VERSION
 
-version 0.080
+version 0.081
 
 =head1 CONTRIBUTORS
 
