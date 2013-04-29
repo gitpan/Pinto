@@ -21,7 +21,7 @@ use Pinto::Util qw(:all);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -590,7 +590,7 @@ Pinto::Tester - A class for testing a Pinto repository
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

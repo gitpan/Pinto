@@ -19,7 +19,7 @@ __PACKAGE__->load_namespaces;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

@@ -18,7 +18,7 @@ use HTTP::Server::PSGI;  # just to make sure we have it
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -215,7 +215,7 @@ Pinto::Server::Tester - A class for testing a Pinto server
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 ATTRIBUTES
 

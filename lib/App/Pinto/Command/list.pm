@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ App::Pinto::Command::list - show the packages in a stack
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 SYNOPSIS
 

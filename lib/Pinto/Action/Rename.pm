@@ -10,7 +10,7 @@ use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ Pinto::Action::Rename - Change the name of a stack
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

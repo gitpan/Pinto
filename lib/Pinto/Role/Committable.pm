@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

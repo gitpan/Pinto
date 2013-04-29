@@ -11,7 +11,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

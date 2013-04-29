@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.081",
+  "dist_version" => "0.082",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -77,6 +77,7 @@ my %module_build_args = (
     "List::MoreUtils" => 0,
     "List::Util" => 0,
     "Module::CoreList" => "2.85",
+    "Module::Faker" => "0.014",
     "Module::Faker::Dist" => 0,
     "Moose" => 0,
     "Moose::Role" => 0,

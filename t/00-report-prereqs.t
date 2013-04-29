@@ -72,6 +72,7 @@ my @modules = qw(
   Module::Build
   Module::Build::CleanInstall
   Module::CoreList
+  Module::Faker
   Module::Faker::Dist
   Moose
   Moose::Role

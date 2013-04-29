@@ -18,7 +18,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -205,7 +205,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 

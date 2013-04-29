@@ -17,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -177,7 +177,7 @@ has sources_list => (
 has target_perl_version => (
     is        => 'ro',
     isa       => Version,
-    default   => sub { $PERL_VERSION },
+    default   => $], # Note: $PERL_VERSION is broken on old perls
     coerce    => 1,
 );
 
@@ -252,7 +252,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 DESCRIPTION
 

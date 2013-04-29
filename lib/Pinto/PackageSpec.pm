@@ -17,7 +17,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -58,7 +58,10 @@ sub is_core {
 
     ## no critic qw(PackageVar);
 
-    my $pv = version->parse($args{in}) || $PERL_VERSION;
+    # Note: $PERL_VERSION is broken on old perls, so we must make 
+    # our own version object from the old $] variable
+
+    my $pv = version->parse($args{in}) || version->parse($]);
     my $core_modules = $Module::CoreList::version{ $pv->numify + 0 };
 
     throw "Invalid perl version $pv" if not $core_modules;
@@ -109,7 +112,7 @@ Pinto::PackageSpec - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 METHODS
 

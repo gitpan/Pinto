@@ -11,7 +11,7 @@ use Pinto::Util qw(is_interactive);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.081'; # VERSION
+our $VERSION = '0.082'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.081
+version 0.082
 
 =head1 CONTRIBUTORS
 
