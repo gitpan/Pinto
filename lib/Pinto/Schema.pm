@@ -19,7 +19,7 @@ __PACKAGE__->load_namespaces;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -34,13 +34,6 @@ Readonly::Scalar our $SCHEMA_VERSION => 1;
 sub schema_version { return $SCHEMA_VERSION };
 
 #-------------------------------------------------------------------------------
-
-has logger => (
-    is       => 'rw',
-    isa      => 'Pinto::Logger',
-    traits   => [ qw(SetOnce) ],
-    weak_ref => 1,
-);
 
 has repo => (
     is       => 'rw',
@@ -143,7 +136,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 CONTRIBUTORS
 
@@ -188,6 +181,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

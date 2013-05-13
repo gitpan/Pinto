@@ -21,7 +21,7 @@ Pinto::Manual::Introduction - Why Pinto exists
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 GOALS
 
@@ -207,6 +207,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

@@ -63,9 +63,11 @@ with 'Pinto::Role::Schema::Result';
 
 use Pinto::PackageSpec;
 
+use overload ('""' => 'to_string');
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -92,6 +94,14 @@ sub as_spec {
 
 #------------------------------------------------------------------------------
 
+sub to_string {
+    my ($self) = @_;
+
+    return $self->as_spec->to_string;
+}
+
+#------------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
@@ -109,7 +119,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 NAME
 
@@ -227,6 +237,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

@@ -88,7 +88,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -104,6 +104,7 @@ use Pinto::Util qw(:all);
 
 use overload ( '""'  => 'to_string',
                '<=>' => 'numeric_compare',
+               'cmp' => 'numeric_compare',
                'eq'  => 'equals' );
 
 #------------------------------------------------------------------------------
@@ -221,6 +222,32 @@ sub children {
   my $attrs = {join => 'ancestry_children', order_by => 'me.utc_time'};
 
   return $self->result_source->resultset->search($where, $attrs)->all;
+}
+
+#------------------------------------------------------------------------------
+
+sub distributions {
+  my ($self) = @_;
+
+  my $rev_id = $self->id;
+  my $subquery = "SELECT DISTINCT distribution FROM registration WHERE revision = $rev_id";
+  my $where = {'me.id' => {in => \$subquery}};
+  my $attrs = {order_by => 'archive'};
+
+  return $self->result_source->schema->search_distribution($where, $attrs);
+}
+
+#------------------------------------------------------------------------------
+
+sub packages {
+  my ($self) = @_;
+
+  my $rev_id = $self->id;
+  my $subquery = "SELECT package FROM registration WHERE revision = $rev_id";
+  my $where = {'me.id' => {in => \$subquery}};
+  my $attrs = {order_by => 'name'};
+
+  return $self->result_source->schema->search_package($where, $attrs);
 }
 
 #------------------------------------------------------------------------------
@@ -365,7 +392,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 NAME
 
@@ -511,6 +538,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

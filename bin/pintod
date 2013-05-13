@@ -35,7 +35,7 @@ use Getopt::Long qw(:config pass_through);  # to retain unrecognized options
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ pintod - Web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 SYNOPSIS
 
@@ -137,10 +137,10 @@ and this is how the authentication backend will be constructed:
     realm => 'REALM.COMPANY.COM'
   );
 
-C<pintod> ships with L<Authen::Simple::Password>.  If you wish to install
+C<pintod> ships with L<Authen::Simple::Passwd>.  If you wish to install
 a different authentication scheme, you'll need to install that separately.
 See also L<"BASIC AUTHENTICATION"> for additional instructions for setting
-up basic HTTP authemtication out-of-the-box.
+up basic HTTP authentication right out-of-the-box.
 
 =item other options
 
@@ -165,7 +165,7 @@ want to put the F<htpasswd> file inside the top of your repository.
 
 Then launch pintod like this:
 
-  pintod -r path/to/repository --auth backend=Password --autho path=/path/to/htpasswd
+  pintod -r path/to/repository --auth backend=Passwd --auth path=path/to/htpasswd
 
 If you already have an F<htpasswd> file somewhere, you may just point to it
 directly, or create a symlink.  In any case, the F<htpasswd> file needs to
@@ -244,6 +244,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

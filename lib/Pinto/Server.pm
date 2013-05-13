@@ -20,7 +20,7 @@ use Pinto::Repository;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -121,7 +121,7 @@ Pinto::Server - Web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 ATTRIBUTES
 
@@ -206,6 +206,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

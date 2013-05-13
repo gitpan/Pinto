@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.082
+    version 0.083
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -208,6 +208,8 @@ CONTRIBUTORS
     *   Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 
     *   Yanick Champoux <yanick@babyl.dyndns.org>
+
+    *   hesco <hesco@campaignfoundations.com>
 
 AUTHOR
     Jeffrey Ryan Thalhammer <jeff@stratopan.com>

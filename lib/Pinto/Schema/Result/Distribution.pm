@@ -94,7 +94,7 @@ use overload ( '""'  => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -402,8 +402,7 @@ sub string_compare {
 
     return 0 if $dist_a->id == $dist_b->id;
 
-    my $r =   ($dist_a->author  cmp $dist_b->author)
-           || ($dist_a->archive cmp $dist_b->archive);
+    my $r =  ($dist_a->archive cmp $dist_b->archive);
 
     return $r;
 }
@@ -459,7 +458,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 NAME
 
@@ -601,6 +600,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

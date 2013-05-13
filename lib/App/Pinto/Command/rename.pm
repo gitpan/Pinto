@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ App::Pinto::Command::rename - change the name of a stack
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 SYNOPSIS
 
@@ -116,6 +116,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

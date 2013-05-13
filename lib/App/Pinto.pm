@@ -10,7 +10,7 @@ use App::Cmd::Setup -app;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -60,11 +60,12 @@ sub _prompt_for_password {
    my ($self) = @_;
 
    require Encode;
-   require Term::Prompt;
+   require IO::Prompt;
 
-   my $input    = Term::Prompt::prompt('p', 'Password:', '', '');
+   my $repo     = $self->global_options->{root};
+   my $prompt   = "Password for repository at $repo: ";
+   my $input    = IO::Prompt::prompt($prompt, -echo => '*', -tty);
    my $password = Encode::decode_utf8($input);
-   print "\n"; # Get on a new line
 
    return $password;
 }
@@ -86,7 +87,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 SYNOPSIS
 
@@ -141,6 +142,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

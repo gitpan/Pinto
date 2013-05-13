@@ -7,7 +7,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -16,7 +16,6 @@ has repo  => (
    isa      => 'Pinto::Repository',
    default  => sub { $_[0]->result_source->schema->repo },
    init_arg => undef,
-   weak_ref => 1,
    lazy     => 1,
 );
 
@@ -56,7 +55,7 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 DESCRIPTION
 
@@ -112,6 +111,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

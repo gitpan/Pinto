@@ -18,7 +18,7 @@ use HTTP::Server::PSGI;  # just to make sure we have it
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ sub start_server {
     parent {
       my $server_pid = shift;
       $self->server_pid($server_pid);
-      sleep 2; # Let the server warm up
+      sleep 4; # Let the server warm up
 
     }
 
@@ -141,7 +141,7 @@ sub stop_server {
 
   # TODO: Consider using Proc::Terminator instead
   kill 'TERM', $server_pid;
-  sleep 2 and waitpid $server_pid, 0;
+  sleep 4 and waitpid $server_pid, 0;
 
   return $self;
 }
@@ -215,7 +215,7 @@ Pinto::Server::Tester - A class for testing a Pinto server
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 ATTRIBUTES
 
@@ -306,6 +306,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

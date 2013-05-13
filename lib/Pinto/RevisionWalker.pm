@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 # TODO: Rethink this API.  Do we need start?  Can we just use queue?  What
@@ -64,7 +64,7 @@ Pinto::RevisionWalker - Iterates through revision history
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 CONTRIBUTORS
 
@@ -109,6 +109,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

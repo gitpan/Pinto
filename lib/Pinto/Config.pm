@@ -17,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.082'; # VERSION
+our $VERSION = '0.083'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -137,6 +137,15 @@ has cache_dir => (
 );
 
 
+has log_dir => (
+    is        => 'ro',
+    isa       => Dir,
+    init_arg  => undef,
+    default   => sub { return $_[0]->pinto_dir->subdir('log') },
+    lazy      => 1,
+);
+
+
 has no_history => (
     is         => 'ro',
     isa        => Bool,
@@ -229,6 +238,7 @@ sub directories {
         $self->config_dir,
         $self->cache_dir,
         $self->authors_dir,
+        $self->log_dir,
         $self->db_dir
     );
 }
@@ -252,7 +262,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.082
+version 0.083
 
 =head1 DESCRIPTION
 
@@ -302,6 +312,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
 
 =back
 

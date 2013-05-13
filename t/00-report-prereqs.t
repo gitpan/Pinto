@@ -61,6 +61,7 @@ my @modules = qw(
   IO::Handle::Util
   IO::Interactive
   IO::Pipe
+  IO::Prompt
   IO::String
   IO::Zlib
   IPC::Run
@@ -105,7 +106,6 @@ my @modules = qw(
   String::Format
   Term::ANSIColor
   Term::EditorEdit
-  Term::Prompt
   Test::Builder::Module
   Test::Exception
   Test::File
