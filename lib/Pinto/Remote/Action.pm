@@ -17,7 +17,7 @@ use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.083'; # VERSION
+our $VERSION = '0.084'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -207,7 +207,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.083
+version 0.084
 
 =head1 METHODS
 

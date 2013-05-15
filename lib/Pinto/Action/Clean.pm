@@ -8,7 +8,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.083'; # VERSION
+our $VERSION = '0.084'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ Pinto::Action::Clean - Remove orphaned archives
 
 =head1 VERSION
 
-version 0.083
+version 0.084
 
 =head1 CONTRIBUTORS
 

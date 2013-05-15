@@ -13,7 +13,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.083'; # VERSION
+our $VERSION = '0.084'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -197,7 +197,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.083'; # VERSION
+our $VERSION = '0.084'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ Pinto::Difference - Compute difference between two revisions
 
 =head1 VERSION
 
-version 0.083
+version 0.084
 
 =head1 CONTRIBUTORS
 

@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.083",
+  "dist_version" => "0.084",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -140,7 +140,7 @@ my %module_build_args = (
     "HTTP::Response" => 0,
     "Plack::Test" => 0,
     "Test::File" => 0,
-    "Test::LWP::UserAgent" => 0,
+    "Test::LWP::UserAgent" => "0.018",
     "Test::More" => 0,
     "Test::Warn" => 0
   }
