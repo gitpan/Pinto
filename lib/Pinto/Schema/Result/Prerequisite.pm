@@ -67,7 +67,14 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
+
+#------------------------------------------------------------------------------
+
+__PACKAGE__->inflate_column( 'package_version' => {
+    inflate => sub { version->parse($_[0]) },
+    deflate => sub { $_[0]->stringify() },
+});
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -85,12 +92,15 @@ sub FOREIGNBUILDARGS {
 
 #------------------------------------------------------------------------------
 
-sub as_spec {
-    my ($self) = @_;
-
-    return Pinto::PackageSpec->new( name    => $self->package_name,
-                                    version => $self->package_version );
-}
+has as_spec => (
+  is        => 'ro',
+  isa       => 'Pinto::PackageSpec',
+  init_arg  => undef,
+  lazy      => 1,
+  handles   => [ qw(is_core is_perl) ],
+  default   => sub { Pinto::PackageSpec->new( name    => $_[0]->package_name,
+                                              version => $_[0]->package_version ) },
+);
 
 #------------------------------------------------------------------------------
 
@@ -111,7 +121,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -119,7 +131,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 NAME
 
@@ -191,56 +203,6 @@ Related object: L<Pinto::Schema::Result::Distribution>
 =over 4
 
 =item * L<Pinto::Role::Schema::Result>
-
-=back
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
 
 =back
 

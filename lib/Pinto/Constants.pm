@@ -11,7 +11,7 @@ use base 'Exporter';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,6 +23,8 @@ Readonly our @EXPORT_OK => qw(
 
     $PINTO_SERVER_STATUS_OK
     $PINTO_SERVER_DIAG_PREFIX
+    $PINTO_SERVER_NULL_MESSAGE
+    $PINTO_SERVER_PROGRESS_MESSAGE
 
     $PINTO_DEFAULT_COLORS
     $PINTO_COLOR_0
@@ -64,6 +66,10 @@ Readonly our $PINTO_SERVER_DIAG_PREFIX => '## ';
 
 Readonly our $PINTO_SERVER_STATUS_OK => "${PINTO_SERVER_DIAG_PREFIX}Status: ok";
 
+Readonly our $PINTO_SERVER_NULL_MESSAGE => "${PINTO_SERVER_DIAG_PREFIX}-- ##";
+
+Readonly our $PINTO_SERVER_PROGRESS_MESSAGE => "${PINTO_SERVER_DIAG_PREFIX}. ##";
+
 #------------------------------------------------------------------------------
 
 Readonly our $PINTO_DEFAULT_COLORS => [ qw(green yellow red) ];
@@ -86,7 +92,7 @@ Readonly our $PINTO_STACK_NAME_ALL  => '%';
 Readonly my $PINTO_ALPHANUMERIC_REGEX       => qr{^ [a-zA-Z0-9-_]+ $}x;
 Readonly my $PINTO_HEXADECIMAL_UUID_REGEX   => qr{^ [a-f0-9-]+     $}x;
 
-Readonly our $PINTO_AUTHOR_REGEX        => $PINTO_ALPHANUMERIC_REGEX;
+Readonly our $PINTO_AUTHOR_REGEX        => qr/^ [A-Z]{2} [-A-Z0-9]* $/x;
 Readonly our $PINTO_USERNAME_REGEX      => $PINTO_ALPHANUMERIC_REGEX;
 Readonly our $PINTO_STACK_NAME_REGEX    => $PINTO_ALPHANUMERIC_REGEX;
 Readonly our $PINTO_PROPERTY_NAME_REGEX => $PINTO_ALPHANUMERIC_REGEX;
@@ -99,7 +105,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -107,57 +115,7 @@ Pinto::Constants - Constants used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

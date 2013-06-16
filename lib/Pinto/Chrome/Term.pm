@@ -7,15 +7,15 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool ArrayRef Str);
 use MooseX::MarkAsMethods (autoclean => 1);
 
-use Term::ANSIColor 2.02 (); #First version with colorvalid()
+use Term::ANSIColor;
 use Term::EditorEdit;
 
-use Pinto::Types qw(Io);
-use Pinto::Util qw(user_colors is_interactive itis throw);
+use Pinto::Types qw(Io ANSIColorSet);
+use Pinto::Util qw(user_colors itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -26,14 +26,14 @@ extends qw( Pinto::Chrome );
 has no_color => (
     is       => 'ro',
     isa      => Bool,
-    default  => sub { return !!$ENV{PINTO_NO_COLOR} or 0 },
+    default  => sub { !!$ENV{PINTO_NO_COLOR} || 0 },
 );
 
 
 has colors => (
     is        => 'ro',
-    isa       => ArrayRef,
-    default   => sub { return user_colors },
+    isa       => ANSIColorSet,
+    default   => sub { user_colors() },
     lazy      => 1,
 );
 
@@ -55,28 +55,7 @@ has stderr => (
     lazy    => 1,
 );
 
-
-has diag_prefix => (
-    is      => 'ro',
-    isa     => Str,
-    default => '',
-);
-
 #-----------------------------------------------------------------------------
-
-sub BUILD {
-    my ($self) = @_;
-
-    my @colors = @{ $self->colors };
-
-    throw "Must specify exactly three colors" if @colors != 3;
-
-    Term::ANSIColor::colorvalid($_) || throw "Color $_ is not valid" for @colors;
-
-    return $self;
-};
-
-#------------------------------------------------------------------------------
 
 sub _build_stdout {
     my ($self) = @_;
@@ -84,7 +63,7 @@ sub _build_stdout {
     my $stdout = [fileno(*STDOUT), '>'];
     my $pager = $ENV{PINTO_PAGER} || $ENV{PAGER};
 
-    return $stdout if not is_interactive;
+    return $stdout if not -t $stdout;
     return $stdout if not $pager;
 
     open my $pager_fh, q<|->, $pager
@@ -127,11 +106,6 @@ sub diag {
     $msg  = $self->colorize($msg, $opts->{color});
     $msg .= "\n" unless $opts->{no_newline};
 
-    # Prepend prefix to each line (not just at the start of the message)
-    # The prefix is used by Pinto::Remote to distinguish between
-    # messages that go to stderr and those that should go to stdout
-    $msg =~ s/^/$self->diag_prefix/gemx if length $self->diag_prefix;
-
     print { $self->stderr } $msg or croak $!;
 }
 
@@ -159,11 +133,11 @@ sub progress_done {
 
 #-----------------------------------------------------------------------------
 
-override should_render_progress => sub {
+sub should_render_progress {
     my ($self) = @_;
 
-    return 0 if not super;
-    return 0 if not is_interactive;
+    return 0 if $self->verbose;
+    return 0 if $self->quiet;
     return 0 if not -t $self->stderr;
     return 1;
 };
@@ -238,7 +212,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -246,57 +222,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

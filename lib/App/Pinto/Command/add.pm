@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -19,7 +19,8 @@ sub opt_spec {
     my ($self, $app) = @_;
 
     return (
-        [ 'author=s'     => 'Your (alphanumeric) author ID'       ],
+        [ 'author=s'     => 'The ID of the archive author'        ],
+        [ 'cascade'      => 'Always pick latest upstream package' ],
         [ 'dry-run'      => 'Do not commit any changes'           ],
         [ 'message|m=s'  => 'Message to describe the change'      ],
         [ 'no-fail'      => 'Do not fail when there is an error'  ],
@@ -46,7 +47,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -54,7 +57,7 @@ App::Pinto::Command::add - add local archives to the repository
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 SYNOPSIS
 
@@ -66,8 +69,8 @@ This command adds local distribution archives to the repository and
 registers their packages on a stack. Then it recursively pulls all the 
 distributions that are necessary to satisfy their prerequisites.
 
-When locating prerequisites, Pinto first looks at the packages that
-already exist in the local repository, then Pinto looks at the
+When locating prerequisite packages, Pinto first looks at the packages 
+that already exist in the local repository, then Pinto looks at the 
 packages that are available on the upstream repositories.
 
 =head1 COMMAND ARGUMENTS
@@ -85,11 +88,23 @@ or ';') will be ignored.
 
 =item --author NAME
 
-Set the identity of the distribution author.  The C<NAME> must be
-alphanumeric characters plus hyphens and underscores.  Defaults to
-the C<user> specified in your C<~/.pause> configuration file if such 
-file exists.  Otherwise, defaults to your current login username.
-By convention, author IDs are always folded to uppercase.
+Set the identity of the distribution author.  The C<NAME> is automatically
+forced to uppercase and must match C</^[A-Z]{2}[-A-Z0-9]*$/> (that means
+two ASCII letters followed by zero or more ASCII letters, digits, or 
+hyphens). Defaults to the C<user> attribute specified in your F<~/.pause>
+configuration file if such file exists.  Otherwise, defaults to your 
+current login username.
+
+=item --cascade
+
+!! THIS OPTION IS EXPERIMENTAL !!
+
+When searching for a prerequisite package, always take the latest 
+satisfactory version of the package found amongst B<all> the upstream 
+repositories, rather than just taking the B<first> satisfactory version 
+that is found.  Remember that Pinto only searches the upstream
+repositories when the local repository does not already contain a
+satisfactory version of the package.
 
 =item --dry-run
 
@@ -156,56 +171,6 @@ Use the default value for the revision history log message.  Pinto
 will generate a semi-informative log message just based on the command
 and its arguments.  If you set an explicit message with C<--message>,
 the C<--use-default-message> option will be silently ignored.
-
-=back
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
 
 =back
 

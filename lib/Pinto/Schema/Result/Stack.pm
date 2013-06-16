@@ -60,7 +60,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -280,21 +280,6 @@ sub duplicate_registrations {
 
 #------------------------------------------------------------------------------
 
-sub move_registrations {
-    my ($self, %args) = @_;
-
-    my $rev = $args{to};
-
-    debug "Moving registrations for stack $self to $rev";
-
-    my $rs = $self->head->registrations;
-    $rs->update({revision => $rev->id});
-
-    return $self;
-}
-
-#------------------------------------------------------------------------------
-
 sub rename {
     my ($self, %args) = @_;
 
@@ -377,8 +362,7 @@ sub start_revision {
     my $old_head  = $self->head;
     my $new_head  = $self->result_source->schema->create_revision( {} );
 
-    my $method = ($self->should_keep_history ? 'duplicate' : 'move') . '_registrations';
-    $self->$method(to => $new_head);
+    $self->duplicate_registrations(to => $new_head);
 
     $new_head->add_parent($old_head);
     $self->set_head($new_head);
@@ -411,9 +395,6 @@ sub commit_revision {
 
 sub should_keep_history {
   my ($self) = @_;
-
-  # Is this repo configured to keep history?
-  return 1 unless $self->repo->config->no_history;
 
   # Is this revision referenced by other stacks?
   return 1 if $self->head->stacks->count > 1;
@@ -753,7 +734,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -761,7 +744,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 METHODS
 
@@ -849,56 +832,6 @@ Related object: L<Pinto::Schema::Result::Revision>
 =over 4
 
 =item * L<Pinto::Role::Schema::Result>
-
-=back
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
 
 =back
 

@@ -17,7 +17,7 @@ use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -116,6 +116,7 @@ sub _chrome_args {
 
     my $chrome_args = { verbose  => $self->chrome->verbose,
                         no_color => $self->chrome->no_color,
+                        colors   => $self->chrome->colors,
                         quiet    => $self->chrome->quiet };
 
     return ( chrome => encode_json($chrome_args) );
@@ -148,13 +149,11 @@ sub _send_request {
     my ($self, %args) = @_;
 
     my $request = $args{req} || $self->_make_request;
-
-    my $status   = 0;
-    my $buffer   = '';
+    my $status  = 0;
 
     # Currying in some extra args to the callback...
-    my $callback = sub { $self->_response_callback(@_, \$status, \$buffer) };
-    my $response = $self->ua->request($request, $callback, 128);
+    my $callback = sub { $self->_response_callback(\$status, @_) };
+    my $response = $self->ua->request($request, $callback);
 
     if (not $response->is_success) {
         $self->error($response->content);
@@ -166,22 +165,35 @@ sub _send_request {
 
 #------------------------------------------------------------------------------
 
-sub _response_callback {                  ## no critic qw(ProhibitManyArgs)
-    my ($self, $data, $request, $proto, $status, $buffer) = @_;
+sub _response_callback { 
+    my ($self, $status, $data) = @_;
 
-    my $lines = '';
-    $lines = $1 if (${ $buffer } .= $data) =~ s{^ (.*)\n }{}sx;
+    # Each data chunk will be one or more lines ending with \n
 
-    for (split m{\n}x, $lines, -1) {
+    chomp $data;
+    if (not $data) {
+        # HACK: So that blank lines come out right
+        # Need to find a better way to do this!!
+        $self->chrome->show('');
+        return 1;
+    }
 
-        if ($_ eq $PINTO_SERVER_STATUS_OK) {
+    for my $line (split m/\n/, $data, -1) {
+
+        if ($line eq $PINTO_SERVER_STATUS_OK) {
             ${ $status } = 1;
         }
-        elsif (m{^ \Q$PINTO_SERVER_DIAG_PREFIX\E (.*)}x) {
-            print {$self->chrome->stderr} "$1\n";
+        elsif($line eq $PINTO_SERVER_PROGRESS_MESSAGE) {
+            $self->chrome->show_progress;
+        }
+        elsif ($line eq $PINTO_SERVER_NULL_MESSAGE) {
+             # Do nothing, discard message
+        }
+        elsif ($line =~ m{^ \Q$PINTO_SERVER_DIAG_PREFIX\E (.*)}x) {
+            $self->chrome->diag($1);
         }
         else {
-            print {$self->chrome->stdout} "$_\n";
+            $self->chrome->show($line);
         }
     }
 
@@ -199,7 +211,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -207,7 +221,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 METHODS
 
@@ -215,56 +229,6 @@ version 0.084
 
 Runs this Action on the remote server by serializing itself and
 sending a POST request to the server.  Returns a L<Pinto::Result>.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

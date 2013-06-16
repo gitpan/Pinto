@@ -24,11 +24,11 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
-Readonly::Scalar our $REPOSITORY_VERSION => 1;
+Readonly our $REPOSITORY_VERSION => 1;
 
 #-------------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ sub get_distribution {
     # Retrieve a distribution by DistSpec or PackageSpec
     if (my $spec = $args{spec}) {
         if ( itis($spec, 'Pinto::DistributionSpec') ) {
-            my $author  = $spec->author_canonical;
+            my $author  = $spec->author;
             my $archive = $spec->archive;
 
             return $self->db->schema->distribution_rs
@@ -249,11 +249,12 @@ sub get_distribution {
 sub ups_distribution {
     my ($self, %args) = @_;
 
-    my $spec = $args{spec};
+    my $spec    = $args{spec};
+    my $cascade = $args{cascade} || 0;
     my $dist_url;
 
     if ( Pinto::Util::itis($spec, 'Pinto::PackageSpec') ){
-        $dist_url = $self->locate(package => $spec->name, version => $spec->version, latest => 1);
+        $dist_url = $self->locate(package => $spec->name, version => $spec->version, latest => $cascade);
     }
     elsif ( Pinto::Util::itis($spec, 'Pinto::DistributionSpec') ){
         $dist_url = $self->locate(distribution => $spec->path)
@@ -720,7 +721,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -728,7 +731,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 ATTRIBUTES
 
@@ -884,56 +887,6 @@ distribution.
 Deletes all distribution archives that are on the filesystem but not
 in the database.  This can happen when an Action fails or is aborted
 prematurely.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

@@ -10,7 +10,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -25,6 +25,13 @@ has no_recurse => (
 );
 
 
+has cascade => (
+  is          => 'ro',
+  isa         => Bool,
+  default     => 0,
+);
+
+
 has pin => (
   is          => 'ro',
   isa         => Bool,
@@ -33,8 +40,10 @@ has pin => (
 
 #-----------------------------------------------------------------------------
 
-# We should require a stack() attribute, but I can't get it to work 
-# when composing with the Committable role which provides it.
+# We should require a stack() attribute here, but Moose can't properly 
+# resolve attributes that are composed from other roles.  For more info
+# see https://rt.cpan.org/Public/Bug/Display.html?id=46347
+
 # requires qw(stack);
 
 #-----------------------------------------------------------------------------
@@ -89,7 +98,7 @@ sub find {
   elsif ($dist = $stack->repo->get_distribution(spec => $target) ) {
     $msg = "Found $target in $dist";
   }
-  elsif ($dist = $stack->repo->ups_distribution(spec => $target) ) {
+  elsif ($dist = $stack->repo->ups_distribution(spec => $target, cascade => $self->cascade) ) {
     $msg = "Found $target in " . $dist->source;
   }
 
@@ -111,8 +120,8 @@ sub recurse {
   my $cb = sub {
     my ($prereq) = @_;
 
-    my $pkg_name = $prereq->name;
-    my $pkg_vers = $prereq->version;
+    my $pkg_name = $prereq->package_name;
+    my $pkg_vers = $prereq->package_version;
 
     # version sees undef and 0 as equal, so must also check definedness 
     # when deciding if we've seen this version (or newer) of the packge
@@ -120,7 +129,7 @@ sub recurse {
 
     # I think the only time that we won't see a $dist here is when
     # the prereq resolves to a perl (i.e. its a core-only module).
-    return if not my $dist = $self->find(target => $prereq);
+    return if not my $dist = $self->find(target => $prereq->as_spec);
 
     $dist->register(stack => $stack);
     $latest{$pkg_name} = $pkg_vers;
@@ -148,7 +157,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -156,57 +167,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

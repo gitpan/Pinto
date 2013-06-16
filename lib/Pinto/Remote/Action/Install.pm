@@ -14,7 +14,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -54,6 +54,12 @@ sub _build_mirror_url {
     my $stack_dir  = defined $stack ? "/stacks/$stack" : '';
     my $mirror_url = $self->root . $stack_dir;
 
+    if (defined $self->password) {
+        # Squirt username and password into URL
+        my $credentials = $self->username . ':' . $self->password;
+        $mirror_url =~ s{^ (https?://) }{$1$credentials\@}mx;
+    }
+
     return $mirror_url;
 }
 
@@ -87,7 +93,7 @@ override execute => sub {
     }
 
     # Pinto::Role::Installer will handle installation after execute()
-    return $result;
+    return defined $result ? $result : Pinto::Result->new;
  };
 
 #------------------------------------------------------------------------------
@@ -105,7 +111,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -113,59 +121,9 @@ Pinto::Remote::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =for Pod::Coverage BUILD
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

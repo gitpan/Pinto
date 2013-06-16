@@ -14,7 +14,7 @@ use Pinto::Types qw(File);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ sub lock {                                   ## no critic qw(Homonym)
     my $root_dir  = $self->repo->config->root_dir;
     my $lock_file = $root_dir->file('.lock')->stringify;
     my $lock = File::NFSLock->new($lock_file, $lock_type, $LOCKFILE_TIMEOUT)
-        or throw 'Unable to lock the repository -- please try later';
+        or throw 'The repository is currently in use -- please try again later';
 
     debug("Process $$ got $lock_type lock on $root_dir");
 
@@ -93,7 +93,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer NFS
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff NFS
 
 =head1 NAME
 
@@ -101,7 +103,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 DESCRIPTION
 
@@ -127,56 +129,6 @@ time.  This module manages a lock file for that purpose.
 
 Supposedly, this does work on NFS.  But it cannot steal the lock from
 a dead process if that process was not running on the same host.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

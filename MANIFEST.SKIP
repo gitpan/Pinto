@@ -1,5 +1,5 @@
 ^profiles
 ^nytprof
 ^tmp$
-Pinto.sublime-project
-Pinto.sublime-workspace
+^[.]tags
+

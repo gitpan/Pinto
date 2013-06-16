@@ -11,6 +11,7 @@ use List::Util qw/max/;
 
 my @modules = qw(
   Apache::Htpasswd
+  App::Cmd::Command::help
   App::Cmd::Setup
   Archive::Extract
   Archive::Tar
@@ -18,6 +19,7 @@ my @modules = qw(
   CPAN::Checksums
   CPAN::DistnameInfo
   CPAN::Meta
+  Capture::Tiny
   Carp
   Class::Load
   Cwd
@@ -54,17 +56,14 @@ my @modules = qw(
   HTTP::Request
   HTTP::Request::Common
   HTTP::Response
-  HTTP::Server::PSGI
-  HTTP::Tiny
   IO::File
   IO::Handle
-  IO::Handle::Util
   IO::Interactive
   IO::Pipe
   IO::Prompt
+  IO::Select
   IO::String
   IO::Zlib
-  IPC::Run
   JSON
   JSON::PP
   LWP::UserAgent
@@ -74,7 +73,6 @@ my @modules = qw(
   Module::Build::CleanInstall
   Module::CoreList
   Module::Faker
-  Module::Faker::Dist
   Moose
   Moose::Role
   MooseX::Aliases
@@ -86,7 +84,6 @@ my @modules = qw(
   MooseX::StrictConstructor
   MooseX::Types
   MooseX::Types::Moose
-  POSIX
   Package::Locator
   Path::Class
   Path::Class::Dir
@@ -106,12 +103,10 @@ my @modules = qw(
   String::Format
   Term::ANSIColor
   Term::EditorEdit
-  Test::Builder::Module
   Test::Exception
   Test::File
   Test::LWP::UserAgent
   Test::More
-  Test::TCP
   Test::Warn
   Throwable::Error
   Try::Tiny

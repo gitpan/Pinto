@@ -5,8 +5,10 @@ use warnings;
 
 use Test::More;
 
-use Pinto::Tester;
 use Pinto::PrerequisiteWalker;
+
+use lib 'tlib';
+use Pinto::Tester;
 
 #------------------------------------------------------------------------------
 
@@ -23,7 +25,7 @@ $t->populate('AUTHOR/Baz-1 = Baz-1 & Foo~1');
 {
 	my $cb  = sub { 
 		my ($prereq) = @_;
-		my $dist = $t->pinto->repo->get_distribution(spec => $prereq);
+		my $dist = $t->pinto->repo->get_distribution(spec => $prereq->as_spec);
 		ok defined $dist, "Got distribution for prereq $prereq";
 		return $dist;
 	};

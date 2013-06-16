@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.084
+    version 0.084_01
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -27,7 +27,7 @@ FEATURES
     Pinto is inspired by Carton, CPAN::Mini::Inject, and MyCPAN::App::DPAN,
     but adds a few interesting features:
 
-    *   Pinto supports mutiple indexes
+    *   Pinto supports multiple indexes
 
         A Pinto repository can have multiple indexes. Each index corresponds
         to a "stack" of dependencies that you can control. So you can have
@@ -101,7 +101,7 @@ Pinto vs PAUSE
         PAUSE requires authors to authenticate themselves before they can
         upload or remove modules. Pinto does not require authentication, so
         any user with sufficient file permission can potentialy change the
-        repository. However pintod does suport HTTP authentication, which
+        repository. However pintod does support HTTP authentication, which
         gives you some control over access to a remote repository.
 
 BUT WHERE IS THE API?
@@ -189,6 +189,8 @@ SUPPORT
       git clone git://github.com/thaljef/Pinto.git
 
 CONTRIBUTORS
+    *   BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
+
     *   Cory G Watson <gphat@onemogin.com>
 
     *   Jakob Voss <jakob@nichtich.de>
@@ -202,6 +204,8 @@ CONTRIBUTORS
     *   Karen Etheridge <ether@cpan.org>
 
     *   Michael G. Schwern <schwern@pobox.com>
+
+    *   Oleg Gashev <oleg@gashev.net>
 
     *   Steffen Schwigon <ss5@renormalist.net>
 

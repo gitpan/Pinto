@@ -1,6 +1,6 @@
-package App::Pinto::Command::manual;
-
 # ABSTRACT: show the full manual for a command
+
+package App::Pinto::Command::manual;
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use base qw(App::Pinto::Command);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -54,7 +54,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -62,57 +64,21 @@ App::Pinto::Command::manual - show the full manual for a command
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
-=head1 CONTRIBUTORS
+=head1 SYNOPSIS
 
-=over 4
+  pinto manual COMMAND
 
-=item *
+=head1 DESCRIPTION
 
-Cory G Watson <gphat@onemogin.com>
+This command shows the complete user manual for a pinto COMMAND.
 
-=item *
+=head1 COMMAND ARGUMENTS
 
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+The argument to this command is the name of the command for which you would
+like to see the manual.  You can also use the L<help|App::Pinto::Command::help> 
+command to get a breif summary of the command.
 
 =head1 AUTHOR
 

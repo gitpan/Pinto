@@ -5,7 +5,9 @@ package Pinto::Tester::Util;
 use strict;
 use warnings;
 
+use Readonly;
 use Path::Class;
+use Apache::Htpasswd;
 use File::Temp qw(tempdir);
 use Module::Faker::Dist;
 
@@ -16,20 +18,28 @@ use base 'Exporter';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+# VERSION
 
 #-------------------------------------------------------------------------------
 
-our @EXPORT_OK = qw( make_dist_obj
-                     make_pkg_obj
-                     make_dist_struct
-                     make_dist_archive
-                     parse_pkg_spec
-                     parse_dist_spec
-                     parse_reg_spec
-                     has_cpanm );
+Readonly our @EXPORT_OK => qw( 
+    $MINIMUM_CPANM_VERSION
+    make_dist_obj
+    make_pkg_obj
+    make_dist_struct
+    make_dist_archive
+    make_htpasswd_file
+    parse_pkg_spec
+    parse_dist_spec
+    parse_reg_spec
+    has_cpanm
+);
 
-our %EXPORT_TAGS = (all => \@EXPORT_OK);
+Readonly our %EXPORT_TAGS => (all => \@EXPORT_OK);
+
+#-------------------------------------------------------------------------------
+
+Readonly our $MINIMUM_CPANM_VERSION => 1.6196;
 
 #-------------------------------------------------------------------------------
 
@@ -159,6 +169,19 @@ sub parse_reg_spec {
 
 #------------------------------------------------------------------------------
 
+sub make_htpasswd_file {
+    my ($username, $password, $file) = @_;
+
+    $file ||= file( tempdir(CLEANUP => 1), 'htpasswd' );
+    $file->touch; # Apache::Htpasswd requires the file to exist
+    
+    Apache::Htpasswd->new( $file )->htpasswd($username, $password);
+
+    return $file;
+}
+
+#------------------------------------------------------------------------------
+
 sub has_cpanm {
     my $min_version = shift || 0;
 
@@ -176,78 +199,3 @@ sub has_cpanm {
 1;
 
 __END__
-
-=pod
-
-=for :stopwords Jeffrey Ryan Thalhammer
-
-=head1 NAME
-
-Pinto::Tester::Util - Static helper functions for testing
-
-=head1 VERSION
-
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
-
-=head1 AUTHOR
-
-Jeffrey Ryan Thalhammer <jeff@stratopan.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut

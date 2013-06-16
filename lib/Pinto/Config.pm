@@ -17,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -146,15 +146,6 @@ has log_dir => (
 );
 
 
-has no_history => (
-    is         => 'ro',
-    isa        => Bool,
-    key        => 'no_history',
-    default    => 0,
-    documentation => 'Do not keep stack snapshots at each revision',
-);
-
-
 has allow_duplicates => (
     is         => 'ro',
     isa        => Bool,
@@ -222,8 +213,11 @@ sub _build_config_file {
 sub _build_sources_list {
     my ($self) = @_;
 
-    my @sources = split m{ \s+ }mx, $self->sources();
-    my @source_urls = map { URI->new($_) } @sources;
+    # Some folks tend to put quotes around multi-value configuration
+    # paramaters, even though they shouldn't.  Be kind and remove them.
+    my $sources = $self->sources; $sources =~ s/ ['"] //gx;
+
+    my @source_urls = map { URI->new($_) } split m{ \s+ }mx, $sources;
 
     return \@source_urls;
 }
@@ -254,7 +248,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -262,62 +258,12 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 DESCRIPTION
 
 This is a private module for internal use only.  There is nothing for
 you to see here (yet).
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

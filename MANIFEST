@@ -30,6 +30,7 @@ lib/App/Pinto/Command/copy.pm
 lib/App/Pinto/Command/default.pm
 lib/App/Pinto/Command/delete.pm
 lib/App/Pinto/Command/diff.pm
+lib/App/Pinto/Command/help.pm
 lib/App/Pinto/Command/init.pm
 lib/App/Pinto/Command/install.pm
 lib/App/Pinto/Command/kill.pm
@@ -47,11 +48,11 @@ lib/App/Pinto/Command/register.pm
 lib/App/Pinto/Command/rename.pm
 lib/App/Pinto/Command/stacks.pm
 lib/App/Pinto/Command/statistics.pm
+lib/App/Pinto/Command/thanks.pm
 lib/App/Pinto/Command/unlock.pm
 lib/App/Pinto/Command/unpin.pm
 lib/App/Pinto/Command/unregister.pm
 lib/App/Pinto/Command/verify.pm
-lib/App/Pinto/Command/version.pm
 lib/Pinto.pm
 lib/Pinto/Action.pm
 lib/Pinto/Action/Add.pm
@@ -80,6 +81,7 @@ lib/Pinto/Action/Unregister.pm
 lib/Pinto/Action/Verify.pm
 lib/Pinto/ArchiveUnpacker.pm
 lib/Pinto/Chrome.pm
+lib/Pinto/Chrome/Net.pm
 lib/Pinto/Chrome/Term.pm
 lib/Pinto/CommitMessage.pm
 lib/Pinto/Config.pm
@@ -97,6 +99,7 @@ lib/Pinto/Manual.pod
 lib/Pinto/Manual/Installing.pod
 lib/Pinto/Manual/Introduction.pod
 lib/Pinto/Manual/QuickStart.pod
+lib/Pinto/Manual/Thanks.pod
 lib/Pinto/Manual/Tutorial.pod
 lib/Pinto/Migrator.pm
 lib/Pinto/ModlistWriter.pm
@@ -136,12 +139,9 @@ lib/Pinto/Server/Responder.pm
 lib/Pinto/Server/Responder/Action.pm
 lib/Pinto/Server/Responder/File.pm
 lib/Pinto/Server/Router.pm
-lib/Pinto/Server/Tester.pm
 lib/Pinto/SpecFactory.pm
 lib/Pinto/Statistics.pm
 lib/Pinto/Store.pm
-lib/Pinto/Tester.pm
-lib/Pinto/Tester/Util.pm
 lib/Pinto/Types.pm
 lib/Pinto/Util.pm
 t/00-compile.t
@@ -169,7 +169,7 @@ t/02-bowels/35-delete.t
 t/02-bowels/40-list.t
 t/02-bowels/41-log.t
 t/02-bowels/42-install.t
-t/02-bowels/43-install-deep.t
+t/02-bowels/43-install-and-pull.t
 t/02-bowels/50-diffs.t
 t/02-bowels/60-dryrun.t
 t/02-bowels/61-nofail.t
@@ -188,8 +188,12 @@ t/02-bowels/80-repo-lock.t
 t/03-remote/01-requests.t
 t/03-remote/02-responses.t
 t/03-remote/03-install.t
+t/03-remote/04-install-with-auth.t
 t/04-server/01-functional.t
 t/04-server/02-authentication.t
+tlib/Pinto/Server/Tester.pm
+tlib/Pinto/Tester.pm
+tlib/Pinto/Tester/Util.pm
 weaver.ini
 xt/release/02-workarounds.t
 xt/release/99-memory-cycle.t

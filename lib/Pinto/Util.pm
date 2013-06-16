@@ -22,7 +22,7 @@ use Pinto::Constants qw(:all);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -47,6 +47,7 @@ Readonly our @EXPORT_OK => qw(
     mksymlink
     mtime
     parse_dist_path
+    mask_url_passwords
     sha256
     title_text
     throw
@@ -273,9 +274,9 @@ sub current_author_id {
     return $Pinto::Globals::current_author_id
       if defined $Pinto::Globals::current_author_id;
 
-    my $author_id =  $ENV{PINTO_AUTHOR_ID} || uc current_username;
+    my $author_id =  $ENV{PINTO_AUTHOR_ID} || current_username;
 
-    return $author_id;
+    return uc $author_id;
 }
 
 #-------------------------------------------------------------------------------
@@ -440,13 +441,26 @@ sub is_not_blank {
 }
 
 #-------------------------------------------------------------------------------
+
+
+sub mask_url_passwords {
+    my ($url) = @_;
+
+    $url =~ s{ (https?://[^:/@]+ :) [^@/]+@}{$1*password*@}gx;
+
+    return $url;
+}
+
+#-------------------------------------------------------------------------------
 1;
 
 __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -454,7 +468,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 DESCRIPTION
 
@@ -637,55 +651,11 @@ Returns true if the string is undefined, empty, or contains only whitespace.
 
 Returns true if the string contains any non-whitespace characters.
 
-=head1 CONTRIBUTORS
+=head2 mask_url_passwords($string)
 
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+Masks the parts the string that look like a password embedded in an http or
+https URL. For example, C<http://joe:secret@foo.com> would return 
+C<http://joe:*password*@foo.com>
 
 =head1 AUTHOR
 

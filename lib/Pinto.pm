@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -140,8 +140,11 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer cpan testmatrix url annocpan anno bugtracker rt
-cpants kwalitee diff irc mailto metadata placeholders metacpan
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff cpan testmatrix url annocpan anno
+bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
+metacpan
 
 =head1 NAME
 
@@ -149,7 +152,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 SYNOPSIS
 
@@ -178,7 +181,7 @@ L<MyCPAN::App::DPAN>, but adds a few interesting features:
 
 =over 4
 
-=item * Pinto supports mutiple indexes
+=item * Pinto supports multiple indexes
 
 A Pinto repository can have multiple indexes.  Each index corresponds
 to a "stack" of dependencies that you can control.  So you can have
@@ -255,7 +258,7 @@ the culprit, but Pinto expects you to be accountable for your actions.
 PAUSE requires authors to authenticate themselves before they can
 upload or remove modules.  Pinto does not require authentication, so
 any user with sufficient file permission can potentialy change the
-repository.  However L<pintod> does suport HTTP authentication, which
+repository.  However L<pintod> does support HTTP authentication, which
 gives you some control over access to a remote repository.
 
 =back
@@ -369,6 +372,10 @@ L<https://github.com/thaljef/Pinto>
 
 =item *
 
+BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
+
+=item *
+
 Cory G Watson <gphat@onemogin.com>
 
 =item *
@@ -394,6 +401,10 @@ Karen Etheridge <ether@cpan.org>
 =item *
 
 Michael G. Schwern <schwern@pobox.com>
+
+=item *
+
+Oleg Gashev <oleg@gashev.net>
 
 =item *
 

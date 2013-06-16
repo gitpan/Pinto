@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -35,10 +35,10 @@ has filter => (
 
 
 has queue => (
-  isa       => ArrayRef['Pinto::PackageSpec'],
+  isa       => ArrayRef['Pinto::Schema::Result::Prerequisite'],
   traits    => [ qw(Array) ],
   handles   => {enqueue => 'push', dequeue => 'shift'},
-  default   => sub { return [ $_[0]->apply_filter($_[0]->start->prerequisite_specs) ] },
+  default   => sub { return [ $_[0]->apply_filter($_[0]->start->prerequisites) ] },
   init_arg  => undef,
   lazy      => 1,
 );
@@ -62,7 +62,7 @@ sub next {
 
   if (defined $dist) {
     my $path    = $dist->path;
-    my @prereqs = $self->apply_filter($dist->prerequisite_specs);
+    my @prereqs = $self->apply_filter($dist->prerequisites);
     $self->enqueue(@prereqs) unless $self->seen->{$path};
     $self->seen->{$path} = 1;
   }
@@ -91,7 +91,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -99,57 +101,7 @@ Pinto::PrerequisiteWalker - Iterates through distribution prerequisites
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

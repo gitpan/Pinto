@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,7 +23,6 @@ sub opt_spec {
     return (
         [ 'description=s' => 'Description of the initial stack'             ],
         [ 'no-default'    => 'Do not mark the initial stack as the default' ],
-        [ 'no-history'    => 'Do not record stack history'                  ],
         [ 'source=s@'     => 'URL of upstream repository (repeatable)'      ],
     );
 }
@@ -90,7 +89,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -98,7 +99,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 SYNOPSIS
 
@@ -136,18 +137,6 @@ to specify the C<--stack> option for most commands.  You can always
 mark (or unmark) the default stack by at any time by using the
 L<default|App::Pinto::Command::default> command.
 
-=item --no-history
-
-!! THIS OPTION IS EXPERIMENTAL !!
-
-Do not record the state of the stack at each revision.  This makes
-the database smaller and faster.  But it also means you'll never be 
-able to revert, reset, or diff a stack with a prior revision.  
-However, log messages will still be recorded and can be displayed as 
-usual.  This option should only be used if creating an archival 
-repository where you don't really care about the changes in each revision 
-(for example, tracking all of BackPAN or CPAN in a Pinto repository).
-
 =item --source=URL
 
 The URL of the upstream repository where distributions will be pulled
@@ -159,56 +148,6 @@ You can specify multiple repository URLs by repeating the C<--source>
 option.  Repositories that appear earlier in the list have priority
 over those that appear later.  See L<Pinto::Manual> for more
 information about using multiple upstream repositories.
-
-=back
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
 
 =back
 

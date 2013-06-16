@@ -13,7 +13,7 @@ use Pinto::Types qw(AuthorID FileList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,7 +24,8 @@ extends qw( Pinto::Action );
 has author => (
     is         => 'ro',
     isa        => AuthorID,
-    default    => sub { uc($_[0]->pausecfg->{user} || '') || current_author_id },
+    default    => sub { $_[0]->pausecfg->{user} || current_author_id },
+    coerce     => 1,
     lazy       => 1,
 );
 
@@ -61,6 +62,8 @@ sub BUILD {
 
     throw "Some archives are missing or unreadable"
         if @missing or @unreadable;
+
+    $self->stack->assert_not_locked;
 
     return $self;
 }
@@ -147,7 +150,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -155,57 +160,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

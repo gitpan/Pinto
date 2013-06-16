@@ -3,7 +3,7 @@
 package Pinto::Server::Tester;
 
 use Moose;
-use MooseX::Types::Moose qw(Str Int);
+use MooseX::Types::Moose qw(Str Int ArrayRef);
 
 use Carp;
 use IPC::Run;
@@ -18,7 +18,7 @@ use HTTP::Server::PSGI;  # just to make sure we have it
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+# VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -26,14 +26,39 @@ extends 'Pinto::Tester';
 
 #-------------------------------------------------------------------------------
 
+=attr pintod_opts( \@args )
+
+Passes additional C<@args> to the F<pintod> command line.  Default is empty.
+
+=cut
+
+has pintod_opts => (
+  is         => 'ro',
+  isa        => ArrayRef,
+  default    => sub { [] },
+  lazy       => 1,
+);
+
+=attr server_port( $integer )
+
+Sets the port that the server will listen on.  If not specified during
+construction, defaults to a randomly generated but open port.
+
+=cut
 
 has server_port => (
   is         => 'ro',
   isa        => Int,
   default    => sub { empty_port() },
+  lazy       => 1,
 );
 
 
+=attr server_host( $hostname )
+
+Sets the hostname that the server will bind to.  Defaults to C<localhost>.
+
+=cut
 
 has server_host => (
   is         => 'ro',
@@ -43,6 +68,11 @@ has server_host => (
 );
 
 
+=attr server_pid
+
+Returns the process id for the server (if it has been started).  Read-only.
+
+=cut
 
 has server_pid => (
   is         => 'rw',
@@ -52,6 +82,11 @@ has server_pid => (
 );
 
 
+=attr server_url
+
+Returns the full URL that the server will listen on.  Read-only.
+
+=cut
 
 has server_url => (
   is         => 'ro',
@@ -61,6 +96,13 @@ has server_url => (
 );
 
 
+=attr pintod_exe
+
+Sets the path to the C<pintod> executable.  If not specified, we will search
+in F<./blib/script>, F<./bin>, C<PINTO_HOME>, and finally your C<PATH>  An 
+exception is thrown if C<pintod> cannot be found.
+
+=cut
 
 has pintod_exe => (
   is         => 'ro',
@@ -94,6 +136,11 @@ sub _build_pintod_exe {
 
 #-------------------------------------------------------------------------------
 
+=method start_server()
+
+Starts the L<pintod> server.  Emits a warning if the server is already started.
+
+=cut
 
 sub start_server {
   my ($self) = @_;
@@ -108,8 +155,9 @@ sub start_server {
 
     child {
       my $xtra_lib = $self->_extra_lib;
+      my $xtra_opts = $self->pintod_opts;
       my %opts = ('--port' => $self->server_port, '--root' => $self->root);
-      my @cmd = ($^X, $xtra_lib, $self->pintod_exe, %opts);
+      my @cmd = ($^X, $xtra_lib, $self->pintod_exe, %opts, @{$xtra_opts});
       $self->tb->note(sprintf 'exec(%s)', join ' ', @cmd);
       exec @cmd;
     }
@@ -117,7 +165,7 @@ sub start_server {
     parent {
       my $server_pid = shift;
       $self->server_pid($server_pid);
-      sleep 4; # Let the server warm up
+      sleep 5; # Let the server warm up
 
     }
 
@@ -131,6 +179,12 @@ sub start_server {
 
 #-------------------------------------------------------------------------------
 
+=method stop_server()
+
+Stops the L<pintod> server.  Emits a warning if the server is not
+currently running.
+
+=cut
 
 sub stop_server {
   my ($self) = @_;
@@ -141,13 +195,18 @@ sub stop_server {
 
   # TODO: Consider using Proc::Terminator instead
   kill 'TERM', $server_pid;
-  sleep 4 and waitpid $server_pid, 0;
+  sleep 5 and waitpid $server_pid, 0;
 
   return $self;
 }
 
 #-------------------------------------------------------------------------------
 
+=method server_running_ok()
+
+Asserts that the server is running.
+
+=cut
 
 sub server_running_ok {
   my ($self) = @_;
@@ -162,6 +221,11 @@ sub server_running_ok {
 
 #-------------------------------------------------------------------------------
 
+=method server_not_running_ok
+
+Asserts that the server is not running.
+
+=cut
 
 sub server_not_running_ok {
   my ($self) = @_;
@@ -207,121 +271,8 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer responder
-
-=head1 NAME
-
-Pinto::Server::Tester - A class for testing a Pinto server
-
-=head1 VERSION
-
-version 0.084
-
-=head1 ATTRIBUTES
-
-=head2 server_port( $integer )
-
-Sets the port that the server will listen on.  If not specified during
-construction, defaults to a randomly generated but open port.
-
-=head2 server_host( $hostname )
-
-Sets the hostname that the server will bind to.  Defaults to C<localhost>.
-
-=head2 server_pid
-
-Returns the process id for the server (if it has been started).  Read-only.
-
-=head2 server_url
-
-Returns the full URL that the server will listen on.  Read-only.
-
-=head2 pintod_exe
-
-Sets the path to the C<pintod> executable.  If not specified, we will search
-in F<./blib/script>, F<./bin>, C<PINTO_HOME>, and finally your C<PATH>  An 
-exception is thrown if C<pintod> cannot be found.
-
-=head1 METHODS
-
-=head2 start_server()
-
-Starts the L<pintod> server.  Emits a warning if the server is already started.
-
-=head2 stop_server()
-
-Stops the L<pintod> server.  Emits a warning if the server is not
-currently running.
-
-=head2 server_running_ok()
-
-Asserts that the server is running.
-
-=head2 server_not_running_ok
-
-Asserts that the server is not running.
+=for stopwords responder
 
 =for Pod::Coverage DEMOLISH
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
-
-=head1 AUTHOR
-
-Jeffrey Ryan Thalhammer <jeff@stratopan.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
 
 =cut

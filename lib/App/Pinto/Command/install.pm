@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,6 +19,7 @@ sub opt_spec {
     my ($self, $app) = @_;
 
     return (
+        [ 'cascade'                 => 'Always pick latest upstream package'          ],
         [ 'cpanm-exe|cpanm=s'       => 'Path to the cpanm executable'                 ],
         [ 'cpanm-options|o:s%'      => 'name=value pairs of cpanm options'            ],
         [ 'local-lib|l=s'           => 'install into a local lib directory'           ],
@@ -64,7 +65,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer exe cpanm
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff exe cpanm
 
 =head1 NAME
 
@@ -72,7 +75,7 @@ App::Pinto::Command::install - install stuff from the repository
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 SYNOPSIS
 
@@ -82,16 +85,16 @@ version 0.084
 
 !! THIS COMMAND IS EXPERIMENTAL !!
 
-Installs packages from the repository into your environment.  This
+Installs targets from the repository into your environment.  This
 is just a thin wrapper around L<cpanm> that is wired to fetch
 everything from the Pinto repository, rather than a public CPAN
 mirror.
 
-If the C<--pull> option is given, all prerequisites
-(including the targets themselves) will be pulled onto the stack
-before attempting to install them.  If any prerequisite cannot be
-pulled because it does not exist or is blocked by a pin, then the
-installation will not proceed.
+If the C<--do-pull> option is given, then all targets and their 
+prerequisites will be pulled onto the stack before attempting to 
+install them.  If any thing cannot be pulled because it cannot be
+found or is blocked by a pin, then the installation will not
+proceed.
 
 =head1 COMMAND ARGUMENTS
 
@@ -107,6 +110,19 @@ or ';') will be ignored.
 =head1 COMMAND OPTIONS
 
 =over 4
+
+=item --cascade
+
+!! THIS OPTION IS EXPERIMENTAL !!
+
+This option only matters when the C<--do-pull> option is also used.
+
+When searching for a prerequisite package, always take the latest 
+satisfactory version of the package found amongst B<all> the upstream 
+repositories, rather than just taking the B<first> satisfactory version 
+that is found.  Remember that Pinto only searches the upstream
+repositories when the local repository does not already contain a
+satisfactory version of the package.
 
 =item --cpanm-exe PATH
 
@@ -159,14 +175,13 @@ control which editor is used.  A log message is not required whenever
 the C<--dry-run> option is set, or if the action did not yield any
 changes to the repository.
 
-=item --pull
+=item --do-pull
 
-Recursively pull prerequisite packages (or the targets themselves)
-onto the stack before installing.  Without the C<--pull> option, all
-prerequisites must already be on the stack.  See the
-L<pull|App::Pinto::Command::pull> command to explicitly pull packages
-onto a stack or the L<merge|App::Pinto::Command::merge> command to
-merge packages from one stack to another.
+Pull the targets and recursively pull all their prerequisites onto the 
+stack before installing.  Without the C<--do-pull> option, all
+targets and their prerequisites must already be on the stack or the 
+installation will probably fail.  When the C<--do-pull> option is
+used, the stack must not be locked.
 
 =item --stack=NAME
 
@@ -218,56 +233,6 @@ version 1.6 (or later) of L<cpanm>, such as installing from a Git
 repository, installing development releases, or using complex version 
 expressions. If you pass any of those as arguments to this command, the 
 behavior is unspecified.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

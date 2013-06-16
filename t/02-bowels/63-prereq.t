@@ -5,8 +5,10 @@ use warnings;
 
 use Test::More;
 
-use Pinto::Tester;
 use Pinto::PrerequisiteWalker;
+
+use lib 'tlib';
+use Pinto::Tester;
 
 #------------------------------------------------------------------------------
 
@@ -42,8 +44,8 @@ while( my($pv, $expect) = each %test_cases) {
 
 	my $cb  = sub { 
 		my ($prereq) = @_;
-		$walked_prereqs->{$prereq->name} = $prereq->version;
-	    return $t->pinto->repo->get_distribution(spec => $prereq);
+		$walked_prereqs->{$prereq->package_name} = $prereq->package_version;
+	    return $t->pinto->repo->get_distribution(spec => $prereq->as_spec);
 	};
 
 	# If $pv is not a true value, then do not make a filter

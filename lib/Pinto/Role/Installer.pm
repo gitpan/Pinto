@@ -9,11 +9,11 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use Path::Class qw(dir);
 use File::Which qw(which);
 
-use Pinto::Util qw(throw);
+use Pinto::Util qw(throw mask_url_passwords);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ sub _build_cpanm_exe {
     my ($cpanm_version) = $cpanm_version_cmd_output =~ m{version ([\d.]+)}
         or throw "Could not parse cpanm version number from $cpanm_version_cmd_output";
 
-    my $min_cpanm_version = '1.5013';
+    my $min_cpanm_version = '1.6916';
     if ($cpanm_version < $min_cpanm_version) {
         throw "Your cpanm ($cpanm_version) is too old. Must have $min_cpanm_version or newer";
     }
@@ -87,8 +87,11 @@ after execute => sub {
         push @cpanm_opts, $opt_value if defined $opt_value && length $opt_value;
     }
 
+    # Scrub passwords from the command so they don't appear in the logs
+    my @sanitized_cpanm_opts = map { mask_url_passwords($_) } @cpanm_opts;
+    $self->info(join ' ', 'Running:', $self->cpanm_exe, @sanitized_cpanm_opts);
+
     # Run cpanm
-    $self->info(join ' ', 'Running:', $self->cpanm_exe, @cpanm_opts);
     0 == system($self->cpanm_exe, @cpanm_opts, $self->targets)
       or throw "Installation failed.  See the cpanm build log for details";
 };
@@ -100,7 +103,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -108,57 +113,7 @@ Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 

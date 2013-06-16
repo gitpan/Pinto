@@ -13,7 +13,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,16 +21,8 @@ our $VERSION = '0.084'; # VERSION
 has author => (
     is       => 'ro',
     isa      => AuthorID,
+    coerce   => 1,
     required => 1,
-);
-
-
-has author_canonical => (
-    is       => 'ro',
-    isa      => Str,
-    init_arg => undef,
-    default  => sub { uc $_[0]->author },
-    lazy     => 1,
 );
 
 
@@ -77,7 +69,7 @@ around BUILDARGS => sub {
 sub path {
     my ($self) = @_;
 
-    my $author   = $self->author_canonical;
+    my $author   = $self->author;
     my @subdirs  = @{ $self->subdirs };
     my $archive  = $self->archive;
 
@@ -114,7 +106,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -122,7 +116,7 @@ Pinto::DistributionSpec - Specifies a distribution by author and path fragments
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 METHODS
 
@@ -135,56 +129,6 @@ suitable for constructing a URI.
 
 This method is called when the DistributionSpec is evaluated in string
 context.  Returns the same result as the C<path> method.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

@@ -13,7 +13,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -21,7 +23,7 @@ Pinto::Manual::Tutorial - A narrative introduction to Pinto
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 INTRODUCTION
 
@@ -133,7 +135,7 @@ against.  This ensures your application builds will be stable and
 predictable.
 
 On the surface, a Pinto repository looks like an ordinary CPAN, so you 
-can also install packages from it using L<cpnam> directly.  All you have 
+can also install packages from it using L<cpanm> directly.  All you have 
 to do is point them at the URL of your repository (under the hood, this
 is all the L<install|App::Pinto::Command::install> command is really
 doing anyway).  For example:
@@ -436,56 +438,6 @@ Each command has several options that were not discussed in this
 tutorial, and there are some commands that were not mentioned here at
 all.  So you are encouraged to explore the manual pages for each
 command and learn more.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use HTTP::Date ();
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ Pinto::Server::Responder::File - Responder for static files
 
 =head1 VERSION
 
-version 0.084
+version 0.084_01
 
 =head1 METHODS
 
@@ -98,56 +98,6 @@ version 0.084
 Returns true if the file should not be cached, and therefore the Cache-Control
 header should be set to 'no-cache' in the response.  Currently, only the index
 files should not be cached.
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
 
 =head1 AUTHOR
 

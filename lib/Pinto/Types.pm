@@ -9,7 +9,8 @@ use version;
 use MooseX::Types -declare => [ qw( AuthorID Username Uri Dir File FileList Io Version
                                     StackName StackAll StackDefault PropertyName PkgSpec
                                     PkgSpecList StackObject DistSpec DistSpecList
-                                    Spec SpecList RevisionID RevisionHead) ];
+                                    Spec SpecList RevisionID RevisionHead 
+                                    ANSIColor ANSIColorSet) ];
 
 use MooseX::Types::Moose qw( Str Num ScalarRef ArrayRef Undef
                              HashRef FileHandle Object Int );
@@ -17,6 +18,7 @@ use MooseX::Types::Moose qw( Str Num ScalarRef ArrayRef Undef
 use URI;
 use Path::Class::Dir;
 use Path::Class::File;
+use Term::ANSIColor;
 use IO::String;
 use IO::Handle;
 use IO::File;
@@ -26,14 +28,18 @@ use Pinto::Constants qw(:all);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084'; # VERSION
+our $VERSION = '0.084_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 subtype AuthorID,
   as Str,
   where   { $_ =~ $PINTO_AUTHOR_REGEX },
-  message { 'The author id (' . (defined() ? $_ : 'undef') . ') must be alphanumeric' };
+  message { 'The author id (' . (defined() ? $_ : 'undef') . ') must match /^[A-Z]{2}[-A-Z0-9]*$/' };
+
+coerce AuthorID,
+  from Str,
+  via { uc $_ };
 
 #-----------------------------------------------------------------------------
 
@@ -83,6 +89,20 @@ coerce Version,
 coerce Version,
   from Num,
   via { version->parse($_) };
+
+#-----------------------------------------------------------------------------
+
+subtype ANSIColor,
+  as       Str,
+  where   { Term::ANSIColor::colorvalid($_) },
+  message { 'The color name (' . (defined() ? $_ : 'undef') . 'is not valid' };
+
+#-----------------------------------------------------------------------------
+
+subtype ANSIColorSet,
+  as      ArrayRef[ANSIColor],
+  where   { @{$_} == 3 },
+  message { 'Must be exactly three colors' };
 
 #-----------------------------------------------------------------------------
 
@@ -198,7 +218,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
+Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
+hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
@@ -206,57 +228,7 @@ Pinto::Types - Moose types used within Pinto
 
 =head1 VERSION
 
-version 0.084
-
-=head1 CONTRIBUTORS
-
-=over 4
-
-=item *
-
-Cory G Watson <gphat@onemogin.com>
-
-=item *
-
-Jakob Voss <jakob@nichtich.de>
-
-=item *
-
-Jeff <jeff@callahan.local>
-
-=item *
-
-Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Karen Etheridge <ether@cpan.org>
-
-=item *
-
-Michael G. Schwern <schwern@pobox.com>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=back
+version 0.084_01
 
 =head1 AUTHOR
 
