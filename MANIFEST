@@ -6,10 +6,10 @@ MANIFEST.SKIP
 META.json
 META.yml
 README
-TODO.pod
 bin/pinto
 bin/pintod
 dist.ini
+etc/TODO.pod
 etc/benchmark
 etc/cpanm
 etc/findists
@@ -191,9 +191,9 @@ t/03-remote/03-install.t
 t/03-remote/04-install-with-auth.t
 t/04-server/01-functional.t
 t/04-server/02-authentication.t
-tlib/Pinto/Server/Tester.pm
-tlib/Pinto/Tester.pm
-tlib/Pinto/Tester/Util.pm
+t/lib/Pinto/Server/Tester.pm
+t/lib/Pinto/Tester.pm
+t/lib/Pinto/Tester/Util.pm
 weaver.ini
 xt/release/02-workarounds.t
 xt/release/99-memory-cycle.t

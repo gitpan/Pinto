@@ -23,7 +23,7 @@ Pinto::Manual::Tutorial - A narrative introduction to Pinto
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 INTRODUCTION
 

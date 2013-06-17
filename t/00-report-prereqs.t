@@ -56,6 +56,7 @@ my @modules = qw(
   HTTP::Request
   HTTP::Request::Common
   HTTP::Response
+  HTTP::Server::PSGI
   IO::File
   IO::Handle
   IO::Interactive
@@ -72,7 +73,7 @@ my @modules = qw(
   Module::Build
   Module::Build::CleanInstall
   Module::CoreList
-  Module::Faker
+  Module::Faker::Dist
   Moose
   Moose::Role
   MooseX::Aliases
@@ -103,10 +104,12 @@ my @modules = qw(
   String::Format
   Term::ANSIColor
   Term::EditorEdit
+  Test::Builder::Module
   Test::Exception
   Test::File
   Test::LWP::UserAgent
   Test::More
+  Test::TCP
   Test::Warn
   Throwable::Error
   Try::Tiny

@@ -13,7 +13,7 @@ use Pinto::Util qw(itis debug mtime throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -130,7 +130,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 METHODS
 

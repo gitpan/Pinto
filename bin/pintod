@@ -35,7 +35,7 @@ use Getopt::Long qw(:config pass_through);  # to retain unrecognized options
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ pintod - Web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 SYNOPSIS
 

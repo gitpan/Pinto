@@ -23,7 +23,7 @@ Pinto::Manual::QuickStart - A condensed summary of Pinto
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 INSTALLING PINTO
 
@@ -33,10 +33,10 @@ version 0.084_01
 =head1 CREATING A REPOSITORY
 
   # A new repository with default stack named "master"
-  pinto -r /repo/dir
+  pinto -r /repo/dir init
 
   # A new repository with default stack named "dev"
-  pinto -r /repo/dir dev
+  pinto -r /repo/dir init dev
 
 =head1 BROWSING A REPOSITORY
 
@@ -55,7 +55,7 @@ version 0.084_01
 
 =head1 PULLING UPSTREAM DISTRIBUTIONS
 
-  # Pull latest version of Foo::Bar
+  # Pull any version of Foo::Bar
   pinto -r /repo/dir pull Foo::Bar
 
   # Pull version 2.4 or newer of Foo::Bar
@@ -106,7 +106,7 @@ version 0.084_01
   pinto -r /repo/dir --stack dev install Foo::Bar
 
   # Install and populate the repository with missing prereqs
-  pinto -r /repo/dir install --pull Foo::Bar
+  pinto -r /repo/dir install --do-pull Foo::Bar
 
 =head1 MANAGING STACKS
 

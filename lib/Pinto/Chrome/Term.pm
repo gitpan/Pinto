@@ -15,7 +15,7 @@ use Pinto::Util qw(user_colors itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 AUTHOR
 

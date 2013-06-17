@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 SYNOPSIS
 

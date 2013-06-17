@@ -81,7 +81,7 @@ use overload ( '""'     => 'to_string',
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -245,7 +245,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 NAME
 

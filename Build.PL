@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.084_01",
+  "dist_version" => "0.084_02",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -76,7 +76,7 @@ my %module_build_args = (
     "LWP::UserAgent" => 0,
     "List::MoreUtils" => 0,
     "List::Util" => 0,
-    "Module::CoreList" => "2.85",
+    "Module::CoreList" => "2.89",
     "Moose" => 0,
     "Moose::Role" => 0,
     "MooseX::Aliases" => 0,
@@ -104,7 +104,7 @@ my %module_build_args = (
     "Scalar::Util" => 0,
     "Starman" => 0,
     "String::Format" => 0,
-    "Term::ANSIColor" => 0,
+    "Term::ANSIColor" => "2.02",
     "Term::EditorEdit" => 0,
     "Throwable::Error" => "0.200005",
     "Try::Tiny" => 0,
@@ -131,12 +131,15 @@ my %module_build_args = (
     "HTTP::Body" => 0,
     "HTTP::Request" => 0,
     "HTTP::Response" => 0,
-    "Module::Faker" => "0.014",
+    "HTTP::Server::PSGI" => 0,
+    "Module::Faker::Dist" => "0.014",
     "Plack::Test" => 0,
+    "Test::Builder::Module" => 0,
     "Test::Exception" => 0,
     "Test::File" => 0,
     "Test::LWP::UserAgent" => "0.018",
     "Test::More" => 0,
+    "Test::TCP" => 0,
     "Test::Warn" => 0
   }
 );

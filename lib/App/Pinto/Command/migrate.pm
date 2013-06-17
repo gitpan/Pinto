@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ App::Pinto::Command::migrate - migrate repository to a new version
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 SYNOPSIS
 

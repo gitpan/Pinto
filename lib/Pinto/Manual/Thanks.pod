@@ -23,7 +23,7 @@ Pinto::Manual::Thanks - Thanking the Pinto supporters
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =encoding utf-8
 

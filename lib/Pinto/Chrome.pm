@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Int Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084_01'; # VERSION
+our $VERSION = '0.084_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.084_01
+version 0.084_02
 
 =head1 AUTHOR
 
