@@ -10,7 +10,7 @@ use Router::Simple;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ Pinto::Server::Router - Routes server requests
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =head1 METHODS
 

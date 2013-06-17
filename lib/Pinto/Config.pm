@@ -10,14 +10,13 @@ use MooseX::Configuration;
 use MooseX::Aliases;
 
 use URI;
-use English qw(-no_match_vars);
 
 use Pinto::Types qw(Dir File Username Version);
 use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -146,15 +145,6 @@ has log_dir => (
 );
 
 
-has allow_duplicates => (
-    is         => 'ro',
-    isa        => Bool,
-    key        => 'allow_duplicates',
-    default    => 0,
-    documentation => 'Allow this repository to contain duplicate distributions',
-);
-
-
 has sources  => (
     is        => 'ro',
     isa       => Str,
@@ -258,7 +248,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =head1 DESCRIPTION
 

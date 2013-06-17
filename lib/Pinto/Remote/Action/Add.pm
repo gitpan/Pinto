@@ -11,7 +11,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ Pinto::Remote::Action::Add - Add a distribution to a the repository
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =for Pod::Coverage BUILD
 

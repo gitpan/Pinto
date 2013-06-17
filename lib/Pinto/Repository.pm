@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -651,11 +651,9 @@ sub assert_archive_not_duplicate {
         throw "A distribution already exists as $same_path";
     }
 
-    unless ( $self->config->allow_duplicates) {
-        my $sha256 = Pinto::Util::sha256($archive);
-        my $dupe = $self->db->schema->search_distribution({sha256 => $sha256})->first;
-        throw "Archive $archive is identical to $dupe" if $dupe;
-    }
+    my $sha256 = Pinto::Util::sha256($archive);
+    my $dupe = $self->db->schema->search_distribution({sha256 => $sha256})->first;
+    throw "Archive $archive is identical to $dupe" if $dupe;
 
     return $self;
 }
@@ -731,7 +729,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =head1 ATTRIBUTES
 

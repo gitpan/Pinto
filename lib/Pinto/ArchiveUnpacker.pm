@@ -18,7 +18,7 @@ use Pinto::Util qw(debug throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ Pinto::ArchiveUnpacker - Unpack an archive into a temporary directory
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =head1 AUTHOR
 

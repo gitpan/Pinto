@@ -21,6 +21,7 @@ etc/mkdbic
 etc/provides
 etc/puppet/manifests/pinto.pp
 etc/puppet/modules/pinto/files/root/lib/sh/pinto_install.sh
+etc/smoke
 inc/Pinto/Module/Build.pm
 lib/App/Pinto.pm
 lib/App/Pinto/Command.pm

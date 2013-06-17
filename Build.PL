@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.084_02",
+  "dist_version" => "0.085",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -51,7 +51,6 @@ my %module_build_args = (
     "Digest::SHA" => 0,
     "Dist::Metadata" => "0.924",
     "Encode" => 0,
-    "English" => 0,
     "Exporter" => 0,
     "File::Copy" => 0,
     "File::Find" => 0,
@@ -125,6 +124,7 @@ my %module_build_args = (
   "test_requires" => {
     "Apache::Htpasswd" => 0,
     "Capture::Tiny" => 0,
+    "English" => 0,
     "ExtUtils::MakeMaker" => 0,
     "File::Spec::Functions" => 0,
     "FindBin" => 0,

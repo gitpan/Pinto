@@ -7,7 +7,6 @@ use MooseX::MarkAsMethods (autoclean => 1);
 use MooseX::Types::Moose qw(Str);
 
 use Module::CoreList;
-use English qw(-no_match_vars);
 
 use Pinto::Types qw(Version);
 use Pinto::Util qw(throw);
@@ -17,7 +16,7 @@ use overload ('""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.084_02'; # VERSION
+our $VERSION = '0.085'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -114,7 +113,7 @@ Pinto::PackageSpec - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.084_02
+version 0.085
 
 =head1 METHODS
 
