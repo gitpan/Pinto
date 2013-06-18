@@ -7,7 +7,7 @@ use MooseX::MarkAsMethods (autoclean => 1);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.085'; # VERSION
+our $VERSION = '0.086'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ Pinto::Role::Plated - Something that has chrome plating
 
 =head1 VERSION
 
-version 0.085
+version 0.086
 
 =head1 AUTHOR
 

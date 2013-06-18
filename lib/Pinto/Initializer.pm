@@ -15,7 +15,7 @@ use Pinto::Util qw(debug);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.085'; # VERSION
+our $VERSION = '0.086'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ Pinto::Initializer - Initializes a new Pinto repository
 
 =head1 VERSION
 
-version 0.085
+version 0.086
 
 =head1 AUTHOR
 

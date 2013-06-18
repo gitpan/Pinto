@@ -11,7 +11,7 @@ use Pinto::SpecFactory;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.085'; # VERSION
+our $VERSION = '0.086'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.085
+version 0.086
 
 =head1 AUTHOR
 

@@ -1,3 +1,9 @@
+0.086     2013-06-18 02:45:38 America/Los_Angeles
+
+      BUG FIXES:
+
+      * Pinto::Server now cleans up child procs.  No more zombies!
+      
 0.085     2013-06-17 12:58:30 America/Los_Angeles
        
       INCOMPATIBLE CHANGES:

@@ -22,7 +22,7 @@ use Pinto::Constants qw(:server);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.085'; # VERSION
+our $VERSION = '0.086'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -122,12 +122,13 @@ sub parent_proc {
 
             if ($socket && not getpeername($socket)) {
                 # TODO: Consider using Proc::Terminator instead
-                kill 'TERM', $child_pid and wait; 
+                kill 'TERM', $child_pid; 
                 last;
             }
         }
 
         $writer->close;
+        wait;
     };
 
     return $response;
@@ -155,7 +156,7 @@ Pinto::Server::Responder::Action - Responder for action requests
 
 =head1 VERSION
 
-version 0.085
+version 0.086
 
 =head1 AUTHOR
 
