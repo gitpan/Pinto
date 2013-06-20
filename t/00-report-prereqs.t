@@ -89,6 +89,7 @@ my @modules = qw(
   Path::Class
   Path::Class::Dir
   Path::Class::File
+  Plack
   Plack::MIME
   Plack::Middleware::Auth::Basic
   Plack::Request
@@ -97,6 +98,7 @@ my @modules = qw(
   Plack::Test
   Pod::Usage
   Proc::Fork
+  Proc::Terminator
   Readonly
   Router::Simple
   Scalar::Util

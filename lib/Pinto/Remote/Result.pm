@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ Pinto::Remote::Result - The result from running a remote Action
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 METHODS
 

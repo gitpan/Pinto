@@ -15,7 +15,7 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault StackObject RevisionID);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ Pinto::Action::Diff - Show the difference between two stacks
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

@@ -7,11 +7,11 @@ use lib qw{inc}; use Pinto::Module::Build;
 
 my %module_build_args = (
   "build_requires" => {
-    "Module::Build" => "0.3601",
+    "Module::Build" => "0.4005",
     "Module::Build::CleanInstall" => "0.05"
   },
   "configure_requires" => {
-    "Module::Build" => "0.3601",
+    "Module::Build" => "0.4005",
     "Module::Build::CleanInstall" => "0.05"
   },
   "dist_abstract" => "Curate a repository of Perl modules",
@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.086",
+  "dist_version" => "0.087",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -91,6 +91,7 @@ my %module_build_args = (
     "Path::Class" => 0,
     "Path::Class::Dir" => 0,
     "Path::Class::File" => 0,
+    "Plack" => "1.0028",
     "Plack::MIME" => 0,
     "Plack::Middleware::Auth::Basic" => 0,
     "Plack::Request" => 0,
@@ -98,10 +99,11 @@ my %module_build_args = (
     "Plack::Runner" => 0,
     "Pod::Usage" => 0,
     "Proc::Fork" => 0,
+    "Proc::Terminator" => 0,
     "Readonly" => 0,
     "Router::Simple" => 0,
     "Scalar::Util" => 0,
-    "Starman" => 0,
+    "Starman" => "0.3014",
     "String::Format" => 0,
     "Term::ANSIColor" => "2.02",
     "Term::EditorEdit" => 0,

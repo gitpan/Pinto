@@ -11,12 +11,12 @@ use MooseX::Aliases;
 
 use URI;
 
-use Pinto::Types qw(Dir File Username Version);
+use Pinto::Types qw(Dir File Username PerlVersion);
 use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -165,10 +165,12 @@ has sources_list => (
 
 
 has target_perl_version => (
-    is        => 'ro',
-    isa       => Version,
-    default   => $], # Note: $PERL_VERSION is broken on old perls
-    coerce    => 1,
+    is            => 'ro',
+    isa           => PerlVersion,
+    key           => 'target_perl_version',
+    documentation => 'Default target perl version for new stacks',
+    default       => $], # Note: $PERL_VERSION is broken on old perls
+    coerce        => 1,
 );
 
 
@@ -248,7 +250,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 DESCRIPTION
 

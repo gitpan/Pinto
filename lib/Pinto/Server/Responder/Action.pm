@@ -13,6 +13,7 @@ use File::Temp;
 use File::Copy;
 use Proc::Fork;
 use Path::Class;
+use Proc::Terminator;
 use Plack::Response;
 
 use Pinto;
@@ -22,7 +23,7 @@ use Pinto::Constants qw(:server);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -110,25 +111,32 @@ sub parent_proc {
         my $socket  = $self->request->env->{'psgix.io'};
         my $nullmsg = $PINTO_SERVER_NULL_MESSAGE . "\n";
 
+
         while (1) {
 
             my $input;
-            if ( $select->can_read(0.5) ) {
+            if ( $select->can_read(1) ) {
                 $input = <$reader>;  # Will block until \n
                 last if not defined $input; # We reached eof
             }
 
-            $writer->write( $input || $nullmsg );
+            my $ok = eval {
+                local $SIG{ALRM} = sub { die "Write timed out" };
+                alarm(3);
 
-            if ($socket && not getpeername($socket)) {
-                # TODO: Consider using Proc::Terminator instead
-                kill 'TERM', $child_pid; 
+                $writer->write( $input || $nullmsg );
+                1; # Write succeeded
+            };
+
+            alarm(0);
+            unless ($ok && (!$socket || getpeername($socket))) {
+                proc_terminate($child_pid, max_wait => 10);
                 last;
             }
         }
 
-        $writer->close;
-        wait;
+        $writer->close if not $socket; # Hangs otherwise!
+        waitpid $child_pid, 0;
     };
 
     return $response;
@@ -156,7 +164,7 @@ Pinto::Server::Responder::Action - Responder for action requests
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

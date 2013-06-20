@@ -13,7 +13,7 @@ use Pinto::Util qw(throw mask_url_passwords);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

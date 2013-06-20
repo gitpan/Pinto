@@ -15,7 +15,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ Pinto::Action::Props - Show or change stack properties
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

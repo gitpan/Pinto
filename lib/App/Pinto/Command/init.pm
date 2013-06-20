@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,6 +24,7 @@ sub opt_spec {
         [ 'description=s' => 'Description of the initial stack'             ],
         [ 'no-default'    => 'Do not mark the initial stack as the default' ],
         [ 'source=s@'     => 'URL of upstream repository (repeatable)'      ],
+        [ 'target-perl-version|tpv=s' => 'Default perl version for new stacks' ],
     );
 }
 
@@ -99,7 +100,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 SYNOPSIS
 

@@ -18,7 +18,7 @@ use Pinto::Types qw(Uri);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ Pinto::Remote - Interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 SYNOPSIS
 

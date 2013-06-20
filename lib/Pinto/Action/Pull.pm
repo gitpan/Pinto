@@ -14,7 +14,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ Pinto::Store - Storage for distribution archives
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 DESCRIPTION
 

@@ -15,7 +15,7 @@ use Pinto::Util qw(user_colors itis throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.086'; # VERSION
+our $VERSION = '0.087'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -60,10 +60,10 @@ has stderr => (
 sub _build_stdout {
     my ($self) = @_;
 
-    my $stdout = [fileno(*STDOUT), '>'];
     my $pager = $ENV{PINTO_PAGER} || $ENV{PAGER};
+    my $stdout = [fileno(*STDOUT), '>'];
 
-    return $stdout if not -t $stdout;
+    return $stdout if not -t STDOUT;
     return $stdout if not $pager;
 
     open my $pager_fh, q<|->, $pager
@@ -222,7 +222,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.086
+version 0.087
 
 =head1 AUTHOR
 
