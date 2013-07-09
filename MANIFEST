@@ -161,6 +161,7 @@ t/02-bowels/05-compare.t
 t/02-bowels/10-init.t
 t/02-bowels/11-tester.t
 t/02-bowels/20-add.t
+t/02-bowels/21-add-no-index.t
 t/02-bowels/21-pull.t
 t/02-bowels/22-add-deep.t
 t/02-bowels/23-pull-multi.t

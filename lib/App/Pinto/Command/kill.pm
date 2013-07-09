@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,17 +20,15 @@ sub command_names { return qw(kill) }
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
-    return (
-        [ 'force'  => 'Kill even if stack is locked'  ],
-    );
+    return ( [ 'force' => 'Kill even if stack is locked' ], );
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Must specify exactly one stack')
         if @{$args} != 1;
@@ -41,10 +39,9 @@ sub validate_args {
 #------------------------------------------------------------------------------
 
 sub execute {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
-    my $result = $self->pinto->run($self->action_name, %{$opts},
-                                                       stack => $args->[0]);
+    my $result = $self->pinto->run( $self->action_name, %{$opts}, stack => $args->[0] );
 
     return $result->exit_status;
 }
@@ -66,7 +63,7 @@ App::Pinto::Command::kill - permanently delete a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

@@ -11,22 +11,22 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
-        [ 'cascade'      => 'Always pick latest upstream package' ],
-        [ 'dry-run'      => 'Do not commit any changes'           ],
-        [ 'message|m=s'  => 'Message to describe the change'      ],
-        [ 'no-fail'      => 'Do not fail when there is an error'  ],
-        [ 'no-recurse|n' => 'Do not recursively pull prereqs'     ],
-        [ 'pin'          => 'Pin the packages to the stack'       ],
-        [ 'stack|s=s'    => 'Put packages into this stack'        ],
-        [ 'use-default-message|M' => 'Use the generated message'  ],
+        [ 'cascade'               => 'Always pick latest upstream package' ],
+        [ 'dry-run'               => 'Do not commit any changes' ],
+        [ 'message|m=s'           => 'Message to describe the change' ],
+        [ 'no-fail'               => 'Do not fail when there is an error' ],
+        [ 'no-recurse|n'          => 'Do not recursively pull prereqs' ],
+        [ 'pin'                   => 'Pin the packages to the stack' ],
+        [ 'stack|s=s'             => 'Put packages into this stack' ],
+        [ 'use-default-message|M' => 'Use the generated message' ],
     );
 }
 
@@ -56,7 +56,7 @@ App::Pinto::Command::pull - pull archives from upstream repositories
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

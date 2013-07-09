@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -20,11 +20,9 @@ sub command_names { return qw(delete remove del rm) }
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
-    return (
-        [ 'force'  => 'Delete even if packages are pinned'  ],
-    );
+    return ( [ 'force' => 'Delete even if packages are pinned' ], );
 }
 
 #------------------------------------------------------------------------------
@@ -52,7 +50,7 @@ App::Pinto::Command::delete - permanently remove an archive
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

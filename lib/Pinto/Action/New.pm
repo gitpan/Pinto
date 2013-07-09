@@ -5,13 +5,13 @@ package Pinto::Action::New;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool Str);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(StackName);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,13 +29,11 @@ has stack => (
     required => 1,
 );
 
-
 has default => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
 );
-
 
 has description => (
     is        => 'ro',
@@ -48,11 +46,11 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my %attrs = (name => $self->stack);
+    my %attrs = ( name => $self->stack );
     my $stack = $self->repo->create_stack(%attrs);
 
-    $stack->set_properties($stack->default_properties);
-    $stack->set_description($self->description) if $self->has_description;
+    $stack->set_properties( $stack->default_properties );
+    $stack->set_description( $self->description ) if $self->has_description;
     $stack->mark_as_default if $self->default;
 
     return $self->result->changed;
@@ -80,7 +78,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

@@ -4,14 +4,14 @@ package Pinto::Action::Unpin;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
 use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ extends qw( Pinto::Action );
 
 has targets => (
     isa      => SpecList,
-    traits   => [ qw(Array) ],
-    handles  => {targets => 'elements'},
+    traits   => [qw(Array)],
+    handles  => { targets => 'elements' },
     required => 1,
     coerce   => 1,
 );
@@ -38,7 +38,7 @@ sub execute {
 
     my $stack = $self->stack;
 
-    my @dists = map { $self->_unpin($_, $stack) } $self->targets;
+    my @dists = map { $self->_unpin( $_, $stack ) } $self->targets;
 
     return @dists;
 }
@@ -46,15 +46,15 @@ sub execute {
 #------------------------------------------------------------------------------
 
 sub _unpin {
-    my ($self, $target, $stack) = @_;
+    my ( $self, $target, $stack ) = @_;
 
-    my $dist = $stack->get_distribution(spec => $target);
+    my $dist = $stack->get_distribution( spec => $target );
 
     throw "$target is not registered on stack $stack" if not defined $dist;
 
     $self->notice("Unpinning distribution $dist from stack $stack");
 
-    my $did_unpin = $dist->unpin(stack => $stack);
+    my $did_unpin = $dist->unpin( stack => $stack );
 
     $self->warning("Distribution $dist is not pinned to stack $stack") unless $did_unpin;
 
@@ -83,7 +83,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

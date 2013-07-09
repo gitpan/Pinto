@@ -10,7 +10,7 @@ use Pinto::Types qw(Dir);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -19,7 +19,6 @@ has request => (
     isa      => 'Plack::Request',
     required => 1,
 );
-
 
 has root => (
     is       => 'ro',
@@ -54,7 +53,7 @@ Pinto::Server::Responder - Base class for responders
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

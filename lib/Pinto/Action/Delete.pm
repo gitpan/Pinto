@@ -5,14 +5,14 @@ package Pinto::Action::Delete;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
 use Pinto::Types qw(DistSpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,36 +24,34 @@ with qw( Pinto::Role::Transactional );
 
 #------------------------------------------------------------------------------
 
-has targets   => (
+has targets => (
     isa      => DistSpecList,
-    traits   => [ qw(Array) ],
-    handles  => {targets => 'elements'},
+    traits   => [qw(Array)],
+    handles  => { targets => 'elements' },
     required => 1,
     coerce   => 1,
 );
 
-
 has force => (
-    is        => 'ro',
-    isa       => Bool,
-    default   => 0,
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 
 #------------------------------------------------------------------------------
-
 
 sub execute {
     my ($self) = @_;
 
     for my $target ( $self->targets ) {
 
-        my $dist = $self->repo->get_distribution(spec => $target);
-        
+        my $dist = $self->repo->get_distribution( spec => $target );
+
         throw "Distribution $target is not in the repository" if not defined $dist;
 
         $self->notice("Deleting $dist from the repository");
-        
-        $self->repo->delete_distribution(dist => $dist, force => $self->force);
+
+        $self->repo->delete_distribution( dist => $dist, force => $self->force );
     }
 
     return $self->result->changed;
@@ -81,7 +79,7 @@ Pinto::Action::Delete - Delete archives from the repository
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

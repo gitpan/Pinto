@@ -11,23 +11,23 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
-        [ 'default'               => 'Make the new stack the default stack' ],
-        [ 'description|d=s'       => 'Brief description of the stack'       ],
+        [ 'default'         => 'Make the new stack the default stack' ],
+        [ 'description|d=s' => 'Brief description of the stack' ],
     );
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Must specify exactly one stack')
         if @{$args} != 1;
@@ -54,7 +54,7 @@ App::Pinto::Command::new - create a new empty stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

@@ -4,7 +4,7 @@ package Pinto::Remote::Action;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 use MooseX::Types::Moose qw(Str Maybe);
 
 use URI;
@@ -17,7 +17,7 @@ use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,12 +25,11 @@ with qw(Pinto::Role::Plated);
 
 #------------------------------------------------------------------------------
 
-has name      => (
-    is        => 'ro',
-    isa       => Str,
-    required  => 1,
+has name => (
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
 );
-
 
 has root => (
     is       => 'ro',
@@ -38,13 +37,11 @@ has root => (
     required => 1,
 );
 
-
-has args     => (
-    is       => 'ro',
-    isa      => 'HashRef',
-    default  => sub { {} },
+has args => (
+    is      => 'ro',
+    isa     => 'HashRef',
+    default => sub { {} },
 );
-
 
 has username => (
     is       => 'ro',
@@ -52,18 +49,16 @@ has username => (
     required => 1
 );
 
-
 has password => (
     is       => 'ro',
-    isa      => Maybe[ Str ],
+    isa      => Maybe [Str],
     required => 1,
 );
 
-
-has ua        => (
-    is        => 'ro',
-    isa       => 'LWP::UserAgent',
-    required  => 1,
+has ua => (
+    is       => 'ro',
+    isa      => 'LWP::UserAgent',
+    required => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -73,7 +68,7 @@ sub execute {
     my ($self) = @_;
 
     my $request = $self->_make_request;
-    my $result  = $self->_send_request(req => $request);
+    my $result = $self->_send_request( req => $request );
 
     return $result;
 }
@@ -81,16 +76,19 @@ sub execute {
 #------------------------------------------------------------------------------
 
 sub _make_request {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $action_name  = $args{name} || $self->name;
     my $request_body = $args{body} || $self->_make_request_body;
 
     my $url = URI->new( $self->root );
-    $url->path_segments('', 'action', lc $action_name);
+    $url->path_segments( '', 'action', lc $action_name );
 
-    my $request = POST( $url, Content_Type => 'form-data',
-                              Content      => $request_body );
+    my $request = POST(
+        $url,
+        Content_Type => 'form-data',
+        Content      => $request_body
+    );
 
     if ( defined $self->password ) {
         $request->authorization_basic( $self->username, $self->password );
@@ -98,7 +96,6 @@ sub _make_request {
 
     return $request;
 }
-
 
 #------------------------------------------------------------------------------
 
@@ -108,16 +105,17 @@ sub _make_request_body {
     return [ $self->_chrome_args, $self->_pinto_args, $self->_action_args ];
 }
 
-
 #------------------------------------------------------------------------------
 
 sub _chrome_args {
     my ($self) = @_;
 
-    my $chrome_args = { verbose  => $self->chrome->verbose,
-                        no_color => $self->chrome->no_color,
-                        colors   => $self->chrome->colors,
-                        quiet    => $self->chrome->quiet };
+    my $chrome_args = {
+        verbose  => $self->chrome->verbose,
+        no_color => $self->chrome->no_color,
+        colors   => $self->chrome->colors,
+        quiet    => $self->chrome->quiet
+    };
 
     return ( chrome => encode_json($chrome_args) );
 
@@ -128,7 +126,7 @@ sub _chrome_args {
 sub _pinto_args {
     my ($self) = @_;
 
-    my $pinto_args = { username  => $self->username };
+    my $pinto_args = { username => $self->username };
 
     return ( pinto => encode_json($pinto_args) );
 }
@@ -146,50 +144,52 @@ sub _action_args {
 #------------------------------------------------------------------------------
 
 sub _send_request {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $request = $args{req} || $self->_make_request;
-    my $status  = 0;
+    my $status = 0;
 
     # Currying in some extra args to the callback...
-    my $callback = sub { $self->_response_callback(\$status, @_) };
-    my $response = $self->ua->request($request, $callback);
+    my $callback = sub { $self->_response_callback( \$status, @_ ) };
+    my $response = $self->ua->request( $request, $callback );
 
-    if (not $response->is_success) {
-        $self->error($response->content);
-        return Pinto::Result->new(was_successful => 0);
+    if ( not $response->is_success ) {
+        $self->error( $response->content );
+        return Pinto::Result->new( was_successful => 0 );
     }
 
-    return Pinto::Result->new(was_successful => $status);
+    return Pinto::Result->new( was_successful => $status );
 }
 
 #------------------------------------------------------------------------------
 
-sub _response_callback { 
-    my ($self, $status, $data) = @_;
+sub _response_callback {
+    my ( $self, $status, $data ) = @_;
 
     # Each data chunk will be one or more lines ending with \n
 
     chomp $data;
-    if (not $data) {
+    if ( not $data ) {
+
         # HACK: So that blank lines come out right
         # Need to find a better way to do this!!
         $self->chrome->show('');
         return 1;
     }
 
-    for my $line (split m/\n/, $data, -1) {
+    for my $line ( split m/\n/, $data, -1 ) {
 
-        if ($line eq $PINTO_SERVER_STATUS_OK) {
-            ${ $status } = 1;
+        if ( $line eq $PINTO_SERVER_STATUS_OK ) {
+            ${$status} = 1;
         }
-        elsif($line eq $PINTO_SERVER_PROGRESS_MESSAGE) {
+        elsif ( $line eq $PINTO_SERVER_PROGRESS_MESSAGE ) {
             $self->chrome->show_progress;
         }
-        elsif ($line eq $PINTO_SERVER_NULL_MESSAGE) {
-             # Do nothing, discard message
+        elsif ( $line eq $PINTO_SERVER_NULL_MESSAGE ) {
+
+            # Do nothing, discard message
         }
-        elsif ($line =~ m{^ \Q$PINTO_SERVER_DIAG_PREFIX\E (.*)}x) {
+        elsif ( $line =~ m{^ \Q$PINTO_SERVER_DIAG_PREFIX\E (.*)}x ) {
             $self->chrome->diag($1);
         }
         else {
@@ -221,7 +221,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

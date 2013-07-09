@@ -1,4 +1,5 @@
 use utf8;
+
 package Pinto::Schema;
 
 # Created by DBIx::Class::Schema::Loader
@@ -10,7 +11,6 @@ extends 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces;
 
-
 # Created by DBIx::Class::Schema::Loader v0.07015 @ 2012-04-29 01:03:56
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:yRlbDgtAuKaDHF9i1Kwqsg
 #-------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ __PACKAGE__->load_namespaces;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -31,14 +31,14 @@ use Pinto::Util qw(decamelize throw);
 
 use Readonly;
 Readonly our $SCHEMA_VERSION => 1;
-sub schema_version { return $SCHEMA_VERSION };
+sub schema_version { return $SCHEMA_VERSION }
 
 #-------------------------------------------------------------------------------
 
 has repo => (
     is       => 'rw',
     isa      => 'Pinto::Repository',
-    traits   => [ qw(SetOnce) ],
+    traits   => [qw(SetOnce)],
     weak_ref => 1,
 );
 
@@ -95,7 +95,7 @@ sub resultset_names {
 
 #-------------------------------------------------------------------------------
 
-for my $rs (__PACKAGE__->resultset_names) {
+for my $rs ( __PACKAGE__->resultset_names ) {
 
     ## no critic
 
@@ -138,7 +138,7 @@ Pinto::Schema - The DBIx::Class::Schema for Pinto
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

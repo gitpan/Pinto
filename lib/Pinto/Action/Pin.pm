@@ -4,14 +4,14 @@ package Pinto::Action::Pin;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
 use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ extends qw( Pinto::Action );
 
 has targets => (
     isa      => SpecList,
-    traits   => [ qw(Array) ],
-    handles  => {targets => 'elements'},
+    traits   => [qw(Array)],
+    handles  => { targets => 'elements' },
     required => 1,
     coerce   => 1,
 );
@@ -38,7 +38,7 @@ sub execute {
 
     my $stack = $self->stack;
 
-    my @dists = map { $self->_pin($_, $stack) } $self->targets;
+    my @dists = map { $self->_pin( $_, $stack ) } $self->targets;
 
     return @dists;
 }
@@ -46,15 +46,15 @@ sub execute {
 #------------------------------------------------------------------------------
 
 sub _pin {
-    my ($self, $target, $stack) = @_;
+    my ( $self, $target, $stack ) = @_;
 
-    my $dist = $stack->get_distribution(spec => $target);
+    my $dist = $stack->get_distribution( spec => $target );
 
     throw "$target is not registered on stack $stack" if not defined $dist;
 
     $self->notice("Pinning distribution $dist to stack $stack");
 
-    my $did_pin = $dist->pin(stack => $stack);
+    my $did_pin = $dist->pin( stack => $stack );
 
     $self->warning("Distribution $dist is already pinned to stack $stack") unless $did_pin;
 
@@ -83,7 +83,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

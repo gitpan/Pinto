@@ -5,11 +5,11 @@ package Pinto::Action::Nop;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Int);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ has sleep => (
 sub execute {
     my ($self) = @_;
 
-    if (my $sleep = $self->sleep) {
+    if ( my $sleep = $self->sleep ) {
         $self->notice("Process $$ sleeping for $sleep seconds");
         sleep $self->sleep;
     }
@@ -59,7 +59,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 DESCRIPTION
 

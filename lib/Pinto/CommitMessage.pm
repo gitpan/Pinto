@@ -5,13 +5,13 @@ package Pinto::CommitMessage;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Str);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,13 +21,11 @@ has title => (
     required => 1,
 );
 
-
 has stack => (
-    is      => 'ro',
-    isa     => 'Pinto::Schema::Result::Stack',
+    is       => 'ro',
+    isa      => 'Pinto::Schema::Result::Stack',
     required => 1,
 );
-
 
 has diff => (
     is       => 'ro',
@@ -83,7 +81,7 @@ Pinto::CommitMessage - Utility class for commit message templates
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

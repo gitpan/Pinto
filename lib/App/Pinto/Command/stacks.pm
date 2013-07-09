@@ -13,25 +13,23 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
-    return (
-        [ 'format=s' => 'Format of the listing (See POD for details)' ],
-    );
+    return ( [ 'format=s' => 'Format of the listing (See POD for details)' ], );
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('No arguments are allowed')
-        if @{ $args };
+        if @{$args};
 
     $opts->{format} = interpolate( $opts->{format} )
         if exists $opts->{format};
@@ -56,7 +54,7 @@ App::Pinto::Command::stacks - show available stacks
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

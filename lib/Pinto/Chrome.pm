@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Int Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -18,8 +18,7 @@ has verbose => (
     default => 0,
 );
 
-
-has quiet   => (
+has quiet => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
@@ -48,10 +47,10 @@ sub progress_done { return 1 }
 #-----------------------------------------------------------------------------
 
 sub should_render_diag {
-    my ($self, $level) = @_;
+    my ( $self, $level ) = @_;
 
-    return 1 if $level == 0;           # Always, always display errors
-    return 0 if $self->quiet;          # Don't display anything else if quiet
+    return 1 if $level == 0;                    # Always, always display errors
+    return 0 if $self->quiet;                   # Don't display anything else if quiet
     return 1 if $self->verbose + 1 >= $level;
     return 0;
 }
@@ -63,12 +62,12 @@ sub diag_levels { return qw(error warning notice info) }
 #-----------------------------------------------------------------------------
 
 my @levels = __PACKAGE__->diag_levels;
-__generate_diag_method($levels[$_], $_) for (0..$#levels);
+__generate_diag_method( $levels[$_], $_ ) for ( 0 .. $#levels );
 
 #-----------------------------------------------------------------------------
 
 sub __generate_diag_method {
-    my ($method_name, $diag_level) = @_;
+    my ( $method_name, $diag_level ) = @_;
 
     my $template = <<'END_METHOD';
 sub %s {
@@ -103,7 +102,7 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

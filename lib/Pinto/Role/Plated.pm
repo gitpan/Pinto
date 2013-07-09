@@ -3,19 +3,19 @@
 package Pinto::Role::Plated;
 
 use Moose::Role;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 has chrome => (
-    is         => 'ro',
-    isa        => 'Pinto::Chrome',
-    handles    => [ qw(show info notice warning error) ],
-    required   => 1,
+    is       => 'ro',
+    isa      => 'Pinto::Chrome',
+    handles  => [qw(show info notice warning error)],
+    required => 1,
 );
 
 #-----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Pinto::Role::Plated - Something that has chrome plating
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

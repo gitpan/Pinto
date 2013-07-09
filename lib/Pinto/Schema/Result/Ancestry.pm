@@ -1,4 +1,5 @@
 use utf8;
+
 package Pinto::Schema::Result::Ancestry;
 
 # Created by DBIx::Class::Schema::Loader
@@ -18,12 +19,9 @@ __PACKAGE__->table("ancestry");
 
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "parent",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "child",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+    "id",     { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+    "parent", { data_type => "integer", is_foreign_key    => 1, is_nullable => 0 },
+    "child",  { data_type => "integer", is_foreign_key    => 1, is_nullable => 0 },
 );
 
 
@@ -31,24 +29,22 @@ __PACKAGE__->set_primary_key("id");
 
 
 __PACKAGE__->belongs_to(
-  "child",
-  "Pinto::Schema::Result::Revision",
-  { id => "child" },
-  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+    "child",
+    "Pinto::Schema::Result::Revision",
+    { id            => "child" },
+    { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
 __PACKAGE__->belongs_to(
-  "parent",
-  "Pinto::Schema::Result::Revision",
-  { id => "parent" },
-  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+    "parent",
+    "Pinto::Schema::Result::Revision",
+    { id            => "parent" },
+    { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
-
 with 'Pinto::Role::Schema::Result';
-
 
 # Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-02-27 14:20:24
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:NAFcD1cZ00q/UhZ15CEYUg
@@ -59,7 +55,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -82,7 +78,7 @@ Pinto::Schema::Result::Ancestry - Represents the relationship between revisions
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 NAME
 

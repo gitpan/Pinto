@@ -4,11 +4,11 @@ package Pinto::Action::Clean;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ sub execute {
     my ($self) = @_;
 
     $self->repo->optimize_database;
-    
+
     my $did_delete = $self->repo->clean_files;
 
     $self->result->changed if $did_delete;
@@ -49,7 +49,7 @@ Pinto::Action::Clean - Remove orphaned archives
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

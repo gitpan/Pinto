@@ -4,13 +4,13 @@ package Pinto::Statistics;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use String::Format;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -69,18 +69,18 @@ sub stack_packages {
 #------------------------------------------------------------------------------
 
 sub to_string {
-    my ($self, $format) = @_;
+    my ( $self, $format ) = @_;
 
     my %fspec = (
-        'D' => sub { $self->total_distributions   },
-        'd' => sub { $self->stack_distributions   },
-        'k' => sub { $self->stack                 },
-        'P' => sub { $self->total_packages        },
-        'p' => sub { $self->stack_packages        },
+        'D' => sub { $self->total_distributions },
+        'd' => sub { $self->stack_distributions },
+        'k' => sub { $self->stack },
+        'P' => sub { $self->total_packages },
+        'p' => sub { $self->stack_packages },
     );
 
     $format ||= $self->default_format();
-    return String::Format::stringf($format, %fspec);
+    return String::Format::stringf( $format, %fspec );
 }
 
 #------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ Pinto::Statistics - Report statistics about a Pinto repository
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

@@ -5,42 +5,41 @@ package Pinto::RevisionWalker;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(ArrayRef);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # TODO: Rethink this API.  Do we need start?  Can we just use queue?  What
 # about filtering, or walking forward?  Sort chronolobical or topological?
 
 has start => (
-	is       => 'ro',
-	isa      => 'Pinto::Schema::Result::Revision',
-	required => 1,
+    is       => 'ro',
+    isa      => 'Pinto::Schema::Result::Revision',
+    required => 1,
 );
 
-
 has queue => (
-    isa      => ArrayRef,
-    traits   => [ qw(Array) ],
-    handles  => {enqueue => 'push', dequeue => 'shift'},
-    default  => sub { [ $_[0]->start ] },
-    lazy     => 1,
+    isa     => ArrayRef,
+    traits  => [qw(Array)],
+    handles => { enqueue => 'push', dequeue => 'shift' },
+    default => sub { [ $_[0]->start ] },
+    lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
 
 sub next {
-  my ($self) = @_;
+    my ($self) = @_;
 
     my $next = $self->dequeue;
 
     return if not $next;
     return if $next->is_root;
 
-    $self->enqueue($next->parents);
+    $self->enqueue( $next->parents );
 
     return $next;
 }
@@ -66,7 +65,7 @@ Pinto::RevisionWalker - Iterates through revision history
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

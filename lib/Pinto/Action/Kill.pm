@@ -5,13 +5,13 @@ package Pinto::Action::Kill;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,11 +29,10 @@ has stack => (
     required => 1,
 );
 
-
 has force => (
-    is       => 'ro',
-    isa      => Bool,
-    default  => 0,
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 
 #------------------------------------------------------------------------------
@@ -41,11 +40,11 @@ has force => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack($self->stack);
+    my $stack = $self->repo->get_stack( $self->stack );
 
     $stack->unlock if $stack->is_locked && $self->force;
 
-    $self->repo->kill_stack(stack => $stack);
+    $self->repo->kill_stack( stack => $stack );
 
     return $self->result->changed;
 }
@@ -72,7 +71,7 @@ Pinto::Action::Kill - Permanently delete a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

@@ -5,13 +5,13 @@ package Pinto::Action::Copy;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool Str);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,13 +29,11 @@ has from_stack => (
     required => 1,
 );
 
-
 has to_stack => (
     is       => 'ro',
     isa      => StackName,
     required => 1,
 );
-
 
 has default => (
     is      => 'ro',
@@ -43,13 +41,11 @@ has default => (
     default => 0,
 );
 
-
 has lock => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
 );
-
 
 has description => (
     is        => 'ro',
@@ -62,16 +58,18 @@ has description => (
 sub execute {
     my ($self) = @_;
 
-    my %changes = (name => $self->to_stack);
-    my $orig    = $self->repo->get_stack($self->from_stack);
-    my $copy    = $self->repo->copy_stack(stack => $orig, %changes);
+    my %changes = ( name => $self->to_stack );
+    my $orig    = $self->repo->get_stack( $self->from_stack );
+    my $copy    = $self->repo->copy_stack( stack => $orig, %changes );
 
-    my $description = $self->has_description ? $self->description
-                                             : "Copy of stack $orig";
+    my $description =
+          $self->has_description
+        ? $self->description
+        : "Copy of stack $orig";
 
     $copy->set_description($description);
     $copy->mark_as_default if $self->default;
-    $copy->lock if $self->lock;
+    $copy->lock            if $self->lock;
 
     return $self->result->changed;
 }
@@ -98,7 +96,7 @@ Pinto::Action::Copy - Create a new stack by copying another
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

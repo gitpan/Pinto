@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ sub command_names { return qw( list ls ) }
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
         [ 'author|A=s'        => 'Limit to distributions by author' ],
@@ -37,10 +37,10 @@ sub opt_spec {
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Multiple arguments are not allowed')
-        if @{ $args } > 1;
+        if @{$args} > 1;
 
     $opts->{format} = interpolate( $opts->{format} )
         if exists $opts->{format};
@@ -69,7 +69,7 @@ App::Pinto::Command::list - show the packages in a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

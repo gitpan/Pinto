@@ -1,6 +1,7 @@
 # ABSTRACT: Common queries for Distributions
 
 use utf8;
+
 package Pinto::Schema::ResultSet::Distribution;
 
 use strict;
@@ -10,25 +11,25 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub with_packages {
-  my ($self, $where) = @_;
+    my ( $self, $where ) = @_;
 
-  return $self->search($where || {}, {prefetch => 'packages'});
+    return $self->search( $where || {}, { prefetch => 'packages' } );
 }
 
 #------------------------------------------------------------------------------
 
 sub find_by_author_archive {
-  my ($self, $author, $archive) = @_;
+    my ( $self, $author, $archive ) = @_;
 
-  my $where = {author => $author, archive => $archive};
-  my $attrs = {key => 'author_archive_unique'};
+    my $where = { author => $author, archive => $archive };
+    my $attrs = { key => 'author_archive_unique' };
 
-  return $self->find($where, $attrs);
+    return $self->find( $where, $attrs );
 }
 
 #------------------------------------------------------------------------------
@@ -48,7 +49,7 @@ Pinto::Schema::ResultSet::Distribution - Common queries for Distributions
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

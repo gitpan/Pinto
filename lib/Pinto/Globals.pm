@@ -7,16 +7,16 @@ use warnings;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 ## no critic qw(PackageVars);
-our $current_utc_time     = undef;
-our $current_time_offset  = undef;
-our $current_username     = undef;
-our $current_author_id    = undef;
-our $is_interactive       = undef;
+our $current_utc_time    = undef;
+our $current_time_offset = undef;
+our $current_username    = undef;
+our $current_author_id   = undef;
+our $is_interactive      = undef;
 
 #------------------------------------------------------------------------------
 1;
@@ -35,7 +35,7 @@ Pinto::Globals - Global variables used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

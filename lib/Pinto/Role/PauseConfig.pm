@@ -12,38 +12,36 @@ use File::HomeDir;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 
 has pauserc => (
-    is         => 'ro',
-    isa        => File,
-    lazy       => 1,
-    coerce     => 1,
-    builder    => '_build_pauserc',
+    is      => 'ro',
+    isa     => File,
+    lazy    => 1,
+    coerce  => 1,
+    builder => '_build_pauserc',
 );
-
 
 #------------------------------------------------------------------------------
 
 
 has pausecfg => (
-    is        => 'ro',
-    isa       => HashRef,
-    lazy      => 1,
-    init_arg  => undef,
-    builder   => '_build_pausecfg',
+    is       => 'ro',
+    isa      => HashRef,
+    lazy     => 1,
+    init_arg => undef,
+    builder  => '_build_pausecfg',
 );
-
 
 #------------------------------------------------------------------------------
 
 sub _build_pauserc {
     my ($self) = @_;
 
-    return file(File::HomeDir->my_home, '.pause');
+    return file( File::HomeDir->my_home, '.pause' );
 }
 
 #------------------------------------------------------------------------------
@@ -60,7 +58,7 @@ sub _build_pausecfg {
 
     while (<$fh>) {
         next if /^ \s* (?: [#].*)? $/x;
-        my ($k, $v) = /^ \s* (\w+) \s+ (.+?) \s* $/x;
+        my ( $k, $v ) = /^ \s* (\w+) \s+ (.+?) \s* $/x;
         next unless $k;
         $cfg->{$k} = $v;
     }
@@ -85,7 +83,7 @@ Pinto::Role::PauseConfig - Something that has a pause config attribute
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 ATTRIBUTES
 

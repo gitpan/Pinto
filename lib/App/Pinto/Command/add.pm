@@ -11,22 +11,23 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
-        [ 'author=s'     => 'The ID of the archive author'        ],
-        [ 'cascade'      => 'Always pick latest upstream package' ],
-        [ 'dry-run'      => 'Do not commit any changes'           ],
-        [ 'message|m=s'  => 'Message to describe the change'      ],
-        [ 'no-fail'      => 'Do not fail when there is an error'  ],
-        [ 'no-recurse|n' => 'Do not recursively pull prereqs'     ],
-        [ 'pin'          => 'Pin packages to the stack'           ],
-        [ 'stack|s=s'    => 'Put packages into this stack'        ],
+        [ 'author=s'              => 'The ID of the archive author' ],
+        [ 'cascade'               => 'Always pick latest upstream package' ],
+        [ 'dry-run'               => 'Do not commit any changes' ],
+        [ 'message|m=s'           => 'Message to describe the change' ],
+        [ 'no-fail'               => 'Do not fail when there is an error' ],
+        [ 'no-index|x=s@'         => 'Do not index matching packages' ],
+        [ 'no-recurse|n'          => 'Do not recursively pull prereqs' ],
+        [ 'pin'                   => 'Pin packages to the stack' ],
+        [ 'stack|s=s'             => 'Put packages into this stack' ],
         [ 'use-default-message|M' => 'Use the generated message' ],
     );
 }
@@ -57,7 +58,7 @@ App::Pinto::Command::add - add local archives to the repository
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 
@@ -138,6 +139,29 @@ This option is useful if you want to throw a list of archives into
 a repository and see which ones are problematic.  Once you've fixed
 the broken ones, you can throw the whole list at the repository
 again.
+
+=item --no-index=PACKAGE
+
+=item -x PACKAGE
+
+=item --no-index=/PATTERN
+
+=item -x /PATTERN
+
+!! THIS OPTION IS EXPERIMENTAL !!
+
+Exclude the PACKAGE from the index.  If the argument starts with a slash, then
+it is interpreted as a regular expression, and all packages matching the
+pattern will be excluded.  Exclusions only apply to the added distributions
+(i.e. the arguments to this command) so they do not affect any prerequisited
+distributions that may also get pulled.  You can repeat this option to specify
+multiple PACKAGES or PATTERNS.
+
+This option is useful when Pinto's indexing is to aggressive and finds
+packages that it probably should not.  Remember that Pinto does not promise to
+index exactly as PAUSE would.  When using a PATTERN, take care to use a
+conservative one so you don't exclude the wrong packages.  Pinto will throw an
+exception if you exclude every package in the distribution.
 
 =item --no-recurse
 

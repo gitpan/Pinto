@@ -8,14 +8,14 @@ use MooseX::Types::Moose qw(Bool);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 has was_successful => (
-    is         => 'ro',
-    isa        => Bool,
-    default    => 0,
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
 );
 
 #-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ Pinto::Remote::Result - The result from running a remote Action
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

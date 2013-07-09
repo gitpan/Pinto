@@ -22,7 +22,7 @@ use Pinto::Constants qw(:all);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -67,12 +67,12 @@ sub throw {
     my ($error) = @_;
 
     # Rethrowing...
-    die $error if itis($error, 'Pinto::Exception');  ## no critic (Carping)
+    die $error if itis( $error, 'Pinto::Exception' );    ## no critic (Carping)
 
     require Pinto::Exception;
-    Pinto::Exception->throw(message => "$error");
+    Pinto::Exception->throw( message => "$error" );
 
-    return; # Should never get here
+    return;                                              # Should never get here
 }
 
 #-------------------------------------------------------------------------------
@@ -86,8 +86,8 @@ sub debug {
     return 1 if not $ENV{PINTO_DEBUG};
 
     $it = $it->() if ref $it eq 'CODE';
-    my ($file, $line) = (caller)[1,2];
-    print { *STDERR } "$it in $file at line $line\n";
+    my ( $file, $line ) = (caller)[ 1, 2 ];
+    print {*STDERR} "$it in $file at line $line\n";
 
     return 1;
 }
@@ -98,7 +98,7 @@ sub debug {
 sub whine {
     my ($message) = @_;
 
-    if ($ENV{DEBUG}) {
+    if ( $ENV{DEBUG} ) {
         Carp::cluck($message);
         return 1;
     }
@@ -112,18 +112,18 @@ sub whine {
 #-------------------------------------------------------------------------------
 
 
-sub author_dir {                                  ## no critic (ArgUnpacking)
+sub author_dir {    ## no critic (ArgUnpacking)
     my $author = uc pop;
-    my @base =  @_;
+    my @base   = @_;
 
-    return dir(@base, substr($author, 0, 1), substr($author, 0, 2), $author);
+    return dir( @base, substr( $author, 0, 1 ), substr( $author, 0, 2 ), $author );
 }
 
 #-------------------------------------------------------------------------------
 
 
 sub itis {
-    my ($var, $class) = @_;
+    my ( $var, $class ) = @_;
 
     return ref $var && Scalar::Util::blessed($var) && $var->isa($class);
 }
@@ -141,9 +141,9 @@ sub parse_dist_path {
 
         # $path = 'A/AU/AUTHOR/subdir/Foo-1.0.tar.gz'
         my @path_parts = split m{ / }mx, $path;
-        my $author  = $path_parts[2];  # AUTHOR
-        my $archive = $path_parts[-1]; # Foo-1.0.tar.gz
-        return ($author, $archive);
+        my $author     = $path_parts[2];          # AUTHOR
+        my $archive    = $path_parts[-1];         # Foo-1.0.tar.gz
+        return ( $author, $archive );
     }
 
     throw "Unable to parse path: $path";
@@ -164,10 +164,10 @@ sub isa_perl {
 sub mtime {
     my ($file) = @_;
 
-    throw 'Must supply a file' if not $file;
+    throw 'Must supply a file'   if not $file;
     throw "$file does not exist" if not -e $file;
 
-    return (stat $file)[9];
+    return ( stat $file )[9];
 }
 
 #-------------------------------------------------------------------------------
@@ -176,10 +176,10 @@ sub mtime {
 sub md5 {
     my ($file) = @_;
 
-    throw 'Must supply a file' if not $file;
+    throw 'Must supply a file'   if not $file;
     throw "$file does not exist" if not -e $file;
 
-    my $fh = $file->openr();
+    my $fh  = $file->openr();
     my $md5 = Digest::MD5->new->addfile($fh)->hexdigest();
 
     return $md5;
@@ -191,10 +191,10 @@ sub md5 {
 sub sha256 {
     my ($file) = @_;
 
-    throw 'Must supply a file' if not $file;
+    throw 'Must supply a file'   if not $file;
     throw "$file does not exist" if not -e $file;
 
-    my $fh = $file->openr();
+    my $fh     = $file->openr();
     my $sha256 = Digest::SHA->new(256)->addfile($fh)->hexdigest();
 
     return $sha256;
@@ -229,7 +229,7 @@ sub current_utc_time {
 
     ## no critic qw(PackageVars)
     return $Pinto::Globals::current_utc_time
-      if defined $Pinto::Globals::current_utc_time;
+        if defined $Pinto::Globals::current_utc_time;
 
     return time;
 }
@@ -241,10 +241,10 @@ sub current_time_offset {
 
     ## no critic qw(PackageVars)
     return $Pinto::Globals::current_time_offset
-      if defined $Pinto::Globals::current_time_offset;
+        if defined $Pinto::Globals::current_time_offset;
 
-    my $now    = current_utc_time;
-    my $time   = DateTime->from_epoch(epoch => $now, time_zone => 'local');
+    my $now = current_utc_time;
+    my $time = DateTime->from_epoch( epoch => $now, time_zone => 'local' );
 
     return $time->offset;
 }
@@ -256,13 +256,13 @@ sub current_username {
 
     ## no critic qw(PackageVars)
     return $Pinto::Globals::current_username
-      if defined $Pinto::Globals::current_username;
+        if defined $Pinto::Globals::current_username;
 
-    my $username =  $ENV{PINTO_USERNAME} || $ENV{USER} || $ENV{LOGIN} || $ENV{USERNAME} || $ENV{LOGNAME};
+    my $username = $ENV{PINTO_USERNAME} || $ENV{USER} || $ENV{LOGIN} || $ENV{USERNAME} || $ENV{LOGNAME};
 
     throw "Unable to determine your username.  Set PINTO_USERNAME." if not $username;
 
-    return $username
+    return $username;
 }
 
 #-------------------------------------------------------------------------------
@@ -272,9 +272,9 @@ sub current_author_id {
 
     ## no critic qw(PackageVars)
     return $Pinto::Globals::current_author_id
-      if defined $Pinto::Globals::current_author_id;
+        if defined $Pinto::Globals::current_author_id;
 
-    my $author_id =  $ENV{PINTO_AUTHOR_ID} || current_username;
+    my $author_id = $ENV{PINTO_AUTHOR_ID} || current_username;
 
     return uc $author_id;
 }
@@ -286,7 +286,7 @@ sub is_interactive {
 
     ## no critic qw(PackageVars)
     return $Pinto::Globals::is_interactive
-      if defined $Pinto::Globals::is_interactive;
+        if defined $Pinto::Globals::is_interactive;
 
     return IO::Interactive::is_interactive;
 }
@@ -297,7 +297,7 @@ sub is_interactive {
 sub interpolate {
     my $string = shift;
 
-    return eval qq{"$string"};  ## no critic qw(Eval)
+    return eval qq{"$string"};    ## no critic qw(Eval)
 }
 
 #-------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ sub body_text {
 
 
 sub truncate_text {
-    my ($string, $max_length, $elipses) = @_;
+    my ( $string, $max_length, $elipses ) = @_;
 
     return $string if not $max_length;
     return $string if length $string <= $max_length;
@@ -362,12 +362,11 @@ sub decamelize {
     return lc $string;
 }
 
-
 #-------------------------------------------------------------------------------
 
 
 sub indent_text {
-    my ($string, $spaces) = @_;
+    my ( $string, $spaces ) = @_;
 
     return $string if not $spaces;
     return $string if not $string;
@@ -382,7 +381,7 @@ sub indent_text {
 
 
 sub mksymlink {
-    my ($from, $to) = @_;
+    my ( $from, $to ) = @_;
 
     # TODO: Try to add Win32 support here, somehow.
     debug "Linking $to to $from";
@@ -405,9 +404,8 @@ sub is_system_prop {
 
 
 sub uuid {
-  return UUID::Tiny::create_uuid_as_string( UUID::Tiny::UUID_V4 );
+    return UUID::Tiny::create_uuid_as_string(UUID::Tiny::UUID_V4);
 }
-
 
 #-------------------------------------------------------------------------------
 
@@ -437,7 +435,7 @@ sub is_blank {
 sub is_not_blank {
     my ($string) = @_;
 
-    return ! is_blank($string);
+    return !is_blank($string);
 }
 
 #-------------------------------------------------------------------------------
@@ -468,7 +466,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 DESCRIPTION
 

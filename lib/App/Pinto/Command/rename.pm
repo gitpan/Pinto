@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ sub command_names { return qw(rename mv) }
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Must specify FROM_STACK and TO_STACK')
         if @{$args} != 2;
@@ -48,7 +48,7 @@ App::Pinto::Command::rename - change the name of a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

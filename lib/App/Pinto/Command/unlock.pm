@@ -11,25 +11,23 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
-    return (
-        [ 'stack|s=s' => 'Unlock this stack' ],
-    );
+    return ( [ 'stack|s=s' => 'Unlock this stack' ], );
 }
 
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Multiple arguments are not allowed')
-        if @{ $args } > 1;
+        if @{$args} > 1;
 
     $opts->{stack} = $args->[0]
         if $args->[0];
@@ -55,7 +53,7 @@ App::Pinto::Command::unlock - mark a stack as writable
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

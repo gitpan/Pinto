@@ -4,13 +4,13 @@ package Pinto::Action::Unlock;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ with qw( Pinto::Role::Transactional );
 #------------------------------------------------------------------------------
 
 has stack => (
-    is        => 'ro',
-    isa       => StackName | StackDefault | StackObject,
-    default   => undef,
+    is      => 'ro',
+    isa     => StackName | StackDefault | StackObject,
+    default => undef,
 );
 
 #------------------------------------------------------------------------------
@@ -35,9 +35,9 @@ sub execute {
 
     my $stack = $self->repo->get_stack( $self->stack );
 
-    if (! $stack->is_locked) {
-    	$self->warning("Stack $stack is not locked");
-    	return $self->result;
+    if ( !$stack->is_locked ) {
+        $self->warning("Stack $stack is not locked");
+        return $self->result;
     }
 
     $stack->unlock;
@@ -66,7 +66,7 @@ Pinto::Action::Unlock - Unlock a stack to allow future changes
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

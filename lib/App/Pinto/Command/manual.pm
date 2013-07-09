@@ -11,7 +11,7 @@ use base qw(App::Pinto::Command);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -20,9 +20,9 @@ sub command_names { return qw( manual man --man ) }
 #-----------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
-    $self->usage_error("Must specify a command") if @{ $args } != 1;
+    $self->usage_error("Must specify a command") if @{$args} != 1;
 
     return 1;
 }
@@ -31,18 +31,18 @@ sub validate_args {
 # This was stolen from App::Cmd::Command::help
 
 sub execute {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
-    my ($cmd, undef, undef) = $self->app->prepare_command(@$args);
+    my ( $cmd, undef, undef ) = $self->app->prepare_command(@$args);
 
     my $class = ref $cmd;
-    (my $relative_path = $class) =~ s< :: ></>xmsg;
+    ( my $relative_path = $class ) =~ s< :: ></>xmsg;
     $relative_path .= '.pm';
 
     my $absolute_path = $INC{$relative_path}
-        or die "No manual available for $class\n"; 
+        or die "No manual available for $class\n";
 
-    pod2usage(-verbose => 2, -input => $absolute_path, -exitval => 0);
+    pod2usage( -verbose => 2, -input => $absolute_path, -exitval => 0 );
 
     return 1;
 }
@@ -64,7 +64,7 @@ App::Pinto::Command::manual - show the full manual for a command
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

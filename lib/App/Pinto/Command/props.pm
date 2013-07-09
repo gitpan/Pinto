@@ -13,23 +13,22 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
 
-  return (
-      [ 'format=s' => 'Format specification (See POD for details)' ],
-      [ 'properties|prop|P=s%' => 'name=value pairs of properties' ],
-  );
+    return (
+        [ 'format=s'             => 'Format specification (See POD for details)' ],
+        [ 'properties|prop|P=s%' => 'name=value pairs of properties' ],
+    );
 }
 
 #------------------------------------------------------------------------------
 
-
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     $self->usage_error('Cannot specify multiple stacks')
         if @{$args} > 1;
@@ -60,7 +59,7 @@ App::Pinto::Command::props - show or set stack properties
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

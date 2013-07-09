@@ -34,6 +34,8 @@ for pv in $PERLS_TO_SMOKE; do
             --local-lib-contained "$SMOKE_WORK_DIR"     \
             --mirror-only                               \
             --quiet                                     \
-            $MODULE_TO_SMOKE
+            $MODULE_TO_SMOKE                            \
+     2>&1 | tee "$SMOKE_WORK_DIR/smoke.log"
+
 done;
 

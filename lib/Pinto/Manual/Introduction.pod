@@ -23,7 +23,7 @@ Pinto::Manual::Introduction - Why Pinto exists
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 GOALS
 

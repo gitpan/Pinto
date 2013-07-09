@@ -3,20 +3,20 @@
 package Pinto::Role::Schema::Result;
 
 use Moose::Role;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-has repo  => (
-   is       => 'ro',
-   isa      => 'Pinto::Repository',
-   default  => sub { $_[0]->result_source->schema->repo },
-   init_arg => undef,
-   lazy     => 1,
+has repo => (
+    is       => 'ro',
+    isa      => 'Pinto::Repository',
+    default  => sub { $_[0]->result_source->schema->repo },
+    init_arg => undef,
+    lazy     => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ sub refresh {
 #------------------------------------------------------------------------------
 
 sub refresh_column {
-    my ($self, $column) = @_;
+    my ( $self, $column ) = @_;
 
     $self->mark_column_dirty($column);
 
@@ -57,7 +57,7 @@ Pinto::Role::Schema::Result - Attributes and methods for all Schema::Result obje
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 DESCRIPTION
 

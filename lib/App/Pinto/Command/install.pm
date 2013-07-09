@@ -11,22 +11,22 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
-        [ 'cascade'                 => 'Always pick latest upstream package'          ],
-        [ 'cpanm-exe|cpanm=s'       => 'Path to the cpanm executable'                 ],
-        [ 'cpanm-options|o:s%'      => 'name=value pairs of cpanm options'            ],
-        [ 'local-lib|l=s'           => 'install into a local lib directory'           ],
+        [ 'cascade'                 => 'Always pick latest upstream package' ],
+        [ 'cpanm-exe|cpanm=s'       => 'Path to the cpanm executable' ],
+        [ 'cpanm-options|o:s%'      => 'name=value pairs of cpanm options' ],
+        [ 'local-lib|l=s'           => 'install into a local lib directory' ],
         [ 'local-lib-contained|L=s' => 'install into a contained local lib directory' ],
-        [ 'message|m=s'             => 'Message to describe the change'               ],
-        [ 'do-pull'                 => 'pull missing prereqs onto the stack first'    ],
-        [ 'stack|s=s'               => 'Use the index for this stack'                 ],
+        [ 'message|m=s'             => 'Message to describe the change' ],
+        [ 'do-pull'                 => 'pull missing prereqs onto the stack first' ],
+        [ 'stack|s=s'               => 'Use the index for this stack' ],
 
     );
 }
@@ -34,7 +34,7 @@ sub opt_spec {
 #------------------------------------------------------------------------------
 
 sub validate_args {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     my $local_lib = delete $opts->{local_lib};
     $opts->{cpanm_options}->{'local-lib'} = $local_lib
@@ -75,7 +75,7 @@ App::Pinto::Command::install - install stuff from the repository
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

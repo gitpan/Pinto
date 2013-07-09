@@ -3,7 +3,7 @@
 package Pinto::PackageSpec;
 
 use Moose;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 use MooseX::Types::Moose qw(Str);
 
 use Module::CoreList;
@@ -12,11 +12,11 @@ use Pinto::Types qw(Version);
 use Pinto::Util qw(throw);
 
 use version;
-use overload ('""' => 'to_string');
+use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,6 @@ has name => (
     isa      => Str,
     required => 1,
 );
-
 
 has version => (
     is      => 'ro',
@@ -37,13 +36,13 @@ has version => (
 #------------------------------------------------------------------------------
 
 around BUILDARGS => sub {
-    my $orig = shift;
+    my $orig  = shift;
     my $class = shift;
 
     my @args = @_;
-    if (@args == 1 and not ref $args[0]) {
-        my ($name, $version) = split m{~}x, $_[0], 2;
-        @args = (name => $name, version => $version || 0);
+    if ( @args == 1 and not ref $args[0] ) {
+        my ( $name, $version ) = split m{~}x, $_[0], 2;
+        @args = ( name => $name, version => $version || 0 );
     }
 
     return $class->$orig(@args);
@@ -53,23 +52,23 @@ around BUILDARGS => sub {
 
 
 sub is_core {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     ## no critic qw(PackageVar);
 
-    # Note: $PERL_VERSION is broken on old perls, so we must make 
+    # Note: $PERL_VERSION is broken on old perls, so we must make
     # our own version object from the old $] variable
 
-    my $pv = version->parse($args{in}) || version->parse($]);
+    my $pv = version->parse( $args{in} ) || version->parse($]);
     my $core_modules = $Module::CoreList::version{ $pv->numify + 0 };
 
     throw "Invalid perl version $pv" if not $core_modules;
 
-    return 0 if not exists $core_modules->{$self->name};
+    return 0 if not exists $core_modules->{ $self->name };
 
     # on some perls, we'll get an 'uninitialized' warning when
     # the $core_version is undef.  So force to zero in that case
-    my $core_version = $core_modules->{$self->name} || 0;
+    my $core_version = $core_modules->{ $self->name } || 0;
 
     return 0 if $self->version > $core_version;
     return 1;
@@ -113,7 +112,7 @@ Pinto::PackageSpec - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

@@ -9,7 +9,7 @@ extends 'DBIx::Class::Core';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ Pinto::Schema::Result::RegistrationChange - Not in use -- will be removed
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

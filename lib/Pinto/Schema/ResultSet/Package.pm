@@ -1,6 +1,7 @@
 # ABSTRACT: Common queries for Packages
 
 use utf8;
+
 package Pinto::Schema::ResultSet::Package;
 
 use strict;
@@ -10,14 +11,14 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub with_distribution {
-  my ($self, $where) = @_;
+    my ( $self, $where ) = @_;
 
-  return $self->search($where || {}, {prefetch => 'distribution'});
+    return $self->search( $where || {}, { prefetch => 'distribution' } );
 }
 
 #------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ Pinto::Schema::ResultSet::Package - Common queries for Packages
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

@@ -11,19 +11,19 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 sub opt_spec {
-    my ($self, $app) = @_;
+    my ( $self, $app ) = @_;
 
     return (
-        [ 'dry-run'     => 'Do not commit any changes'              ],
-        [ 'message|m=s' => 'Message to describe the change'         ],
-        [ 'pin'         => 'Pin packages to the stack'              ],
-        [ 'stack|s=s'   => 'Remove packages from this stack'        ],
-        [ 'use-default-message|M' => 'Use the generated message'    ],
+        [ 'dry-run'               => 'Do not commit any changes' ],
+        [ 'message|m=s'           => 'Message to describe the change' ],
+        [ 'pin'                   => 'Pin packages to the stack' ],
+        [ 'stack|s=s'             => 'Remove packages from this stack' ],
+        [ 'use-default-message|M' => 'Use the generated message' ],
     );
 }
 
@@ -52,7 +52,7 @@ App::Pinto::Command::register - put existing packages on a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

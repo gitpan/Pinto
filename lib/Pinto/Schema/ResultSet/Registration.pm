@@ -1,6 +1,7 @@
 # ABSTRACT: Common queries for Registrations
 
 use utf8;
+
 package Pinto::Schema::ResultSet::Registration;
 
 use strict;
@@ -10,43 +11,42 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub with_package {
-  my ($self, $where) = @_;
+    my ( $self, $where ) = @_;
 
-  return $self->search($where || {}, {prefetch => 'package'});
+    return $self->search( $where || {}, { prefetch => 'package' } );
 }
 
 #------------------------------------------------------------------------------
 
 sub with_distribution {
-  my ($self, $where) = @_;
+    my ( $self, $where ) = @_;
 
-  return $self->search($where || {}, {prefetch => 'distribution'});
+    return $self->search( $where || {}, { prefetch => 'distribution' } );
 }
 
 #------------------------------------------------------------------------------
 
 sub with_revision {
-  my ($self, $where) = @_;
+    my ( $self, $where ) = @_;
 
-  return $self->search($where || {}, {revision => 'distribution'});
+    return $self->search( $where || {}, { revision => 'distribution' } );
 }
 
 #------------------------------------------------------------------------------
 
 sub as_hash {
-	my ($self, $cb) = @_;
+    my ( $self, $cb ) = @_;
 
-	$cb ||= sub {return ($_[0]->id => $_[0]) };
-	my %hash = map { $cb->($_)  } $self->all;
+    $cb ||= sub { return ( $_[0]->id => $_[0] ) };
+    my %hash = map { $cb->($_) } $self->all;
 
     return wantarray ? %hash : \%hash;
 }
-
 
 #------------------------------------------------------------------------------
 1;
@@ -65,7 +65,7 @@ Pinto::Schema::ResultSet::Registration - Common queries for Registrations
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

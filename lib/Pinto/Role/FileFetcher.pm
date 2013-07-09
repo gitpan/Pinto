@@ -3,7 +3,7 @@
 package Pinto::Role::FileFetcher;
 
 use Moose::Role;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use File::Temp;
 use Path::Class;
@@ -13,7 +13,7 @@ use Pinto::Util qw(itis debug mtime throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -29,16 +29,16 @@ has ua => (
 
 
 sub fetch {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $from     = $args{from};
     my $from_uri = _make_uri($from);
-    my $to       = itis($args{to}, 'Path::Class') ? $args{to} : file($args{to});
+    my $to       = itis( $args{to}, 'Path::Class' ) ? $args{to} : file( $args{to} );
 
     debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
 
     $to->parent->mkpath if not -e $to->parent;
-    my $has_changed = $self->_fetch($from_uri, $to);
+    my $has_changed = $self->_fetch( $from_uri, $to );
 
     return $has_changed;
 }
@@ -47,17 +47,17 @@ sub fetch {
 
 
 sub fetch_temporary {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $url  = URI->new($args{url})->canonical();
+    my $url  = URI->new( $args{url} )->canonical();
     my $path = Path::Class::file( $url->path() );
     return $path if $url->scheme() eq 'file';
 
     my $base     = $path->basename();
-    my $tempdir  = File::Temp::tempdir(CLEANUP => 1);
-    my $tempfile = Path::Class::file($tempdir, $base);
+    my $tempdir  = File::Temp::tempdir( CLEANUP => 1 );
+    my $tempfile = Path::Class::file( $tempdir, $base );
 
-    $self->fetch(from => $url, to => $tempfile);
+    $self->fetch( from => $url, to => $tempfile );
 
     return Path::Class::file($tempfile);
 }
@@ -65,17 +65,17 @@ sub fetch_temporary {
 #------------------------------------------------------------------------------
 
 sub _fetch {
-    my ($self, $url, $to) = @_;
+    my ( $self, $url, $to ) = @_;
 
     debug("Fetching $url");
 
-    my $result = eval { $self->ua->mirror($url, $to) }
+    my $result = eval { $self->ua->mirror( $url, $to ) }
         or throw $@;
 
-    if ($result->is_success()) {
+    if ( $result->is_success() ) {
         return 1;
     }
-    elsif ($result->code() == 304) {
+    elsif ( $result->code() == 304 ) {
         return 0;
     }
     else {
@@ -92,9 +92,11 @@ sub _build_ua {
 
     # TODO: Do we need to make some of this configurable?
     my $agent = sprintf "%s/%s", ref $self, 'VERSION';
-    my $ua = LWP::UserAgent->new( agent      => $agent,
-                                  env_proxy  => 1,
-                                  keep_alive => 5 );
+    my $ua = LWP::UserAgent->new(
+        agent      => $agent,
+        env_proxy  => 1,
+        keep_alive => 5
+    );
     return $ua;
 }
 
@@ -104,10 +106,10 @@ sub _make_uri {
     my ($it) = @_;
 
     return $it
-        if itis($it, 'URI');
+        if itis( $it, 'URI' );
 
     return URI::file->new( $it->absolute )
-        if itis($it, 'Path::Class::File');
+        if itis( $it, 'Path::Class::File' );
 
     return URI::file->new( file($it)->absolute )
         if -e $it;
@@ -130,7 +132,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

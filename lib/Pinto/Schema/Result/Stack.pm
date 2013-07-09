@@ -1,4 +1,5 @@
 use utf8;
+
 package Pinto::Schema::Result::Stack;
 
 # Created by DBIx::Class::Schema::Loader
@@ -18,38 +19,30 @@ __PACKAGE__->table("stack");
 
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "text", is_nullable => 0 },
-  "is_default",
-  { data_type => "boolean", is_nullable => 0 },
-  "is_locked",
-  { data_type => "boolean", is_nullable => 0 },
-  "properties",
-  { data_type => "text", is_nullable => 0 },
-  "head",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+    "id", { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+    "name",       { data_type => "text",    is_nullable    => 0 },
+    "is_default", { data_type => "boolean", is_nullable    => 0 },
+    "is_locked",  { data_type => "boolean", is_nullable    => 0 },
+    "properties", { data_type => "text",    is_nullable    => 0 },
+    "head",       { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 
 
 __PACKAGE__->set_primary_key("id");
 
 
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+__PACKAGE__->add_unique_constraint( "name_unique", ["name"] );
 
 
 __PACKAGE__->belongs_to(
-  "head",
-  "Pinto::Schema::Result::Revision",
-  { id => "head" },
-  { is_deferrable => 0, on_delete => "RESTRICT", on_update => "NO ACTION" },
+    "head",
+    "Pinto::Schema::Result::Revision",
+    { id            => "head" },
+    { is_deferrable => 0, on_delete => "RESTRICT", on_update => "NO ACTION" },
 );
 
 
-
 with 'Pinto::Role::Schema::Result';
-
 
 # Created by DBIx::Class::Schema::Loader v0.07033 @ 2013-03-04 12:39:54
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+O/IwTdVRx98MHUkJ281lg
@@ -60,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -74,106 +67,110 @@ use Pinto::Util qw(:all);
 use Pinto::Types qw(Dir File Version);
 
 use version;
-use overload ( '""'  => 'to_string',
-               '<=>' => 'numeric_compare',
-               'cmp' => 'string_compare' );
+use overload (
+    '""'  => 'to_string',
+    '<=>' => 'numeric_compare',
+    'cmp' => 'string_compare'
+);
 
 #------------------------------------------------------------------------------
 
-__PACKAGE__->inflate_column( 'properties' => { inflate => sub { decode_json($_[0] || '{}') },
-                                               deflate => sub { encode_json($_[0] || {}) } }
+__PACKAGE__->inflate_column(
+    'properties' => {
+        inflate => sub { decode_json( $_[0] || '{}' ) },
+        deflate => sub { encode_json( $_[0] || {} ) }
+    }
 );
 
 #------------------------------------------------------------------------------
 
 has stack_dir => (
-  is          => 'ro',
-  isa         => Dir,
-  lazy        => 1,
-  default     => sub { $_[0]->repo->config->stacks_dir->subdir( $_[0]->name ) },
+    is      => 'ro',
+    isa     => Dir,
+    lazy    => 1,
+    default => sub { $_[0]->repo->config->stacks_dir->subdir( $_[0]->name ) },
 );
-
 
 has modules_dir => (
-  is          => 'ro',
-  isa         => Dir,
-  lazy        => 1,
-  default     => sub { $_[0]->stack_dir->subdir( 'modules' ) },
+    is      => 'ro',
+    isa     => Dir,
+    lazy    => 1,
+    default => sub { $_[0]->stack_dir->subdir('modules') },
 );
-
 
 has authors_dir => (
-  is          => 'ro',
-  isa         => Dir,
-  lazy        => 1,
-  default     => sub { $_[0]->stack_dir->subdir( 'authors' ) },
+    is      => 'ro',
+    isa     => Dir,
+    lazy    => 1,
+    default => sub { $_[0]->stack_dir->subdir('authors') },
 );
-
 
 has description => (
-  is          => 'ro',
-  isa         => Str,
-  lazy        => 1,
-  default     => sub { $_[0]->get_property('description') },
-  init_arg    => undef,
+    is       => 'ro',
+    isa      => Str,
+    lazy     => 1,
+    default  => sub { $_[0]->get_property('description') },
+    init_arg => undef,
 );
 
-
 has target_perl_version => (
-  is          => 'ro',
-  isa         => Version,
-  lazy        => 1,
-  default     => sub { $_[0]->get_property('target_perl_version') 
-                       or $_[0]->repo->config->target_perl_version },
-  init_arg    => undef,
-  coerce      => 1,
+    is      => 'ro',
+    isa     => Version,
+    lazy    => 1,
+    default => sub {
+        $_[0]->get_property('target_perl_version')
+            or $_[0]->repo->config->target_perl_version;
+    },
+    init_arg => undef,
+    coerce   => 1,
 );
 
 #------------------------------------------------------------------------------
 
 sub FOREIGNBUILDARGS {
-  my ($class, $args) = @_;
+    my ( $class, $args ) = @_;
 
-  $args ||= {};
-  $args->{is_default}  ||= 0;
-  $args->{is_locked}   ||= 0;
-  $args->{properties}  ||= '{}';
+    $args               ||= {};
+    $args->{is_default} ||= 0;
+    $args->{is_locked}  ||= 0;
+    $args->{properties} ||= '{}';
 
-  return $args;
+    return $args;
 }
 
 #------------------------------------------------------------------------------
 
 before is_default => sub {
-  my ($self, @args) = @_;
-  throw "Cannot directly set is_default.  Use mark_as_default instead" if @args;
+    my ( $self, @args ) = @_;
+    throw "Cannot directly set is_default.  Use mark_as_default instead" if @args;
 };
-
 
 #------------------------------------------------------------------------------
 
 
 sub get_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    if (my $spec = $args{spec}) {
-        if ( itis($spec, 'Pinto::DistributionSpec') ) {
+    if ( my $spec = $args{spec} ) {
+        if ( itis( $spec, 'Pinto::DistributionSpec' ) ) {
 
-            my $attrs = {prefetch => [ qw(distribution) ], distinct => 1};
-            my $where = {'distribution.author'  => $spec->author, 
-                         'distribution.archive' => $spec->archive};
+            my $attrs = { prefetch => [qw(distribution)], distinct => 1 };
+            my $where = {
+                'distribution.author'  => $spec->author,
+                'distribution.archive' => $spec->archive
+            };
 
-            my $reg = $self->head->search_related(registrations => $where, $attrs)->first;
+            my $reg = $self->head->search_related( registrations => $where, $attrs )->first;
             return if not defined $reg;
 
             return $reg->distribution;
         }
-        elsif ( itis($spec, 'Pinto::PackageSpec') ) {
+        elsif ( itis( $spec, 'Pinto::PackageSpec' ) ) {
 
-            my $attrs = {prefetch => [ qw(package distribution) ] };
-            my $where = {package_name => $spec->name};
+            my $attrs = { prefetch     => [qw(package distribution)] };
+            my $where = { package_name => $spec->name };
 
-            my $reg = $self->head->find_related(registrations => $where, $attrs);
+            my $reg = $self->head->find_related( registrations => $where, $attrs );
             return if not defined $reg;
 
             return if $reg->package->version < $spec->version;
@@ -199,17 +196,17 @@ sub make_filesystem {
 
     my $stack_authors_dir  = $self->authors_dir;
     my $shared_authors_dir = $self->repo->config->authors_dir->relative($stack_dir);
-    mksymlink($stack_authors_dir => $shared_authors_dir);
+    mksymlink( $stack_authors_dir => $shared_authors_dir );
 
     $self->write_modlist;
 
-  return $self;
+    return $self;
 }
 
 #------------------------------------------------------------------------------
 
 sub rename_filesystem {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $new_name = $args{to};
 
@@ -222,7 +219,7 @@ sub rename_filesystem {
     throw "Directory $new_dir already exists" if -e $new_dir;
 
     debug "Renaming directory $orig_dir to $new_dir";
-    File::Copy::move($orig_dir, $new_dir) or throw "Rename failed: $!";
+    File::Copy::move( $orig_dir, $new_dir ) or throw "Rename failed: $!";
 
     return $self;
 }
@@ -243,17 +240,17 @@ sub kill_filesystem {
 #------------------------------------------------------------------------------
 
 sub duplicate {
-    my ($self, %changes) = @_;
+    my ( $self, %changes ) = @_;
 
-    $changes{is_default} = 0; # Never duplicate the default flag
+    $changes{is_default} = 0;    # Never duplicate the default flag
 
-    return $self->copy(\%changes);
+    return $self->copy( \%changes );
 }
 
 #------------------------------------------------------------------------------
 
 sub duplicate_registrations {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $new_rev = $args{to};
 
@@ -264,7 +261,7 @@ sub duplicate_registrations {
 
     # This raw SQL is an optimization.  I was using DBIC's HashReinflator
     # to fetch all the registrations, change the revision, and then reinsert
-    # them as new records using populate().  But that was too slow if there 
+    # them as new records using populate().  But that was too slow if there
     # are lots of registrations.
 
     my $sql = qq{
@@ -281,19 +278,19 @@ sub duplicate_registrations {
 #------------------------------------------------------------------------------
 
 sub rename {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $new_name = $args{to};
 
     $self->assert_not_locked;
 
-    $self->update( {name => $new_name} );
+    $self->update( { name => $new_name } );
 
-    $self->refresh; # Causes moose attributes to be reinitialized
+    $self->refresh;    # Causes moose attributes to be reinitialized
 
-    $self->repo->link_modules_dir(to => $self->modules_dir) if $self->is_default;
+    $self->repo->link_modules_dir( to => $self->modules_dir ) if $self->is_default;
 
-    return $self
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -319,7 +316,7 @@ sub lock {
 
     debug "Locking stack $self";
 
-    $self->update( {is_locked => 1} );
+    $self->update( { is_locked => 1 } );
 
     return $self;
 }
@@ -333,7 +330,7 @@ sub unlock {
 
     debug "Unlocking stack $self";
 
-    $self->update( {is_locked => 0} );
+    $self->update( { is_locked => 0 } );
 
     return $self;
 }
@@ -341,11 +338,11 @@ sub unlock {
 #------------------------------------------------------------------------------
 
 sub set_head {
-    my ($self, $revision) = @_;
+    my ( $self, $revision ) = @_;
 
     debug sub {"Setting head of stack $self to revision $revision"};
 
-    $self->update( {head => $revision} );
+    $self->update( { head => $revision } );
 
     return $self;
 }
@@ -359,14 +356,14 @@ sub start_revision {
 
     $self->assert_is_committed;
 
-    my $old_head  = $self->head;
-    my $new_head  = $self->result_source->schema->create_revision( {} );
+    my $old_head = $self->head;
+    my $new_head = $self->result_source->schema->create_revision( {} );
 
-    $self->duplicate_registrations(to => $new_head);
+    $self->duplicate_registrations( to => $new_head );
 
     $new_head->add_parent($old_head);
     $self->set_head($new_head);
-    
+
     $self->assert_is_open;
 
     return $self;
@@ -375,10 +372,10 @@ sub start_revision {
 #------------------------------------------------------------------------------
 
 sub commit_revision {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    throw "Must specify a message to commit" 
-      if not ($args{message} or $self->head->message);
+    throw "Must specify a message to commit"
+        if not( $args{message} or $self->head->message );
 
     $self->assert_is_open;
     $self->assert_has_changed;
@@ -394,13 +391,13 @@ sub commit_revision {
 #-------------------------------------------------------------------------------
 
 sub should_keep_history {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  # Is this revision referenced by other stacks?
-  return 1 if $self->head->stacks->count > 1;
+    # Is this revision referenced by other stacks?
+    return 1 if $self->head->stacks->count > 1;
 
-  # Then do not keep history
-  return 0;
+    # Then do not keep history
+    return 0;
 }
 
 #-------------------------------------------------------------------------------
@@ -416,8 +413,8 @@ sub package_count {
 sub distribution_count {
     my ($self) = @_;
 
-    my $attrs = {select => 'distribution', distinct => 1};
-    return $self->head->registrations({}, $attrs)->count;
+    my $attrs = { select => 'distribution', distinct => 1 };
+    return $self->head->registrations( {}, $attrs )->count;
 }
 
 #------------------------------------------------------------------------------
@@ -449,8 +446,8 @@ sub assert_has_changed {
 sub assert_not_locked {
     my ($self) = @_;
 
-    throw "Stack $self is locked and cannot be modified or deleted" 
-      if $self->is_locked;
+    throw "Stack $self is locked and cannot be modified or deleted"
+        if $self->is_locked;
 
     return $self;
 }
@@ -458,9 +455,9 @@ sub assert_not_locked {
 #------------------------------------------------------------------------------
 
 sub set_description {
-    my ($self, $description) = @_;
+    my ( $self, $description ) = @_;
 
-    $self->set_property(description => $description);
+    $self->set_property( description => $description );
 
     return $self;
 }
@@ -468,13 +465,13 @@ sub set_description {
 #------------------------------------------------------------------------------
 
 sub diff {
-    my ($self, $other) = @_;
+    my ( $self, $other ) = @_;
 
-    my $left  = $other || ($self->head->parents)[0];
+    my $left = $other || ( $self->head->parents )[0];
     my $right = $self;
 
     require Pinto::Difference;
-    return  Pinto::Difference->new(left => $left, right => $right);
+    return Pinto::Difference->new( left => $left, right => $right );
 }
 
 #------------------------------------------------------------------------------
@@ -486,12 +483,12 @@ sub mark_as_default {
 
     debug 'Marking all stacks as non-default';
     my $rs = $self->result_source->resultset->search;
-    $rs->update_all( {is_default => 0} );
+    $rs->update_all( { is_default => 0 } );
 
     debug "Marking stack $self as default";
-    $self->update( {is_default => 1} );
+    $self->update( { is_default => 1 } );
 
-    $self->repo->link_modules_dir(to => $self->modules_dir);
+    $self->repo->link_modules_dir( to => $self->modules_dir );
 
     return 1;
 }
@@ -505,7 +502,7 @@ sub unmark_as_default {
 
     debug "Unmarking stack $self as default";
 
-    $self->update( {is_default => 0} );
+    $self->update( { is_default => 0 } );
 
     $self->repo->unlink_modules_dir;
 
@@ -519,7 +516,7 @@ sub mark_as_changed {
 
     debug "Marking stack $self as changed";
 
-    $self->head->update( {has_changes => 1} );
+    $self->head->update( { has_changes => 1 } );
 
     return $self;
 }
@@ -537,7 +534,7 @@ sub has_changed {
 sub has_not_changed {
     my ($self) = @_;
 
-    return ! $self->has_changed;
+    return !$self->has_changed;
 }
 
 #------------------------------------------------------------------------------
@@ -546,7 +543,7 @@ sub write_index {
     my ($self) = @_;
 
     require Pinto::IndexWriter;
-    my $writer = Pinto::IndexWriter->new( stack  => $self );
+    my $writer = Pinto::IndexWriter->new( stack => $self );
     $writer->write_index;
 
     return $self;
@@ -558,15 +555,16 @@ sub write_modlist {
     my ($self) = @_;
 
     require Pinto::ModlistWriter;
-    my $writer = Pinto::ModlistWriter->new( stack  => $self );
+    my $writer = Pinto::ModlistWriter->new( stack => $self );
     $writer->write_modlist;
 
     return $self;
 }
+
 #------------------------------------------------------------------------------
 
 sub get_property {
-    my ($self, @prop_keys) = @_;
+    my ( $self, @prop_keys ) = @_;
 
     my %props = %{ $self->get_properties };
 
@@ -578,7 +576,7 @@ sub get_property {
 sub get_properties {
     my ($self) = @_;
 
-    my %props = %{ $self->properties };  # Making a copy!
+    my %props = %{ $self->properties };    # Making a copy!
 
     return \%props;
 }
@@ -586,9 +584,9 @@ sub get_properties {
 #-------------------------------------------------------------------------------
 
 sub set_property {
-    my ($self, $key, $value) = @_;
+    my ( $self, $key, $value ) = @_;
 
-    $self->set_properties( {$key => $value} );
+    $self->set_properties( { $key => $value } );
 
     return $self;
 }
@@ -596,21 +594,21 @@ sub set_property {
 #-------------------------------------------------------------------------------
 
 sub set_properties {
-    my ($self, $new_props) = @_;
+    my ( $self, $new_props ) = @_;
 
     my $props = $self->properties;
-    while (my ($key, $value) = each %{$new_props}) {
+    while ( my ( $key, $value ) = each %{$new_props} ) {
         Pinto::Util::validate_property_name($key);
-        
-        if (defined $value && length $value) {
-          $props->{lc $key} = $value;
+
+        if ( defined $value && length $value ) {
+            $props->{ lc $key } = $value;
         }
         else {
-          delete $props->{lc $key};
+            delete $props->{ lc $key };
         }
     }
 
-    $self->update( {properties => $props} );
+    $self->update( { properties => $props } );
 
     return $self;
 }
@@ -618,12 +616,12 @@ sub set_properties {
 #-------------------------------------------------------------------------------
 
 sub delete_property {
-    my ($self, @prop_keys) = @_;
+    my ( $self, @prop_keys ) = @_;
 
     my $props = $self->properties;
-    delete $props->{lc $_} for @prop_keys;
+    delete $props->{ lc $_ } for @prop_keys;
 
-    $self->update({properties => $props});
+    $self->update( { properties => $props } );
 
     return $self;
 }
@@ -633,7 +631,7 @@ sub delete_property {
 sub delete_properties {
     my ($self) = @_;
 
-    self->update({properties => {}});
+    self->update( { properties => {} } );
 
     return $self;
 }
@@ -643,11 +641,13 @@ sub delete_properties {
 sub default_properties {
     my ($self) = @_;
 
-    my $desc = sprintf('The %s stack', $self->name);
-    my $tpv  = $self->repo->config->target_perl_version->stringify;
+    my $desc = sprintf( 'The %s stack', $self->name );
+    my $tpv = $self->repo->config->target_perl_version->stringify;
 
-    return { description          => $desc, 
-             target_perl_version  => $tpv };
+    return {
+        description         => $desc,
+        target_perl_version => $tpv
+    };
 }
 
 #-------------------------------------------------------------------------------
@@ -662,15 +662,15 @@ sub prohibits_partial_distributions {
 #-------------------------------------------------------------------------------
 
 sub numeric_compare {
-    my ($stack_a, $stack_b) = @_;
+    my ( $stack_a, $stack_b ) = @_;
 
     my $pkg = __PACKAGE__;
     throw "Can only compare $pkg objects"
-        if not ( itis($stack_a, $pkg) && itis($stack_b, $pkg) );
+        if not( itis( $stack_a, $pkg ) && itis( $stack_b, $pkg ) );
 
     return 0 if $stack_a->id == $stack_b->id;
 
-    my $r = ($stack_a->head <=> $stack_b->head);
+    my $r = ( $stack_a->head <=> $stack_b->head );
 
     return $r;
 }
@@ -678,15 +678,15 @@ sub numeric_compare {
 #------------------------------------------------------------------------------
 
 sub string_compare {
-    my ($stack_a, $stack_b) = @_;
+    my ( $stack_a, $stack_b ) = @_;
 
     my $pkg = __PACKAGE__;
     throw "Can only compare $pkg objects"
-        if not ( itis($stack_a, $pkg) && itis($stack_b, $pkg) );
+        if not( itis( $stack_a, $pkg ) && itis( $stack_b, $pkg ) );
 
     return 0 if $stack_a->id == $stack_b->id;
 
-    my $r =   ($stack_a->name cmp $stack_b->name);
+    my $r = ( $stack_a->name cmp $stack_b->name );
 
     return $r;
 }
@@ -694,25 +694,25 @@ sub string_compare {
 #------------------------------------------------------------------------------
 
 sub to_string {
-    my ($self, $format) = @_;
+    my ( $self, $format ) = @_;
 
     my %fspec = (
-           k => sub { $self->name                                           },
-           M => sub { $self->is_default                       ? '*' : ' '   },
-           L => sub { $self->is_locked                        ? '!' : ' '   },
-           I => sub { $self->head->uuid                                     },
-           i => sub { $self->head->uuid_prefix                              },
-           g => sub { $self->head->message                                  },
-           G => sub { indent_text( trim_text($self->head->message), $_[0] ) },
-           t => sub { $self->head->message_title                            },
-           T => sub { truncate_text( $self->head->message_title, $_[0] )    },
-           b => sub { $self->head->message_body                             },
-           j => sub { $self->head->username                                 },
-           u => sub { $self->head->datetime->strftime($_[0] || '%c')        }, 
+        k => sub { $self->name },
+        M => sub { $self->is_default ? '*' : ' ' },
+        L => sub { $self->is_locked ? '!' : ' ' },
+        I => sub { $self->head->uuid },
+        i => sub { $self->head->uuid_prefix },
+        g => sub { $self->head->message },
+        G => sub { indent_text( trim_text( $self->head->message ), $_[0] ) },
+        t => sub { $self->head->message_title },
+        T => sub { truncate_text( $self->head->message_title,      $_[0] ) },
+        b => sub { $self->head->message_body },
+        j => sub { $self->head->username },
+        u => sub { $self->head->datetime->strftime( $_[0] || '%c' ) },
     );
 
     $format ||= $self->default_format();
-    return String::Format::stringf($format, %fspec);
+    return String::Format::stringf( $format, %fspec );
 }
 
 #-------------------------------------------------------------------------------
@@ -744,7 +744,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 METHODS
 

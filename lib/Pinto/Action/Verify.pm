@@ -4,13 +4,13 @@ package Pinto::Action::Verify;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -26,13 +26,13 @@ sub execute {
     my $missing = 0;
     while ( my $dist = $dist_rs->next ) {
 
-        if (not -e $dist->native_path) {
-	        $self->error("Missing distribution $dist");
-	        $missing++;
-	    }
+        if ( not -e $dist->native_path ) {
+            $self->error("Missing distribution $dist");
+            $missing++;
+        }
     }
 
-	throw("$missing archives are missing") if $missing;
+    throw("$missing archives are missing") if $missing;
 
     return $self->result;
 }
@@ -59,7 +59,7 @@ Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

@@ -9,19 +9,19 @@ use base qw(App::Cmd::Command::help);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 # This is just a thin subclass of App::Cmd::Command::help.  All we have done is
 # extend the exeucte() method to mention the "pinto manual" command at the end
 
 sub execute {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
-    my ($cmd, undef, undef) = $self->app->prepare_command(@$args);
+    my ( $cmd, undef, undef ) = $self->app->prepare_command(@$args);
     my ($cmd_name) = $cmd->command_names;
 
-    my $rv = $self->SUPER::execute($opts, $args);
+    my $rv = $self->SUPER::execute( $opts, $args );
 
     # Only display this if showing help for a specific command.
     print qq{For more information, run "pinto manual $cmd_name"\n} if @{$args};
@@ -46,7 +46,7 @@ App::Pinto::Command::help - display a command's help screen
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

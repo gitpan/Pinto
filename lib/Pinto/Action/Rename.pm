@@ -4,13 +4,13 @@ package Pinto::Action::Rename;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -28,7 +28,6 @@ has from_stack => (
     required => 1,
 );
 
-
 has to_stack => (
     is       => 'ro',
     isa      => StackName,
@@ -40,9 +39,9 @@ has to_stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack($self->from_stack);
+    my $stack = $self->repo->get_stack( $self->from_stack );
 
-    $self->repo->rename_stack(stack => $stack, to => $self->to_stack);
+    $self->repo->rename_stack( stack => $stack, to => $self->to_stack );
 
     return $self->result->changed;
 }
@@ -69,7 +68,7 @@ Pinto::Action::Rename - Change the name of a stack
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 

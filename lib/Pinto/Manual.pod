@@ -23,7 +23,7 @@ Pinto::Manual - Entry point for Pinto documentation
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 TABLE OF CONTENTS
 

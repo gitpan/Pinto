@@ -4,7 +4,7 @@ package Pinto::Repository;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Readonly;
 use File::Find;
@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -46,58 +46,58 @@ has root => (
 
 
 has config => (
-    is         => 'ro',
-    isa        => 'Pinto::Config',
-    default    => sub { Pinto::Config->new(root => $_[0]->root) },
-    lazy       => 1,
+    is      => 'ro',
+    isa     => 'Pinto::Config',
+    default => sub { Pinto::Config->new( root => $_[0]->root ) },
+    lazy    => 1,
 );
 
 
 has db => (
-    is         => 'ro',
-    isa        => 'Pinto::Database',
-    default    => sub { Pinto::Database->new(repo => $_[0]) },
-    lazy       => 1,
+    is      => 'ro',
+    isa     => 'Pinto::Database',
+    default => sub { Pinto::Database->new( repo => $_[0] ) },
+    lazy    => 1,
 );
 
 
 has store => (
-    is         => 'ro',
-    isa        => 'Pinto::Store',
-    default    => sub { Pinto::Store->new(repo => $_[0]) },
-    lazy       => 1,
+    is      => 'ro',
+    isa     => 'Pinto::Store',
+    default => sub { Pinto::Store->new( repo => $_[0] ) },
+    lazy    => 1,
 );
 
 
 has cache => (
-    is         => 'ro',
-    isa        => 'Pinto::IndexCache',
-    handles    => [ qw(locate) ],
-    clearer    => '_clear_cache',
-    default    => sub { Pinto::IndexCache->new(repo => $_[0]) },
-    lazy       => 1,
+    is      => 'ro',
+    isa     => 'Pinto::IndexCache',
+    handles => [qw(locate)],
+    clearer => '_clear_cache',
+    default => sub { Pinto::IndexCache->new( repo => $_[0] ) },
+    lazy    => 1,
 );
 
 
-has locker  => (
-    is         => 'ro',
-    isa        => 'Pinto::Locker',
-    handles    => [ qw(lock unlock) ],
-    default    => sub { Pinto::Locker->new(repo => $_[0]) },
-    lazy       => 1,
+has locker => (
+    is      => 'ro',
+    isa     => 'Pinto::Locker',
+    handles => [qw(lock unlock)],
+    default => sub { Pinto::Locker->new( repo => $_[0] ) },
+    lazy    => 1,
 );
 
 #-------------------------------------------------------------------------------
 
 
 sub get_stack {
-    my ($self, $stack, %opts) = @_;
+    my ( $self, $stack, %opts ) = @_;
 
-    return $stack if itis($stack, 'Pinto::Schema::Result::Stack');
+    return $stack if itis( $stack, 'Pinto::Schema::Result::Stack' );
     return $self->get_default_stack if not $stack;
 
     my $where = { name => $stack };
-    my $got_stack = $self->db->schema->find_stack( $where );
+    my $got_stack = $self->db->schema->find_stack($where);
 
     throw "Stack $stack does not exist"
         unless $got_stack or $opts{nocroak};
@@ -111,8 +111,8 @@ sub get_stack {
 sub get_default_stack {
     my ($self) = @_;
 
-    my $where = {is_default => 1};
-    my @stacks = $self->db->schema->search_stack( $where )->all;
+    my $where = { is_default => 1 };
+    my @stacks = $self->db->schema->search_stack($where)->all;
 
     # Assert that there is no more than one default stack
     throw "PANIC: There must be no more than one default stack" if @stacks > 1;
@@ -136,11 +136,11 @@ sub get_all_stacks {
 
 
 sub get_revision {
-    my ($self, $revision) = @_;
+    my ( $self, $revision ) = @_;
 
-    return $revision if itis($revision, 'Pinto::Schema::Result::Revision');
+    return $revision if itis( $revision, 'Pinto::Schema::Result::Revision' );
 
-    my @revs = $self->db->schema->search_revision( {uuid => {like => $revision}} );
+    my @revs = $self->db->schema->search_revision( { uuid => { like => $revision } } );
 
     throw "Revision id $revision is ambiguous" if @revs > 1;
 
@@ -151,7 +151,7 @@ sub get_revision {
 
 
 sub get_package {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $spec      = $args{spec};
     my $pkg_name  = $args{name};
@@ -162,35 +162,35 @@ sub get_package {
         my $pkg_name = $spec->name;
         my $version  = $spec->version;
 
-        my @pkgs = $self->db->schema->search_package({name => $pkg_name})->with_distribution;
-        my $latest = (sort {$a <=> $b} @pkgs)[-1];
+        my @pkgs = $self->db->schema->search_package( { name => $pkg_name } )->with_distribution;
+        my $latest = ( sort { $a <=> $b } @pkgs )[-1];
 
         return $latest->version >= $spec->version ? $latest : ();
     }
 
-
     # Retrieve package from a specific distribution
-    elsif ($pkg_name && $dist_path) {
+    elsif ( $pkg_name && $dist_path ) {
 
-        my ($author, $archive) = Pinto::Util::parse_dist_path($dist_path);
+        my ( $author, $archive ) = Pinto::Util::parse_dist_path($dist_path);
 
-        my $where = { 'me.name'              => $pkg_name, 
-                      'distribution.author'  => $author,
-                      'distribution.archive' => $archive };
+        my $where = {
+            'me.name'              => $pkg_name,
+            'distribution.author'  => $author,
+            'distribution.archive' => $archive
+        };
 
         my @pkgs = $self->db->schema->search_package($where)->with_distribution;
 
         return @pkgs ? $pkgs[0] : ();
     }
 
-
     # Retrieve latest version of package in the entire repository
     elsif ($pkg_name) {
 
-        my $where  = { name => $pkg_name };
-        my @pkgs   = $self->db->schema->search_package($where)->with_distribution;
+        my $where = { name => $pkg_name };
+        my @pkgs = $self->db->schema->search_package($where)->with_distribution;
 
-        my $latest = (sort {$a <=> $b} @pkgs)[-1];
+        my $latest = ( sort { $a <=> $b } @pkgs )[-1];
         return defined $latest ? $latest : ();
     }
 
@@ -201,43 +201,37 @@ sub get_package {
 
 
 sub get_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     # Retrieve a distribution by DistSpec or PackageSpec
-    if (my $spec = $args{spec}) {
-        if ( itis($spec, 'Pinto::DistributionSpec') ) {
+    if ( my $spec = $args{spec} ) {
+        if ( itis( $spec, 'Pinto::DistributionSpec' ) ) {
             my $author  = $spec->author;
             my $archive = $spec->archive;
 
-            return $self->db->schema->distribution_rs
-                                    ->with_packages
-                                    ->find_by_author_archive($author, $archive);
+            return $self->db->schema->distribution_rs->with_packages->find_by_author_archive( $author, $archive );
         }
-        elsif ( itis($spec, 'Pinto::PackageSpec') ) {
-            my $pkg = $self->get_package(name => $spec->name);
-            return () if ! defined($pkg) or $pkg->version < $spec->version;
+        elsif ( itis( $spec, 'Pinto::PackageSpec' ) ) {
+            my $pkg = $self->get_package( name => $spec->name );
+            return () if !defined($pkg) or $pkg->version < $spec->version;
             return $pkg->distribution;
-        } 
+        }
 
         throw 'Invalid arguments';
     }
 
     # Retrieve a distribution by its path (e.g. AUTHOR/Dist-1.0.tar.gz)
-    elsif (my $path = $args{path}) {
-        my ($author, $archive) = Pinto::Util::parse_dist_path($path);
+    elsif ( my $path = $args{path} ) {
+        my ( $author, $archive ) = Pinto::Util::parse_dist_path($path);
 
-        return $self->db->schema->distribution_rs
-                                ->with_packages
-                                ->find_by_author_archive($author, $archive);
+        return $self->db->schema->distribution_rs->with_packages->find_by_author_archive( $author, $archive );
     }
 
     # Retrieve a distribution by author and archive
-    elsif (my $author = $args{author}) {
+    elsif ( my $author = $args{author} ) {
         my $archive = $args{archive} or throw "Must specify archive with author";
 
-        return $self->db->schema->distribution_rs
-                                ->with_packages
-                                ->find_by_author_archive($author, $archive);
+        return $self->db->schema->distribution_rs->with_packages->find_by_author_archive( $author, $archive );
     }
 
     throw 'Invalid arguments';
@@ -247,17 +241,17 @@ sub get_distribution {
 
 
 sub ups_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $spec    = $args{spec};
+    my $spec = $args{spec};
     my $cascade = $args{cascade} || 0;
     my $dist_url;
 
-    if ( Pinto::Util::itis($spec, 'Pinto::PackageSpec') ){
-        $dist_url = $self->locate(package => $spec->name, version => $spec->version, latest => $cascade);
+    if ( Pinto::Util::itis( $spec, 'Pinto::PackageSpec' ) ) {
+        $dist_url = $self->locate( package => $spec->name, version => $spec->version, latest => $cascade );
     }
-    elsif ( Pinto::Util::itis($spec, 'Pinto::DistributionSpec') ){
-        $dist_url = $self->locate(distribution => $spec->path)
+    elsif ( Pinto::Util::itis( $spec, 'Pinto::DistributionSpec' ) ) {
+        $dist_url = $self->locate( distribution => $spec->path );
     }
     else {
         throw 'Invalid arguments';
@@ -265,31 +259,33 @@ sub ups_distribution {
 
     throw "Cannot find $spec anywhere" if not $dist_url;
 
-    return $self->fetch_distribution(url => $dist_url);
+    return $self->fetch_distribution( url => $dist_url );
 }
 
 #-------------------------------------------------------------------------------
 
 
 sub add_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $archive = $args{archive};
     my $author  = uc $args{author};
     my $source  = $args{source} || 'LOCAL';
 
-    $self->assert_archive_not_duplicate($author, $archive);
+    $self->assert_archive_not_duplicate( $author, $archive );
 
     # Assemble the basic structure...
-    my $dist_struct = { author   => $author,
-                        source   => $source,
-                        archive  => $archive->basename,
-                        mtime    => Pinto::Util::mtime($archive),
-                        md5      => Pinto::Util::md5($archive),
-                        sha256   => Pinto::Util::sha256($archive) };
+    my $dist_struct = {
+        author  => $author,
+        source  => $source,
+        archive => $archive->basename,
+        mtime   => Pinto::Util::mtime($archive),
+        md5     => Pinto::Util::md5($archive),
+        sha256  => Pinto::Util::sha256($archive)
+    };
 
     my $extractor = Pinto::PackageExtractor->new( archive => $archive );
-    
+
     # Add provided packages...
     my @provides = $extractor->provides;
     $dist_struct->{packages} = \@provides;
@@ -311,7 +307,7 @@ sub add_distribution {
     # the repository will still be clean.
 
     my $dist = $self->db->schema->create_distribution($dist_struct);
-    $self->store->add_archive($archive => $dist->native_path);
+    $self->store->add_archive( $archive => $dist->native_path );
 
     return $dist;
 }
@@ -320,40 +316,43 @@ sub add_distribution {
 
 
 sub fetch_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $url = $args{url};
+    my $url  = $args{url};
     my $path = $url->path;
 
-    my $existing = $self->get_distribution(path => $path);
+    my $existing = $self->get_distribution( path => $path );
     throw "Distribution $existing already exists" if $existing;
 
-    my ($author, undef) = Pinto::Util::parse_dist_path($path);
-    my $archive = $self->fetch_temporary(url => $url);
+    my ( $author, undef ) = Pinto::Util::parse_dist_path($path);
+    my $archive = $self->fetch_temporary( url => $url );
 
-    my $dist = $self->add_distribution( archive   => $archive,
-                                        author    => $author,
-                                        source    => $url );
+    my $dist = $self->add_distribution(
+        archive => $archive,
+        author  => $author,
+        source  => $url
+    );
     return $dist;
 }
 
 #------------------------------------------------------------------------------
 
 sub delete_distribution {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $dist  = $args{dist};
     my $force = $args{force};
 
-    for my $reg ($dist->registrations) {
+    for my $reg ( $dist->registrations ) {
+
         # TODO: say which stack it is pinned to
-        throw "$dist is pinned to a stack and cannot be deleted" 
+        throw "$dist is pinned to a stack and cannot be deleted"
             if $reg->is_pinned and not $force;
     }
 
     $dist->delete;
     my $basedir = $self->config->authors_id_dir;
-    $self->store->remove_archive($dist->native_path($basedir));
+    $self->store->remove_archive( $dist->native_path($basedir) );
 
     return $self;
 }
@@ -426,7 +425,7 @@ sub txn_commit {
 #-------------------------------------------------------------------------------
 
 sub svp_begin {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
 
     debug 'Beginning db savepoint';
     $self->db->schema->svp_begin($name);
@@ -437,7 +436,7 @@ sub svp_begin {
 #-------------------------------------------------------------------------------
 
 sub svp_rollback {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
 
     debug 'Rolling back db savepoint';
     $self->db->schema->svp_rollback($name);
@@ -447,7 +446,7 @@ sub svp_rollback {
 
 #-------------------------------------------------------------------------------
 sub svp_release {
-    my ($self, $name) = @_;
+    my ( $self, $name ) = @_;
 
     debug 'Releasing db savepoint';
     $self->db->schema->svp_release($name);
@@ -459,15 +458,15 @@ sub svp_release {
 #-------------------------------------------------------------------------------
 
 sub create_stack {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $stk_name = $args{name};
 
     throw "Stack $stk_name already exists"
-      if $self->get_stack($stk_name, nocroak => 1);
+        if $self->get_stack( $stk_name, nocroak => 1 );
 
-    my $root  = $self->db->get_root_revision;
-    my $stack = $self->db->schema->create_stack( {%args, head => $root} );
+    my $root = $self->db->get_root_revision;
+    my $stack = $self->db->schema->create_stack( { %args, head => $root } );
 
     $stack->make_filesystem;
     $stack->write_index;
@@ -478,18 +477,18 @@ sub create_stack {
 #-------------------------------------------------------------------------------
 
 sub copy_stack {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $copy_name  = $args{name};
-    my $stack      = delete $args{stack};
-    my $orig_name  = $stack->name;
+    my $copy_name = $args{name};
+    my $stack     = delete $args{stack};
+    my $orig_name = $stack->name;
 
-    if (my $existing = $self->get_stack($copy_name, nocroak => 1) ) {
-        throw "Stack $existing already exists"
-    } 
+    if ( my $existing = $self->get_stack( $copy_name, nocroak => 1 ) ) {
+        throw "Stack $existing already exists";
+    }
 
     my $dupe = $stack->duplicate(%args);
-    
+
     $dupe->make_filesystem;
     $dupe->write_index;
 
@@ -499,17 +498,17 @@ sub copy_stack {
 #-------------------------------------------------------------------------------
 
 sub rename_stack {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $new_name = $args{to};
     my $stack    = delete $args{stack};
     my $old_name = $stack->name;
 
     throw "Stack $new_name already exists"
-      if $self->get_stack($new_name, nocroak => 1);
+        if $self->get_stack( $new_name, nocroak => 1 );
 
-    $stack->rename_filesystem(to => $new_name);
-    $stack->rename(to => $new_name);
+    $stack->rename_filesystem( to => $new_name );
+    $stack->rename( to => $new_name );
 
     return $stack;
 }
@@ -517,7 +516,7 @@ sub rename_stack {
 #-------------------------------------------------------------------------------
 
 sub kill_stack {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $stack = $args{stack};
 
@@ -530,19 +529,19 @@ sub kill_stack {
 #-------------------------------------------------------------------------------
 
 sub link_modules_dir {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
     my $target_dir  = $args{to};
     my $modules_dir = $self->config->modules_dir;
     my $root_dir    = $self->config->root_dir;
 
-    if (-e $modules_dir or -l $modules_dir) {
+    if ( -e $modules_dir or -l $modules_dir ) {
         debug "Unlinking $modules_dir";
         unlink $modules_dir or throw $!;
     }
 
     debug "Linking $modules_dir to $target_dir";
-    mksymlink($modules_dir => $target_dir->relative($root_dir));
+    mksymlink( $modules_dir => $target_dir->relative($root_dir) );
 
     return $self;
 }
@@ -554,7 +553,7 @@ sub unlink_modules_dir {
 
     my $modules_dir = $self->config->modules_dir;
 
-    if (-e $modules_dir or -l $modules_dir) {
+    if ( -e $modules_dir or -l $modules_dir ) {
         debug "Unlinking $modules_dir";
         unlink $modules_dir or throw $!;
     }
@@ -566,11 +565,11 @@ sub unlink_modules_dir {
 
 
 sub clean_files {
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
 
-    my $deleted  = 0;
-    my $dists_rs = $self->db->schema->distribution_rs->search(undef, {prefetch => {}});
-    my %known_dists = map { ($_->to_string => 1) } $dists_rs->all;
+    my $deleted     = 0;
+    my $dists_rs    = $self->db->schema->distribution_rs->search( undef, { prefetch => {} } );
+    my %known_dists = map { ( $_->to_string => 1 ) } $dists_rs->all;
 
     my $callback = sub {
         return if not -f $_;
@@ -590,7 +589,7 @@ sub clean_files {
 
     my $authors_dir = $self->config->authors_dir;
     debug "Cleaning orphaned archives beneath $authors_dir";
-    File::Find::find({no_chdir => 1, wanted => $callback}, $authors_dir);
+    File::Find::find( { no_chdir => 1, wanted => $callback }, $authors_dir );
 
     return $deleted;
 }
@@ -617,9 +616,9 @@ sub get_version {
 
     my $version_file = $self->config->version_file;
 
-    return undef if not -e $version_file;  # Old repos have no version file
+    return undef if not -e $version_file;    # Old repos have no version file
 
-    my $version = $version_file->slurp(chomp => 1);
+    my $version = $version_file->slurp( chomp => 1 );
 
     return $version;
 }
@@ -627,12 +626,12 @@ sub get_version {
 #-------------------------------------------------------------------------------
 
 sub set_version {
-    my ($self, $version) = @_;
+    my ( $self, $version ) = @_;
 
     $version ||= $REPOSITORY_VERSION;
 
     my $version_fh = $self->config->version_file->openw;
-    print { $version_fh } $version, "\n";
+    print {$version_fh} $version, "\n";
     close $version_fh;
 
     return $self;
@@ -641,18 +640,18 @@ sub set_version {
 #------------------------------------------------------------------------------
 
 sub assert_archive_not_duplicate {
-    my ($self, $author, $archive) = @_;
+    my ( $self, $author, $archive ) = @_;
 
     throw "Archive $archive does not exist"  if not -e $archive;
     throw "Archive $archive is not readable" if not -r $archive;
 
     my $basename = $archive->basename;
-    if (my $same_path = $self->get_distribution(author => $author, archive => $basename)) {
+    if ( my $same_path = $self->get_distribution( author => $author, archive => $basename ) ) {
         throw "A distribution already exists as $same_path";
     }
 
     my $sha256 = Pinto::Util::sha256($archive);
-    my $dupe = $self->db->schema->search_distribution({sha256 => $sha256})->first;
+    my $dupe = $self->db->schema->search_distribution( { sha256 => $sha256 } )->first;
     throw "Archive $archive is identical to $dupe" if $dupe;
 
     return $self;
@@ -667,14 +666,16 @@ sub assert_version_ok {
     my $code_version = $REPOSITORY_VERSION;
 
     no warnings qw(uninitialized);
-    if ($repo_version != $code_version) {
+    if ( $repo_version != $code_version ) {
         my $msg = "Repository version ($repo_version) and Pinto version ($code_version) do not match.\n";
 
         # For really old repositories, the version is undefined and there is no automated
         # migration process.  If the version is defined, then automatic migration should work.
-        
-        $msg .= defined $repo_version ? "Use the 'migrate' command to bring the repo up to date"
-                                      : "Contact thaljef\@cpan.org for migration instructions";
+
+        $msg .=
+            defined $repo_version
+            ? "Use the 'migrate' command to bring the repo up to date"
+            : "Contact thaljef\@cpan.org for migration instructions";
         throw $msg;
     }
 
@@ -686,8 +687,9 @@ sub assert_version_ok {
 sub assert_sanity_ok {
     my ($self) = @_;
 
-    unless (    -e $self->config->db_file
-             && -e $self->config->authors_dir ) {
+    unless ( -e $self->config->db_file
+        && -e $self->config->authors_dir )
+    {
 
         my $root_dir = $self->config->root_dir;
         throw "Directory $root_dir does not look like a Pinto repository";
@@ -701,8 +703,8 @@ sub assert_sanity_ok {
 sub clear_cache {
     my ($self) = @_;
 
-    $self->cache->clear_cache; # Clears cache file from disk
-    $self->_clear_cache;       # Clears object from memory
+    $self->cache->clear_cache;    # Clears cache file from disk
+    $self->_clear_cache;          # Clears object from memory
 
     return $self;
 }
@@ -729,7 +731,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 ATTRIBUTES
 

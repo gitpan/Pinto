@@ -1,4 +1,4 @@
-# ABSTRACT: show our gratitude
+# ABSTRACT: show some gratitude
 
 package App::Pinto::Command::thanks;
 
@@ -12,16 +12,16 @@ use base qw(App::Pinto::Command);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
 sub execute {
-    my ($self, $opts, $args) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     my $path;
     for my $dir (@INC) {
-        my $maybe = dir($dir)->file( qw(Pinto Manual Thanks.pod) );
+        my $maybe = dir($dir)->file(qw(Pinto Manual Thanks.pod));
         do { $path = $maybe->stringify; last } if -f $maybe;
     }
 
@@ -50,11 +50,11 @@ hesco Cory G Watson Jakob Voss Jeff
 
 =head1 NAME
 
-App::Pinto::Command::thanks - show our gratitude
+App::Pinto::Command::thanks - show some gratitude
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 SYNOPSIS
 

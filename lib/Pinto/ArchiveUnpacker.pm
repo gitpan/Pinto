@@ -5,7 +5,7 @@ package Pinto::ArchiveUnpacker;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool);
-use MooseX::MarkAsMethods (autoclean => 1);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Cwd qw(getcwd);
 use Cwd::Guard qw(cwd_guard);
@@ -18,7 +18,7 @@ use Pinto::Util qw(debug throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087'; # VERSION
+our $VERSION = '0.087_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -29,19 +29,17 @@ has archive => (
     coerce   => 1,
 );
 
-
 has temp_dir => (
-    is       => 'ro',
-    isa      => 'File::Temp::Dir',
-    default  => sub { File::Temp->newdir(CLEANUP => $_[0]->cleanup) },
-    lazy     => 1,
+    is      => 'ro',
+    isa     => 'File::Temp::Dir',
+    default => sub { File::Temp->newdir( CLEANUP => $_[0]->cleanup ) },
+    lazy    => 1,
 );
 
-
 has cleanup => (
-    is       => 'ro',
-    isa      => Bool,
-    default  => 1,
+    is      => 'ro',
+    isa     => Bool,
+    default => 1,
 );
 
 #-----------------------------------------------------------------------------
@@ -51,16 +49,16 @@ sub unpack {
 
     my $archive   = $self->archive;
     my $temp_dir  = $self->temp_dir->dirname;
-    my $cwd_guard = cwd_guard(getcwd); # Archive::Extract will chdir
+    my $cwd_guard = cwd_guard(getcwd);          # Archive::Extract will chdir
 
     local $Archive::Extract::PREFER_BIN = 1;
-    local $Archive::Extract::DEBUG = 1 if ($ENV{PINTO_DEBUG} || 0) > 1;
+    local $Archive::Extract::DEBUG = 1 if ( $ENV{PINTO_DEBUG} || 0 ) > 1;
 
-    my $ae = Archive::Extract->new(archive => $archive);
+    my $ae = Archive::Extract->new( archive => $archive );
 
     debug "Unpacking $archive into $temp_dir";
 
-    my $ok = $ae->extract(to => $temp_dir);
+    my $ok = $ae->extract( to => $temp_dir );
     throw "Failed to unpack $archive: " . $ae->error if not $ok;
 
     my @children = dir($temp_dir)->children;
@@ -89,7 +87,7 @@ Pinto::ArchiveUnpacker - Unpack an archive into a temporary directory
 
 =head1 VERSION
 
-version 0.087
+version 0.087_01
 
 =head1 AUTHOR
 
