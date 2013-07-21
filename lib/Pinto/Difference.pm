@@ -4,7 +4,7 @@ package Pinto::Difference;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::Types::Moose qw(ArrayRef);
+use MooseX::Types::Moose qw(ArrayRef Bool);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(itis);
@@ -13,7 +13,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -61,6 +61,14 @@ has deletions => (
         ];
     },
     init_arg => undef,
+    lazy     => 1,
+);
+
+has is_different => (
+    is       => 'ro',
+    isa      => Bool,
+    init_arg => undef,
+    default  => sub { shift->diffs > 0},
     lazy     => 1,
 );
 
@@ -198,7 +206,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -252,7 +260,7 @@ Pinto::Difference - Compute difference between two revisions
 
 =head1 VERSION
 
-version 0.087_01
+version 0.087_03
 
 =head1 AUTHOR
 

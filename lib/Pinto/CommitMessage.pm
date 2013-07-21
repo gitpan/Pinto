@@ -11,7 +11,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ sub to_string {
 
     $diff =~ s/^/# /gm;
 
-    return <<"END_MESSAGE";
+    my $msg = <<"END_MESSAGE";
 $title
 
 
@@ -58,6 +58,9 @@ $title
 #
 $diff
 END_MESSAGE
+
+    chomp $msg;
+    return $msg;
 }
 
 #------------------------------------------------------------------------------
@@ -81,7 +84,7 @@ Pinto::CommitMessage - Utility class for commit message templates
 
 =head1 VERSION
 
-version 0.087_01
+version 0.087_03
 
 =head1 AUTHOR
 

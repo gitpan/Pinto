@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ sub compose_message {
         if $self->use_default_message;
 
     return $title
-        if not is_interactive;
+        if not -t STDOUT;
 
     my $cm = Pinto::CommitMessage->new(
         title => $title,
@@ -168,7 +168,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.087_01
+version 0.087_03
 
 =head1 AUTHOR
 

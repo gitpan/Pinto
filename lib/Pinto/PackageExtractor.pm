@@ -18,7 +18,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ sub provides {
         my $lib_dir = $self->work_dir->subdir('lib');
         local @INC = ( $lib_dir->stringify, @INC );
 
-        $self->dm->module_info( { checksum => 'sha256' } );
+        $self->dm->module_info; # returned from try{}
     }
     catch {
         throw "Unable to extract packages from $archive: $_";
@@ -81,13 +81,7 @@ sub provides {
         my $pkg_ver = version->parse( $info->{version} );
         debug "Archive $archive provides: $pkg_name-$pkg_ver";
 
-        push @provides,
-            {
-            name    => $pkg_name,
-            version => $pkg_ver,
-            file    => $info->{file},
-            sha256  => $info->{sha256}
-            };
+        push @provides, {name => $pkg_name, version => $pkg_ver};
     }
 
     @provides = $self->__apply_workarounds if @provides == 0;
@@ -211,7 +205,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.087_01
+version 0.087_03
 
 =head1 AUTHOR
 

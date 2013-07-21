@@ -5,10 +5,11 @@ package Pinto::Chrome;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Int Bool);
+use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_01'; # VERSION
+our $VERSION = '0.087_03'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -102,7 +103,7 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.087_01
+version 0.087_03
 
 =head1 AUTHOR
 

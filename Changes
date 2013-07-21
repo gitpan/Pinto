@@ -1,4 +1,4 @@
-0.087_01  2013-07-09 01:06:47 America/Los_Angeles
+0.087_03  2013-07-21 01:16:50 America/Los_Angeles
 
       !! DEVELOPER RELEASE !!
 
@@ -9,12 +9,40 @@
       packages in your distribution that it should not.  Thanks to Todd Chapman
       for the great suggestion.
 
+      * The "diff" command now accepts revision IDs as arguments, so you can
+      compare any two arbitrary revisions.  Revision IDs can be truncated to
+      uniqueness.  This feature was generously funded by a grant from TPF.
+
       ENHANCEMENTS:
 
       * Optimized some queries to make it faster to register packages on a stack.
       In the best cases, performance has improved by about 150%.  But in the
       average case, the limiting factor is fetching and unpacking the upstream
       distribution, so you'll only see a slight improvement there.
+
+      BUG FIXES:
+
+      * You can now edit the commit message when pinto is reading input from 
+      a file or pipe, as long as STDOUT is connected to a terminal.  You
+      can always just use the -m or -M options if you don't want to edit
+      the message.
+
+      INTERNAL CHANGES:
+
+      * Pinto no longers stores the file path and SHA digest of every
+      package it sees in the META, since many distributions on CPAN don't have
+      the right paths in there anyway.  This allows Pinto to index some
+      (technically broken) distributions that it otherwise couldn't.  Pinto
+      was never really using this information anyway, and it will probably be
+      removed from the schema entirely in the next major upgrade cycle.
+
+0.087_02  2013-07-16 02:12:40 America/Los_Angeles
+0.087_01  2013-07-09 01:06:47 America/Los_Angeles
+
+      !! DEVELOPER RELEASES !!
+
+      Changes consolidated above under version 0.088.
+
 
 0.087     2013-06-19 14:47:01 America/Los_Angeles
        
