@@ -7,11 +7,11 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool Str);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
-use Pinto::Types qw(StackName);
+use Pinto::Types qw(StackName PerlVersion);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -41,6 +41,14 @@ has description => (
     predicate => 'has_description',
 );
 
+
+has target_perl_version => (
+    is        => 'ro',
+    isa       => PerlVersion,
+    predicate => 'has_target_perl_version',
+    coerce    => 1,
+);
+
 #------------------------------------------------------------------------------
 
 sub execute {
@@ -50,8 +58,15 @@ sub execute {
     my $stack = $self->repo->create_stack(%attrs);
 
     $stack->set_properties( $stack->default_properties );
-    $stack->set_description( $self->description ) if $self->has_description;
-    $stack->mark_as_default if $self->default;
+
+    $stack->set_property( description => $self->description )
+        if $self->has_description;
+
+    $stack->set_property( target_perl_version => $self->target_perl_version )
+        if $self->has_target_perl_version;
+
+    $stack->mark_as_default 
+        if $self->default;
 
     return $self->result->changed;
 }
@@ -68,9 +83,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -78,7 +93,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 AUTHOR
 

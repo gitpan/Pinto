@@ -16,7 +16,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -131,32 +131,6 @@ has log_dir => (
     lazy     => 1,
 );
 
-has sources => (
-    is            => 'ro',
-    isa           => Str,
-    key           => 'sources',
-    default       => 'http://cpan.perl.org http://backpan.perl.org',
-    documentation => 'URLs of upstream repositories (space delimited)',
-);
-
-has sources_list => (
-    isa => ArrayRef ['URI'],
-    builder  => '_build_sources_list',
-    traits   => ['Array'],
-    handles  => { sources_list => 'elements' },
-    init_arg => undef,
-    lazy     => 1,
-);
-
-has target_perl_version => (
-    is            => 'ro',
-    isa           => PerlVersion,
-    key           => 'target_perl_version',
-    documentation => 'Default target perl version for new stacks',
-    default       => $],                                             # Note: $PERL_VERSION is broken on old perls
-    coerce        => 1,
-);
-
 has version_file => (
     is       => 'ro',
     isa      => File,
@@ -173,18 +147,38 @@ has basename => (
 );
 
 #------------------------------------------------------------------------------
+# Actual configurable attributes
+
+has sources => (
+    is            => 'ro',
+    isa           => Str,
+    key           => 'sources',
+    default       => 'http://cpan.perl.org http://backpan.perl.org',
+    documentation => 'URLs of upstream repositories (space delimited)',
+);
+
+has target_perl_version => (
+    is            => 'ro',
+    isa           => PerlVersion,
+    key           => 'target_perl_version',
+    documentation => 'Default target perl version for new stacks',
+    default       => $],                                             # Note: $PERL_VERSION is broken on old perls
+    coerce        => 1,
+);
+
+#------------------------------------------------------------------------------
 
 sub _build_config_file {
     my ($self) = @_;
 
-    my $config_file = $self->config_dir->file( $self->basename() );
+    my $config_file = $self->config_dir->file( $self->basename );
 
     return -e $config_file ? $config_file : ();
 }
 
 #------------------------------------------------------------------------------
 
-sub _build_sources_list {
+sub sources_list {
     my ($self) = @_;
 
     # Some folks tend to put quotes around multi-value configuration
@@ -192,9 +186,7 @@ sub _build_sources_list {
     my $sources = $self->sources;
     $sources =~ s/ ['"] //gx;
 
-    my @source_urls = map { URI->new($_) } split m{ \s+ }mx, $sources;
-
-    return \@source_urls;
+    return map { URI->new($_) } split m{ \s+ }mx, $sources;
 }
 
 #------------------------------------------------------------------------------
@@ -217,9 +209,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -227,7 +219,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 DESCRIPTION
 

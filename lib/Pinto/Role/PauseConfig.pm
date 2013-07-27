@@ -12,7 +12,7 @@ use File::HomeDir;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -73,9 +73,10 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff pauserc pausecfg
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob pauserc
+pausecfg
 
 =head1 NAME
 
@@ -83,7 +84,7 @@ Pinto::Role::PauseConfig - Something that has a pause config attribute
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 ATTRIBUTES
 

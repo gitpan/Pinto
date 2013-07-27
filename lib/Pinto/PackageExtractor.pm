@@ -18,7 +18,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -68,6 +68,8 @@ sub provides {
         my $lib_dir = $self->work_dir->subdir('lib');
         local @INC = ( $lib_dir->stringify, @INC );
 
+        # TODO: Run this under Safe to protect ourselves
+        # from evil.  See ANDK/pause/pmfile.pm for example
         $self->dm->module_info; # returned from try{}
     }
     catch {
@@ -97,10 +99,11 @@ sub requires {
     my $archive = $self->archive;
     debug "Extracting packages required by archive $archive";
 
-    my $prereqs_meta = try { $self->dm->meta->prereqs } catch { throw "Unable to extract prereqs from $archive: $_" };
+    my $prereqs_meta =   try { $self->dm->meta->prereqs } 
+                       catch { throw "Unable to extract prereqs from $archive: $_" };
 
     my @prereqs;
-    for my $phase (qw( develop configure build test runtime )) {
+    for my $phase ( keys %{$prereqs_meta} ) {
 
         my $prereqs_for_phase = $prereqs_meta->{$phase}        || {};
         my $required_prereqs  = $prereqs_for_phase->{requires} || {};
@@ -195,9 +198,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -205,7 +208,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 AUTHOR
 

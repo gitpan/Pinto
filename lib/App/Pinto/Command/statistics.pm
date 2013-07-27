@@ -11,11 +11,25 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
 sub command_names { return qw( statistics stats ) }
+
+#------------------------------------------------------------------------------
+
+sub validate_args {
+    my ( $self, $opts, $args ) = @_;
+
+    $self->usage_error('Multiple arguments are not allowed')
+        if @{$args} > 1;
+
+    $opts->{stack} = $args->[0]
+        if $args->[0];
+
+    return 1;
+}
 
 #------------------------------------------------------------------------------
 1;
@@ -24,9 +38,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -34,7 +48,7 @@ App::Pinto::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 SYNOPSIS
 
@@ -48,7 +62,8 @@ This command reports some statistics about the repository.
 
 =head1 COMMAND ARGUMENTS
 
-None.
+The argument is the name of the stack you wish to see the statistics for. If
+you do not specify a stack, then the default stack will be used.
 
 =head1 COMMAND OPTIONS
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,8 +19,9 @@ sub opt_spec {
     my ( $self, $app ) = @_;
 
     return (
-        [ 'default'         => 'Make the new stack the default stack' ],
-        [ 'description|d=s' => 'Brief description of the stack' ],
+        [ 'default'                   => 'Make the new stack the default stack' ],
+        [ 'description|d=s'           => 'Brief description of the stack' ],
+        [ 'target-perl-version|tpv=s' => 'Target Perl version for this stack'],
     );
 }
 
@@ -44,9 +45,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -54,7 +55,7 @@ App::Pinto::Command::new - create a new empty stack
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 SYNOPSIS
 
@@ -87,6 +88,15 @@ Also mark the new stack as the default stack.
 =item -d TEXT
 
 Use TEXT for the description of the stack.
+
+=item --target-perl-version=VERSION
+
+=item --tpv=VERSION
+
+Sets the target perl version for the stack.  Pinto never pulls distributions
+for prerequisites that are satisfied by the core of the target perl version.
+VERSION must be a valid version number for an existing release of perl 5.
+Defaults to the global target Perl version of this repository.
 
 =back
 

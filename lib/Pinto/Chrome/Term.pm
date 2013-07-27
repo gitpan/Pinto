@@ -11,11 +11,11 @@ use Term::ANSIColor;
 use Term::EditorEdit;
 
 use Pinto::Types qw(Io ANSIColorSet);
-use Pinto::Util qw(user_colors itis throw);
+use Pinto::Util qw(user_colors itis throw is_interactive);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ sub should_render_progress {
 
     return 0 if $self->verbose;
     return 0 if $self->quiet;
-    return 0 if not -t $self->stderr;
+    return 0 if not is_interactive;
     return 1;
 }
 
@@ -211,9 +211,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -221,7 +221,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 AUTHOR
 

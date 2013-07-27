@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -19,16 +19,17 @@ sub opt_spec {
     my ( $self, $app ) = @_;
 
     return (
-        [ 'author=s'              => 'The ID of the archive author' ],
-        [ 'cascade'               => 'Always pick latest upstream package' ],
-        [ 'dry-run'               => 'Do not commit any changes' ],
-        [ 'message|m=s'           => 'Message to describe the change' ],
-        [ 'no-fail'               => 'Do not fail when there is an error' ],
-        [ 'no-index|x=s@'         => 'Do not index matching packages' ],
-        [ 'no-recurse|n'          => 'Do not recursively pull prereqs' ],
-        [ 'pin'                   => 'Pin packages to the stack' ],
-        [ 'stack|s=s'             => 'Put packages into this stack' ],
-        [ 'use-default-message|M' => 'Use the generated message' ],
+        [ 'author=s'                          => 'The ID of the archive author' ],
+        [ 'cascade'                           => 'Always pick latest upstream package' ],
+        [ 'dry-run'                           => 'Do not commit any changes' ],
+        [ 'message|m=s'                       => 'Message to describe the change' ],
+        [ 'no-fail'                           => 'Do not fail when there is an error' ],
+        [ 'no-index|x=s@'                     => 'Do not index matching packages' ],
+        [ 'no-recurse|n'                      => 'Do not recursively pull prereqs' ],
+        [ 'pin'                               => 'Pin packages to the stack' ],
+        [ 'stack|s=s'                         => 'Put packages into this stack' ],
+        [ 'use-default-message|M'             => 'Use the generated message' ],
+        [ 'with-development-prerequisites|wd' => 'Also pull prereqs for development' ],
     );
 }
 
@@ -48,9 +49,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -58,7 +59,7 @@ App::Pinto::Command::add - add local archives to the repository
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 SYNOPSIS
 
@@ -195,6 +196,15 @@ Use the default value for the revision history log message.  Pinto
 will generate a semi-informative log message just based on the command
 and its arguments.  If you set an explicit message with C<--message>,
 the C<--use-default-message> option will be silently ignored.
+
+=item --with-development-prerequisites
+
+=item --wd
+
+Also pull development prerequisites so you'll have everything you need
+to work on those distributions, in the event that you need to patch them
+in the future.  Be aware that most distributions do not actually declare
+their development prerequisites.
 
 =back
 

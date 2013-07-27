@@ -10,7 +10,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -33,6 +33,12 @@ has cascade => (
 has pin => (
     is      => 'ro',
     isa     => Bool,
+    default => 0,
+);
+
+has with_development_prerequisites => (
+    is     => 'ro',
+    isa => Bool,
     default => 0,
 );
 
@@ -135,15 +141,19 @@ sub recurse {
         return $dist;
     };
 
-    require Pinto::PrerequisiteWalker;
 
-    my $tpv    = $stack->target_perl_version;
-    my $filter = sub { $_[0]->is_perl || $_[0]->is_core( in => $tpv ) };
-    my $walker = Pinto::PrerequisiteWalker->new( start => $dist, callback => $cb, filter => $filter );
+    # Exclude perl itself, and prereqs that are satisfied by the core
+    my @filters = ( sub {$_[0]->is_perl || $_[0]->is_core(in => $stack->target_perl_version)} );
+
+    # Exlucde develop-time dependencies, unless asked not to
+    push @filters, sub {$_[0]->phase eq 'develop'} unless $self->with_development_prerequisites;
+
+    require Pinto::PrerequisiteWalker;
+    my $walker = Pinto::PrerequisiteWalker->new( start => $dist, callback => $cb, filters => \@filters );
 
     $self->notice("Descending into prerequisites for $dist");
 
-    while ( $walker->next ) { };    # We just want the side effects
+    while ( $walker->next ) { };  # Just want the callback side effects
 
     return $self;
 }
@@ -155,9 +165,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -165,7 +175,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 AUTHOR
 

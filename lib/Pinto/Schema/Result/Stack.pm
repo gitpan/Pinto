@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -586,7 +586,7 @@ sub get_properties {
 sub set_property {
     my ( $self, $key, $value ) = @_;
 
-    $self->set_properties( { $key => $value } );
+    $self->set_properties( { $key => "$value" } );
 
     return $self;
 }
@@ -600,8 +600,8 @@ sub set_properties {
     while ( my ( $key, $value ) = each %{$new_props} ) {
         Pinto::Util::validate_property_name($key);
 
-        if ( defined $value && length $value ) {
-            $props->{ lc $key } = $value;
+        if ( defined $value && length "$value" ) {
+            $props->{ lc $key } = "$value";
         }
         else {
             delete $props->{ lc $key };
@@ -734,9 +734,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -744,7 +744,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 METHODS
 

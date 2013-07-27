@@ -14,7 +14,6 @@ use Digest::MD5;
 use Digest::SHA;
 use Scalar::Util;
 use UUID::Tiny;
-use IO::Interactive;
 use Readonly;
 
 use Pinto::Globals;
@@ -22,7 +21,7 @@ use Pinto::Constants qw(:all);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -274,9 +273,13 @@ sub current_author_id {
     return $Pinto::Globals::current_author_id
         if defined $Pinto::Globals::current_author_id;
 
-    my $author_id = $ENV{PINTO_AUTHOR_ID} || current_username;
+    my $author_id = $ENV{PINTO_AUTHOR_ID};
+    return uc $author_id if $author_id;
 
-    return uc $author_id;
+    my $username = current_username;
+    $username =~ s/[^a-zA-Z0-9]//g;
+
+    return uc $username;
 }
 
 #-------------------------------------------------------------------------------
@@ -288,7 +291,7 @@ sub is_interactive {
     return $Pinto::Globals::is_interactive
         if defined $Pinto::Globals::is_interactive;
 
-    return IO::Interactive::is_interactive;
+    return -t STDOUT;
 }
 
 #-------------------------------------------------------------------------------
@@ -456,9 +459,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -466,7 +469,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 DESCRIPTION
 
@@ -575,7 +578,8 @@ can be determined.
 Returns the author id of the current user unless it has been overridden by
 C<$Pinto::Globals::current_author_id>.  The author id can be defined through
 environment variables.  Otherwise it defaults to the upper-case form of the
-C<current_username>.
+C<current_username>.  And since PAUSE only allows letters and numbers in the
+author id, then we remove all of those from the C<current_username> too.
 
 =head2 is_interactive()
 

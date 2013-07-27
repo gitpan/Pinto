@@ -17,7 +17,7 @@ use Pinto::Types qw(Uri);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_03'; # VERSION
+our $VERSION = '0.087_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ has password => (
 has ua => (
     is      => 'ro',
     isa     => 'LWP::UserAgent',
-    default => sub { LWP::UserAgent->new( agent => $_[0]->ua_name ) },
+    default => sub { LWP::UserAgent->new( agent => $_[0]->ua_name, env_proxy => 1 ) },
     lazy    => 1,
 );
 
@@ -135,9 +135,9 @@ __END__
 
 =pod
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Karen Etheridge Michael G. Schwern Oleg
-Gashev Steffen Schwigon Bergsten-Buret Wolfgang Kinkeldei Yanick Champoux
-hesco Cory G Watson Jakob Voss Jeff
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
+Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
 
 =head1 NAME
 
@@ -145,7 +145,7 @@ Pinto::Remote - Interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.087_03
+version 0.087_04
 
 =head1 SYNOPSIS
 
