@@ -11,7 +11,7 @@ use Pinto::Types qw(StackName PerlVersion);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -41,7 +41,6 @@ has description => (
     predicate => 'has_description',
 );
 
-
 has target_perl_version => (
     is        => 'ro',
     isa       => PerlVersion,
@@ -65,7 +64,7 @@ sub execute {
     $stack->set_property( target_perl_version => $self->target_perl_version )
         if $self->has_target_perl_version;
 
-    $stack->mark_as_default 
+    $stack->mark_as_default
         if $self->default;
 
     return $self->result->changed;
@@ -93,7 +92,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 AUTHOR
 

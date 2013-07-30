@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -153,9 +153,9 @@ sub FOREIGNBUILDARGS {
     my ( $class, $args ) = @_;
 
     $args                 ||= {};
-    $args->{uuid}         ||= uuid;
+    $args->{uuid}         ||= uuid();
     $args->{username}     ||= '';
-    $args->{utc_time}     ||= 0;
+    $args->{utc_time}     ||= current_utc_time();
     $args->{time_offset}  ||= 0;
     $args->{is_committed} ||= 0;
     $args->{has_changes}  ||= 0;
@@ -377,7 +377,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 NAME
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ sub validate_args {
 sub execute {
     my ( $self, $opts, $args ) = @_;
 
-    # If there's only one argument, then the left argument 
+    # If there's only one argument, then the left argument
     # is assumed to be the default stack (i.e. undef)
     unshift @{$args}, undef if @{$args} == 1;
 
@@ -68,7 +68,7 @@ App::Pinto::Command::diff - show difference between two stacks
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 SYNOPSIS
 

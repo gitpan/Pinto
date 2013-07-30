@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ has callback => (
 
 has filters => (
     is        => 'ro',
-    isa       => ArrayRef[ CodeRef ],
+    isa       => ArrayRef [CodeRef],
     predicate => 'has_filters',
 );
 
@@ -74,7 +74,7 @@ sub apply_filters {
     return @prereqs if not $self->has_filters;
 
     for my $filter ( @{ $self->filters } ) {
-        @prereqs = grep { ! $filter->($_) } @prereqs;
+        @prereqs = grep { !$filter->($_) } @prereqs;
     }
 
     return @prereqs;
@@ -101,7 +101,7 @@ Pinto::PrerequisiteWalker - Iterates through distribution prerequisites
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 AUTHOR
 

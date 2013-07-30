@@ -13,7 +13,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ has is_different => (
     is       => 'ro',
     isa      => Bool,
     init_arg => undef,
-    default  => sub { shift->diffs > 0},
+    default  => sub { shift->diffs > 0 },
     lazy     => 1,
 );
 
@@ -206,7 +206,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -260,7 +260,7 @@ Pinto::Difference - Compute difference between two revisions
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 AUTHOR
 

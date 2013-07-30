@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -213,10 +213,13 @@ sub rename_filesystem {
     $self->assert_not_locked;
 
     my $orig_dir = $self->stack_dir;
-    throw "Directory $orig_dir does not exist" if not -e $orig_dir;
+    throw "Directory $orig_dir does not exist" 
+        if not -e $orig_dir;
 
+    $DB::single = 1;
     my $new_dir = $self->repo->config->stacks_dir->subdir($new_name);
-    throw "Directory $new_dir already exists" if -e $new_dir;
+    throw "Directory $new_dir already exists" 
+        if -e $new_dir && (lc $new_dir ne lc $orig_dir);
 
     debug "Renaming directory $orig_dir to $new_dir";
     File::Copy::move( $orig_dir, $new_dir ) or throw "Rename failed: $!";
@@ -744,7 +747,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 METHODS
 

@@ -11,7 +11,11 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
+
+#------------------------------------------------------------------------------
+
+# TODO: Add a --stack option, just like the "list" command.
 
 #------------------------------------------------------------------------------
 
@@ -48,11 +52,11 @@ App::Pinto::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 SYNOPSIS
 
-  pinto --root=REPOSITORY_ROOT statistics
+  pinto --root=REPOSITORY_ROOT statistics [STACK]
 
 =head1 DESCRIPTION
 

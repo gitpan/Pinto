@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -141,9 +141,9 @@ sub get_revision {
     return $revision if itis( $revision, 'Pinto::Schema::Result::Revision' );
 
     my $where = { uuid => { like => lc "$revision%" } };
-    my @revs = $self->db->schema->search_revision( $where );
+    my @revs = $self->db->schema->search_revision($where);
 
-    if (@revs > 1) {
+    if ( @revs > 1 ) {
         my $msg = "Revision ID $revision is ambiguous.  Possible matches are:\n";
         $msg .= $_->to_string("%i: %{48}T\n") for @revs;
         throw $msg;
@@ -509,8 +509,10 @@ sub rename_stack {
     my $stack    = delete $args{stack};
     my $old_name = $stack->name;
 
-    throw "Stack $new_name already exists"
-        if $self->get_stack( $new_name, nocroak => 1 );
+    if (my $existing_stack = $self->get_stack( $new_name, nocroak => 1 )) {
+        my $is_different_stack = lc $new_name ne lc $existing_stack->name;
+        throw "Stack $new_name already exists" if $is_different_stack || $new_name eq $old_name;
+    }
 
     $stack->rename_filesystem( to => $new_name );
     $stack->rename( to => $new_name );
@@ -736,7 +738,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 ATTRIBUTES
 

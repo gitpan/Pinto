@@ -10,7 +10,7 @@ use Package::Locator;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ Pinto::IndexCache - Manages indexes files from upstream repositories
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 AUTHOR
 

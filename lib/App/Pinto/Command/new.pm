@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_04'; # VERSION
+our $VERSION = '0.087_05'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ sub opt_spec {
     return (
         [ 'default'                   => 'Make the new stack the default stack' ],
         [ 'description|d=s'           => 'Brief description of the stack' ],
-        [ 'target-perl-version|tpv=s' => 'Target Perl version for this stack'],
+        [ 'target-perl-version|tpv=s' => 'Target Perl version for this stack' ],
     );
 }
 
@@ -55,7 +55,7 @@ App::Pinto::Command::new - create a new empty stack
 
 =head1 VERSION
 
-version 0.087_04
+version 0.087_05
 
 =head1 SYNOPSIS
 
