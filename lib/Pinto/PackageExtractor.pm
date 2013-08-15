@@ -13,12 +13,12 @@ use Path::Class qw(dir);
 use Archive::Extract;
 
 use Pinto::Types qw(File Dir);
-use Pinto::Util qw(debug throw);
+use Pinto::Util qw(debug throw whine);
 use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.087_05'; # VERSION
+our $VERSION = '0.088'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -87,6 +87,9 @@ sub provides {
     }
 
     @provides = $self->__apply_workarounds if @provides == 0;
+
+    whine sprintf "%s contains no packages and will not be indexed",
+        $archive->basename if not @provides;
 
     return @provides;
 }
@@ -198,8 +201,9 @@ __END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
-Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
+Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
+Jakob
 
 =head1 NAME
 
@@ -207,7 +211,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.087_05
+version 0.088
 
 =head1 AUTHOR
 

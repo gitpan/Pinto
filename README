@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.087_05
+    version 0.088
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -212,6 +212,8 @@ CONTRIBUTORS
     *   Oleg Gashev <oleg@gashev.net>
 
     *   Steffen Schwigon <ss5@renormalist.net>
+
+    *   Tommy Stanton <tommystanton@gmail.com>
 
     *   Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 

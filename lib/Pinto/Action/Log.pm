@@ -13,7 +13,7 @@ use Pinto::Types qw(StackName StackDefault);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_05'; # VERSION
+our $VERSION = '0.088'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -66,8 +66,9 @@ __END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
-Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
+Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
+Jakob
 
 =head1 NAME
 
@@ -75,7 +76,7 @@ Pinto::Action::Log - Show revision log for a stack
 
 =head1 VERSION
 
-version 0.087_05
+version 0.088
 
 =head1 AUTHOR
 

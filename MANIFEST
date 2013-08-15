@@ -199,6 +199,7 @@ t/lib/Pinto/Server/Tester.pm
 t/lib/Pinto/Tester.pm
 t/lib/Pinto/Tester/Util.pm
 weaver.ini
+xt/help/50-manual_cmd.t
 xt/release/02-workarounds.t
 xt/release/99-memory-cycle.t
 xt/release/distmeta.t

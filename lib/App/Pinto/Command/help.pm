@@ -9,7 +9,7 @@ use base qw(App::Cmd::Command::help);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.087_05'; # VERSION
+our $VERSION = '0.088'; # VERSION
 
 #-------------------------------------------------------------------------------
 # This is just a thin subclass of App::Cmd::Command::help.  All we have done is
@@ -37,8 +37,9 @@ __END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
-Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
+Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
+Jakob
 
 =head1 NAME
 
@@ -46,7 +47,7 @@ App::Pinto::Command::help - display a command's help screen
 
 =head1 VERSION
 
-version 0.087_05
+version 0.088
 
 =head1 SYNOPSIS
 

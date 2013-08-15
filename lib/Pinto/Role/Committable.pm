@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_05'; # VERSION
+our $VERSION = '0.088'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ around execute => sub {
         $self->repo->clean_files;
     }
     elsif ( $stack->refresh->has_not_changed ) {
-        $self->warning('No changes were actually made');
+        $self->warning('No index changes were made');
         $self->repo->txn_rollback;
     }
     else {
@@ -159,8 +159,9 @@ __END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
-Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
+Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
+Jakob
 
 =head1 NAME
 
@@ -168,7 +169,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.087_05
+version 0.088
 
 =head1 AUTHOR
 

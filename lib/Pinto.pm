@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.087_05'; # VERSION
+our $VERSION = '0.088'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -140,10 +140,10 @@ __END__
 =pod
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Wolfgang Kinkeldei
-Yanick Champoux hesco Boris Däppen Cory G Watson Glenn Fowler Jakob cpan
-testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
-metadata placeholders metacpan
+Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
+Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
+Jakob cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff
+irc mailto metadata placeholders metacpan
 
 =head1 NAME
 
@@ -151,7 +151,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.087_05
+version 0.088
 
 =head1 SYNOPSIS
 
@@ -416,6 +416,10 @@ Oleg Gashev <oleg@gashev.net>
 =item *
 
 Steffen Schwigon <ss5@renormalist.net>
+
+=item *
+
+Tommy Stanton <tommystanton@gmail.com>
 
 =item *
 
