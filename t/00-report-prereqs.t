@@ -118,6 +118,7 @@ my @modules = qw(
   URI
   UUID::Tiny
   base
+  lib
   overload
   perl
   strict

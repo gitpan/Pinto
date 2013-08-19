@@ -10,10 +10,11 @@ use Path::Class qw(dir);
 use File::Which qw(which);
 
 use Pinto::Util qw(throw mask_url_passwords);
+use Pinto::Constants qw($PINTO_MINIMUM_CPANM_VERSION);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.088'; # VERSION
+our $VERSION = '0.089'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -57,9 +58,8 @@ sub _build_cpanm_exe {
     my ($cpanm_version) = $cpanm_version_cmd_output =~ m{version ([\d.]+)}
         or throw "Could not parse cpanm version number from $cpanm_version_cmd_output";
 
-    my $min_cpanm_version = '1.6916';
-    if ( $cpanm_version < $min_cpanm_version ) {
-        throw "Your cpanm ($cpanm_version) is too old. Must have $min_cpanm_version or newer";
+    if ( $cpanm_version < $PINTO_MINIMUM_CPANM_VERSION ) {
+        throw "Your cpanm ($cpanm_version) is too old.  Must have $PINTO_MINIMUM_CPANM_VERSION or newer";
     }
 
     return $cpanm_exe;
@@ -101,10 +101,12 @@ __END__
 
 =pod
 
+=encoding utf-8
+
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
 Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco Däppen Cory G Watson Glenn Fowler
-Jakob
+Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
+Fowler Jakob
 
 =head1 NAME
 
@@ -112,7 +114,7 @@ Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.088
+version 0.089
 
 =head1 AUTHOR
 

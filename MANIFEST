@@ -14,7 +14,6 @@ etc/benchmark
 etc/cpanm
 etc/demo
 etc/findists
-etc/import
 etc/init.d/pintod.debian
 etc/install.sh
 etc/loadcpan

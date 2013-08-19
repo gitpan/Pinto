@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.088
+    version 0.089
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -191,7 +191,7 @@ SUPPORT
 CONTRIBUTORS
     *   BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
 
-    *   Boris Däppen <boris_daeppen@bluewin.ch>
+    *   Boris Dï¿½ppen <boris_daeppen@bluewin.ch>
 
     *   Cory G Watson <gphat@onemogin.com>
 
@@ -220,6 +220,8 @@ CONTRIBUTORS
     *   Yanick Champoux <yanick@babyl.dyndns.org>
 
     *   hesco <hesco@campaignfoundations.com>
+
+    *   popl <popl_likes_to_code@yahoo.com>
 
 AUTHOR
     Jeffrey Ryan Thalhammer <jeff@stratopan.com>
