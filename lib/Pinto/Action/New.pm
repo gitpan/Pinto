@@ -11,7 +11,7 @@ use Pinto::Types qw(StackName PerlVersion);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.089'; # VERSION
+our $VERSION = '0.090'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ Pinto::Action::New - Create a new empty stack
 
 =head1 VERSION
 
-version 0.089
+version 0.090
 
 =head1 AUTHOR
 

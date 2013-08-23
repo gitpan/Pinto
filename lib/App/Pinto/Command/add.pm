@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.089'; # VERSION
+our $VERSION = '0.090'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ App::Pinto::Command::add - add local archives to the repository
 
 =head1 VERSION
 
-version 0.089
+version 0.090
 
 =head1 SYNOPSIS
 

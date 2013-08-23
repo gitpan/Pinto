@@ -31,7 +31,7 @@ use Pinto::Constants qw(:all);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.089'; # VERSION
+our $VERSION = '0.090'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ Pinto::Types - Moose types used within Pinto
 
 =head1 VERSION
 
-version 0.089
+version 0.090
 
 =head1 AUTHOR
 

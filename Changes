@@ -1,3 +1,14 @@
+0.090     2013-08-23 14:41:34 America/Los_Angeles
+
+      [CODE CHANGES]
+
+      - None.
+
+      [DEPENDENCY CHANGES]
+
+      - Now requires version 0.010 Package::Locator, which respects your
+       environment variables for user agent proxy settings.  This fixes #111.
+
 0.089     2013-08-19 13:03:26 America/Los_Angeles
 
      [CODE CHANGES]

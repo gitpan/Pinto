@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.089",
+  "dist_version" => "0.090",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -87,7 +87,7 @@ my %module_build_args = (
     "MooseX::StrictConstructor" => 0,
     "MooseX::Types" => 0,
     "MooseX::Types::Moose" => 0,
-    "Package::Locator" => "0.009",
+    "Package::Locator" => "0.010",
     "Path::Class" => 0,
     "Path::Class::Dir" => 0,
     "Path::Class::File" => 0,
