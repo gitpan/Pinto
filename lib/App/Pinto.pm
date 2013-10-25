@@ -7,10 +7,11 @@ use warnings;
 
 use Class::Load;
 use App::Cmd::Setup -app;
+use Pinto::Util qw(is_remote_repo);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -51,7 +52,7 @@ sub pinto {
 
 sub pinto_class_for {
     my ( $self, $root ) = @_;
-    return $root =~ m{^http://}x ? 'Pinto::Remote' : 'Pinto';
+    return is_remote_repo($root) ? 'Pinto::Remote' : 'Pinto';
 }
 
 #------------------------------------------------------------------------------
@@ -80,10 +81,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -91,7 +92,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 SYNOPSIS
 

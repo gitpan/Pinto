@@ -10,7 +10,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ sub recurse {
         my $pkg_vers = $prereq->package_version;
 
         # version sees undef and 0 as equal, so must also check definedness
-        # when deciding if we've seen this version (or newer) of the packge
+        # when deciding if we've seen this version (or newer) of the package
         return if defined( $latest{$pkg_name} ) && $pkg_vers <= $latest{$pkg_name};
 
         # I think the only time that we won't see a $dist here is when
@@ -167,10 +167,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -178,7 +178,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 AUTHOR
 

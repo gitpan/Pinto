@@ -15,10 +15,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -26,7 +26,7 @@ Pinto::Manual::Installing - Tips for installing Pinto
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 SYNOPSIS
 
@@ -49,7 +49,7 @@ which may conflict with or complicate your code.
 Pinto can also serve as the backend supporting a daemonized Starman server
 exposed to the wilds of the internet.  Doing so opens the door to many 
 additional security concerns.  We suggest below some practices we hope
-will serve to minize the risks of doing so.
+will serve to minimize the risks of doing so.
 
 =head1 INSTALLING AS AN APPLICATION
 

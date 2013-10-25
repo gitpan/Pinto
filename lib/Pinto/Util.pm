@@ -21,7 +21,7 @@ use Pinto::Constants qw(:all);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -39,6 +39,7 @@ Readonly our @EXPORT_OK => qw(
     is_blank
     is_not_blank
     is_interactive
+    is_remote_repo
     is_system_prop
     isa_perl
     itis
@@ -453,6 +454,16 @@ sub mask_url_passwords {
 }
 
 #-------------------------------------------------------------------------------
+
+
+sub is_remote_repo {
+    my ($url) = @_;
+
+    return if not $url;
+    return $url =~ m{^https?://}x;
+}
+
+#-------------------------------------------------------------------------------
 1;
 
 __END__
@@ -461,10 +472,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -472,7 +483,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 DESCRIPTION
 
@@ -661,6 +672,10 @@ Returns true if the string contains any non-whitespace characters.
 Masks the parts the string that look like a password embedded in an http or
 https URL. For example, C<http://joe:secret@foo.com> would return 
 C<http://joe:*password*@foo.com>
+
+=head2 is_remote_repo {
+
+Returns true if the argument looks like a URL to a remote repository
 
 =head1 AUTHOR
 

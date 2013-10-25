@@ -15,10 +15,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob Wes
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn Wes
 
 =head1 NAME
 
@@ -26,7 +26,7 @@ Pinto::Manual::Introduction - Why Pinto exists
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 GOALS
 
@@ -133,7 +133,7 @@ prerequisite, it only affects one stack.
 =head2 Pin
 
 Only one version of a package can exist within a stack.  So when you upgrade a
-package on stack, the newer version replaces the older one. But sometimes, you
+package in a stack, the newer version replaces the older one. But sometimes, you
 discover that a newer version of package is incompatible with your
 application, and you want to stay with the older version until you have an
 opportunity to fix the problem.  In those situations, Pinto allows you to

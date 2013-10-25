@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -730,10 +730,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -741,7 +741,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 ATTRIBUTES
 
@@ -819,7 +819,7 @@ spec.
 =head2 get_package( name => $pkg_name )
 
 Returns a L<Pinto:Schema::Result::Package> representing the latest
-version of the package in the repostiory with the given C<$pkg_name>.  
+version of the package in the repository with the given C<$pkg_name>.  
 If there is no such package with that name in the repository, 
 returns nothing.
 
@@ -878,7 +878,7 @@ is not found, then an exception is thrown.
 Adds the distribution archive located on the local filesystem at
 C<$path> to the repository in the author directory for the author with
 C<$id>.  The packages provided by the distribution will be indexed,
-and the prerequisites will be recorded.  If the the C<source> is
+and the prerequisites will be recorded.  If the C<source> is
 specified, it must be the URL to the root of the repository where the
 distribution came from.  Otherwise, the C<source> defaults to
 C<LOCAL>.  Returns a L<Pinto::Schema::Result::Distribution> object

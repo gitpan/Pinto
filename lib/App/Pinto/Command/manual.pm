@@ -11,7 +11,7 @@ use base qw(App::Pinto::Command);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -63,10 +63,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -74,7 +74,7 @@ App::Pinto::Command::manual - show the full manual for a command
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 SYNOPSIS
 
@@ -88,7 +88,7 @@ This command shows the complete user manual for a pinto COMMAND.
 
 The argument to this command is the name of the command for which you would
 like to see the manual.  You can also use the L<help|App::Pinto::Command::help> 
-command to get a breif summary of the command.
+command to get a brief summary of the command.
 
 =head1 AUTHOR
 

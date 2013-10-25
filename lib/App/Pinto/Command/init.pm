@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 use Class::Load;
+use Pinto::Util qw(is_remote_repo);
 
 #-----------------------------------------------------------------------------
 
@@ -13,7 +14,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -49,11 +50,11 @@ sub execute {
 
     my $global_opts = $self->app->global_options;
 
-    $global_opts->{root} ||= $ENV{PINTO_REPOSITORY_ROOT}
-        || die "Must specify a repository root directory\n";
+    die "Must specify a repository root directory\n"
+        unless $global_opts->{root} ||= $ENV{PINTO_REPOSITORY_ROOT};
 
-    $global_opts->{root} =~ m{^https?://}x
-        && die "Cannot create remote repositories\n";
+    die "Cannot create remote repositories\n"
+        if is_remote_repo( $global_opts->{root} );
 
     # Combine repeatable "source" options into one space-delimited "sources" option.
     # TODO: Use a config file format that allows multiple values per key (MVP perhaps?).
@@ -92,10 +93,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -103,7 +104,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 SYNOPSIS
 

@@ -10,7 +10,7 @@ use Router::Simple;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ sub route {
     # HACK: Plack-1.02 calls URI::Escape::uri_escape() with arguments
     # that inadvertently cause $_ to be compiled into a regex.  This
     # will emit warning if $_ is undef, or may blow up if it contains
-    # certains stuff.  To avoid this, just make sure $_ is empty for
+    # certain stuff.  To avoid this, just make sure $_ is empty for
     # now.  A patch has been sent to Miyagawa.
     local $_ = '';
 
@@ -73,10 +73,10 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob responder
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn responder
 
 =head1 NAME
 
@@ -84,7 +84,7 @@ Pinto::Server::Router - Routes server requests
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 METHODS
 

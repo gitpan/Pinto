@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.090'; # VERSION
+our $VERSION = '0.091'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -141,11 +141,11 @@ __END__
 
 =encoding utf-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Voss Jeff Karen Etheridge Michael G.
-Schwern Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang
-Kinkeldei Yanick Champoux Boris hesco popl Däppen Cory G Watson Glenn
-Fowler Jakob cpan testmatrix url annocpan anno bugtracker rt cpants
-kwalitee diff irc mailto metadata placeholders metacpan
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn cpan testmatrix url annocpan anno bugtracker rt
+cpants kwalitee diff irc mailto metadata placeholders metacpan
 
 =head1 NAME
 
@@ -153,7 +153,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.090
+version 0.091
 
 =head1 SYNOPSIS
 
@@ -190,7 +190,7 @@ one stack for development, one for production, one for feature-xyz,
 and so on.  You can also branch and merge stacks to experiment with
 new dependencies or upgrades.
 
-=item * Pinto helps manage incompatibilies between dependencies
+=item * Pinto helps manage incompatibles between dependencies
 
 Sometimes, you discover that a new version of a dependency is
 incompatible with your application.  Pinto allows you to "pin" a
@@ -258,7 +258,7 @@ the culprit, but Pinto expects you to be accountable for your actions.
 
 PAUSE requires authors to authenticate themselves before they can
 upload or remove modules.  Pinto does not require authentication, so
-any user with sufficient file permission can potentialy change the
+any user with sufficient file permission can potentially change the
 repository.  However L<pintod> does support HTTP authentication, which
 gives you some control over access to a remote repository.
 
@@ -377,11 +377,15 @@ BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
 
 =item *
 
-Boris Däppen <boris_daeppen@bluewin.ch>
+Boris Däppen <bdaeppen.perl@gmail.com>
 
 =item *
 
 Cory G Watson <gphat@onemogin.com>
+
+=item *
+
+David Steinbrunner <dsteinbrunner@pobox.com>
 
 =item *
 
@@ -393,15 +397,7 @@ Jakob Voss <jakob@nichtich.de>
 
 =item *
 
-Jeff <jeff@callahan.local>
-
-=item *
-
 Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-=item *
-
-Jeffrey Thalhammer <jeff@imaginative-software.com>
 
 =item *
 

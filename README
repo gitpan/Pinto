@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.090
+    version 0.091
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -35,7 +35,7 @@ FEATURES
         and so on. You can also branch and merge stacks to experiment with
         new dependencies or upgrades.
 
-    *   Pinto helps manage incompatibilies between dependencies
+    *   Pinto helps manage incompatibles between dependencies
 
         Sometimes, you discover that a new version of a dependency is
         incompatible with your application. Pinto allows you to "pin" a
@@ -100,7 +100,7 @@ Pinto vs PAUSE
 
         PAUSE requires authors to authenticate themselves before they can
         upload or remove modules. Pinto does not require authentication, so
-        any user with sufficient file permission can potentialy change the
+        any user with sufficient file permission can potentially change the
         repository. However pintod does support HTTP authentication, which
         gives you some control over access to a remote repository.
 
@@ -191,19 +191,17 @@ SUPPORT
 CONTRIBUTORS
     *   BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
 
-    *   Boris D�ppen <boris_daeppen@bluewin.ch>
+    *   Boris D�ppen <bdaeppen.perl@gmail.com>
 
     *   Cory G Watson <gphat@onemogin.com>
+
+    *   David Steinbrunner <dsteinbrunner@pobox.com>
 
     *   Glenn Fowler <cebjyre@cpan.org>
 
     *   Jakob Voss <jakob@nichtich.de>
 
-    *   Jeff <jeff@callahan.local>
-
     *   Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
-
-    *   Jeffrey Thalhammer <jeff@imaginative-software.com>
 
     *   Karen Etheridge <ether@cpan.org>
 
