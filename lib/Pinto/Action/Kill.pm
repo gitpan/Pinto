@@ -11,7 +11,7 @@ use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.091'; # VERSION
+our $VERSION = '0.092'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ Pinto::Action::Kill - Permanently delete a stack
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 AUTHOR
 

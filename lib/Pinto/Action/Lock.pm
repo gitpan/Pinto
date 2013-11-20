@@ -10,7 +10,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.091'; # VERSION
+our $VERSION = '0.092'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ Pinto::Action::Lock - Lock a stack to prevent future changes
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 AUTHOR
 

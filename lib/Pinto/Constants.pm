@@ -11,7 +11,7 @@ use base 'Exporter';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.091'; # VERSION
+our $VERSION = '0.092'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -90,8 +90,8 @@ Readonly our $PINTO_STACK_NAME_ALL => '%';
 
 #------------------------------------------------------------------------------
 
-Readonly my $PINTO_ALPHANUMERIC_REGEX     => qr{^ [a-zA-Z0-9-_]+ $}x;
-Readonly my $PINTO_HEXADECIMAL_UUID_REGEX => qr{^ [a-f0-9-]+     $}x;
+Readonly my $PINTO_ALPHANUMERIC_REGEX     => qr{^ [a-zA-Z0-9-._]+ $}x;
+Readonly my $PINTO_HEXADECIMAL_UUID_REGEX => qr{^ [a-f0-9-]+      $}x;
 
 Readonly our $PINTO_AUTHOR_REGEX        => qr/^ [A-Z]{2} [-A-Z0-9]* $/x;
 Readonly our $PINTO_USERNAME_REGEX      => $PINTO_ALPHANUMERIC_REGEX;
@@ -123,7 +123,7 @@ Pinto::Constants - Constants used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use Pinto::Util qw(is_remote_repo);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.091'; # VERSION
+our $VERSION = '0.092'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.091
+version 0.092
 
 =head1 SYNOPSIS
 
