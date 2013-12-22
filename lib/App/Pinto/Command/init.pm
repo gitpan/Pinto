@@ -14,7 +14,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,6 +24,7 @@ sub opt_spec {
     return (
         [ 'description=s'             => 'Description of the initial stack' ],
         [ 'no-default'                => 'Do not mark the initial stack as the default' ],
+        [ 'recurse!'                  => 'Default recursive behavior (negatable)' ],
         [ 'source=s@'                 => 'URL of upstream repository (repeatable)' ],
         [ 'target-perl-version|tpv=s' => 'Default perl version for new stacks' ],
     );
@@ -91,11 +92,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -104,7 +105,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 SYNOPSIS
 
@@ -139,8 +140,18 @@ Do not mark the initial stack as the default stack.
 
 If you choose not to mark the default stack, then you'll be required
 to specify the C<--stack> option for most commands.  You can always
-mark (or unmark) the default stack by at any time by using the
+mark (or unmark) the default stack at any time by using the
 L<default|App::Pinto::Command::default> command.
+
+=item --recurse
+
+=item --no-recurse
+
+Sets the default recursion behavior for the L<pull|App::Pinto::Command::pull> 
+add L<add|App::Pinto::Command::add> commands.  C<--recurse> means that commands 
+will be recursive by default.  C<--no-recurse> means commands will not be 
+recursive.  If you do not specify either of these, it defaults to being 
+recursive.  However, each command can always override this default.
 
 =item --source=URL
 

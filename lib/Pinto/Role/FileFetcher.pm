@@ -13,7 +13,7 @@ use Pinto::Util qw(itis debug mtime throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #------------------------------------------------------------------------------
 # Attributes
@@ -124,7 +124,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer
 
@@ -134,7 +134,7 @@ Pinto::Role::FileFetcher - Something that fetches remote files
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 METHODS
 

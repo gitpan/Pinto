@@ -11,7 +11,7 @@ use HTTP::Date ();
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer
 
@@ -91,7 +91,7 @@ Pinto::Server::Responder::File - Responder for static files
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 METHODS
 

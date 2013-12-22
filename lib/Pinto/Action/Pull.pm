@@ -14,7 +14,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -97,11 +97,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -110,7 +110,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 AUTHOR
 

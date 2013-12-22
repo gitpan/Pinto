@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ sub opt_spec {
         [ 'dry-run'                           => 'Do not commit any changes' ],
         [ 'message|m=s'                       => 'Message to describe the change' ],
         [ 'no-fail'                           => 'Do not fail when there is an error' ],
-        [ 'no-recurse|n'                      => 'Do not recursively pull prereqs' ],
+        [ 'recurse!'                          => 'Recursively pull prereqs (negatable)' ],
         [ 'pin'                               => 'Pin the packages to the stack' ],
         [ 'stack|s=s'                         => 'Put packages into this stack' ],
         [ 'use-default-message|M'             => 'Use the generated message' ],
@@ -47,11 +47,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn norecurse
 
 =head1 NAME
@@ -60,7 +60,7 @@ App::Pinto::Command::pull - pull archives from upstream repositories
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 SYNOPSIS
 
@@ -129,12 +129,14 @@ a repository and see which ones are problematic.  Once you've fixed
 the broken ones, you can throw the whole list at the repository
 again.
 
+=item --recurse
+
 =item --no-recurse
 
-=item -n
-
-Do not recursively pull any distributions required to satisfy
-prerequisites for the targets.
+Recursively pull any distributions required to satisfy prerequisites
+for the targets.  The default value for this option can be configured
+in the F<pinto.ini> configuration file for the repository (it is usually
+set to 1).  To disable recursion, use C<--no-recurse>.
 
 =item --message=TEXT
 

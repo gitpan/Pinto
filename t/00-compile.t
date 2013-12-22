@@ -1,9 +1,10 @@
+use 5.006;
 use strict;
 use warnings;
 
-# this test was generated with Dist::Zilla::Plugin::Test::Compile 2.037
+# this test was generated with Dist::Zilla::Plugin::Test::Compile 2.039
 
-use Test::More  tests => 118 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+use Test::More  tests => 117 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 
 
@@ -69,7 +70,6 @@ my @module_files = (
     'Pinto/Chrome.pm',
     'Pinto/Chrome/Net.pm',
     'Pinto/Chrome/Term.pm',
-    'Pinto/CommitMessage.pm',
     'Pinto/Config.pm',
     'Pinto/Constants.pm',
     'Pinto/Database.pm',
@@ -142,11 +142,12 @@ use File::Spec;
 use IPC::Open3;
 use IO::Handle;
 
+open my $stdin, '<', File::Spec->devnull or die "can't open devnull: $!";
+
 my @warnings;
 for my $lib (@module_files)
 {
     # see L<perlfaq8/How can I capture STDERR from an external command?>
-    open my $stdin, '<', File::Spec->devnull or die "can't open devnull: $!";
     my $stderr = IO::Handle->new;
 
     my $pid = open3($stdin, '>&STDERR', $stderr, $^X, $inc_switch, '-e', "require q[$lib]");
@@ -170,7 +171,6 @@ foreach my $file (@scripts)
 
     my @flags = $1 ? split(/\s+/, $1) : ();
 
-    open my $stdin, '<', File::Spec->devnull or die "can't open devnull: $!";
     my $stderr = IO::Handle->new;
 
     my $pid = open3($stdin, '>&STDERR', $stderr, $^X, $inc_switch, @flags, '-c', $file);

@@ -19,7 +19,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.092",
+  "dist_version" => "0.093",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -147,22 +147,46 @@ my %module_build_args = (
     "Test::More" => 0,
     "Test::TCP" => 0,
     "Test::Warn" => 0,
-    "lib" => 0
+    "lib" => 0,
+    "perl" => "5.008"
   }
 );
 
 
+my %fallback_build_requires = (
+  "Apache::Htpasswd" => 0,
+  "Capture::Tiny" => 0,
+  "English" => 0,
+  "ExtUtils::MakeMaker" => 0,
+  "File::Spec" => 0,
+  "File::Spec::Functions" => 0,
+  "File::Temp" => 0,
+  "FindBin" => 0,
+  "HTTP::Body" => 0,
+  "HTTP::Request" => 0,
+  "HTTP::Response" => 0,
+  "HTTP::Server::PSGI" => 0,
+  "IO::Handle" => 0,
+  "IPC::Open3" => 0,
+  "Module::Build" => "0.4005",
+  "Module::Build::CleanInstall" => "0.05",
+  "Module::Faker::Dist" => "0.014",
+  "Plack::Test" => 0,
+  "Test::Builder::Module" => 0,
+  "Test::Exception" => 0,
+  "Test::File" => 0,
+  "Test::LWP::UserAgent" => "0.018",
+  "Test::More" => 0,
+  "Test::TCP" => 0,
+  "Test::Warn" => 0,
+  "lib" => 0,
+  "perl" => "5.008"
+);
+
+
 unless ( eval { Module::Build->VERSION(0.4004) } ) {
-  my $tr = delete $module_build_args{test_requires};
-  my $br = $module_build_args{build_requires};
-  for my $mod ( keys %$tr ) {
-    if ( exists $br->{$mod} ) {
-      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
-    }
-    else {
-      $br->{$mod} = $tr->{$mod};
-    }
-  }
+  delete $module_build_args{test_requires};
+  $module_build_args{build_requires} = \%fallback_build_requires;
 }
 
 my $build = Pinto::Module::Build->new(%module_build_args);

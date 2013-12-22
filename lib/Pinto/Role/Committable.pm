@@ -7,15 +7,15 @@ use MooseX::Types::Moose qw(Bool Str);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Try::Tiny;
+use List::MoreUtils qw(uniq);
 
-use Pinto::CommitMessage;
 use Pinto::Constants qw($PINTO_LOCK_TYPE_EXCLUSIVE);
 use Pinto::Types qw(StackName StackDefault StackObject);
 use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -125,14 +125,9 @@ sub compose_message {
     return $title
         if not is_interactive;
 
-    my $cm = Pinto::CommitMessage->new(
-        title => $title,
-        stack => $stack,
-        diff  => $diff
-    );
-
-    my $message = $self->chrome->edit( $cm->to_string );
-    $message =~ s/^ [#] .* $//gmsx;    # Strip comments
+    my $cm = $self->generate_message_template($title, $stack, $diff);
+    my $message = $self->chrome->edit( $cm );
+    $message =~ s/^ [#] .* $//gmsx; # Strip comments
 
     throw 'Aborting due to empty commit message' if is_blank($message);
 
@@ -146,9 +141,37 @@ sub generate_message_title {
 
     my $class    = ref $self;
     my ($action) = $class =~ m/ ( [^:]* ) $/x;
-    my $title    = "$action " . join( ', ', @items ) . ( $extra ? " $extra" : '' );
+    my $title    = "$action " . join( ', ', uniq(sort @items) ) . ( $extra ? " $extra" : '' );
 
     return $title;
+}
+
+#------------------------------------------------------------------------------
+
+sub generate_message_template {
+    my ( $self, $title, $stack, $diff ) = @_;
+
+    # Prepend "#" to each line of the diff,
+    # so they are treated as comments.
+    $diff =~ s/^/# /gm;
+
+    my $msg = <<"END_MESSAGE";
+$title
+
+
+#-------------------------------------------------------------------------------
+# Please edit or amend the message above as you see fit.  The first line of the 
+# message will be used as the title.  Any line that starts with a "#" will be 
+# ignored.  To abort the commit, delete the entire message above, save the file, 
+# and close the editor. 
+#
+# Changes to be committed to stack $stack:
+#
+$diff
+END_MESSAGE
+
+    chomp $msg;
+    return $msg;
 }
 
 #------------------------------------------------------------------------------
@@ -158,11 +181,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -171,7 +194,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 AUTHOR
 

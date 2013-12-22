@@ -9,13 +9,14 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Term::ANSIColor;
 use Term::EditorEdit;
+use File::Which qw(which);
 
 use Pinto::Types qw(Io ANSIColorSet);
 use Pinto::Util qw(user_colors itis throw is_interactive);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -145,7 +146,8 @@ sub should_render_progress {
 sub edit {
     my ( $self, $document ) = @_;
 
-    local $ENV{VISUAL} = $ENV{PINTO_EDITOR} if $ENV{PINTO_EDITOR};
+    local $ENV{VISUAL} = $self->find_editor
+        or throw 'Unable to find an editor.  Please set PINTO_EDITOR';
 
     # If this command is reading input from a pipe or file, then
     # STDIN will not be connected to a terminal.  This causes vim
@@ -190,6 +192,25 @@ sub get_color {
 
 #-----------------------------------------------------------------------------
 
+sub find_editor {
+    my ($self) = @_;
+
+    # Try unsing environment variables first
+    for my $env_var (qw(PINTO_EDITOR VISUAL EDITOR)) {
+        return $ENV{$env_var} if $ENV{$env_var};
+    }
+
+    # Then try typical editor commands
+    for my $cmd (qw(nano pico vi)) {
+        my $found_cmd = which($cmd);
+        return $found_cmd if $found_cmd;
+    }
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
 my %color_map = ( warning => 1, error => 2 );
 while ( my ( $level, $color ) = each %color_map ) {
     around $level => sub {
@@ -211,11 +232,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -224,7 +245,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 AUTHOR
 

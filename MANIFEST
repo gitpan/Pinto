@@ -84,7 +84,6 @@ lib/Pinto/ArchiveUnpacker.pm
 lib/Pinto/Chrome.pm
 lib/Pinto/Chrome/Net.pm
 lib/Pinto/Chrome/Term.pm
-lib/Pinto/CommitMessage.pm
 lib/Pinto/Config.pm
 lib/Pinto/Constants.pm
 lib/Pinto/Database.pm

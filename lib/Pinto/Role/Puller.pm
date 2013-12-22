@@ -10,7 +10,7 @@ use Pinto::Util qw(throw);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -18,10 +18,11 @@ with qw( Pinto::Role::Plated );
 
 #-----------------------------------------------------------------------------
 
-has no_recurse => (
+has recurse => (
     is      => 'ro',
     isa     => Bool,
-    default => 0,
+    default => sub { shift->stack->repo->config->recurse },
+    lazy    => 1,
 );
 
 has cascade => (
@@ -80,7 +81,7 @@ sub pull {
     }
 
     $dist->register( stack => $stack, pin => $self->pin );
-    $self->recurse( start => $dist ) unless $self->no_recurse;
+    $self->do_recursion( start => $dist ) if $self->recurse;
 
     return $dist;
 }
@@ -114,7 +115,7 @@ sub find {
 
 #-----------------------------------------------------------------------------
 
-sub recurse {
+sub do_recursion {
     my ( $self, %args ) = @_;
 
     my $dist  = $args{start};
@@ -165,11 +166,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -178,7 +179,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 AUTHOR
 

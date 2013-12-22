@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.092'; # VERSION
+our $VERSION = '0.093'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -216,7 +216,6 @@ sub rename_filesystem {
     throw "Directory $orig_dir does not exist" 
         if not -e $orig_dir;
 
-    $DB::single = 1;
     my $new_dir = $self->repo->config->stacks_dir->subdir($new_name);
     throw "Directory $new_dir already exists" 
         if -e $new_dir && (lc $new_dir ne lc $orig_dir);
@@ -737,11 +736,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl DÃ¤ppen Cory G Watson
 David Steinbrunner Glenn
 
 =head1 NAME
@@ -750,7 +749,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.092
+version 0.093
 
 =head1 METHODS
 
