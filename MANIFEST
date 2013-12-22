@@ -47,6 +47,7 @@ lib/App/Pinto/Command/props.pm
 lib/App/Pinto/Command/pull.pm
 lib/App/Pinto/Command/register.pm
 lib/App/Pinto/Command/rename.pm
+lib/App/Pinto/Command/roots.pm
 lib/App/Pinto/Command/stacks.pm
 lib/App/Pinto/Command/statistics.pm
 lib/App/Pinto/Command/thanks.pm
@@ -74,6 +75,7 @@ lib/Pinto/Action/Props.pm
 lib/Pinto/Action/Pull.pm
 lib/Pinto/Action/Register.pm
 lib/Pinto/Action/Rename.pm
+lib/Pinto/Action/Roots.pm
 lib/Pinto/Action/Stacks.pm
 lib/Pinto/Action/Statistics.pm
 lib/Pinto/Action/Unlock.pm
@@ -173,13 +175,13 @@ t/02-bowels/42-install.t
 t/02-bowels/43-install-and-pull.t
 t/02-bowels/50-diff.t
 t/02-bowels/51-diff-more.t
+t/02-bowels/53-roots.t
 t/02-bowels/60-dryrun.t
 t/02-bowels/61-nofail.t
 t/02-bowels/62-commit.t
 t/02-bowels/63-prereq-circular.t
 t/02-bowels/63-prereq.t
 t/02-bowels/64-metadata.t
-t/02-bowels/65-purity.t
 t/02-bowels/70-stack-copy.t
 t/02-bowels/71-stack-kill.t
 t/02-bowels/72-stack-rename.t

@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -151,31 +151,40 @@ before is_default => sub {
 sub get_distribution {
     my ( $self, %args ) = @_;
 
-    if ( my $spec = $args{spec} ) {
-        if ( itis( $spec, 'Pinto::DistributionSpec' ) ) {
 
-            my $attrs = { prefetch => [qw(distribution)], distinct => 1 };
-            my $where = {
-                'distribution.author'  => $spec->author,
-                'distribution.archive' => $spec->archive
-            };
+    my $cache = $args{cache};
+    my $spec  = $args{spec} or throw 'Invalid arguments';
+    return $cache->{$spec} if $cache && exists $cache->{$spec};
 
-            my $reg = $self->head->search_related( registrations => $where, $attrs )->first;
-            return if not defined $reg;
 
-            return $reg->distribution;
-        }
-        elsif ( itis( $spec, 'Pinto::PackageSpec' ) ) {
+    if ( itis( $spec, 'Pinto::DistributionSpec' ) ) {
 
-            my $attrs = { prefetch     => [qw(package distribution)] };
-            my $where = { package_name => $spec->name };
+        my $attrs = { prefetch => [qw(distribution)], distinct => 1 };
+        my $where = {
+            'distribution.author'  => $spec->author,
+            'distribution.archive' => $spec->archive
+        };
 
-            my $reg = $self->head->find_related( registrations => $where, $attrs );
-            return if not defined $reg;
+        my $reg = $self->head->search_related( registrations => $where, $attrs )->first;
+        return if not defined $reg;
 
-            return if $reg->package->version < $spec->version;
-            return $reg->distribution;
-        }
+        my $dist = $reg->distribution;
+        $cache->{$spec} = $dist if $cache;
+        return $dist;;
+    }
+    elsif ( itis( $spec, 'Pinto::PackageSpec' ) ) {
+
+        my $attrs = { prefetch     => [qw(package distribution)] };
+        my $where = { package_name => $spec->name };
+
+        my $reg = $self->head->find_related( registrations => $where, $attrs );
+        return if not defined $reg;
+
+        return if $reg->package->version < $spec->version;
+
+        my $dist = $reg->distribution;
+        $cache->{$spec} = $dist if $cache;
+        return $dist;
     }
 
     throw 'Invalid arguments';
@@ -654,15 +663,6 @@ sub default_properties {
 
 #-------------------------------------------------------------------------------
 
-sub prohibits_partial_distributions {
-    my ($self) = @_;
-
-    return 1 if $self->get_property('prohibit_partial_distributions');
-    return 0;
-}
-
-#-------------------------------------------------------------------------------
-
 sub numeric_compare {
     my ( $stack_a, $stack_b ) = @_;
 
@@ -749,7 +749,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 METHODS
 
@@ -765,6 +765,10 @@ this stack.
 Given a L<Pinto::DistributionSpec>, returns the L<Pinto::Schema::Result::Distribution>
 from this stack with the same author id and archive attributes as the spec.  
 Returns nothing if no such distribution is found in this stack.
+
+You can also pass a C<cache> argument that must be a reference to a hash.  It will
+be used to cache results so that repeated calls to C<get_distribution> require
+fewer trips to the database.  It is up to you to decide when to expire the cache.
 
 =head1 NAME
 

@@ -1,11 +1,13 @@
-# ABSTRACT: Lock a stack to prevent future changes
+# ABSTRACT: Show the roots of a stack
 
-package Pinto::Action::Lock;
+package Pinto::Action::Roots;
 
 use Moose;
 use MooseX::StrictConstructor;
+use MooseX::Types::Moose qw(Str);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
+use Pinto::Util qw(whine);
 use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
@@ -18,14 +20,17 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::Transactional );
-
-#------------------------------------------------------------------------------
-
 has stack => (
     is      => 'ro',
     isa     => StackName | StackDefault | StackObject,
     default => undef,
+);
+
+has format => (
+    is      => 'ro',
+    isa     => Str,
+    default => '%a/%f',
+    lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -33,16 +38,27 @@ has stack => (
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->repo->get_stack( $self->stack );
+    my $stack = $self->repo->get_stack($self->stack);
+    my @dists = $stack->head->distributions->all;
+    my %is_prereq_dist;
+    my %cache;
 
-    if ( $stack->is_locked ) {
-        $self->warning("Stack $stack is already locked");
-        return $self->result;
+   # We could probably apply a bit of graph theory here and
+   # use a faster algorithm for finding the roots of a DAG. 
+
+    for my $dist ( @dists ) {
+        for my $prereq ($dist->prerequisites) {
+            my %args = (spec => $prereq->as_spec, cache => \%cache);
+            next unless my $prereq_dist = $stack->get_distribution(%args);
+            $is_prereq_dist{$prereq_dist}++;
+        }
     }
 
-    $stack->lock;
-    return $self->result->changed;
-}
+    my @roots = grep { ! $is_prereq_dist{$_} } @dists;
+    $self->show( $_->to_string( $self->format ) ) for @roots;
+
+    return $self->result;
+} 
 
 #------------------------------------------------------------------------------
 
@@ -65,7 +81,7 @@ David Steinbrunner Glenn
 
 =head1 NAME
 
-Pinto::Action::Lock - Lock a stack to prevent future changes
+Pinto::Action::Roots - Show the roots of a stack
 
 =head1 VERSION
 

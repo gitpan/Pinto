@@ -1,6 +1,6 @@
-package App::Pinto::Command::list;
+package App::Pinto::Command::roots;
 
-# ABSTRACT: show the packages in a stack
+# ABSTRACT: show the roots of a stack
 
 use strict;
 use warnings;
@@ -17,7 +17,7 @@ our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub command_names { return qw( list ls ) }
+sub command_names { return qw( roots ) }
 
 #------------------------------------------------------------------------------
 
@@ -25,12 +25,8 @@ sub opt_spec {
     my ( $self, $app ) = @_;
 
     return (
-        [ 'author|A=s'        => 'Limit to distributions by author' ],
-        [ 'distributions|D=s' => 'Limit to matching distribution names' ],
-        [ 'packages|P=s'      => 'Limit to matching package names' ],
-        [ 'pinned!'           => 'Limit to pinned packages (negatable)' ],
         [ 'format=s'          => 'Format specification (See POD for details)' ],
-        [ 'stack|s=s'         => 'List contents of this stack' ],
+        [ 'stack|s=s'         => 'Show roots of this stack' ],
     );
 }
 
@@ -68,7 +64,7 @@ David Steinbrunner Glenn
 
 =head1 NAME
 
-App::Pinto::Command::list - show the packages in a stack
+App::Pinto::Command::roots - show the roots of a stack
 
 =head1 VERSION
 
@@ -76,17 +72,16 @@ version 0.094
 
 =head1 SYNOPSIS
 
-  pinto --root=REPOSITORY_ROOT list [OPTIONS]
+  pinto --root=REPOSITORY_ROOT roots [OPTIONS]
 
 =head1 DESCRIPTION
 
-This command lists the distributions and packages that are registered
-on a stack.  You can format the output to see the specific bits of 
-information that you want.
+!! THIS COMMAND IS EXPERIMENTAL !!
 
-For a large repository, it can take a long time to list everything.
-So consider using the C<--packages> or C<--distributions> options
-to narrow the scope.  
+This command lists the distributions that are the roots of the dependency
+tree that includes all the distributions in the stack.  In other words, it 
+tells you which distributions or packages you would need to install from 
+this stack to get all the other distribution in the stack.
 
 =head1 COMMAND ARGUMENTS
 
@@ -105,26 +100,9 @@ stack that is currently marked as the default stack.
 
 =over 4
 
-=item --author AUTHOR
-
-=item -A AUTHOR
-
-Limit the listing to records where the distribution author is AUTHOR.
-Note this is an exact match, not a pattern match.  However, it is
-not case sensitive.
-
-=item --distributions PATTERN
-
-=item -D PATTERN
-
-Limit the listing to records where the distribution archive name
-matches C<PATTERN>.  Note that C<PATTERN> is just a plain string, not
-a regular expression.  The C<PATTERN> will match if it appears
-anywhere in the distribution archive name.
-
 =item --format FORMAT_SPECIFICATION
 
-Format of the output using C<printf>-style placeholders.  Valid
+Format of the output of each record using C<printf>-style placeholders.  Valid 
 placeholders are:
 
   Placeholder    Meaning
@@ -136,6 +114,7 @@ placeholders are:
   %a             Distribution author
   %f             Distribution archive filename
   %m             Distribution maturity:          (d) = developer, (r) = release
+  %M             Distribution main module
   %h             Distribution index path [1]
   %H             Distribution physical path [2]
   %s             Distribution origin:            (l) = local,     (f) = foreign
@@ -154,34 +133,42 @@ placeholders are:
        and is relative to the root directory of the repository.
 
 You can also specify the minimum field widths and left or right
-justification, using the usual notation.  For example, the default
-format looks something like this:
-
-  %m%s %-38n %12v %a/%f\n
-
-=item --packages PATTERN
-
-=item -P PATTERN
-
-Limit the listing to records where the package name matches
-C<PATTERN>.  Note that C<PATTERN> is just a plain string, not a
-regular expression.  The C<PATTERN> will match if it appears anywhere
-in the package name.
-
-=item --pinned
-
-Limit the listing to records for packages that are pinned.
+justification, using the usual notation.  The default format is C<%a/%f>.
 
 =item --stack NAME
 
 =item -s NAME
 
-List the contents of the stack with the given NAME.  Defaults to the
+List the roots of the stack with the given NAME.  Defaults to the
 name of whichever stack is currently marked as the default stack.  Use
 the L<stacks|App::Pinto::Command::stacks> command to see the
 stacks in the repository.
 
 =back
+
+=head1 EXAMPLES
+
+Install all modules in the stack in one shot:
+
+  pinto -r file:///myrepo roots | cpanm --mirror-only --mirror file:///myrepo
+
+Generate a basic F<cpanfile> that would install all modules in the stack:
+
+  pinto -r file:///myrepo roots -f 'requires q{%M};' > cpanfile
+
+=head1 CAVEATS
+
+This list of roots produced by this command is not always correct.  Many 
+Perl distributions use dynamic configuration so you can't truly know 
+what distributions need to be installed until you actually try and 
+install them.  Pinto relies entirely on the static META files to determine
+prerequisites.
+
+But in most cases, this list is pretty accurate.  When it is wrong, it
+typically includes too many distributions rather than too few.  At best,
+this will have no impact because your installer will have already installed
+them as prerequisites.  At worst, you may be installing a distribution that
+you don't really need.
 
 =head1 AUTHOR
 

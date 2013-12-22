@@ -14,7 +14,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 SYNOPSIS
 
@@ -121,8 +121,8 @@ the new repository using the command line options listed below.
 =head1 COMMAND ARGUMENTS
 
 The argument is the name of the initial stack.  Stack names must be 
-alphanumeric plus hyphens and underscores, and are not case-sensitive.  
-Defaults to C<master>.
+alphanumeric plus hyphens, underscores and periods, and are not 
+case-sensitive.  Defaults to C<master>.
 
 =head1 COMMAND OPTIONS
 

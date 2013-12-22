@@ -13,7 +13,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ Pinto::DistributionSpec - Specifies a distribution by author and path fragments
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 METHODS
 

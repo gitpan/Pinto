@@ -26,7 +26,7 @@ Pinto::Manual::Installing - Tips for installing Pinto
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 SYNOPSIS
 

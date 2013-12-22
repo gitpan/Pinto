@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ App::Pinto::Command::copy - create a new stack by copying another
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 SYNOPSIS
 
@@ -90,8 +90,8 @@ a stack's properties after it has been created.
 =head1 COMMAND ARGUMENTS
 
 The two required arguments are the name of the source and target
-stacks.  Stack names must be alphanumeric plus hyphens and underscores,
-and are not case-sensitive.
+stacks.  Stack names must be alphanumeric plus hyphens, underscores,
+and periods, and are not case-sensitive.
 
 =head1 COMMAND OPTIONS
 

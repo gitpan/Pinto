@@ -73,7 +73,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -148,6 +148,21 @@ sub as_spec {
         name    => $self->name,
         version => $self->version
     );
+}
+
+
+#------------------------------------------------------------------------------
+
+sub is_simile {
+    my ($self) = @_;
+
+    my $name = $self->name;
+    my $file = $self->file;
+
+    $file =~ s/\//::/g;
+    $file =~ s/\.pm$//;
+
+    return $file =~ m/$name $/x ? 1 : 0;
 }
 
 #------------------------------------------------------------------------------
@@ -255,7 +270,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 NAME
 

@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.093'; # VERSION
+our $VERSION = '0.094'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -155,17 +155,7 @@ sub register {
         if $incumbent_pkg > $pkg;
 
 
-      if ( $stack->prohibits_partial_distributions ) {
-        # If the stack is pure, then completely unregister all the
-        # packages in the incumbent distribution, so there is no overlap
-        $incumbent->distribution->unregister(stack => $stack);
-      }
-      else {
-        # Otherwise, just delete this one registration.  The stack may
-        # end up with some packages from one dist and some from another
-        $incumbent->delete;
-      }
-
+      $incumbent->distribution->unregister(stack => $stack);
       $pkg->register(stack => $stack, pin => $pin);
       $did_register++;
     }
@@ -359,6 +349,37 @@ sub registered_stacks {
 
 #------------------------------------------------------------------------------
 
+sub main_module {
+    my ($self) = @_;
+
+    # We start by sorting packages by the length of their name.  Most of
+    # the time, the shorter one is more likely to be the main module name.
+    my @pkgs = sort { length $a->name <=> length $b->name } $self->packages;
+
+    # Transform the dist name into a package name
+    my $dist_name = $self->name;
+    $dist_name =~ s/-/::/g;
+
+    # First, look for a package name that matches the dist name
+    for my $pkg (@pkgs) {
+        return $pkg->name if $pkg->name eq $dist_name;
+    }
+
+    # Then, look for a package name that matches it's file name
+    for my $pkg (@pkgs) {
+        return $pkg->name if $pkg->is_simile;
+    }
+
+    # Then just use the first (i.e. shortest) package name
+    return $pkgs[0]->name if @pkgs;
+
+    # If we get here, then there are no packages, so we just guess
+    whine "Guessing that main module for $self is $dist_name";
+    return $dist_name;
+}
+
+#------------------------------------------------------------------------------
+
 sub package_count {
     my ($self) = @_;
 
@@ -407,6 +428,7 @@ sub to_string {
         'D' => sub { $self->vname },
         'V' => sub { $self->version },
         'm' => sub { $self->is_devel ? 'd' : 'r' },
+        'M' => sub { $self->main_module },
         'h' => sub { $self->path },
         'H' => sub { $self->native_path },
         'f' => sub { $self->archive },
@@ -453,7 +475,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.093
+version 0.094
 
 =head1 NAME
 
