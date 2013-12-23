@@ -16,7 +16,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.094'; # VERSION
+our $VERSION = '0.095'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -230,7 +230,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.094
+version 0.095
 
 =head1 DESCRIPTION
 

@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.094'; # VERSION
+our $VERSION = '0.095'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ App::Pinto::Command::roots - show the roots of a stack
 
 =head1 VERSION
 
-version 0.094
+version 0.095
 
 =head1 SYNOPSIS
 
@@ -150,11 +150,11 @@ stacks in the repository.
 
 Install all modules in the stack in one shot:
 
-  pinto -r file:///myrepo roots | cpanm --mirror-only --mirror file:///myrepo
+  pinto -r /myrepo roots | cpanm --mirror-only --mirror file:///myrepo
 
 Generate a basic F<cpanfile> that would install all modules in the stack:
 
-  pinto -r file:///myrepo roots -f 'requires q{%M};' > cpanfile
+  pinto -r /myrepo roots -f 'requires q{%M};' > cpanfile
 
 =head1 CAVEATS
 

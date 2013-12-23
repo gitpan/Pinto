@@ -11,7 +11,7 @@ use Pinto::Util qw(throw);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.094'; # VERSION
+our $VERSION = '0.095'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ Pinto::SpecFactory - Create Spec objects from strings
 
 =head1 VERSION
 
-version 0.094
+version 0.095
 
 =head1 METHODS
 

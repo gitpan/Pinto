@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.094'; # VERSION
+our $VERSION = '0.095'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -43,10 +43,12 @@ sub execute {
     my %is_prereq_dist;
     my %cache;
 
-   # We could probably apply a bit of graph theory here and
-   # use a faster algorithm for finding the roots of a DAG. 
+    # Algorithm: Visit each distribution and resolve each of its
+    # dependencies to the prerequisite distribution (if it exists).
+    # Any distribution that is a prerequisite cannot be a root.
 
     for my $dist ( @dists ) {
+        next if $is_prereq_dist{$dist};
         for my $prereq ($dist->prerequisites) {
             my %args = (spec => $prereq->as_spec, cache => \%cache);
             next unless my $prereq_dist = $stack->get_distribution(%args);
@@ -54,8 +56,9 @@ sub execute {
         }
     }
 
-    my @roots = grep { ! $is_prereq_dist{$_} } @dists;
-    $self->show( $_->to_string( $self->format ) ) for @roots;
+    my @roots  = grep { ! $is_prereq_dist{$_} } @dists;
+    my @output = sort map { $_->to_string($self->format) } @roots;
+    $self->show($_) for @output;
 
     return $self->result;
 } 
@@ -85,7 +88,7 @@ Pinto::Action::Roots - Show the roots of a stack
 
 =head1 VERSION
 
-version 0.094
+version 0.095
 
 =head1 AUTHOR
 

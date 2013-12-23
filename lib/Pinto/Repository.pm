@@ -24,7 +24,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.094'; # VERSION
+our $VERSION = '0.095'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -694,13 +694,13 @@ sub assert_version_ok {
 sub assert_sanity_ok {
     my ($self) = @_;
 
-    unless ( -e $self->config->db_file
-        && -e $self->config->authors_dir )
-    {
+    my $root_dir = $self->config->root_dir;
 
-        my $root_dir = $self->config->root_dir;
-        throw "Directory $root_dir does not look like a Pinto repository";
-    }
+    throw "Directory $root_dir is not writable by you"
+        unless -r $root_dir;
+
+    throw "Directory $root_dir does not look like a Pinto repository"
+        unless -e $self->config->db_file && -e $self->config->authors_dir;
 
     return $self;
 }
@@ -741,7 +741,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.094
+version 0.095
 
 =head1 ATTRIBUTES
 
