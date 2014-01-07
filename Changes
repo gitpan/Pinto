@@ -1,3 +1,15 @@
+0.096     2014-01-07 10:32:19 America/Los_Angeles
+
+      [ENHANCEMENTS]
+
+      - The exit status of the "list" command will now be non-zero if
+      you specify any search criteria and no matches are found.  This
+      follows the behavior of the Unix "ls" command.
+
+      [BUG FIXES]
+
+      - Now requires Module::CoreList 3.03 or newer.
+
 0.095     2013-12-22 23:38:28 America/Los_Angeles
 
       [BUG FIXES]

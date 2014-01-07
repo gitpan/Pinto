@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.095'; # VERSION
+our $VERSION = '0.096'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ App::Pinto::Command::kill - permanently delete a stack
 
 =head1 VERSION
 
-version 0.095
+version 0.096
 
 =head1 SYNOPSIS
 

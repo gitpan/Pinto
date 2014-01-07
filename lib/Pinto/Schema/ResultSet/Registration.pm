@@ -11,7 +11,7 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.095'; # VERSION
+our $VERSION = '0.096'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ Pinto::Schema::ResultSet::Registration - Common queries for Registrations
 
 =head1 VERSION
 
-version 0.095
+version 0.096
 
 =head1 AUTHOR
 

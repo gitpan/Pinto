@@ -12,7 +12,7 @@ use Pinto::Types qw(AuthorID StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.095'; # VERSION
+our $VERSION = '0.096'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -104,7 +104,9 @@ sub execute {
     # I'm guessing it is because there is a UNIQUE INDEX on package_name
     # in the registration table.
 
+    my $did_match = 0;
     while ( my $reg = $rs->next ) {
+        $did_match++;
         my $string = $reg->to_string( $self->format );
 
         my $color =
@@ -114,6 +116,10 @@ sub execute {
 
         $self->show( $string, { color => $color } );
     }
+
+    # If there are any search criteria and nothing matched,
+    # then the exit status should not be successful.
+    $self->result->failed if keys %$where > 1 && !$did_match;
 
     return $self->result;
 }
@@ -143,7 +149,7 @@ Pinto::Action::List - List the contents of a stack
 
 =head1 VERSION
 
-version 0.095
+version 0.096
 
 =head1 AUTHOR
 
