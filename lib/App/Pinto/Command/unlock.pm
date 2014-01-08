@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ App::Pinto::Command::unlock - mark a stack as writable
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 SYNOPSIS
 

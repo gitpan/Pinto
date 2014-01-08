@@ -11,7 +11,7 @@ use base 'Exporter';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ Pinto::Constants - Constants used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 AUTHOR
 

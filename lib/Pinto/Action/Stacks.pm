@@ -13,7 +13,7 @@ use Pinto::Constants qw(:color);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 AUTHOR
 

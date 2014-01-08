@@ -61,7 +61,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -123,10 +123,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -134,7 +131,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 NAME
 

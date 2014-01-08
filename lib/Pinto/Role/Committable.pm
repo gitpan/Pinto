@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -183,10 +183,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -194,7 +191,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 AUTHOR
 

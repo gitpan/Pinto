@@ -13,7 +13,7 @@ use overload ( q{""} => 'to_string' );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ sub failed {
 
         require Pinto::Exception;
 
-        $reason = Pinto::Exception->new( message => $reason )
+        $reason = Pinto::Exception->new( message => "$reason" )
             if not itis( $reason, 'Pinto::Exception' );
 
         $self->add_exception($reason);
@@ -121,7 +121,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 AUTHOR
 

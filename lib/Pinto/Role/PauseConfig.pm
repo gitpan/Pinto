@@ -12,7 +12,7 @@ use File::HomeDir;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.096'; # VERSION
+our $VERSION = '0.097'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ Pinto::Role::PauseConfig - Something that has a pause config attribute
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 ATTRIBUTES
 

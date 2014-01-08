@@ -15,10 +15,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -26,7 +23,7 @@ Pinto::Manual::Thanks - Thanking the Pinto supporters
 
 =head1 VERSION
 
-version 0.096
+version 0.097
 
 =head1 THANK YOU
 
@@ -58,22 +55,22 @@ generous support, I can continue doing the work I love most.
   Yanick Champoux         Andrey Khozov           Craig Scrivner          
   Gustavo Chaves          Wolfgang Kinkeldei      Li Sen                  
   Peter Chines            Yaroslav Korshak        Michael South           
-  Adam Clarke             Damien Krotkine         Tadeusz Sośnierz        
-  Olav Cleemann           Michael Kröll           Marc St Raymond         
+  Adam Clarke             Damien Krotkine         Tadeusz Sosnierz        
+  Olav Cleemann           Michael Kr\xF6ll           Marc St Raymond         
   Jody Clements           Tom Legrady             Seth Surchin            
   Greg Cole               Felipe Leprevost        Gabor Szabo             
   Montgomery Conner       Hermen Lesscher         Christopher Taranto     
   Tudor Constantin        Vladimir Lettiev        Jan Thorsen             
   Anon Contrib            Carlos Lima             Viacheslav Tykhanovskyi 
   Anonymous Contributor   Nick Logan              A Sinan Unur            
-  Justin Cook             Søren Lund              Bruce Van Allen         
+  Justin Cook             S\xF8ren Lund              Bruce Van Allen         
   Dave Cross              Jim Martinez            Todd Wade               
   Tomasz Czepiel          Naveed Massjouni        Brian Wisti             
   Seth Daniel             Vyacheslav Matyukhin    John Wittkoski          
   Robert Debowski         Gabriel Munoz           William Wolf            
   Gautam Dey              Kamen Naydenov          Chisel Wright           
-  José Diaz Seng          Al Newkirk              Sawyer X                
-  Boris Däppen            T Nishimura             Andy Yates              
+  Jos\xE9 Diaz Seng          Al Newkirk              Sawyer X                
+  Boris D\xE4ppen            T Nishimura             Andy Yates              
   Magnus Enger            Ryan Olson              Doyle Young             
   Hugh Esco               Marco Palma             Marek Zareba            
   Roman F                 Karen Pauley            Kev Zettler             
