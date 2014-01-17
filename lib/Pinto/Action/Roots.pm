@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ sub execute {
     for my $dist ( @dists ) {
         next if $is_prereq_dist{$dist};
         for my $prereq ($dist->prerequisites) {
-            my %args = (spec => $prereq->as_spec, cache => \%cache);
+            my %args = (target => $prereq->as_target, cache => \%cache);
             next unless my $prereq_dist = $stack->get_distribution(%args);
             $is_prereq_dist{$prereq_dist}++;
         }
@@ -77,7 +77,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -85,7 +88,7 @@ Pinto::Action::Roots - Show the roots of a stack
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

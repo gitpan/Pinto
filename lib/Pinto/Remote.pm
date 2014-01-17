@@ -17,11 +17,11 @@ use Pinto::Types qw(Uri);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw(Pinto::Role::Plated);
+with qw(Pinto::Role::Plated Pinto::Role::UserAgent);
 
 #------------------------------------------------------------------------------
 
@@ -41,20 +41,6 @@ has username => (
 has password => (
     is  => 'ro',
     isa => Maybe [Str],
-);
-
-has ua => (
-    is      => 'ro',
-    isa     => 'LWP::UserAgent',
-    default => sub { LWP::UserAgent->new( agent => $_[0]->ua_name, env_proxy => 1 ) },
-    lazy    => 1,
-);
-
-has ua_name => (
-    is      => 'ro',
-    isa     => Str,
-    default => sub { sprintf '%s/%s', ref $_[0], $_[0]->VERSION || '??' },
-    lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -98,7 +84,6 @@ sub run {
         username => $self->username,
         password => $self->password,
         chrome   => $self->chrome,
-        ua       => $self->ua
     );
 
     return $action->execute;
@@ -137,7 +122,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -145,7 +133,7 @@ Pinto::Remote - Interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 SYNOPSIS
 
@@ -164,7 +152,7 @@ on the remote host.
 
 If you are using the L<pinto> application, it will automatically load
 either Pinto or Pinto::Remote depending on whether your repository
-root looks like a local directory path or a remote URL.
+root looks like a local directory path or a remote URI.
 
 =head1 METHODS
 

@@ -7,8 +7,10 @@ use warnings;
 use version;
 use base qw(Exporter);
 
+use URI;
 use Carp;
 use DateTime;
+use File::Temp;
 use Path::Class;
 use Digest::MD5;
 use Digest::SHA;
@@ -18,10 +20,11 @@ use Readonly;
 
 use Pinto::Globals;
 use Pinto::Constants qw(:all);
+use Pinto::Types qw(DiffStyle);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -34,6 +37,7 @@ Readonly our @EXPORT_OK => qw(
     current_username
     debug
     decamelize
+    default_diff_style
     indent_text
     interpolate
     is_blank
@@ -43,12 +47,14 @@ Readonly our @EXPORT_OK => qw(
     is_system_prop
     isa_perl
     itis
+    make_uri
     md5
     mksymlink
     mtime
     parse_dist_path
-    mask_url_passwords
+    mask_uri_passwords
     sha256
+    tempdir
     title_text
     throw
     trim_text
@@ -67,7 +73,7 @@ sub throw {
     my ($error) = @_;
 
     # Rethrowing...
-    die $error if itis( $error, 'Pinto::Exception' );    ## no critic (Carping)
+    $error->throw if itis( $error, 'Pinto::Exception' );
 
     require Pinto::Exception;
     Pinto::Exception->throw( message => "$error" );
@@ -153,9 +159,9 @@ sub parse_dist_path {
 
 
 sub isa_perl {
-    my ($path_or_url) = @_;
+    my ($path_or_uri) = @_;
 
-    return $path_or_url =~ m{ / perl-[\d.]+ \.tar \.(?: gz|bz2 ) $ }mx;
+    return $path_or_uri =~ m{ / perl-[\d.]+ \.tar \.(?: gz|bz2 ) $ }mx;
 }
 
 #-------------------------------------------------------------------------------
@@ -445,22 +451,63 @@ sub is_not_blank {
 #-------------------------------------------------------------------------------
 
 
-sub mask_url_passwords {
-    my ($url) = @_;
+sub mask_uri_passwords {
+    my ($uri) = @_;
 
-    $url =~ s{ (https?://[^:/@]+ :) [^@/]+@}{$1*password*@}gx;
+    $uri =~ s{ (https?://[^:/@]+ :) [^@/]+@}{$1*password*@}gx;
 
-    return $url;
+    return $uri;
 }
 
 #-------------------------------------------------------------------------------
 
 
 sub is_remote_repo {
-    my ($url) = @_;
+    my ($uri) = @_;
 
-    return if not $url;
-    return $url =~ m{^https?://}x;
+    return if not $uri;
+    return $uri =~ m{^https?://}x;
+}
+
+#-------------------------------------------------------------------------------
+
+sub tempdir {
+    
+    return Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
+}
+
+
+#-------------------------------------------------------------------------------
+
+
+sub default_diff_style {
+    
+    if (my $style = $ENV{PINTO_DIFF_STYLE}) {
+
+        throw "PINTO_DIFF_STYLE ($style) is invalid.  Must be one of (@PINTO_DIFF_STYLES)"
+            unless DiffStyle->check($style);
+        
+        return $style;
+    }
+
+    return $PINTO_DIFF_STYLE_CONCISE;
+}
+
+#-------------------------------------------------------------------------------
+
+sub make_uri {
+    my ($it) = @_;
+
+    return $it
+        if itis( $it, 'URI' );
+
+    return URI::file->new( $it->absolute )
+        if itis( $it, 'Path::Class::File' );
+
+    return URI::file->new( file($it)->absolute )
+        if -e $it;
+
+    return URI->new($it);
 }
 
 #-------------------------------------------------------------------------------
@@ -472,7 +519,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -480,7 +530,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 DESCRIPTION
 
@@ -525,15 +575,15 @@ C<$class>.
 
 =head2 parse_dist_path( $path )
 
-Parses a path like the ones you would see in a full URL to a
-distribution in a CPAN repository, or the URL fragment you would see
+Parses a path like the ones you would see in a full URI to a
+distribution in a CPAN repository, or the URI fragment you would see
 in a CPAN index.  Returns the author and file name of the
 distribution.  Subdirectories between the author name and the file
 name are discarded.
 
-=head2 isa_perl( $path_or_url )
+=head2 isa_perl( $path_or_uri )
 
-Return true if C<$path_or_url> appears to point to a release of perl
+Return true if C<$path_or_uri> appears to point to a release of perl
 itself.  This is based on some file naming patterns that I've seen in
 the wild.  It may not be completely accurate.
 
@@ -664,15 +714,15 @@ Returns true if the string is undefined, empty, or contains only whitespace.
 
 Returns true if the string contains any non-whitespace characters.
 
-=head2 mask_url_passwords($string)
+=head2 mask_uri_passwords($string)
 
 Masks the parts the string that look like a password embedded in an http or
-https URL. For example, C<http://joe:secret@foo.com> would return 
+https URI. For example, C<http://joe:secret@foo.com> would return 
 C<http://joe:*password*@foo.com>
 
 =head2 is_remote_repo {
 
-Returns true if the argument looks like a URL to a remote repository
+Returns true if the argument looks like a URI to a remote repository
 
 =head1 AUTHOR
 

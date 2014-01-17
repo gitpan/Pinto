@@ -5,13 +5,13 @@ package Pinto::Constants;
 use strict;
 use warnings;
 
+use URI;
 use Readonly;
-
-use base 'Exporter';
+use Exporter qw(import);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -43,14 +43,25 @@ Readonly our @EXPORT_OK => qw(
     $PINTO_REVISION_ID_REGEX
 
     $PINTO_MINIMUM_CPANM_VERSION
+
+    $PINTO_DIFF_STYLE_CONCISE
+    $PINTO_DIFF_STYLE_DETAILED
+    @PINTO_DIFF_STYLES
+
+    $PINTO_STRATOPAN_CPAN_URI
+    $PINTO_STRATOPAN_LOCATOR_URI
+    $PINTO_BACKPAN_CPAN_URI
+    @PINTO_DEFAULT_SOURCE_URIS
 );
 
 Readonly our %EXPORT_TAGS => (
-    all    => \@EXPORT_OK,
-    color  => [ grep {m/COLOR/x} @EXPORT_OK ],
-    server => [ grep {m/SERVER/x} @EXPORT_OK ],
-    regex  => [ grep {m/REGEX/x} @EXPORT_OK ],
-    lock   => [ grep {m/LOCK/x} @EXPORT_OK ],
+    all        => \@EXPORT_OK,
+    color      => [ grep {m/COLOR/x} @EXPORT_OK ],
+    server     => [ grep {m/SERVER/x} @EXPORT_OK ],
+    regex      => [ grep {m/REGEX/x} @EXPORT_OK ],
+    lock       => [ grep {m/LOCK/x} @EXPORT_OK ],
+    diff       => [ grep {m/DIFF/x} @EXPORT_OK ],
+    stratopan  => [ grep {m/STRATOPAN/x} @EXPORT_OK ],
 );
 
 #------------------------------------------------------------------------------
@@ -104,6 +115,27 @@ Readonly our $PINTO_REVISION_ID_REGEX   => $PINTO_HEXADECIMAL_UUID_REGEX;
 Readonly our $PINTO_MINIMUM_CPANM_VERSION => '1.6920';
 
 #------------------------------------------------------------------------------
+
+Readonly our $PINTO_DIFF_STYLE_CONCISE  => 'concise';
+Readonly our $PINTO_DIFF_STYLE_DETAILED => 'detailed';
+
+Readonly our @PINTO_DIFF_STYLES => ($PINTO_DIFF_STYLE_CONCISE, $PINTO_DIFF_STYLE_DETAILED);
+
+#------------------------------------------------------------------------------
+# TODO: Make these configurable via ENV vars
+
+Readonly our $PINTO_PUBLIC_CPAN_URI       => URI->new('http://www.cpan.org');
+Readonly our $PINTO_BACKPAN_CPAN_URI      => URI->new('http://backpan.perl.org');
+Readonly our $PINTO_STRATOPAN_CPAN_URI    => URI->new('http://cpan.stratopan.com'); 
+Readonly our $PINTO_STRATOPAN_LOCATOR_URI => URI->new('http://meta.stratopan.com/locate');
+
+Readonly our @PINTO_DEFAULT_SOURCE_URIS => ( $PINTO_STRATOPAN_CPAN_URI, 
+                                             $PINTO_PUBLIC_CPAN_URI, 
+                                             $PINTO_BACKPAN_CPAN_URI );
+
+#------------------------------------------------------------------------------
+
+
 1;
 
 __END__
@@ -112,10 +144,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -123,7 +152,7 @@ Pinto::Constants - Constants used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

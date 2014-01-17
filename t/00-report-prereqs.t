@@ -41,7 +41,6 @@ my @modules = qw(
   Digest::SHA
   Dist::Metadata
   Encode
-  English
   Exporter
   ExtUtils::MakeMaker
   File::Copy
@@ -120,6 +119,8 @@ my @modules = qw(
   Throwable::Error
   Try::Tiny
   URI
+  URI::Escape
+  URI::file
   UUID::Tiny
   base
   lib

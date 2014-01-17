@@ -55,22 +55,13 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-use Pinto::PackageSpec;
+use Pinto::Target::Package;
 
 use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
-
-#------------------------------------------------------------------------------
-
-__PACKAGE__->inflate_column(
-    'package_version' => {
-        inflate => sub { version->parse( $_[0] ) },
-        deflate => sub { $_[0]->stringify() },
-    }
-);
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -88,14 +79,14 @@ sub FOREIGNBUILDARGS {
 
 #------------------------------------------------------------------------------
 
-has as_spec => (
+has as_target => (
     is       => 'ro',
-    isa      => 'Pinto::PackageSpec',
+    isa      => 'Pinto::Target::Package',
     init_arg => undef,
     lazy     => 1,
     handles  => [qw(is_core is_perl)],
     default  => sub {
-        Pinto::PackageSpec->new(
+        Pinto::Target::Package->new(
             name    => $_[0]->package_name,
             version => $_[0]->package_version
         );
@@ -107,7 +98,7 @@ has as_spec => (
 sub to_string {
     my ($self) = @_;
 
-    return $self->as_spec->to_string;
+    return $self->as_target->to_string;
 }
 
 #------------------------------------------------------------------------------
@@ -131,7 +122,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 NAME
 

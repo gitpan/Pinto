@@ -12,7 +12,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ sub execute {
 sub _unregister {
     my ( $self, $target, $stack ) = @_;
 
-    my $dist = $stack->get_distribution( spec => $target );
+    my $dist = $stack->get_distribution( target => $target );
 
     throw "Target $target is not in the repository" if not defined $dist;
 
@@ -80,10 +80,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -91,7 +88,7 @@ Pinto::Action::Unregister - Unregister packages from a stack
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

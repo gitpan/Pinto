@@ -4,7 +4,7 @@ use warnings;
 
 # this test was generated with Dist::Zilla::Plugin::Test::Compile 2.039
 
-use Test::More  tests => 119 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+use Test::More  tests => 124 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 
 
@@ -76,17 +76,20 @@ my @module_files = (
     'Pinto/Constants.pm',
     'Pinto/Database.pm',
     'Pinto/Difference.pm',
-    'Pinto/DistributionSpec.pm',
+    'Pinto/DifferenceEntry.pm',
     'Pinto/Exception.pm',
     'Pinto/Globals.pm',
-    'Pinto/IndexCache.pm',
+    'Pinto/IndexReader.pm',
     'Pinto/IndexWriter.pm',
     'Pinto/Initializer.pm',
+    'Pinto/Locator.pm',
+    'Pinto/Locator/Mirror.pm',
+    'Pinto/Locator/Multiplex.pm',
+    'Pinto/Locator/Stratopan.pm',
     'Pinto/Locker.pm',
     'Pinto/Migrator.pm',
     'Pinto/ModlistWriter.pm',
     'Pinto/PackageExtractor.pm',
-    'Pinto/PackageSpec.pm',
     'Pinto/PrerequisiteWalker.pm',
     'Pinto/Remote.pm',
     'Pinto/Remote/Action.pm',
@@ -97,13 +100,13 @@ my @module_files = (
     'Pinto/Result.pm',
     'Pinto/RevisionWalker.pm',
     'Pinto/Role/Committable.pm',
-    'Pinto/Role/FileFetcher.pm',
     'Pinto/Role/Installer.pm',
     'Pinto/Role/PauseConfig.pm',
     'Pinto/Role/Plated.pm',
     'Pinto/Role/Puller.pm',
     'Pinto/Role/Schema/Result.pm',
     'Pinto/Role/Transactional.pm',
+    'Pinto/Role/UserAgent.pm',
     'Pinto/Schema.pm',
     'Pinto/Schema/Result/Ancestry.pm',
     'Pinto/Schema/Result/Distribution.pm',
@@ -121,9 +124,11 @@ my @module_files = (
     'Pinto/Server/Responder/Action.pm',
     'Pinto/Server/Responder/File.pm',
     'Pinto/Server/Router.pm',
-    'Pinto/SpecFactory.pm',
     'Pinto/Statistics.pm',
     'Pinto/Store.pm',
+    'Pinto/Target.pm',
+    'Pinto/Target/Distribution.pm',
+    'Pinto/Target/Package.pm',
     'Pinto/Types.pm',
     'Pinto/Util.pm'
 );

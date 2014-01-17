@@ -13,11 +13,11 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw( Pinto::Role::FileFetcher );
+with qw( Pinto::Role::UserAgent );
 
 #------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ Pinto::Store - Storage for distribution archives
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 DESCRIPTION
 

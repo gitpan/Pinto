@@ -11,12 +11,13 @@ use MooseX::Aliases;
 
 use URI;
 
+use Pinto::Constants qw(@PINTO_DEFAULT_SOURCE_URIS);
 use Pinto::Types qw(Dir File Username PerlVersion);
 use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -153,8 +154,8 @@ has sources => (
     is            => 'ro',
     isa           => Str,
     key           => 'sources',
-    default       => 'http://cpan.perl.org http://backpan.perl.org',
-    documentation => 'URLs of upstream repositories (space delimited)',
+    default       => "@PINTO_DEFAULT_SOURCE_URIS",
+    documentation => 'URIs of upstream repositories (space delimited)',
 );
 
 has target_perl_version => (
@@ -202,7 +203,8 @@ sub sources_list {
 sub directories {
     my ($self) = @_;
 
-    return ( $self->root_dir, $self->config_dir, $self->cache_dir, $self->authors_dir, $self->log_dir, $self->db_dir );
+    return ( $self->root_dir, $self->config_dir, $self->cache_dir, 
+             $self->authors_dir, $self->log_dir, $self->db_dir );
 }
 
 #------------------------------------------------------------------------------
@@ -230,7 +232,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 DESCRIPTION
 

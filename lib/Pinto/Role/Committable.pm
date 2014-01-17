@@ -10,12 +10,12 @@ use Try::Tiny;
 use List::MoreUtils qw(uniq);
 
 use Pinto::Constants qw($PINTO_LOCK_TYPE_EXCLUSIVE);
-use Pinto::Types qw(StackName StackDefault StackObject);
+use Pinto::Types qw(StackName StackDefault StackObject DiffStyle);
 use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -46,6 +46,12 @@ has use_default_message => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
+);
+
+has diff_style => (
+    is        => 'ro',
+    isa       => DiffStyle,
+    predicate => 'has_diff_style',
 );
 
 has lock_type => (
@@ -80,16 +86,17 @@ around execute => sub {
 
     $self->repo->txn_begin;
     my $stack = $self->stack->start_revision;
+    local $ENV{PINTO_DIFF_STYLE} = $self->diff_style if $self->has_diff_style;
 
     my @ok = try { $self->$orig(@args) } catch { $self->repo->txn_rollback; throw $_ };
 
     if ( $self->dry_run ) {
-        $self->notice('Dry run -- rolling back database');
+        $stack->refresh->has_changed ? $self->show($stack->diff) : $self->notice('No changes were made');
         $self->repo->txn_rollback;
         $self->repo->clean_files;
     }
     elsif ( $stack->refresh->has_not_changed ) {
-        $self->warning('No index changes were made');
+        $self->warning('No changes were made');
         $self->repo->txn_rollback;
     }
     else {
@@ -191,7 +198,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

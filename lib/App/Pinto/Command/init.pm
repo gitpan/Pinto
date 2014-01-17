@@ -14,7 +14,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ sub opt_spec {
         [ 'description=s'             => 'Description of the initial stack' ],
         [ 'no-default'                => 'Do not mark the initial stack as the default' ],
         [ 'recurse!'                  => 'Default recursive behavior (negatable)' ],
-        [ 'source=s@'                 => 'URL of upstream repository (repeatable)' ],
+        [ 'source=s@'                 => 'URI of upstream repository (repeatable)' ],
         [ 'target-perl-version|tpv=s' => 'Default perl version for new stacks' ],
     );
 }
@@ -94,7 +94,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -102,7 +105,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 SYNOPSIS
 
@@ -150,14 +153,14 @@ will be recursive by default.  C<--no-recurse> means commands will not be
 recursive.  If you do not specify either of these, it defaults to being 
 recursive.  However, each command can always override this default.
 
-=item --source=URL
+=item --source=URI
 
-The URL of the upstream repository where distributions will be pulled
-from.  This is usually the URL of a CPAN mirror, and it defaults to
+The URI of the upstream repository where distributions will be pulled
+from.  This is usually the URI of a CPAN mirror, and it defaults to
 L<http://cpan.perl.org> and L<http://backpan.perl.org>.  But it could 
 also be a L<CPAN::Mini> mirror, or another L<Pinto> repository.
 
-You can specify multiple repository URLs by repeating the C<--source>
+You can specify multiple repository URIs by repeating the C<--source>
 option.  Repositories that appear earlier in the list have priority
 over those that appear later.  See L<Pinto::Manual> for more
 information about using multiple upstream repositories.

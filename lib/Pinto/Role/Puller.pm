@@ -3,14 +3,14 @@
 package Pinto::Role::Puller;
 
 use Moose::Role;
-use MooseX::Types::Moose qw(Bool);
+use MooseX::Types::Moose qw(ArrayRef Bool Str);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
-use Pinto::Util qw(throw);
+use Pinto::Util qw(throw whine);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -35,6 +35,12 @@ has pin => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
+);
+
+has skip_prerequisite => (
+    is        => 'ro',
+    isa       => ArrayRef[Str],
+    predicate => 'has_skip_prerequisite',
 );
 
 has with_development_prerequisites => (
@@ -63,10 +69,10 @@ sub pull {
     if ( $target->isa('Pinto::Schema::Result::Distribution') ) {
         $dist = $target;
     }
-    elsif ( $target->isa('Pinto::DistributionSpec') ) {
+    elsif ( $target->isa('Pinto::Target::Distribution') ) {
         $dist = $self->find( target => $target );
     }
-    elsif ( $target->isa('Pinto::PackageSpec') ) {
+    elsif ( $target->isa('Pinto::Target::Package') ) {
 
         my $tpv = $stack->target_perl_version;
         if ( $target->is_core( in => $tpv ) ) {
@@ -97,14 +103,21 @@ sub find {
     my $dist;
     my $msg;
 
-    if ( $dist = $stack->get_distribution( spec => $target ) ) {
+    if ( $dist = $stack->get_distribution( target => $target ) ) {
         $msg = "Found $target on stack $stack in $dist";
     }
-    elsif ( $dist = $stack->repo->get_distribution( spec => $target ) ) {
+    elsif ( $dist = $stack->repo->get_distribution( target => $target ) ) {
         $msg = "Found $target in $dist";
     }
-    elsif ( $dist = $stack->repo->ups_distribution( spec => $target, cascade => $self->cascade ) ) {
+    elsif ( $dist = $stack->repo->ups_distribution( target => $target, cascade => $self->cascade ) ) {
         $msg = "Found $target in " . $dist->source;
+    }
+    elsif ( $self->should_skip_prerequisite($target) ) {
+        whine "Cannot find $target anywhere.  Skipping it";
+        return;
+    }
+    else {
+        throw "Cannot find $target anywhere";
     }
 
     $self->chrome->show_progress;
@@ -121,23 +134,25 @@ sub do_recursion {
     my $dist  = $args{start};
     my $stack = $self->stack;
 
-    my %latest;
+    my %last_seen;
     my $cb = sub {
         my ($prereq) = @_;
 
-        my $pkg_name = $prereq->package_name;
-        my $pkg_vers = $prereq->package_version;
+        my $target   = $prereq->as_target;
+        my $pkg_name = $target->name;
+        my $pkg_vers = $target->version;
 
         # version sees undef and 0 as equal, so must also check definedness
         # when deciding if we've seen this version (or newer) of the package
-        return if defined( $latest{$pkg_name} ) && $pkg_vers <= $latest{$pkg_name};
+        return if defined( $last_seen{$pkg_name} ) && $target->is_satisfied_by( $last_seen{$pkg_name} );
 
-        # I think the only time that we won't see a $dist here is when
-        # the prereq resolves to a perl (i.e. its a core-only module).
-        return if not my $dist = $self->find( target => $prereq->as_spec );
+        return if not my $dist = $self->find( target => $target );
 
         $dist->register( stack => $stack );
-        $latest{$pkg_name} = $pkg_vers;
+
+        # Record the most recent version of the packages that has
+        # been registered, so we don't need to find it again.
+        $last_seen{$_->name} = $_->version for $dist->packages;
 
         return $dist;
     };
@@ -160,6 +175,16 @@ sub do_recursion {
 }
 
 #-----------------------------------------------------------------------------
+
+sub should_skip_prerequisite {
+    my ($self, $target) = @_;
+
+    return 0 unless $self->has_skip_prerequisite;
+    return 1 unless my @packages_to_skip = @{ $self->skip_prerequisite };
+    return scalar grep { $target->name eq $_ } @packages_to_skip;
+}
+
+#-----------------------------------------------------------------------------
 1;
 
 __END__
@@ -168,7 +193,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -176,7 +204,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

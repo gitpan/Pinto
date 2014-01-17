@@ -17,11 +17,11 @@ use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
-with qw(Pinto::Role::Plated);
+with qw(Pinto::Role::Plated Pinto::Role::UserAgent);
 
 #------------------------------------------------------------------------------
 
@@ -55,12 +55,6 @@ has password => (
     required => 1,
 );
 
-has ua => (
-    is       => 'ro',
-    isa      => 'LWP::UserAgent',
-    required => 1,
-);
-
 #------------------------------------------------------------------------------
 
 
@@ -81,11 +75,11 @@ sub _make_request {
     my $action_name  = $args{name} || $self->name;
     my $request_body = $args{body} || $self->_make_request_body;
 
-    my $url = URI->new( $self->root );
-    $url->path_segments( '', 'action', lc $action_name );
+    my $uri = URI->new( $self->root );
+    $uri->path_segments( '', 'action', lc $action_name );
 
     my $request = POST(
-        $url,
+        $uri,
         Content_Type => 'form-data',
         Content      => $request_body
     );
@@ -151,7 +145,7 @@ sub _send_request {
 
     # Currying in some extra args to the callback...
     my $callback = sub { $self->_response_callback( \$status, @_ ) };
-    my $response = $self->ua->request( $request, $callback );
+    my $response = $self->request( $request, $callback );
 
     if ( not $response->is_success ) {
         $self->error( $response->content );
@@ -213,10 +207,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -224,7 +215,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 METHODS
 

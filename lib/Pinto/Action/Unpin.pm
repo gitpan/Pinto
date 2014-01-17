@@ -11,7 +11,7 @@ use Pinto::Types qw(SpecList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ sub execute {
 sub _unpin {
     my ( $self, $target, $stack ) = @_;
 
-    my $dist = $stack->get_distribution( spec => $target );
+    my $dist = $stack->get_distribution( target => $target );
 
     throw "$target is not registered on stack $stack" if not defined $dist;
 
@@ -86,7 +86,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

@@ -78,7 +78,7 @@ use CPAN::DistnameInfo;
 use String::Format;
 
 use Pinto::Util qw(itis debug whine throw);
-use Pinto::DistributionSpec;
+use Pinto::Target::Distribution;
 
 use overload (
     '""'  => 'to_string',
@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -294,10 +294,10 @@ sub native_path {
 
 #------------------------------------------------------------------------------
 
-sub url {
+sub uri {
     my ( $self, $base ) = @_;
 
-    # TODO: Is there a sensible URL for local dists?
+    # TODO: Is there a sensible URI for local dists?
     return 'UNKNOWN' if $self->is_local;
 
     $base ||= $self->source;
@@ -391,15 +391,15 @@ sub package_count {
 sub prerequisite_specs {
     my ($self) = @_;
 
-    return map { $_->as_spec } $self->prerequisites;
+    return map { $_->as_target } $self->prerequisites;
 }
 
 #------------------------------------------------------------------------------
 
-sub as_spec {
+sub as_target {
     my ($self) = @_;
 
-    return Pinto::DistributionSpec->new( path => $self->path );
+    return Pinto::Target::Distribution->new( path => $self->path );
 }
 
 #------------------------------------------------------------------------------
@@ -435,7 +435,7 @@ sub to_string {
         's' => sub { $self->is_local ? 'l' : 'f' },
         'S' => sub { $self->source },
         'a' => sub { $self->author },
-        'u' => sub { $self->url },
+        'u' => sub { $self->uri },
         'c' => sub { $self->package_count },
     );
 
@@ -475,7 +475,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 NAME
 

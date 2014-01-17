@@ -18,7 +18,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -113,8 +113,8 @@ sub requires {
 
         for my $pkg_name ( sort keys %{$required_prereqs} ) {
 
-            my $pkg_ver = version->parse( $required_prereqs->{$pkg_name} );
-            debug "Archive $archive requires ($phase): $pkg_name-$pkg_ver";
+            my $pkg_ver = $required_prereqs->{$pkg_name};
+            debug "Archive $archive requires ($phase): $pkg_name~$pkg_ver";
 
             my $struct = { phase => $phase, name => $pkg_name, version => $pkg_ver };
             push @prereqs, $struct;
@@ -211,7 +211,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -219,7 +222,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

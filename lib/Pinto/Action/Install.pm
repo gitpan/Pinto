@@ -7,11 +7,11 @@ use MooseX::StrictConstructor;
 use MooseX::Types::Moose qw(Bool ArrayRef Str);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
-use Pinto::SpecFactory;
+use Pinto::Target;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -32,10 +32,10 @@ has do_pull => (
     default => 0,
 );
 
-has mirror_url => (
+has mirror_uri => (
     is      => 'ro',
     isa     => Str,
-    builder => '_build_mirror_url',
+    builder => '_build_mirror_uri',
     lazy    => 1,
 );
 
@@ -45,14 +45,14 @@ with qw( Pinto::Role::Committable Pinto::Role::Puller Pinto::Role::Installer);
 
 #------------------------------------------------------------------------------
 
-sub _build_mirror_url {
+sub _build_mirror_uri {
     my ($self) = @_;
 
     my $stack      = $self->stack;
     my $stack_dir  = defined $stack ? "/stacks/$stack" : '';
-    my $mirror_url = 'file://' . $self->repo->root->absolute . $stack_dir;
+    my $mirror_uri = 'file://' . $self->repo->root->absolute . $stack_dir;
 
-    return $mirror_url;
+    return $mirror_uri;
 }
 
 #------------------------------------------------------------------------------
@@ -66,8 +66,8 @@ sub execute {
         for my $target ( $self->targets ) {
             next if -d $target or -f $target;
 
-            require Pinto::SpecFactory;
-            $target = Pinto::SpecFactory->make_spec($target);
+            require Pinto::Target;
+            $target = Pinto::Target->new($target);
 
             my $dist = $self->pull( target => $target );
             push @dists, $dist ? $dist : ();
@@ -90,7 +90,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -98,7 +101,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

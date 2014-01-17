@@ -5,9 +5,11 @@ package Pinto::Globals;
 use strict;
 use warnings;
 
+use LWP::UserAgent;
+
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,6 +21,15 @@ our $current_author_id   = undef;
 our $is_interactive      = undef;
 
 #------------------------------------------------------------------------------
+# TODO: Decide how to expose this
+
+our $UA = LWP::UserAgent->new(
+	agent      => 'Pinto/' . (__PACKAGE__->VERSION || '???'),
+   	env_proxy  => 1,
+   	keep_alive => 5,
+);
+
+#------------------------------------------------------------------------------
 1;
 
 __END__
@@ -27,7 +38,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
+David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -35,7 +49,7 @@ Pinto::Globals - Global variables used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 AUTHOR
 

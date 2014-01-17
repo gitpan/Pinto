@@ -61,7 +61,7 @@ with 'Pinto::Role::Schema::Result';
 
 use String::Format;
 
-use Pinto::PackageSpec;
+use Pinto::Target::Package;
 use Pinto::Util qw(itis throw);
 
 use overload (
@@ -73,7 +73,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -141,10 +141,10 @@ sub vname {
 
 #------------------------------------------------------------------------------
 
-sub as_spec {
+sub as_target {
     my ($self) = @_;
 
-    return Pinto::PackageSpec->new(
+    return Pinto::Target::Package->new(
         name    => $self->name,
         version => $self->version
     );
@@ -187,7 +187,7 @@ sub to_string {
         'd' => sub { $self->distribution->name() },
         'D' => sub { $self->distribution->vname() },
         'V' => sub { $self->distribution->version() },
-        'u' => sub { $self->distribution->url() },
+        'u' => sub { $self->distribution->uri() },
     );
 
     # Some attributes are just undefined, usually because of
@@ -259,10 +259,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -270,7 +267,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 NAME
 

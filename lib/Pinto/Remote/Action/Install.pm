@@ -14,7 +14,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -36,30 +36,30 @@ has do_pull => (
     default => 0,
 );
 
-has mirror_url => (
+has mirror_uri => (
     is      => 'ro',
     isa     => Str,
-    builder => '_build_mirror_url',
+    builder => '_build_mirror_uri',
     lazy    => 1,
 );
 
 #------------------------------------------------------------------------------
 
-sub _build_mirror_url {
+sub _build_mirror_uri {
     my ($self) = @_;
 
     my $stack      = $self->args->{stack};
     my $stack_dir  = defined $stack ? "/stacks/$stack" : '';
-    my $mirror_url = $self->root . $stack_dir;
+    my $mirror_uri = $self->root . $stack_dir;
 
     if ( defined $self->password ) {
 
-        # Squirt username and password into URL
+        # Squirt username and password into URI
         my $credentials = $self->username . ':' . $self->password;
-        $mirror_url =~ s{^ (https?://) }{$1$credentials\@}mx;
+        $mirror_uri =~ s{^ (https?://) }{$1$credentials\@}mx;
     }
 
-    return $mirror_url;
+    return $mirror_uri;
 }
 
 #------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ Pinto::Remote::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =for Pod::Coverage BUILD
 

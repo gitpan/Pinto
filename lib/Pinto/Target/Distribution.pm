@@ -1,19 +1,19 @@
-# ABSTRACT: Specifies a distribution by author and path fragments
+# ABSTRACT: Specifies a distribution by author and archive
 
-package Pinto::DistributionSpec;
+package Pinto::Target::Distribution;
 
 use Moose;
 use MooseX::MarkAsMethods ( autoclean => 1 );
 use MooseX::Types::Moose qw(ArrayRef Str);
 
 use Pinto::Types qw(AuthorID);
-use Pinto::Util qw(throw);
+use Pinto::Util qw(throw author_dir);
 
 use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097'; # VERSION
+our $VERSION = '0.097_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ has archive => (
 
 has subdirs => (
     is      => 'ro',
-    isa     => ArrayRef [Str],
+    isa     => ArrayRef[Str],
     default => sub { [] },
 );
 
@@ -50,7 +50,7 @@ around BUILDARGS => sub {
         my $archive = pop @path_parts;      # Last element
         my $subdirs = [@path_parts];        # Everything else
 
-        throw "Invalid distribution spec: $args[0]"
+        throw "Invalid distribution target: $args[0]"
             if not( $author and $archive );
 
         @args = ( author => $author, subdirs => $subdirs, archive => $archive );
@@ -65,11 +65,11 @@ around BUILDARGS => sub {
 sub path {
     my ($self) = @_;
 
-    my $author  = $self->author;
-    my @subdirs = @{ $self->subdirs };
-    my $archive = $self->archive;
+    my $author_dir = author_dir($self->author);
+    my @subdirs    = @{ $self->subdirs };
+    my $archive    = $self->archive;
 
-    return join '/', substr( $author, 0, 1 ), substr( $author, 0, 2 ), $author, @subdirs, $archive;
+    return join '/', $author_dir, @subdirs, $archive;
 }
 
 #------------------------------------------------------------------------------
@@ -105,23 +105,23 @@ David Steinbrunner Glenn
 
 =head1 NAME
 
-Pinto::DistributionSpec - Specifies a distribution by author and path fragments
+Pinto::Target::Distribution - Specifies a distribution by author and archive
 
 =head1 VERSION
 
-version 0.097
+version 0.097_01
 
 =head1 METHODS
 
 =head2 path()
 
-Returns the canonical string form of this DistributionSpec, which is
-suitable for constructing a URI.
+Returns the canonical string form of this DistributionSpec, which is suitable
+for constructing a URI.
 
 =head2 to_string
 
-This method is called when the DistributionSpec is evaluated in string
-context.  Returns the same result as the C<path> method.
+Serializes this Target to its string form.  This method is called whenever the
+Target is evaluated in string context.
 
 =head1 AUTHOR
 
