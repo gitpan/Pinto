@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn norecurse
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn norecurse
 
 =head1 NAME
 
@@ -62,7 +62,7 @@ App::Pinto::Command::pull - pull archives from upstream repositories
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 
@@ -211,7 +211,7 @@ their development prerequisites.
 
 =head1 TARGETS
 
-Targets are a compact notation that identifies the things you want to  pull
+Targets are a compact notation that identifies the things you want to pull
 into your repository.  Targets come in two flavors: package targets and
 distribution targets.
 
@@ -241,30 +241,40 @@ and the distribution name and version number.   This corresponds to the actual
 path where the distribution archive lives in the repository or CPAN mirror.
 Here are some examples.
 
-  SHAKESPEARE/King-Lear-1.2                # A specific distribution
-  SHAKESPEARE/King-Lear-1.2.tar.gz         # Same, but with file extension
+  SHAKESPEARE/King-Lear-1.2.tar.gz         # A specific distribution
   SHAKESPEARE/tragedies/Hamlet-4.2.tar.gz  # Same, but with a subdirectory
 
 The author ID will always be forced to uppercase, but the reset of the path is
-case-sensitive.  If you omit the file extension, pinto will try using each of
-the customary ones.
+case-sensitive.
 
 =head2 Caveats
 
-Package targets always resolve to production releases.  If you wish to
-pull a developer release, you must use a distribution target.  Remember that
-developer releases are those with an underscore in the version number.
+L<PAUSE|http://pause.perl.org> has no strict rules on how packages are
+versioned.  It is quite common to see a package with the same verison number
+(or no version at all) in many releases of a distribution.  So when you
+specify a package target with a precise version or version range, what you
+actually get is the latest distribution (chronologically) that has a package
+which satisfies the target.  Most of the time this works out fine because you
+usally pull the "main module" of the distribution and authors always increment
+that version in each release.
 
-Since most CPAN mirrors can only report the latest version of a package they
-have available,  they often cannot satisfy package targets that have a precise
-version specification.  However, the mirror at
-L<cpan.stratopan.com|http://cpan.stratopan.com> is special and can locate a
-precise version of any package.
+Since most CPAN mirrors only report the latest version of a package they have,
+they often cannot satisfy package targets that have a precise version
+specification.  However, the mirror at L<http://cpan.stratopan.com> is special
+and can locate a precise version of any package. 
 
-By default, new repositories use C<http://cpan.stratopan.com> as the first
-upstream source.  For an existing repository, you may add
-C<http://cpan.stratopan.com> as an upstream source in the configuration file
-located at F<.pinto/config/pinto.ini> within the repository.
+Package targets always resolve to production releases, unless you specify a
+precise developer release version (e.g. C<Foo::Bar==1.03_01>).  But since most
+CPAN mirrors do not index developer releases, this only works when using the
+mirror at L<http://cpan.stratopan.com>.  However, you can usually pull a
+developer release from any mirror by using a distribution target.  Remember
+that developer releases are those with an underscore in the version number.
+
+For repositories created with Pinto version 0.098 or later, the first upstream
+source is C<http://cpan.stratopan.com> (unless you configure it otherwise).
+For repositories created with older versions, you can manually add
+C<http://cpan.stratopan.com> to the C<sources> parameter in the configuration
+file located at F<.pinto/config/pinto.ini> within the repository.
 
 =head1 AUTHOR
 

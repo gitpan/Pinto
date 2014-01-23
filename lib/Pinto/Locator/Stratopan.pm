@@ -8,7 +8,6 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use URI;
 use JSON qw(decode_json);
-use URI::Escape qw(uri_escape);
 use HTTP::Request::Common qw(GET);
 
 use Pinto::Util qw(whine);
@@ -16,7 +15,7 @@ use Pinto::Constants qw(:stratopan);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -27,22 +26,7 @@ extends qw(Pinto::Locator);
 sub locate_package {
 	my ($self, %args) = @_;
 
-	my $target = $args{target};
-	my $uri = $self->build_query_uri("$target");
-	my $res = $self->request(GET($uri));
-
-	if (!$res->is_success) {
-		whine "Stratopan is not responding: " . $res->status_line;
-		return;
-	}
-
-	my $structs = decode_json($res->content);
-	return unless my $latest = $structs->[0];
-
-	$latest->{version} = version->parse($latest->{version});
-	$latest->{uri} = URI->new($latest->{uri});
-
-	return $latest;
+	return $self->_locate_any(%args);
 }
 
 #-----------------------------------------------------------------------------
@@ -50,30 +34,38 @@ sub locate_package {
 sub locate_distribution {
 	my ($self, %args) = @_;
 
-	my $target = $args{target};
-	my $uri = $self->build_query_uri("$target");
-	my $res = $self->request(GET($uri));
-
-	if (!$res->is_success) {
-		whine "Stratopan is not responding: " . $res->status_line;
-		return;
-	}
-
-	my $structs = decode_json($res->content);
-	return unless my $latest = $structs->[0];
-
-	$latest->{version} = version->parse($latest->{version});
-	$latest->{uri} = URI->new($latest->{uri});
-
-	return $latest;
+	return $self->_locate_any(%args);
 }
 
 #-----------------------------------------------------------------------------
 
-sub build_query_uri {
-	my ($self, $query) = @_;
+sub _locate_any {
+	my ($self, %args) = @_;
 
-	return sprintf "%s?q=%s", $PINTO_STRATOPAN_LOCATOR_URI, uri_escape($query);
+	my $uri = $PINTO_STRATOPAN_LOCATOR_URI->clone;
+	$uri->query_form(q => $args{target}->to_string);
+	my $response = $self->request(GET($uri));
+
+	if (!$response->is_success) {
+		my $status = $response->status_line;
+		whine "Stratopan is not responding: $status";
+		return;
+	}
+
+	my $structs = eval { decode_json($response->content) };
+	whine "Invalid response from Stratopan: $@" and return if $@;
+
+	return unless my $latest = $structs->[0];
+
+	# Avoid autovivification here...
+	$latest->{version} = version->parse($latest->{version})
+		if exists $latest->{version};
+
+	# Avoid autovivification here...
+	$latest->{uri} = URI->new($latest->{uri})
+		if exists $latest->{uri};
+
+	return $latest;
 }
 
 #-----------------------------------------------------------------------------
@@ -91,8 +83,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -100,7 +92,7 @@ Pinto::Locator::Stratopan - Locate targets using Stratopan services
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 AUTHOR
 

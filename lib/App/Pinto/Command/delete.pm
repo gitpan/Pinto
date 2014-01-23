@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -42,7 +42,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -50,7 +53,7 @@ App::Pinto::Command::delete - permanently remove an archive
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 
@@ -75,8 +78,8 @@ use the L<unregister|App::Pinto::Command::unregister> command.
 
 =head1 COMMAND ARGUMENTS
 
-Arguments are the archives that you want to delete.  Archives are
-specified as C<AUTHOR/ARCHIVE-NAME>.  For example:
+Arguments are the targets that you want to delete.  Targets are
+specified as C<AUTHOR/FILENAME>.  For example:
 
   SHAKESPEARE/King-Lear-1.2.tar.gz
 

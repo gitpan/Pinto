@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -127,35 +127,44 @@ sub register {
 
     for my $pkg ($self->packages) {
 
-      my $where = {package_name => $pkg->name};
-      my $incumbent = $stack->head->find_related(registrations => $where);
+        my $where = {package_name => $pkg->name};
+        my $incumbent = $stack->head->find_related(registrations => $where);
 
-      if (not defined $incumbent) {
-          debug( sub {"Registering $pkg on stack $stack"} );
-          $pkg->register(stack => $stack, pin => $pin);
-          $did_register++;
-          next;
-      }
+        if (not defined $incumbent) {
+            debug( sub {"Registering $pkg on stack $stack"} );
+            $pkg->register(stack => $stack, pin => $pin);
+            $did_register++;
+            next;
+        }
 
-      my $incumbent_pkg = $incumbent->package;
+        my $incumbent_pkg = $incumbent->package;
 
-      if ( $incumbent_pkg == $pkg ) {
-        debug( sub {"Package $pkg is already on stack $stack"} );
-        $incumbent->pin && $did_register++ if $pin and not $incumbent->is_pinned;
-        next;
-      }
-
-
-      if ( $incumbent->is_pinned ) {
-        my $pkg_name = $pkg->name;
-        throw "Unable to register distribution $self: package $pkg_name is pinned to $incumbent_pkg";
-      }
-
-      whine "Downgrading package $incumbent_pkg to $pkg on stack $stack"
-        if $incumbent_pkg > $pkg;
+        if ( $incumbent_pkg == $pkg ) {
+            debug( sub {"Package $pkg is already on stack $stack"} );
+            $incumbent->pin && $did_register++ if $pin and not $incumbent->is_pinned;
+            next;
+        }
 
 
-      $incumbent->distribution->unregister(stack => $stack);
+        if ( $incumbent->is_pinned ) {
+            my $pkg_name = $pkg->name;
+            throw "Unable to register distribution $self: package $pkg_name is pinned to $incumbent_pkg";
+        }
+
+        whine "Downgrading package $incumbent_pkg to $pkg on stack $stack"
+            if $incumbent_pkg > $pkg;
+
+        if ( $stack->repo->config->intermingle ) {
+            # If the repository allows intermingled distributions, then
+            # remove only the incumbent package from the index.
+            $incumbent->delete;
+        }
+        else {
+            # Otherwise, remove all packages in the incumbent
+            # distribution from the index.  This is the default.
+            $incumbent->distribution->unregister(stack => $stack);
+        }
+
       $pkg->register(stack => $stack, pin => $pin);
       $did_register++;
     }
@@ -466,8 +475,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -475,7 +484,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 NAME
 

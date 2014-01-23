@@ -13,7 +13,7 @@ use Pinto::Types qw(AuthorID FileList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -186,8 +186,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -195,7 +195,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 AUTHOR
 

@@ -20,12 +20,13 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.097_01",
+  "dist_version" => "0.097_02",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
   "recursive_test_files" => 1,
   "requires" => {
+    "App::Cmd" => "0.323",
     "App::Cmd::Command::help" => 0,
     "App::Cmd::Setup" => 0,
     "Archive::Extract" => "0.68",
@@ -64,6 +65,7 @@ my %module_build_args = (
     "Getopt::Long" => 0,
     "HTTP::Date" => 0,
     "HTTP::Request::Common" => 0,
+    "HTTP::Status" => 0,
     "IO::File" => 0,
     "IO::Handle" => 0,
     "IO::Interactive" => 0,

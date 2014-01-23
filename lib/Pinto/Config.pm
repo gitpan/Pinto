@@ -17,7 +17,7 @@ use Pinto::Util qw(current_username current_time_offset);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 # Moose attributes
@@ -175,6 +175,14 @@ has recurse => (
     default       => 1,          
 );
 
+has intermingle => (
+    is            => 'ro',
+    isa           => Bool,
+    key           => 'intermingle',
+    documentation => 'Allow stacks to intermingle distributions',
+    default       => 0,          
+);
+
 #------------------------------------------------------------------------------
 
 sub _build_config_file {
@@ -223,8 +231,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -232,7 +240,7 @@ Pinto::Config - Internal configuration for a Pinto repository
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 DESCRIPTION
 

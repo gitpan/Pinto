@@ -10,7 +10,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -43,8 +43,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -52,7 +52,7 @@ pinto - Curate a custom repository of Perl modules
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 
@@ -168,6 +168,16 @@ Sets the default C<target_perl_version> property for all new stacks.
 Otherwise, all new stacks will target the version of perl that you first used
 to create the repository.  You can always configure the target perl for each
 stack independently by using the L<props|App::Pinto::Command::props> command.
+
+=item intermingle = 1 | 0
+
+If true, stacks will be allowed to "intermingle" distributions that have
+partially overlapping packages.  This makes pinto behave like PAUSE which
+allows a package to remain in the index until it is replaced by a distribution
+containing the same package.  Thus, it becomes possible to have an index that
+contains just C<some> of the packages in a particular distribution.  This
+typically occurrs when a package in a prior release is absent from a
+subsequent release.  The default is false.
 
 =back
 

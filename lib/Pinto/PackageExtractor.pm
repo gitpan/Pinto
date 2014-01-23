@@ -4,13 +4,10 @@ package Pinto::PackageExtractor;
 
 use Moose;
 use MooseX::StrictConstructor;
-use MooseX::Types::Moose qw(HashRef Bool);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Try::Tiny;
 use Dist::Metadata;
-use Path::Class qw(dir);
-use Archive::Extract;
 
 use Pinto::Types qw(File Dir);
 use Pinto::Util qw(debug throw whine);
@@ -18,7 +15,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -59,7 +56,8 @@ sub provides {
     my ($self) = @_;
 
     my $archive = $self->archive;
-    debug "Extracting packages provided by archive $archive";
+    my $basename = $archive->basename;
+    debug "Extracting packages provided by archive $basename";
 
     my $mod_info = try {
 
@@ -73,23 +71,27 @@ sub provides {
         $self->dm->module_info;    # returned from try{}
     }
     catch {
-        throw "Unable to extract packages from $archive: $_";
+        throw "Unable to extract packages from $basename: $_";
     };
 
     my @provides;
-    for my $pkg_name ( sort keys %{$mod_info} ) {
+    for my $package ( sort keys %{$mod_info} ) {
 
-        my $info    = $mod_info->{$pkg_name};
-        my $pkg_ver = version->parse( $info->{version} );
-        debug "Archive $archive provides: $pkg_name-$pkg_ver";
+        my $info    = $mod_info->{$package};
+        my $version = version->parse( $info->{version} );
+        debug "Archive $basename provides: $package-$version";
 
-        push @provides, { name => $pkg_name, version => $pkg_ver };
+        push @provides, { 
+            name    => $package, 
+            version => $version,
+            file    => $info->{file},
+        };
     }
 
     @provides = $self->__apply_workarounds if @provides == 0;
 
-    whine sprintf "%s contains no packages and will not be indexed",
-        $archive->basename if not @provides;
+    whine "$basename contains no packages and will not be indexed" 
+        if not @provides;
 
     return @provides;
 }
@@ -108,16 +110,23 @@ sub requires {
     my @prereqs;
     for my $phase ( keys %{$prereqs_meta} ) {
 
+        # TODO: Also capture the relation (suggested, requires, recomends, etc.)
+        # But that will require a schema change to add another column to the table.
+
         my $prereqs_for_phase = $prereqs_meta->{$phase}        || {};
         my $required_prereqs  = $prereqs_for_phase->{requires} || {};
 
-        for my $pkg_name ( sort keys %{$required_prereqs} ) {
+        for my $package ( sort keys %{$required_prereqs} ) {
 
-            my $pkg_ver = $required_prereqs->{$pkg_name};
-            debug "Archive $archive requires ($phase): $pkg_name~$pkg_ver";
+            my $version = $required_prereqs->{$package};
+            debug "Archive $archive requires ($phase): $package~$version";
 
-            my $struct = { phase => $phase, name => $pkg_name, version => $pkg_ver };
-            push @prereqs, $struct;
+            push @prereqs, { 
+                name    => $package, 
+                version => $version,
+                phase   => $phase, 
+            };
+
         }
     }
 
@@ -213,8 +222,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -222,7 +231,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 AUTHOR
 

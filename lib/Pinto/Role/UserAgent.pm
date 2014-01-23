@@ -1,4 +1,4 @@
-# ABSTRACT: Something that makes HTTP requests
+# ABSTRACT: Something that makes network requests
 
 package Pinto::Role::UserAgent;
 
@@ -6,89 +6,73 @@ use Moose::Role;
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use URI;
-use URI::file;
 use Path::Class;
 use LWP::UserAgent;
+use HTTP::Status qw(:constants);
 
 use Pinto::Globals;
-use Pinto::Util qw(itis debug throw tempdir make_uri);
+use Pinto::Util qw(debug throw tempdir make_uri);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 
-sub fetch {
-    my ( $self, %args ) = @_;
+sub mirror {
+    my ( $self, $from, $to ) = @_;
 
-    my $from     = $args{from};
-    my $from_uri = make_uri($from);
-    my $to       = itis( $args{to}, 'Path::Class' ) ? $args{to} : file( $args{to} );
-
-    debug("Skipping $from: already fetched to $to") and return 0 if -e $to;
+    $from = make_uri($from);
+    $to = file($to);
 
     $to->parent->mkpath if not -e $to->parent;
-    my $has_changed = $self->_fetch( $from_uri, $to );
+    my $response = $Pinto::Globals::UA->mirror( $from => $to );
+    
+    return 1 if $response->is_success;
+    return 0 if $response->code == HTTP_NOT_MODIFIED;
 
-    return $has_changed;
+    throw "Failed to mirror $from: " . $response->status_line;
 }
 
 #------------------------------------------------------------------------------
 
 
-sub fetch_temporary {
-    my ( $self, %args ) = @_;
+sub mirror_temporary {
+    my ( $self, $uri ) = @_;
 
-    my $uri  = URI->new( $args{uri} )->canonical;
+    $uri  = URI->new( $uri )->canonical;
     my $path = file( $uri->path );
     return $path if $uri->scheme() eq 'file';
 
     my $base     = $path->basename;
-    my $tempfile = file( tempdir(), $base );
+    my $tempfile = file( tempdir, $base );
 
-    $self->fetch( from => $uri, to => $tempfile );
+    $self->mirror( $uri => $tempfile );
 
     return file($tempfile);
 }
 
 #------------------------------------------------------------------------------
+# TODO: Consider a better interface to the UA
 
 sub head { 
-    my $self = shift;
+    my ($self, @args) = @_;
 
-    return $Pinto::Globals::UA->head(@_);
+    # TODO: Argument check?
+    debug sub { $args[0]->as_string(0) };
+    return $Pinto::Globals::UA->head(@args);
 }
 
 #------------------------------------------------------------------------------
+# TODO: Consider a better interface to the UA
+
 sub request {
-    my $self = shift;
+    my ($self, @args) = @_;
 
-    return $Pinto::Globals::UA->request(@_);
-}
-
-#------------------------------------------------------------------------------
-
-sub _fetch {
-    my ( $self, $uri, $to ) = @_;
-
-    debug("Fetching $uri");
-
-    my $result = eval { $Pinto::Globals::UA->mirror( $uri, $to ) }
-        or throw $@;
-
-    if ( $result->is_success() ) {
-        return 1;
-    }
-    elsif ( $result->code() == 304 ) {
-        return 0;
-    }
-    else {
-        throw "Failed to fetch $uri: " . $result->status_line;
-    }
-
-    # Should never get here
+    # TODO: Argument check?
+    debug sub { $args[0]->as_string(0) };
+    return $Pinto::Globals::UA->request(@args);
 }
 
 #-----------------------------------------------------------------------------
@@ -102,39 +86,38 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
-Pinto::Role::UserAgent - Something that makes HTTP requests
+Pinto::Role::UserAgent - Something that makes network requests
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 METHODS
 
-=head2 fetch(from => 'http://someplace' to => 'some/path')
+=head2 mirror(RESOURCE => PATH)
 
-Fetches the file located at C<from> to the file located at C<to>, if
-the file at C<from> is newer than the file at C<to>.  If the
-intervening directories do not exist, they will be created for you.
-Returns a true value if the file has changed, returns false if it has
-not changed.  Throws and exception if anything goes wrong.
+Mirrors the resource located at C<from> to the file located at PATH, if the
+RESOURCE is newer than the file at PATH.  If the intervening directories do
+not exist, they will be created for you. Returns a true value if the file has
+changed, returns false if it has not changed.  Throws an exception if anything
+goes wrong.
 
-The C<from> argument can be either a L<URI> or L<Path::Class::File>
-object, or a string that represents either of those.  The C<to>
-attribute can be a L<Path::Class::File> object or a string that
-represents one.
+The RESOURCE can be either a L<URI> or L<Path::Class::File> object, or a
+string that represents either of those.  The PATH can be a
+L<Path::Class::File> object or a string that represents one.
 
-=head2 fetch_temporary(uri => 'http://someplace')
+=head2 mirror_temporary(RESOURCE)
 
-Fetches the file located at the C<uri> to a file in a temporary
-directory.  The file will have the same basename as the C<uri>.
-Returns a L<Path::Class::File> that points to the new file.  Throws
-and exception if anything goes wrong.  Note the temporary directory
-and all its contents will be deleted when the process terminates.
+Mirrors RESOURCE to a file in a temporary directory.  The file will have the
+same basename as the RESOURCE.  Returns a L<Path::Class::File> that points to
+the new file.  Throws and exception if anything goes wrong.  Note the
+temporary directory and all its contents will be deleted when the process
+terminates.
 
 =head1 AUTHOR
 

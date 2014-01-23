@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ App::Pinto::Command::unregister - remove packages from a stack
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 

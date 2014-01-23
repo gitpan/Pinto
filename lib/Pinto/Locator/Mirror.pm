@@ -18,7 +18,7 @@ use version;
 
 #------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ sub _build_index_file {
     my $destination = $cache_dir->file($details_filename);
     my $source = URI->new( "$uri/modules/$details_filename" );
 
-    $self->fetch(from => $source, to => $destination);
+    $self->mirror($source => $destination);
 
     return $destination;
 }
@@ -75,8 +75,11 @@ sub locate_package {
     return unless my $found = $self->reader->packages->{$target->name};
     return unless $target->is_satisfied_by( $found->{version} );
 
+    # Morph data structure to meet spec
+    $found->{package} = delete $found->{name};
     $found->{uri} = URI->new($self->uri . "/authors/id/$found->{path}");
     $found->{version} = version->parse($found->{version});
+    delete $found->{path};
 
     return $found;
 }
@@ -125,10 +128,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -136,7 +136,7 @@ Pinto::Locator::Mirror - The package index of a repository
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 AUTHOR
 

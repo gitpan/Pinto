@@ -13,7 +13,7 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ sub add_archive {
     throw "$origin does not exist" if not -e $origin;
     throw "$origin is not a file"  if not -f $origin;
 
-    $self->fetch( from => $origin, to => $destination );
+    $self->mirror( $origin => $destination );
     $self->update_checksums( directory => $destination->parent );
 
     return $self;
@@ -115,7 +115,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -123,7 +126,7 @@ Pinto::Store - Storage for distribution archives
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 DESCRIPTION
 

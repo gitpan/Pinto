@@ -11,7 +11,7 @@ use Pinto::Util qw(is_remote_repo);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -37,6 +37,11 @@ sub pinto {
 
         $global_options->{root} ||= $ENV{PINTO_REPOSITORY_ROOT}
             || $self->usage_error('Must specify a repository root');
+
+        # Discard password and username arguments if this is not a 
+        # remote repository.  StrictConstrutor will not allow them.
+        delete @{$global_options}{qw(username password)}
+            if not is_remote_repo($global_options->{root});
 
         $global_options->{password} = $self->_prompt_for_password
             if defined $global_options->{password} and $global_options->{password} eq '-';
@@ -83,8 +88,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -92,7 +97,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 

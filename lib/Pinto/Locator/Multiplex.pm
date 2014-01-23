@@ -12,7 +12,7 @@ use Pinto::Constants qw(:stratopan);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ sub assemble {
     my @locators;
     for my $uri (@uris) {
         my $class = $self->locator_class_for_uri($uri);
-        # Ick: This assumes all Locators have same attributes
+        # Ick: This assumes all Locators have same attribute interface
         my %args = ( uri => $uri, cache_dir => $self->cache_dir );
         push @locators, $class->new( %args );
     }
@@ -113,8 +113,8 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -122,7 +122,7 @@ Pinto::Locator::Multiplex - Find a package/distribution target among CPAN-like r
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 AUTHOR
 

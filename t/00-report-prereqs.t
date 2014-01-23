@@ -13,6 +13,7 @@ use List::Util qw/max/;
 
 my @modules = qw(
   Apache::Htpasswd
+  App::Cmd
   App::Cmd::Command::help
   App::Cmd::Setup
   Archive::Extract
@@ -59,6 +60,7 @@ my @modules = qw(
   HTTP::Request::Common
   HTTP::Response
   HTTP::Server::PSGI
+  HTTP::Status
   IO::File
   IO::Handle
   IO::Interactive

@@ -167,6 +167,7 @@ t/02-bowels/04-distribution.t
 t/02-bowels/05-compare.t
 t/02-bowels/10-init.t
 t/02-bowels/11-tester.t
+t/02-bowels/12-locator.t
 t/02-bowels/20-add.t
 t/02-bowels/21-add-no-index.t
 t/02-bowels/21-pull-vreq.t
@@ -183,6 +184,7 @@ t/02-bowels/42-install.t
 t/02-bowels/43-install-and-pull.t
 t/02-bowels/50-diff.t
 t/02-bowels/51-diff-more.t
+t/02-bowels/52-intermingle.t
 t/02-bowels/53-roots.t
 t/02-bowels/60-dryrun.t
 t/02-bowels/61-nofail.t
@@ -209,6 +211,7 @@ t/lib/Pinto/Tester/Util.pm
 weaver.ini
 xt/help/50-manual_cmd.t
 xt/release/02-workarounds.t
+xt/release/03-stratopan-live.t
 xt/release/99-memory-cycle.t
 xt/release/distmeta.t
 xt/release/pod-syntax.t

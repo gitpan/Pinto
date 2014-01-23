@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_01'; # VERSION
+our $VERSION = '0.097_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -143,9 +143,10 @@ __END__
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux hesco popl Däppen Cory G Watson
-David Steinbrunner Glenn cpan testmatrix url annocpan anno bugtracker rt
-cpants kwalitee diff irc mailto metadata placeholders metacpan
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn cpan testmatrix url annocpan anno
+bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
+metacpan
 
 =head1 NAME
 
@@ -153,7 +154,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.097_01
+version 0.097_02
 
 =head1 SYNOPSIS
 
@@ -426,6 +427,10 @@ Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
 =item *
 
 Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+brian d foy <brian.d.foy@gmail.com>
 
 =item *
 
