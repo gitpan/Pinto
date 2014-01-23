@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_02'; # VERSION
+our $VERSION = '0.097_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Pinto::Action::Nop - A no-op action
 
 =head1 VERSION
 
-version 0.097_02
+version 0.097_03
 
 =head1 DESCRIPTION
 

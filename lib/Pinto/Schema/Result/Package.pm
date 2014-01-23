@@ -73,7 +73,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_02'; # VERSION
+our $VERSION = '0.097_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -270,7 +270,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.097_02
+version 0.097_03
 
 =head1 NAME
 

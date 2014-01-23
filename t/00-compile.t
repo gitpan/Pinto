@@ -4,7 +4,7 @@ use warnings;
 
 # this test was generated with Dist::Zilla::Plugin::Test::Compile 2.039
 
-use Test::More  tests => 124 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+use Test::More  tests => 123 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 
 
@@ -113,7 +113,6 @@ my @module_files = (
     'Pinto/Schema/Result/Package.pm',
     'Pinto/Schema/Result/Prerequisite.pm',
     'Pinto/Schema/Result/Registration.pm',
-    'Pinto/Schema/Result/RegistrationChange.pm',
     'Pinto/Schema/Result/Revision.pm',
     'Pinto/Schema/Result/Stack.pm',
     'Pinto/Schema/ResultSet/Distribution.pm',

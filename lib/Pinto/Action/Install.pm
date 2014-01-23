@@ -11,7 +11,7 @@ use Pinto::Target;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_02'; # VERSION
+our $VERSION = '0.097_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ Pinto::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.097_02
+version 0.097_03
 
 =head1 AUTHOR
 
