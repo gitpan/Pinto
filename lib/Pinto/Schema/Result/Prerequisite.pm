@@ -61,7 +61,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -125,7 +125,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 NAME
 

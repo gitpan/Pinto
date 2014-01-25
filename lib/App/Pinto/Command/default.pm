@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ App::Pinto::Command::default - mark the default stack
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 SYNOPSIS
 

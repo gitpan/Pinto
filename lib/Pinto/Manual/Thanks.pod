@@ -26,7 +26,7 @@ Pinto::Manual::Thanks - Thanking the Pinto supporters
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 THANK YOU
 

@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 # TODO: Rethink this API.  Do we need start?  Can we just use queue?  What
@@ -57,7 +57,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -65,7 +68,7 @@ Pinto::RevisionWalker - Iterates through revision history
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 AUTHOR
 

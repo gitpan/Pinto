@@ -17,7 +17,7 @@ use overload ( '""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -49,8 +49,12 @@ around BUILDARGS => sub {
     my @args = @_;
 
     if ( @args == 1 and not ref $args[0] ) {
-        my ( $name, $version ) = $_[0] =~ m{^ ([A-Z0-9_:]+) (?:~)? (.*)}ix;
-        $version =~ s/^\@/==/; # Allow "@" to be used as a synonym for "=="
+
+        throw "Invalid package specification: $_[0]"
+            unless $_[0] =~ m{^ ([A-Z0-9_:]+) (?:~)? (.*)}ix;
+
+        my ($name, $version) = ($1, $2);
+        $version =~ s/^\@/==/; # Allow "@" as a synonym for "=="
         @args = ( name => $name, version => trim_text($version) || 0 );
     }
 
@@ -86,13 +90,16 @@ sub is_core {
 
     # Note: $PERL_VERSION is broken on old perls, so we must make
     # our own version object from the old $] variable
-
     my $pv = version->parse( $args{in} ) || version->parse($]);
+
+    # If it ain't in here, it ain't in the core
     my $core_modules = $Module::CoreList::version{ $pv->numify + 0 };
-
     throw "Invalid perl version $pv" if not $core_modules;
-
     return 0 if not exists $core_modules->{ $self->name };
+
+    # We treat deprecated modules as if they have already been removed
+    my $deprecated_modules = $Module::CoreList::deprecated{ $pv->numify + 0 };
+    return 0 if $deprecated_modules && exists $deprecated_modules->{ $self->name };
 
     # on some perls, we'll get an 'uninitialized' warning when
     # the $core_version is undef.  So force to zero in that case
@@ -162,7 +169,7 @@ Pinto::Target::Package - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 METHODS
 

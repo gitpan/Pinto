@@ -7,11 +7,11 @@ use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
-use Pinto::Types qw(SpecList);
+use Pinto::Types qw(TargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ extends qw( Pinto::Action );
 #------------------------------------------------------------------------------
 
 has targets => (
-    isa      => SpecList,
+    isa      => TargetList,
     traits   => [qw(Array)],
     handles  => { targets => 'elements' },
     required => 1,
@@ -75,10 +75,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -86,7 +83,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 AUTHOR
 

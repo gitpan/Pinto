@@ -14,7 +14,7 @@ use Pinto::Constants qw($PINTO_MINIMUM_CPANM_VERSION);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ Pinto::Role::Installer - Something that installs packages
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 AUTHOR
 

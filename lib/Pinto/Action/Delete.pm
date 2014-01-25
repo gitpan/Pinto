@@ -8,11 +8,11 @@ use MooseX::Types::Moose qw(Bool);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
-use Pinto::Types qw(DistSpecList);
+use Pinto::Types qw(DistributionTargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ with qw( Pinto::Role::Transactional );
 #------------------------------------------------------------------------------
 
 has targets => (
-    isa      => DistSpecList,
+    isa      => DistributionTargetList,
     traits   => [qw(Array)],
     handles  => { targets => 'elements' },
     required => 1,
@@ -82,7 +82,7 @@ Pinto::Action::Delete - Delete archives from the repository
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 AUTHOR
 

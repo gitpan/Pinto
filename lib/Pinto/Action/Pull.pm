@@ -10,11 +10,11 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 use Try::Tiny;
 
 use Pinto::Util qw(throw);
-use Pinto::Types qw(SpecList);
+use Pinto::Types qw(TargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_03'; # VERSION
+our $VERSION = '0.097_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ extends qw( Pinto::Action );
 #------------------------------------------------------------------------------
 
 has targets => (
-    isa      => SpecList,
+    isa      => TargetList,
     traits   => [qw(Array)],
     handles  => { targets => 'elements' },
     required => 1,
@@ -110,7 +110,7 @@ Pinto::Action::Pull - Pull upstream distributions into the repository
 
 =head1 VERSION
 
-version 0.097_03
+version 0.097_04
 
 =head1 AUTHOR
 
