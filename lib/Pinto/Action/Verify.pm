@@ -10,7 +10,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_04'; # VERSION
+our $VERSION = '0.098'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Pinto::Action::Verify - Report distributions that are missing
 
 =head1 VERSION
 
-version 0.097_04
+version 0.098
 
 =head1 AUTHOR
 

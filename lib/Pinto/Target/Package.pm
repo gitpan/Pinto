@@ -17,7 +17,7 @@ use overload ( '""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_04'; # VERSION
+our $VERSION = '0.098'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -158,10 +158,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -169,7 +166,7 @@ Pinto::Target::Package - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.097_04
+version 0.098
 
 =head1 METHODS
 

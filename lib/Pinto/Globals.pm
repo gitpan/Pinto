@@ -9,7 +9,7 @@ use LWP::UserAgent;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_04'; # VERSION
+our $VERSION = '0.098'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ Pinto::Globals - Global variables used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.097_04
+version 0.098
 
 =head1 AUTHOR
 

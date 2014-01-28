@@ -14,7 +14,7 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.097_04'; # VERSION
+our $VERSION = '0.098'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ Pinto::ModlistWriter - Generates a stub 03modlist.data.gz file
 
 =head1 VERSION
 
-version 0.097_04
+version 0.098
 
 =head1 AUTHOR
 
