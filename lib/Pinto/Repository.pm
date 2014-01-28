@@ -25,7 +25,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -719,7 +719,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 ATTRIBUTES
 

@@ -73,7 +73,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -154,15 +154,26 @@ sub as_target {
 #------------------------------------------------------------------------------
 
 sub is_simile {
-    my ($self) = @_;
+    my($self) = @_;
 
-    my $name = $self->name;
-    my $file = $self->file;
+    my $package = $self->name;
+    my $file = $self->file or return 0;
 
-    $file =~ s/\//::/g;
-    $file =~ s/\.pm$//;
+    # The following was taken from PAUSE/pmfile.pm
 
-    return $file =~ m/$name $/x ? 1 : 0;
+    # MakeMaker gives them the chance to have the file Simple.pm in
+    # this directory but have the package HTML::Simple in it.
+    # Afaik, they wouldn't be able to do so with deeper nested packages
+    $file =~ s|.*/||;
+    $file =~ s|\.pm(?:\.PL)?||;
+    my $ret = $package =~ m/\b\Q$file\E$/;
+    $ret ||= 0;
+    unless ($ret) {
+        # Apache::mod_perl_guide stuffs it into Version.pm
+        $ret = 1 if lc $file eq 'version';
+    }
+
+    return $ret;
 }
 
 #------------------------------------------------------------------------------
@@ -267,7 +278,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 NAME
 

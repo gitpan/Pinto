@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ sub opt_spec {
         [ 'no-fail'                           => 'Do not fail when there is an error' ],
         [ 'recurse!'                          => 'Recursively pull prereqs (negatable)' ],
         [ 'pin'                               => 'Pin the packages to the stack' ],
-        [ 'skip-prerequisite|k:s@'            => 'Skip unsatisfiable prereqs (repeatable)' ],
+        [ 'skip-missing-prerequisites|k:s@'   => 'Skip missing prereqs (repeatable)' ],
         [ 'stack|s=s'                         => 'Put packages into this stack' ],
         [ 'use-default-message|M'             => 'Use the generated message' ],
         [ 'with-development-prerequisites|wd' => 'Also pull prereqs for development' ],
@@ -62,7 +62,7 @@ App::Pinto::Command::pull - pull archives from upstream repositories
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 SYNOPSIS
 
@@ -121,16 +121,16 @@ other commands too.
 =item --dry-run
 
 Go through all the motions, but do not actually commit any changes to the
-repository.  At the conclusion, a diff showing the changes that would have 
-been made will be displayed.  Use this option to see how upgrades would 
+repository.  At the conclusion, a diff showing the changes that would have
+been made will be displayed.  Use this option to see how upgrades would
 potentially impact the stack.
 
 =item --no-fail
 
 !! THIS OPTION IS EXPERIMENTAL !!
 
-Normally, failure to pull a target (or its prerequisites) causes the 
-command to immediately abort and rollback the changes to the repository.  
+Normally, failure to pull a target (or its prerequisites) causes the
+command to immediately abort and rollback the changes to the repository.
 But if C<--no-fail> is set, then only the changes caused by the failed
 target (and its prerequisites) will be rolled back and the command
 will continue processing the remaining targets.
@@ -168,17 +168,17 @@ for the targets.  The default value for this option can be configured
 in the F<pinto.ini> configuration file for the repository (it is usually
 set to 1).  To disable recursion, use C<--no-recurse>.
 
-=item --skip-prerequisite[=PACKAGE]
+=item --skip-missing-prerequisites[=PACKAGE]
 
 =item -k[=PACKAGE]
 
 !! THIS OPTION IS EXPERIMENTAL !!
 
-Skip any prerequisite with name PACKAGE if it can't be satisfied.  However, a
-warning will be given whenever this occurrs.  If PACKAGE is not specified,
-then all unsatisfiable prerequisites wil be skipeed. This option only has
-effect when recursively fetching prerequisites for the targets (See also the
-C<--recurse> option). This option can be repeated.
+Skip any prerequisite with name PACKAGE if a satisfactory version cannot be
+found.  However, a warning will be given whenever this occurrs.  If PACKAGE is
+not specified, then all such prerequisites wil be skipeed. This option only
+has effect when recursively fetching prerequisites for the targets (See also
+the C<--recurse> option). This option can be repeated.
 
 =item --stack=NAME
 
@@ -261,7 +261,7 @@ that version in each release.
 Since most CPAN mirrors only report the latest version of a package they have,
 they often cannot satisfy package targets that have a precise version
 specification.  However, the mirror at L<http://cpan.stratopan.com> is special
-and can locate a precise version of any package. 
+and can locate a precise version of any package.
 
 Package targets always resolve to production releases, unless you specify a
 precise developer release version (e.g. C<Foo::Bar==1.03_01>).  But since most

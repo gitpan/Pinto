@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -114,9 +114,11 @@ sub FOREIGNBUILDARGS {
 sub register {
     my ( $self, %args ) = @_;
 
-    my $stack        = $args{stack};
-    my $pin          = $args{pin};
-    my $did_register = 0;
+    my $stack = $args{stack};
+    my $pin   = $args{pin} || 0;
+
+    my $can_intermingle = $stack->repo->config->intermingle;
+    my $did_register    = 0;
 
     $stack->assert_is_open;
     $stack->assert_not_locked;
@@ -127,15 +129,31 @@ sub register {
 
     for my $pkg ($self->packages) {
 
+        if (not $pkg->is_simile) {
+            my $file = $pkg->file || '';
+            debug( sub {"Package $pkg in file $file is not a simile.  Skipping registration"} );
+            next;
+        }
+
         my $where = {package_name => $pkg->name};
         my $incumbent = $stack->head->find_related(registrations => $where);
 
         if (not defined $incumbent) {
-            debug( sub {"Registering $pkg on stack $stack"} );
+            debug( sub {"Registering package $pkg on stack $stack"} );
             $pkg->register(stack => $stack, pin => $pin);
             $did_register++;
             next;
         }
+        elsif (not $can_intermingle) {
+            # If the repository prohibits intermingled distributions, we can
+            # assume all the apckages in the incumbent are already registered.
+            my $dist = $incumbent->distribution;
+            if ($dist->id == $self->id and $incumbent->is_pinned == $pin) {
+                debug( sub {"Distribution $dist is already fully registered"} );
+                last;
+            }
+        }
+
 
         my $incumbent_pkg = $incumbent->package;
 
@@ -154,7 +172,7 @@ sub register {
         whine "Downgrading package $incumbent_pkg to $pkg on stack $stack"
             if $incumbent_pkg > $pkg;
 
-        if ( $stack->repo->config->intermingle ) {
+        if ( $can_intermingle ) {
             # If the repository allows intermingled distributions, then
             # remove only the incumbent package from the index.
             $incumbent->delete;
@@ -473,7 +491,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -481,7 +502,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 NAME
 

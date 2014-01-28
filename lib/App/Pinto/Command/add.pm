@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ sub opt_spec {
         [ 'no-index|x=s@'                     => 'Do not index matching packages' ],
         [ 'recurse!'                          => 'Recursively pull prereqs (negatable)' ],
         [ 'pin'                               => 'Pin packages to the stack' ],
-        [ 'skip-prerequisite|k:s@'            => 'Skip unsatisfiable prereqs (repeatable)' ],
+        [ 'skip-missing-prerequisites|k:s@'   => 'Skip missing prereqs (repeatable)' ],
         [ 'stack|s=s'                         => 'Put packages into this stack' ],
         [ 'use-default-message|M'             => 'Use the generated message' ],
         [ 'with-development-prerequisites|wd' => 'Also pull prereqs for development' ],
@@ -53,10 +53,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -64,7 +61,7 @@ App::Pinto::Command::add - add local archives to the repository
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 SYNOPSIS
 
@@ -73,11 +70,11 @@ version 0.098
 =head1 DESCRIPTION
 
 This command adds local distribution archives to the repository and
-registers their packages on a stack. Then it recursively pulls all the 
+registers their packages on a stack. Then it recursively pulls all the
 distributions that are necessary to satisfy their prerequisites.
 
-When locating prerequisite packages, Pinto first looks at the packages 
-that already exist in the local repository, then Pinto looks at the 
+When locating prerequisite packages, Pinto first looks at the packages
+that already exist in the local repository, then Pinto looks at the
 packages that are available on the upstream repositories.
 
 =head1 COMMAND ARGUMENTS
@@ -97,18 +94,18 @@ or ';') will be ignored.
 
 Set the identity of the distribution author.  The C<NAME> is automatically
 forced to uppercase and must match C</^[A-Z]{2}[-A-Z0-9]*$/> (that means
-two ASCII letters followed by zero or more ASCII letters, digits, or 
+two ASCII letters followed by zero or more ASCII letters, digits, or
 hyphens). Defaults to the C<user> attribute specified in your F<~/.pause>
-configuration file if such file exists.  Otherwise, defaults to your 
+configuration file if such file exists.  Otherwise, defaults to your
 current login username.
 
 =item --cascade
 
 !! THIS OPTION IS EXPERIMENTAL !!
 
-When searching for a prerequisite package, always take the latest 
-satisfactory version of the package found amongst B<all> the upstream 
-repositories, rather than just taking the B<first> satisfactory version 
+When searching for a prerequisite package, always take the latest
+satisfactory version of the package found amongst B<all> the upstream
+repositories, rather than just taking the B<first> satisfactory version
 that is found.  Remember that Pinto only searches the upstream
 repositories when the local repository does not already contain a
 satisfactory version of the package.
@@ -128,8 +125,8 @@ other commands too.
 =item --dry-run
 
 Go through all the motions, but do not actually commit any changes to the
-repository.  At the conclusion, a diff showing the changes that would have 
-been made will be displayed.  Use this option to see how upgrades would 
+repository.  At the conclusion, a diff showing the changes that would have
+been made will be displayed.  Use this option to see how upgrades would
 potentially impact the stack.
 
 =item --message=TEXT
@@ -148,8 +145,8 @@ repository.
 
 !! THIS OPTION IS EXPERIMENTAL !!
 
-Normally, failure to add an archive (or its prerequisites) causes the 
-command to immediately abort and rollback the changes to the repository.  
+Normally, failure to add an archive (or its prerequisites) causes the
+command to immediately abort and rollback the changes to the repository.
 But if C<--no-fail> is set, then only the changes caused by the failed
 archive (and its prerequisites) will be rolled back and the command
 will continue processing the remaining archives.
@@ -199,17 +196,17 @@ for the targets.  The default value for this option can be configured
 in the F<pinto.ini> configuration file for the repository (it is usually
 set to 1).  To disable recursion, use C<--no-recurse>.
 
-=item --skip-prerequisite[=PACKAGE]
+=item --skip-missing-prerequisites[=PACKAGE]
 
 =item -k[=PACKAGE]
 
 !! THIS OPTION IS EXPERIMENTAL !!
 
-Skip any prerequisite with name PACKAGE if it can't be satisfied.  However, a
-warning will be given whenever this occurrs.  If PACKAGE is not specified,
-then all unsatisfiable prerequisites wil be skipeed. This option only has
-effect when recursively fetching prerequisites for the targets (See also the
-C<--recurse> option). This option can be repeated.
+Skip any prerequisite with name PACKAGE if a satisfactory version cannot be
+found.  However, a warning will be given whenever this occurrs.  If PACKAGE is
+not specified, then all such prerequisites wil be skipeed. This option only
+has effect when recursively fetching prerequisites for the targets (See also
+the C<--recurse> option). This option can be repeated.
 
 =item --stack NAME
 

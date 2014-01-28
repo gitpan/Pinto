@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098'; # VERSION
+our $VERSION = '0.098_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ App::Pinto::Command::register - put existing packages on a stack
 
 =head1 VERSION
 
-version 0.098
+version 0.098_01
 
 =head1 SYNOPSIS
 
