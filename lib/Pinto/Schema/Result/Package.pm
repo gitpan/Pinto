@@ -73,7 +73,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.098_01'; # VERSION
+our $VERSION = '0.099'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -157,9 +157,13 @@ sub is_simile {
     my($self) = @_;
 
     my $package = $self->name;
-    my $file = $self->file or return 0;
+    my $file = $self->file;
 
-    # The following was taken from PAUSE/pmfile.pm
+    # Some older version of Pinto did not record the filename of each
+    # package.  In that case we must assume that it is a simile.
+    return 1 if not $file;
+
+    # The following code was taken from simile() in PAUSE/pmfile.pm
 
     # MakeMaker gives them the chance to have the file Simple.pm in
     # this directory but have the package HTML::Simple in it.
@@ -278,7 +282,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.098_01
+version 0.099
 
 =head1 NAME
 

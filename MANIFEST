@@ -167,6 +167,7 @@ t/02-bowels/05-compare.t
 t/02-bowels/10-init.t
 t/02-bowels/11-tester.t
 t/02-bowels/12-locator.t
+t/02-bowels/19-basic.t
 t/02-bowels/20-add.t
 t/02-bowels/21-add-no-index.t
 t/02-bowels/21-pull-vreq.t

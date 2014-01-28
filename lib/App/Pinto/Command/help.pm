@@ -9,7 +9,7 @@ use base qw(App::Cmd::Command::help);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.098_01'; # VERSION
+our $VERSION = '0.099'; # VERSION
 
 #-------------------------------------------------------------------------------
 # This is just a thin subclass of App::Cmd::Command::help.  All we have done is
@@ -49,7 +49,7 @@ App::Pinto::Command::help - display a command's help screen
 
 =head1 VERSION
 
-version 0.098_01
+version 0.099
 
 =head1 SYNOPSIS
 
