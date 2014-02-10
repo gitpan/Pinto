@@ -61,6 +61,8 @@ with 'Pinto::Role::Schema::Result';
 
 use String::Format;
 
+use MooseX::Types::Moose qw(Bool);
+
 use Pinto::Target::Package;
 use Pinto::Util qw(itis throw);
 
@@ -73,7 +75,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -89,6 +91,26 @@ __PACKAGE__->inflate_column(
 # must create them by hand here...
 
 __PACKAGE__->many_to_many( revisions => 'registration', 'revision' );
+
+#------------------------------------------------------------------------------
+
+has is_main_module => (
+    is       => 'ro',
+    isa      => Bool,
+    init_arg => undef,
+    default  => sub { $_[0]->distribution->main_module->id eq $_[0]->id },
+    lazy     => 1,
+);
+
+#------------------------------------------------------------------------------
+
+has can_index => (
+    is       => 'ro',
+    isa      => Bool,
+    init_arg => undef,
+    default  => sub { $_[0]->is_simile },
+    lazy     => 1,
+);
 
 #------------------------------------------------------------------------------
 
@@ -182,6 +204,15 @@ sub is_simile {
 
 #------------------------------------------------------------------------------
 
+sub flags {
+    my ($self) = @_;
+
+    my $format = '%m%s%x%M';
+    return $self->to_string($format);
+}
+
+#------------------------------------------------------------------------------
+
 sub to_string {
     my ( $self, $format ) = @_;
 
@@ -191,6 +222,8 @@ sub to_string {
     my %fspec = (
         'p' => sub { $self->name() },
         'P' => sub { $self->vname() },
+        'x' => sub { $self->can_index ? 'x' : '-'},
+        'M' => sub { $self->is_main_module ? 'm' : '-'},
         'v' => sub { $self->version->stringify() },
         'm' => sub { $self->distribution->is_devel() ? 'd' : 'r' },
         'h' => sub { $self->distribution->path() },
@@ -203,6 +236,7 @@ sub to_string {
         'D' => sub { $self->distribution->vname() },
         'V' => sub { $self->distribution->version() },
         'u' => sub { $self->distribution->uri() },
+        'F' => sub { $self->flags },
     );
 
     # Some attributes are just undefined, usually because of
@@ -282,7 +316,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 NAME
 

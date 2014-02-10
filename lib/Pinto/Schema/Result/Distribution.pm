@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -387,22 +387,21 @@ sub main_module {
     my $dist_name = $self->name;
     $dist_name =~ s/-/::/g;
 
-    # First, look for a package name that matches the dist name
+    # First, look for an indexable package that matches the dist name
     for my $pkg (@pkgs) {
-        return $pkg->name if $pkg->name eq $dist_name;
+        return $pkg if $pkg->can_index && $pkg->name eq $dist_name;
     }
 
-    # Then, look for a package name that matches it's file name
+    # Then, look for any indexable package
     for my $pkg (@pkgs) {
-        return $pkg->name if $pkg->is_simile;
+        return $pkg if $pkg->is_simile;
     }
 
-    # Then just use the first (i.e. shortest) package name
-    return $pkgs[0]->name if @pkgs;
+    # Then, just use the first package
+    return $pkgs[0] if @pkgs;
 
-    # If we get here, then there are no packages, so we just guess
-    whine "Guessing that main module for $self is $dist_name";
-    return $dist_name;
+    # There are no packages
+    return undef;
 }
 
 #------------------------------------------------------------------------------
@@ -455,7 +454,7 @@ sub to_string {
         'D' => sub { $self->vname },
         'V' => sub { $self->version },
         'm' => sub { $self->is_devel ? 'd' : 'r' },
-        'M' => sub { $self->main_module },
+        'M' => sub { my $m = $self->main_module; $m ? $m->name : '' },
         'h' => sub { $self->path },
         'H' => sub { $self->native_path },
         'f' => sub { $self->archive },
@@ -499,7 +498,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 NAME
 

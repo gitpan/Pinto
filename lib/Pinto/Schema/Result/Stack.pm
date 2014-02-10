@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -163,10 +163,10 @@ sub get_distribution {
     my $dist;
     if ( itis( $target, 'Pinto::Target::Distribution' ) ) {
 
-        my $attrs = { prefetch => 'distribution', distinct => 1 };
+        my $attrs = { prefetch => 'distribution'};
         my $where = {'distribution.author'  => $target->author, 'distribution.archive' => $target->archive};
 
-        return unless my $reg = $self->head->find_related( registrations => $where, $attrs );
+        return unless my $reg = $self->head->search_related( registrations => $where, $attrs )->first;
         $dist = $reg->distribution;
     }
     elsif ( itis( $target, 'Pinto::Target::Package' ) ) {
@@ -179,7 +179,7 @@ sub get_distribution {
         $dist = $reg->distribution;
     }
 
-    $cache->{$target} = $dist if $cache; 
+    $cache->{$target} = $dist if $cache;
     return $dist;
 }
 
@@ -758,7 +758,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -766,7 +769,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 METHODS
 

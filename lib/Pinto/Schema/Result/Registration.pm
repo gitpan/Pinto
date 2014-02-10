@@ -69,7 +69,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -179,6 +179,7 @@ sub to_string {
         p => sub { $self->package->name },
         P => sub { $self->package->vname },
         v => sub { $self->package->version },
+        M => sub { $self->package->is_main_module ? 'm' : '-'},
         y => sub { $self->is_pinned ? '!' : '-' },
         m => sub { $self->distribution->is_devel ? 'd' : 'r' },
         h => sub { $self->distribution->path },
@@ -231,7 +232,7 @@ Pinto::Schema::Result::Registration - Represents the relationship between a Pack
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 NAME
 

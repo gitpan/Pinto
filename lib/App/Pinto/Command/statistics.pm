@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ App::Pinto::Command::statistics - report statistics about the repository
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 SYNOPSIS
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ App::Pinto::Command::delete - permanently remove an archive
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 SYNOPSIS
 

@@ -25,7 +25,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -209,7 +209,6 @@ sub get_distribution {
 
     my $rs = $self->db->schema->distribution_rs->with_packages;
 
-    $DB::single = 1;
     # Retrieve a distribution by target 
     if ( my $target = $args{target} ) {
         if ( itis( $target, 'Pinto::Target::Distribution' ) ) {
@@ -719,7 +718,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 ATTRIBUTES
 

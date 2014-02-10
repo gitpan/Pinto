@@ -11,7 +11,7 @@ use Pinto::Exception;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ Pinto::Target - Create Spec objects from strings
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 METHODS
 

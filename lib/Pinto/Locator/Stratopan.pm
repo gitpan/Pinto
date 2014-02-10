@@ -15,7 +15,7 @@ use Pinto::Constants qw(:stratopan);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0991'; # VERSION
+our $VERSION = '0.0992'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ Pinto::Locator::Stratopan - Locate targets using Stratopan services
 
 =head1 VERSION
 
-version 0.0991
+version 0.0992
 
 =head1 AUTHOR
 
