@@ -55,7 +55,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ Pinto::Schema::Result::Ancestry - Represents the relationship between revisions
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 NAME
 

@@ -11,7 +11,7 @@ use Exporter qw(import);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -155,7 +155,7 @@ Pinto::Constants - Constants used across the Pinto utilities
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 AUTHOR
 

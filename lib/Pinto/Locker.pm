@@ -14,7 +14,7 @@ use Pinto::Types qw(File);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ Pinto::Locker - Manage locks to synchronize concurrent operations
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 DESCRIPTION
 

@@ -17,7 +17,7 @@ use Pinto::Types qw(Uri);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -48,15 +48,7 @@ has password => (
 around BUILDARGS => sub {
     my $orig  = shift;
     my $class = shift;
-
     my $args = $class->$orig(@_);
-
-    # Normalize the root
-    $args->{root} = 'http://' . $args->{root}
-        if defined $args->{root} && $args->{root} !~ m{^ https?:// }mx;
-
-    $args->{root} = $args->{root} . ':' . $PINTO_SERVER_DEFAULT_PORT
-        if defined $args->{root} && $args->{root} !~ m{ :\d+ $}mx;
 
     # Grrr.  Gotta avoid passing undefs to Moose
     my @chrome_attrs = qw(verbose quiet no_color);
@@ -130,7 +122,7 @@ Pinto::Remote - Interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 SYNOPSIS
 

@@ -15,7 +15,7 @@ use Pinto::Util qw(debug);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -24,6 +24,9 @@ sub init {
 
     die "Must specify a root\n"
         if not $args{root};
+
+    # Normalize root
+    $args{root} =~ s{^file://}{};
 
     $self->_check_sanity(%args);
     $self->_make_dirs(%args);
@@ -150,7 +153,7 @@ Pinto::Initializer - Initializes a new Pinto repository
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 AUTHOR
 

@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0992'; # VERSION
+our $VERSION = '0.0993'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -52,7 +52,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer norecurse
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn norecurse
 
 =head1 NAME
 
@@ -60,7 +63,7 @@ App::Pinto::Command::pull - pull archives from upstream repositories
 
 =head1 VERSION
 
-version 0.0992
+version 0.0993
 
 =head1 SYNOPSIS
 
