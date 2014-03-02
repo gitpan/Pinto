@@ -18,7 +18,7 @@ use version;
 
 #------------------------------------------------------------------------
 
-our $VERSION = '0.0993'; # VERSION
+our $VERSION = '0.0994'; # VERSION
 
 #------------------------------------------------------------------------
 
@@ -139,7 +139,7 @@ Pinto::Locator::Mirror - The package index of a repository
 
 =head1 VERSION
 
-version 0.0993
+version 0.0994
 
 =head1 AUTHOR
 

@@ -18,7 +18,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0993'; # VERSION
+our $VERSION = '0.0994'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ Pinto::DifferenceEntry - Represents one addition or deletion in a diff
 
 =head1 VERSION
 
-version 0.0993
+version 0.0994
 
 =head1 AUTHOR
 
