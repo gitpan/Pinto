@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -91,15 +91,21 @@ around execute => sub {
     my @ok = try { $self->$orig(@args) } catch { $self->repo->txn_rollback; throw $_ };
 
     if ( $self->dry_run ) {
-        $stack->refresh->has_changed ? $self->show($stack->diff) : $self->notice('No changes were made');
+
+        $stack->refresh->has_changed
+            ? $self->show($stack->diff, {no_newline => 1})
+            : $self->notice('No changes were made');
+
         $self->repo->txn_rollback;
         $self->repo->clean_files;
     }
     elsif ( $stack->refresh->has_not_changed ) {
+
         $self->warning('No changes were made');
         $self->repo->txn_rollback;
     }
     else {
+
         my $msg_title = $self->generate_message_title(@ok);
         my $msg = $self->compose_message( title => $msg_title, stack => $stack );
         $stack->commit_revision( message => $msg );
@@ -205,7 +211,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 AUTHOR
 

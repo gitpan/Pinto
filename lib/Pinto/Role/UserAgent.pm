@@ -15,7 +15,7 @@ use Pinto::Util qw(debug throw tempdir make_uri);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ Pinto::Role::UserAgent - Something that makes network requests
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 METHODS
 

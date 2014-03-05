@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ App::Pinto::Command::lock - mark a stack as read-only
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 SYNOPSIS
 

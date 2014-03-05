@@ -11,7 +11,7 @@ use Pinto::Statistics;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ Pinto::Action::Statistics - Report statistics about the repository
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 AUTHOR
 

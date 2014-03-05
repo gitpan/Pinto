@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -257,9 +257,10 @@ sub duplicate_registrations {
     my ( $self, %args ) = @_;
 
     my $new_rev = $args{to};
+    my $old_rev = $args{from} || $self->head;
 
     my $new_rev_id = $new_rev->id;
-    my $old_rev_id = $self->head->id;
+    my $old_rev_id = $old_rev->id;
 
     debug "Copying registrations for stack $self to $new_rev";
 
@@ -769,7 +770,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 METHODS
 

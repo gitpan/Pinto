@@ -13,7 +13,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
 G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
@@ -26,7 +26,7 @@ Pinto::Manual::Thanks - Thanking the Pinto supporters
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 THANK YOU
 
@@ -78,10 +78,10 @@ generous support, I can continue doing the work I love most.
   Hugh Esco               Marco Palma             Marek Zareba            
   Roman F                 Karen Pauley            Kev Zettler             
   David Farrell           Bryan Paxton            j0e axford              
-  Eric Folley             Emil Perhinschi         dagur                  
+  Eric Folley             Emil Perhinschi         dagur                   
   Mike Friedman           Matt Perry              brian d foy             
   Wolf Gang               Dimitar Petrov          del skorch              
-  Greg Gerke              Jamie Pitts             Allen van der Ross    
+  Greg Gerke              Jamie Pitts             Allen van der Ross      
 
 I also thank L<Crowdtilt|http://crowdtilt.com> for graciously allowing us to
 use their fundraising platform free of charge, and for providing such

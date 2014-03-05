@@ -15,7 +15,7 @@ use Pinto::Util qw(throw default_diff_style);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -51,12 +51,12 @@ sub execute {
 
     my $left =
            $self->repo->get_stack_maybe( $self->left )
-        || $self->repo->get_revision( $self->left )
+        || $self->repo->get_revision_maybe( $self->left )
         || throw sprintf $error_message, $self->left;
 
     my $right =
            $self->repo->get_stack_maybe( $self->right )
-        || $self->repo->get_revision( $self->right )
+        || $self->repo->get_revision_maybe( $self->right )
         || throw sprintf $error_message, $self->right;
 
     my $diff = Pinto::Difference->new( left  => $left,
@@ -111,7 +111,7 @@ Pinto::Action::Diff - Show the difference between stacks or revisions
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 AUTHOR
 

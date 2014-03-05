@@ -48,6 +48,7 @@ lib/App/Pinto/Command/props.pm
 lib/App/Pinto/Command/pull.pm
 lib/App/Pinto/Command/register.pm
 lib/App/Pinto/Command/rename.pm
+lib/App/Pinto/Command/revert.pm
 lib/App/Pinto/Command/roots.pm
 lib/App/Pinto/Command/stacks.pm
 lib/App/Pinto/Command/statistics.pm
@@ -76,6 +77,7 @@ lib/Pinto/Action/Props.pm
 lib/Pinto/Action/Pull.pm
 lib/Pinto/Action/Register.pm
 lib/Pinto/Action/Rename.pm
+lib/Pinto/Action/Revert.pm
 lib/Pinto/Action/Roots.pm
 lib/Pinto/Action/Stacks.pm
 lib/Pinto/Action/Statistics.pm
@@ -186,6 +188,7 @@ t/02-bowels/50-diff.t
 t/02-bowels/51-diff-more.t
 t/02-bowels/52-intermingle.t
 t/02-bowels/53-roots.t
+t/02-bowels/54-revert.t
 t/02-bowels/60-dryrun.t
 t/02-bowels/61-nofail.t
 t/02-bowels/62-commit.t

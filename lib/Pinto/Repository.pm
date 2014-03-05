@@ -25,7 +25,7 @@ use version;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -148,6 +148,18 @@ sub get_all_stacks {
 
 
 sub get_revision {
+    my ($self, $revision) = @_;
+
+    my $rev = $self->get_revision_maybe($revision)
+        or throw "No such revision $revision exists";
+
+    return $rev;
+}
+
+#-------------------------------------------------------------------------------
+
+
+sub get_revision_maybe {
     my ( $self, $revision ) = @_;
 
     return $revision if itis( $revision, 'Pinto::Schema::Result::Revision' );
@@ -710,7 +722,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -718,7 +733,7 @@ Pinto::Repository - Coordinates the database, files, and indexes
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 ATTRIBUTES
 
@@ -787,6 +802,8 @@ repository.  You can sort them as strings (by name) or numerically (by
 last modification time).
 
 =head2 get_revision($commit)
+
+=head2 get_revision_maybe($commit)
 
 =head2 get_package( target => $pkg_spec )
 

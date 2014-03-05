@@ -20,7 +20,7 @@ use Pinto::Repository;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ Pinto::Server - Web interface to a Pinto repository
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 ATTRIBUTES
 

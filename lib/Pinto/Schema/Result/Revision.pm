@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994'; # VERSION
+our $VERSION = '0.0994_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -206,6 +206,34 @@ sub children {
     my $attrs = { join => 'ancestry_children', order_by => 'me.utc_time' };
 
     return $self->result_source->resultset->search( $where, $attrs )->all;
+}
+
+#------------------------------------------------------------------------------
+
+sub is_ancestor_of {
+    my ($self, $rev) = @_;
+
+    my @ancestors = $rev->parents;
+    while (my $ancestor = pop @ancestors) {
+        return 1 if $ancestor->id == $self->id;
+        push @ancestors, $ancestor->parents;
+    }
+
+    return 0;
+}
+
+#------------------------------------------------------------------------------
+
+sub is_descendant_of {
+    my ($self, $rev) = @_;
+
+    my @descendants = $rev->children;
+    while (my $descendant = pop @descendants) {
+        return 1 if $descendant->id == $self->id;
+        push @descendants, $descendant->children;
+    }
+
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -380,7 +408,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.0994
+version 0.0994_01
 
 =head1 NAME
 
