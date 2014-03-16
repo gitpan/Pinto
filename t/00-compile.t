@@ -4,7 +4,7 @@ use warnings;
 
 # this test was generated with Dist::Zilla::Plugin::Test::Compile 2.039
 
-use Test::More  tests => 125 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+use Test::More  tests => 127 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 
 
@@ -33,6 +33,7 @@ my @module_files = (
     'App/Pinto/Command/pull.pm',
     'App/Pinto/Command/register.pm',
     'App/Pinto/Command/rename.pm',
+    'App/Pinto/Command/reset.pm',
     'App/Pinto/Command/revert.pm',
     'App/Pinto/Command/roots.pm',
     'App/Pinto/Command/stacks.pm',
@@ -62,6 +63,7 @@ my @module_files = (
     'Pinto/Action/Pull.pm',
     'Pinto/Action/Register.pm',
     'Pinto/Action/Rename.pm',
+    'Pinto/Action/Reset.pm',
     'Pinto/Action/Revert.pm',
     'Pinto/Action/Roots.pm',
     'Pinto/Action/Stacks.pm',

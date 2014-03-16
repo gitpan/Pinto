@@ -7,6 +7,7 @@ use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use IO::Zlib;
+use Module::CoreList;
 use Path::Class qw(file);
 use HTTP::Date qw(time2str);
 
@@ -15,7 +16,7 @@ use Pinto::Util qw(debug throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_01'; # VERSION
+our $VERSION = '0.0994_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -105,6 +106,19 @@ sub _write_records {
 sub _get_index_records {
     my ( $self, $stack ) = @_;
 
+    # First, we generate artificial records for all the core modules that
+    # are in the target perl.  That way, the index appears to have perl
+    # itself (just like the real CPAN) and installers can handle requests
+    # to install a core module.
+
+    my $tpv = $stack->target_perl_version;
+    my $tpv_normal = $tpv->normal; $tpv_normal =~ s/^v//;
+    my @fake = ("FAKE", "perl-$tpv_normal.tar.gz");
+
+    my $core_modules = $Module::CoreList::version{$tpv->numify + 0};
+    my %core_records = map { ($_ => [$_, $core_modules->{$_} || 0, @fake]) }
+        keys %$core_modules;
+
     # The index is rewritten after almost every action, so we want
     # this to be as fast as possible (especially during an Add or
     # Remove action).  Therefore, we use a cursor to get raw data and
@@ -121,9 +135,15 @@ sub _get_index_records {
 
     my $attrs = { join => \@joins, select => \@selects };
     my $rs = $stack->head->search_related( 'registrations', {}, $attrs );
-    my @records = sort { $a->[0] cmp $b->[0] } $rs->cursor->all;
+    my %stack_records = map { ($_->[0] => $_)  } $rs->cursor->all;
 
-    return @records;
+    # Now, we merge the stuff from the stack with core modules.  If
+    # the stack has a newer version of a core module (dual-life) then
+    # it should be the one that appears in the index.  Then finally
+    # we sort them.
+
+    my %merged_records = (%core_records, %stack_records);
+    return map { $merged_records{$_} } sort keys %merged_records;
 
 }
 
@@ -141,10 +161,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -152,7 +169,7 @@ Pinto::IndexWriter - Write records to an 02packages.details.txt file
 
 =head1 VERSION
 
-version 0.0994_01
+version 0.0994_02
 
 =head1 AUTHOR
 

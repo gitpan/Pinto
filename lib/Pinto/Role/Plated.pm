@@ -7,14 +7,14 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0994_01'; # VERSION
+our $VERSION = '0.0994_02'; # VERSION
 
 #-----------------------------------------------------------------------------
 
 has chrome => (
     is       => 'ro',
     isa      => 'Pinto::Chrome',
-    handles  => [qw(show info notice warning error)],
+    handles  => [qw(show diag info notice warning error)],
     required => 1,
 );
 
@@ -27,10 +27,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -38,7 +35,7 @@ Pinto::Role::Plated - Something that has chrome plating
 
 =head1 VERSION
 
-version 0.0994_01
+version 0.0994_02
 
 =head1 AUTHOR
 

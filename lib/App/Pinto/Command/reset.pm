@@ -1,6 +1,6 @@
-# ABSTRACT: mark a stack as read-only
+# ABSTRACT: reset stack to a prior revision
 
-package App::Pinto::Command::lock;
+package App::Pinto::Command::reset;
 
 use strict;
 use warnings;
@@ -15,10 +15,18 @@ our $VERSION = '0.0994_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
+sub command_names { return qw(reset) }
+
+#------------------------------------------------------------------------------
+
 sub opt_spec {
     my ( $self, $app ) = @_;
 
-    return ( [ 'stack|s=s' => 'Lock this stack' ], );
+    return (
+        [ 'force'      => 'Reset even if revision is not ancestor' ],
+        [ 'stack|s=s'  => 'Reset this stack' ],
+    );
+
 }
 
 #------------------------------------------------------------------------------
@@ -26,17 +34,15 @@ sub opt_spec {
 sub validate_args {
     my ( $self, $opts, $args ) = @_;
 
-    $self->usage_error('Multiple arguments are not allowed')
-        if @{$args} > 1;
+    $self->usage_error("Must specify a revision")
+      if not @{$args};
 
-    $opts->{stack} = $args->[0]
-        if $args->[0];
+    $opts->{revision} = $args->[0];
 
     return 1;
 }
 
 #------------------------------------------------------------------------------
-
 1;
 
 __END__
@@ -52,7 +58,7 @@ G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
-App::Pinto::Command::lock - mark a stack as read-only
+App::Pinto::Command::reset - reset stack to a prior revision
 
 =head1 VERSION
 
@@ -60,42 +66,40 @@ version 0.0994_02
 
 =head1 SYNOPSIS
 
-  pinto --root=REPOSITORY_ROOT lock [OPTIONS]
+  pinto --root=REPOSITORY_ROOT reset [OPTIONS] REVISION
 
 =head1 DESCRIPTION
 
-This command locks a stack so that its packages cannot be changed. It
-is typically used with the L<copy|App::Pinto::Command::copy> command
-to effectively create a read-only "tag" of a stack.
+!! THIS COMMAND IS EXPERIMENTAL !!
 
-To unlock a stack, use the L<unlock|App::Pinto::Command::unlock> 
-command.
+This command moves the head of the stack to a prior revision, thereby
+discarding subsequent revisions.  See the
+L<revert|App::Pinto::Command::revert> command to restore the stack to a prior
+revision by creating a new revision.
 
 =head1 COMMAND ARGUMENTS
 
-As an alternative to the C<--stack> option, you can also specify the
-stack as an argument. So the following examples are equivalent:
-
-  pinto --root REPOSITORY_ROOT lock --stack dev
-  pinto --root REPOSITORY_ROOT lock dev
-
-A stack specified as an argument in this fashion will override any
-stack specified with the C<--stack> option.  If a stack is not
-specified by neither argument nor option, then it defaults to the
-stack that is currently marked as the default stack.
+The required argument the id of the revision to reset to.  The revision id is
+not case sensitive and can be abbreviated to uniqueness.
 
 =head1 COMMAND OPTIONS
 
 =over 4
 
-=item --stack NAME
+=item --force
+
+Force reset even if the revision is not actually an ancestor.  Normally, you
+can only reset to a revision that the stack has actually been at.
+
+=item --stack=NAME
 
 =item -s NAME
 
-Lock the stack with the given NAME.  Defaults to the name of whichever
-stack is currently marked as the default stack.  Use the
+Peform reset on the stack with the given NAME.  Defaults to the name of
+whichever stack is currently marked as the default stack.  Use the
 L<stacks|App::Pinto::Command::stacks> command to see the stacks in the
-repository.
+repository.  This option is silently ignored if the stack is specified as a
+command argument instead.
 
 =back
 

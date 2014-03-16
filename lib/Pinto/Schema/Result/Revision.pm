@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_01'; # VERSION
+our $VERSION = '0.0994_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -270,7 +270,7 @@ sub commit {
     throw "Must specify a message to commit" if not $args{message};
 
     $args{is_committed} = 1;
-    $args{has_changes}  = 0;
+    $args{has_changes}  = 0; # XXX: Why reset this?
     $args{username}    ||= $self->repo->config->username;
     $args{time_offset} ||= $self->repo->config->time_offset;
     $args{utc_time}    ||= current_utc_time;
@@ -408,7 +408,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.0994_01
+version 0.0994_02
 
 =head1 NAME
 

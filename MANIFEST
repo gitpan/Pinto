@@ -48,6 +48,7 @@ lib/App/Pinto/Command/props.pm
 lib/App/Pinto/Command/pull.pm
 lib/App/Pinto/Command/register.pm
 lib/App/Pinto/Command/rename.pm
+lib/App/Pinto/Command/reset.pm
 lib/App/Pinto/Command/revert.pm
 lib/App/Pinto/Command/roots.pm
 lib/App/Pinto/Command/stacks.pm
@@ -77,6 +78,7 @@ lib/Pinto/Action/Props.pm
 lib/Pinto/Action/Pull.pm
 lib/Pinto/Action/Register.pm
 lib/Pinto/Action/Rename.pm
+lib/Pinto/Action/Reset.pm
 lib/Pinto/Action/Revert.pm
 lib/Pinto/Action/Roots.pm
 lib/Pinto/Action/Stacks.pm

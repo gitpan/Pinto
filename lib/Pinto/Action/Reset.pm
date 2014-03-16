@@ -1,13 +1,14 @@
-# ABSTRACT: Loosen a package that has been pinned
+# ABSTRACT: Reset stack to a prior revision
 
-package Pinto::Action::Unpin;
+package Pinto::Action::Reset;
 
 use Moose;
 use MooseX::StrictConstructor;
+use MooseX::Types::Moose qw(Bool);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
-use Pinto::Types qw(TargetList);
+use Pinto::Types qw(StackName StackDefault RevisionID);
 
 #------------------------------------------------------------------------------
 
@@ -19,46 +20,52 @@ extends qw( Pinto::Action );
 
 #------------------------------------------------------------------------------
 
-has targets => (
-    isa      => TargetList,
-    traits   => [qw(Array)],
-    handles  => { targets => 'elements' },
+with qw( Pinto::Role::Transactional );
+
+#------------------------------------------------------------------------------
+
+has stack => (
+    is       => 'ro',
+    isa      => StackName | StackDefault,
+    default  => undef,
+);
+
+has revision => (
+    is       => 'ro',
+    isa      => RevisionID,
     required => 1,
     coerce   => 1,
 );
 
-#------------------------------------------------------------------------------
-
-with qw( Pinto::Role::Committable );
+has force => (
+    is       => 'ro',
+    isa      => Bool,
+    default  => 0,
+);
 
 #------------------------------------------------------------------------------
 
 sub execute {
     my ($self) = @_;
 
-    my $stack = $self->stack;
+    my $rev   = $self->repo->get_revision($self->revision);
+    my $stack = $self->repo->get_stack($self->stack);
+    my $head  = $stack->head;
 
-    my @dists = map { $self->_unpin( $_, $stack ) } $self->targets;
+    throw "Revision $rev is the head of stack $stack"
+        if $rev->id == $head->id;
 
-    return @dists;
-}
+    throw "Revision $rev is not an ancestor of stack $stack"
+        if !$rev->is_ancestor_of($head) && !$self->force;
 
-#------------------------------------------------------------------------------
+    $stack->update({head => $rev->id});
+    $stack->write_index;
 
-sub _unpin {
-    my ( $self, $target, $stack ) = @_;
+    my $format = '%i: %{40}T';
+    $self->diag("Stack $stack was " . $head->to_string($format));
+    $self->diag("Stack $stack now " . $rev->to_string($format));
 
-    my $dist = $stack->get_distribution( target => $target );
-
-    throw "$target is not registered on stack $stack" if not defined $dist;
-
-    $self->notice("Unpinning distribution $dist from stack $stack");
-
-    my $did_unpin = $dist->unpin( stack => $stack );
-
-    $self->warning("Distribution $dist is not pinned to stack $stack") unless $did_unpin;
-
-    return $did_unpin ? $dist : ();
+    return 1;
 }
 
 #------------------------------------------------------------------------------
@@ -82,7 +89,7 @@ G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
-Pinto::Action::Unpin - Loosen a package that has been pinned
+Pinto::Action::Reset - Reset stack to a prior revision
 
 =head1 VERSION
 

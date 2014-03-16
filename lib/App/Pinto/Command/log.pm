@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_01'; # VERSION
+our $VERSION = '0.0994_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ App::Pinto::Command::log - show the revision logs of a stack
 
 =head1 VERSION
 
-version 0.0994_01
+version 0.0994_02
 
 =head1 SYNOPSIS
 
