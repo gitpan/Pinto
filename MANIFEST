@@ -40,6 +40,7 @@ lib/App/Pinto/Command/list.pm
 lib/App/Pinto/Command/lock.pm
 lib/App/Pinto/Command/log.pm
 lib/App/Pinto/Command/manual.pm
+lib/App/Pinto/Command/merge.pm
 lib/App/Pinto/Command/migrate.pm
 lib/App/Pinto/Command/new.pm
 lib/App/Pinto/Command/nop.pm
@@ -71,6 +72,7 @@ lib/Pinto/Action/Kill.pm
 lib/Pinto/Action/List.pm
 lib/Pinto/Action/Lock.pm
 lib/Pinto/Action/Log.pm
+lib/Pinto/Action/Merge.pm
 lib/Pinto/Action/New.pm
 lib/Pinto/Action/Nop.pm
 lib/Pinto/Action/Pin.pm

@@ -1,6 +1,6 @@
-# ABSTRACT: Delete archives from the repository
+# ABSTRACT: Join two stack histories together
 
-package Pinto::Action::Delete;
+package Pinto::Action::Merge;
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -8,7 +8,7 @@ use MooseX::Types::Moose qw(Bool);
 use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Util qw(throw);
-use Pinto::Types qw(DistributionTargetList);
+use Pinto::Types qw(StackName StackObject StackDefault);
 
 #------------------------------------------------------------------------------
 
@@ -24,18 +24,17 @@ with qw( Pinto::Role::Transactional );
 
 #------------------------------------------------------------------------------
 
-has targets => (
-    isa      => DistributionTargetList,
-    traits   => [qw(Array)],
-    handles  => { targets => 'elements' },
+has from_stack => (
+    is       => 'ro',
+    isa      => StackName | StackObject,
     required => 1,
-    coerce   => 1,
 );
 
-has force => (
-    is      => 'ro',
-    isa     => Bool,
-    default => 0,
+
+has into_stack => (
+    is       => 'ro',
+    isa      => StackName | StackObject | StackDefault,
+    default  => undef,
 );
 
 #------------------------------------------------------------------------------
@@ -43,18 +42,27 @@ has force => (
 sub execute {
     my ($self) = @_;
 
-    for my $target ( $self->targets ) {
+    my $from_stack = $self->repo->get_stack($self->from_stack);
+    my $from_head  = $from_stack->head;
 
-        my $dist = $self->repo->get_distribution( target => $target );
+    my $into_stack = $self->repo->get_stack($self->into_stack);
+    my $into_head  = $into_stack->head;
 
-        throw "Distribution $target is not in the repository" if not defined $dist;
+    return 1 && $self->warning("Both stacks are the same ($into_head)")
+        if $into_head->id == $from_head->id;
 
-        $self->notice("Deleting $dist from the repository");
+    throw "Recursive merge is not supported yet"
+        unless $from_head->is_descendant_of($into_head);
 
-        $self->repo->delete_distribution( dist => $dist, force => $self->force );
-    }
+    $into_stack->update({head => $from_head->id});
+    $into_stack->write_index;
 
-    return $self->result->changed;
+    my $format = '%i: %{40}T';
+    $self->diag("Fast-forward...");
+    $self->diag("Stack $into_stack was " . $into_head->to_string($format));
+    $self->diag("Stack $into_stack now " . $from_head->to_string($format));
+
+    return 1;
 }
 
 #------------------------------------------------------------------------------
@@ -71,14 +79,11 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
-Pinto::Action::Delete - Delete archives from the repository
+Pinto::Action::Merge - Join two stack histories together
 
 =head1 VERSION
 

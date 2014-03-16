@@ -15,7 +15,7 @@ use Pinto::Util qw(throw default_diff_style);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_02'; # VERSION
+our $VERSION = '0.0994_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ Pinto::Action::Diff - Show the difference between stacks or revisions
 
 =head1 VERSION
 
-version 0.0994_02
+version 0.0994_03
 
 =head1 AUTHOR
 

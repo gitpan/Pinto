@@ -16,7 +16,7 @@ use Pinto::Util qw(debug throw);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_02'; # VERSION
+our $VERSION = '0.0994_03'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ Pinto::Database - Interface to the Pinto database
 
 =head1 VERSION
 
-version 0.0994_02
+version 0.0994_03
 
 =head1 AUTHOR
 

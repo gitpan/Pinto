@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_02'; # VERSION
+our $VERSION = '0.0994_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ App::Pinto::Command::install - install stuff from the repository
 
 =head1 VERSION
 
-version 0.0994_02
+version 0.0994_03
 
 =head1 SYNOPSIS
 

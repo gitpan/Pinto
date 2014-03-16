@@ -1,6 +1,6 @@
-# ABSTRACT: revert stack to a prior revision
+# ABSTRACT: join two stack histories together
 
-package App::Pinto::Command::revert;
+package App::Pinto::Command::merge;
 
 use strict;
 use warnings;
@@ -15,21 +15,14 @@ our $VERSION = '0.0994_03'; # VERSION
 
 #------------------------------------------------------------------------------
 
-sub command_names { return qw(revert) }
+sub command_names { return qw(merge) }
 
 #------------------------------------------------------------------------------
 
 sub opt_spec {
     my ( $self, $app ) = @_;
 
-    return (
-        [ 'dry-run'                   => 'Do not commit any changes' ],
-        [ 'force'                     => 'Revert even if revision is not ancestor' ],
-        [ 'message|m=s'               => 'Message to describe the change' ],
-        [ 'stack|s=s'                 => 'Revert this stack' ],
-        [ 'use-default-message|M'     => 'Use the generated message' ],
-    );
-
+    return ();
 }
 
 #------------------------------------------------------------------------------
@@ -39,11 +32,14 @@ sub validate_args {
 
     my $arg_count = @{$args};
 
-    # If there is one arg, then it is revision and stack is default
-    # If there are 2 args, then the 1st is stack and 2nd is revision
+    $self->usage_error("Must specify a stack to merge from")
+      if not $arg_count;
 
-    $opts->{revision} = $arg_count == 1 ? $args->[0] : $args->[1];
-    $opts->{stack}    = $arg_count == 2 ? $args->[0] : undef;
+    $self->usage_error("Too many arguments")
+      if $arg_count > 2;
+
+    $opts->{from_stack} = $args->[0];
+    $opts->{into_stack} = $args->[1];
 
     return 1;
 }
@@ -64,7 +60,7 @@ G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
-App::Pinto::Command::revert - revert stack to a prior revision
+App::Pinto::Command::merge - join two stack histories together
 
 =head1 VERSION
 
@@ -72,28 +68,25 @@ version 0.0994_03
 
 =head1 SYNOPSIS
 
-  pinto --root=REPOSITORY_ROOT revert [OPTIONS] [STACK] [REVISION]
+  pinto --root=REPOSITORY_ROOT merge [OPTIONS] FROM_STACK [INTO_STACK]
 
 =head1 DESCRIPTION
 
 !! THIS COMMAND IS EXPERIMENTAL !!
 
-This command restores the head of the stack to a prior state by creating a new
-revision that matches the prior state.  See the
-L<reset|App::Pinto::Command::reset> command to move the head back to a prior
-state and discard subsequent revisions.
+This command joins the history of one stack with another.  At present, it is
+only capable of doing a "fast-forward" merge when the head of FROM_STACK is a
+direct descendant of the head of INTO_STACK.
 
 =head1 COMMAND ARGUMENTS
 
-The arguments are the name of the stack and/or the id of the revision to
-revert to.  If the revision id is not specified, it defaults to the immediate
-parent of head revision of the stack.  If the stack is not specified, then it
-defaults to whichever stack is currently marked as the default.  The stack can
-also be specified using the C<--stack> option.  Some examples:
+The first mandatory argument is the name of the stack to merge from.  The
+second optional argument is the name of the stack to merge to.  If the second
+argument is not specified, it defaults to whichever stack is currently marked
+as the default.  Here are some examples:
 
-  pinto ... revert                   # Revert default stack to previous revision
-  pinto ... revert af01256e          # Revert default stack to revision af01256e
-  pinto ... revert mystack af01256e  # Revert mystack to revision af0125e
+  pinto ... merge dev               # Merge the "dev" stack into the default stack
+  pinto ... merge dev prod          # Merge the "dev" stack into the "prod" stack
 
 =head1 COMMAND OPTIONS
 
@@ -106,12 +99,6 @@ repository.  At the conclusion, a diff showing the changes that would have
 been made will be displayed.  Use this option to see how upgrades would
 potentially impact the stack.
 
-=item --force
-
-Force reversion even if the revision is not actually an ancestor.  Normally,
-you can only revert to a revision that the stack has actually been at.  This
-option only has effect if you specify a target revision argument.
-
 =item --message=TEXT
 
 =item -m TEXT
@@ -122,16 +109,6 @@ prompted to enter the message via your text editor.  Use the C<PINTO_EDITOR>
 or C<EDITOR> or C<VISUAL> environment variables to control which editor is
 used.  A log message is not required whenever the C<--dry-run> option is set,
 or if the action did not yield any changes to the repository.
-
-=item --stack=NAME
-
-=item -s NAME
-
-Peform reversion on the stack with the given NAME.  Defaults to the name of
-whichever stack is currently marked as the default stack.  Use the
-L<stacks|App::Pinto::Command::stacks> command to see the stacks in the
-repository.  This option is silently ignored if the stack is specified as a
-command argument instead.
 
 =item --use-default-message
 
