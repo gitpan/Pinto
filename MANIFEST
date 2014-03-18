@@ -58,6 +58,7 @@ lib/App/Pinto/Command/thanks.pm
 lib/App/Pinto/Command/unlock.pm
 lib/App/Pinto/Command/unpin.pm
 lib/App/Pinto/Command/unregister.pm
+lib/App/Pinto/Command/update.pm
 lib/App/Pinto/Command/verify.pm
 lib/Pinto.pm
 lib/Pinto/Action.pm
@@ -88,6 +89,7 @@ lib/Pinto/Action/Statistics.pm
 lib/Pinto/Action/Unlock.pm
 lib/Pinto/Action/Unpin.pm
 lib/Pinto/Action/Unregister.pm
+lib/Pinto/Action/Update.pm
 lib/Pinto/Action/Verify.pm
 lib/Pinto/ArchiveUnpacker.pm
 lib/Pinto/Chrome.pm

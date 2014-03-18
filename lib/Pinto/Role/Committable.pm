@@ -15,7 +15,7 @@ use Pinto::Util qw(is_interactive throw is_blank is_not_blank);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ around execute => sub {
     }
     elsif ( $stack->refresh->has_not_changed ) {
 
-        $self->warning('No changes were made');
+        $self->diag('No changes were made');
         $self->repo->txn_rollback;
     }
     else {
@@ -208,7 +208,7 @@ Pinto::Role::Committable - Role for actions that commit changes to the repositor
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 AUTHOR
 

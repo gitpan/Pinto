@@ -14,7 +14,7 @@ use App::Cmd::Setup -command;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ sub validate_args {
 sub execute {
     my ( $self, $opts, $args ) = @_;
 
-    my %args = $self->process_args($args);
+    my %args = $self->process_args($opts, $args);
     my $result = $self->pinto->run( $self->action_name, %{$opts}, %args );
 
     return $result->exit_status;
@@ -64,11 +64,11 @@ sub execute {
 #-----------------------------------------------------------------------------
 
 sub process_args {
-    my ( $self, $args ) = @_;
+    my ( $self, $opts, $args ) = @_;
 
     my $attr_name = $self->args_attribute or return;
 
-    if ( !@{$args} && $self->args_from_stdin ) {
+    if ( !@{$args} && $self->args_from_stdin($opts) ) {
         return ( $attr_name => [ _args_from_fh( \*STDIN ) ] );
     }
 
@@ -131,10 +131,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -142,7 +139,7 @@ App::Pinto::Command - Base class for pinto commands
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 AUTHOR
 

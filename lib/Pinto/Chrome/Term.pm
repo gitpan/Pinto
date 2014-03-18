@@ -16,7 +16,7 @@ use Pinto::Util qw(user_colors itis throw is_interactive);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -51,6 +51,12 @@ has stderr => (
     default => sub { [ fileno(*STDERR), '>' ] },
     coerce  => 1,
     lazy    => 1,
+);
+
+has has_made_progress => (
+    is      => 'rw',
+    isa     => Bool,
+    default => 0,
 );
 
 #-----------------------------------------------------------------------------
@@ -120,6 +126,8 @@ sub show_progress {
     $self->stderr->autoflush;    # Make sure pipes are hot
 
     print { $self->stderr } '.' or croak $!;
+
+    $self->has_made_progress(1);
 }
 
 #-----------------------------------------------------------------------------
@@ -127,6 +135,7 @@ sub show_progress {
 sub progress_done {
     my ($self) = @_;
 
+    return unless $self->has_made_progress;
     return unless $self->should_render_progress;
 
     print { $self->stderr } "\n" or croak $!;
@@ -236,10 +245,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -247,7 +253,7 @@ Pinto::Chrome::Term - Interface for terminal-based interaction
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 AUTHOR
 

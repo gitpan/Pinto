@@ -1,3 +1,11 @@
+0.0994_04 2014-03-17 21:33:08 America/Los_Angeles
+
+      [NEW COMMANDS]
+
+      - The "update" command pull the latest version of packages.  You can
+      ask to update all packages or just specific ones.  This command is
+      still experimental. See the POD for more details.
+
 0.0994_03 2014-03-16 00:38:40 America/Los_Angeles
 
       [NEW COMMANDS]

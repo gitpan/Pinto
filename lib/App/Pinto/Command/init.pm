@@ -14,7 +14,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -90,10 +90,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -101,7 +98,7 @@ App::Pinto::Command::init - create a new repository
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 SYNOPSIS
 

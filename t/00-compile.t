@@ -4,7 +4,7 @@ use warnings;
 
 # this test was generated with Dist::Zilla::Plugin::Test::Compile 2.039
 
-use Test::More  tests => 129 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+use Test::More  tests => 131 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 
 
@@ -43,6 +43,7 @@ my @module_files = (
     'App/Pinto/Command/unlock.pm',
     'App/Pinto/Command/unpin.pm',
     'App/Pinto/Command/unregister.pm',
+    'App/Pinto/Command/update.pm',
     'App/Pinto/Command/verify.pm',
     'Pinto.pm',
     'Pinto/Action.pm',
@@ -73,6 +74,7 @@ my @module_files = (
     'Pinto/Action/Unlock.pm',
     'Pinto/Action/Unpin.pm',
     'Pinto/Action/Unregister.pm',
+    'Pinto/Action/Update.pm',
     'Pinto/Action/Verify.pm',
     'Pinto/ArchiveUnpacker.pm',
     'Pinto/Chrome.pm',

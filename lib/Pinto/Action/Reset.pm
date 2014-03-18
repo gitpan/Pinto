@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault RevisionID);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ sub execute {
     throw "Revision $rev is not an ancestor of stack $stack"
         if !$rev->is_ancestor_of($head) && !$self->force;
 
-    $stack->update({head => $rev->id});
+    $stack->set_head($rev);
     $stack->write_index;
 
     my $format = '%i: %{40}T';
@@ -90,7 +90,7 @@ Pinto::Action::Reset - Reset stack to a prior revision
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 AUTHOR
 

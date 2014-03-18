@@ -10,6 +10,7 @@ use Try::Tiny;
 use Module::CoreList;
 use CPAN::Meta::Requirements;
 
+use Pinto::Types qw(Version);
 use Pinto::Util qw(throw trim_text);
 
 use version;
@@ -17,7 +18,7 @@ use overload ( '""' => 'to_string');
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -29,8 +30,9 @@ has name => (
 
 has version => (
     is      => 'ro',
-    isa     => Str,
+    isa     => Str | Version,
     default => '0',
+    coerce  => 1,
 );
 
 has _vreq => (
@@ -129,6 +131,14 @@ sub is_satisfied_by {
 
 #-------------------------------------------------------------------------------
 
+sub unversioned {
+    my ($self) = @_;
+
+    return (ref $self)->new(name => $self->name);
+}
+
+#-------------------------------------------------------------------------------
+
 
 sub to_string {
     my ($self) = @_;
@@ -166,7 +176,7 @@ Pinto::Target::Package - Specifies a package by name and version
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 METHODS
 

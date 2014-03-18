@@ -20,7 +20,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.0994_03",
+  "dist_version" => "0.0994_04",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},
@@ -79,7 +79,7 @@ my %module_build_args = (
     "LWP::UserAgent" => 0,
     "List::MoreUtils" => 0,
     "List::Util" => 0,
-    "Module::CoreList" => "3.03",
+    "Module::CoreList" => "3.07",
     "Moose" => 0,
     "Moose::Role" => 0,
     "MooseX::Aliases" => 0,

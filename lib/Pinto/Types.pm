@@ -6,31 +6,31 @@ use strict;
 use warnings;
 use version;
 
-use MooseX::Types -declare => [ qw( 
-    ANSIColor 
-    ANSIColorSet 
-    AuthorID 
+use MooseX::Types -declare => [ qw(
+    ANSIColor
+    ANSIColorSet
+    AuthorID
     DiffStyle
-    Dir 
+    Dir
     DistributionTarget
     DistributionTargetList
-    File 
-    FileList 
-    Io 
+    File
+    FileList
+    Io
     PackageTarget
     PackageTargetList
     PerlVersion
-    PropertyName 
+    PropertyName
     RevisionHead
-    RevisionID 
-    StackAll 
-    StackDefault 
-    StackName 
-    StackObject 
-    Target 
-    TargetList 
-    Uri 
-    Username 
+    RevisionID
+    StackAll
+    StackDefault
+    StackName
+    StackObject
+    Target
+    TargetList
+    Uri
+    Username
     Version
 )];
 
@@ -51,7 +51,7 @@ use Pinto::Constants qw(:all);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ subtype StackDefault, as Undef;
 
 #-----------------------------------------------------------------------------
 
-class_type StackObject, 
+class_type StackObject,
     { class => 'Pinto::Schema::Result::Stack' };
 
 #-----------------------------------------------------------------------------
@@ -96,13 +96,13 @@ subtype PropertyName, as Str,
 
 #-----------------------------------------------------------------------------
 
-class_type Version, 
+class_type Version,
     { class => 'version' };
 
-coerce Version, 
+coerce Version,
     from Str, via { version->parse($_) };
 
-coerce Version, 
+coerce Version,
     from Num, via { version->parse($_) };
 
 #-----------------------------------------------------------------------------
@@ -111,10 +111,10 @@ subtype PerlVersion, as Object,
     where { $_->isa('version') && exists $Module::CoreList::version{ $_->numify + 0 } },
     message {"perl version ($_) is unknown to me"};
 
-coerce PerlVersion, 
+coerce PerlVersion,
     from Str, via { version->parse($_) };
 
-coerce PerlVersion, 
+coerce PerlVersion,
     from Num, via { version->parse($_) };
 
 #-----------------------------------------------------------------------------
@@ -131,30 +131,30 @@ subtype ANSIColorSet, as ArrayRef[ANSIColor],
 
 #-----------------------------------------------------------------------------
 
-class_type Uri, 
+class_type Uri,
     { class => 'URI' };
 
-coerce Uri, 
+coerce Uri,
     from Str, via { URI->new($_) };
 
 #-----------------------------------------------------------------------------
 
-class_type Dir, 
+class_type Dir,
     { class => 'Path::Class::Dir' };
 
 # file:/// URIs will be converted to plain paths
 
-coerce Dir, 
+coerce Dir,
     from Str, via { $_ =~ s{^file://}{}; Path::Class::Dir->new($_) };
 
 #-----------------------------------------------------------------------------
 
-class_type File, 
+class_type File,
     { class => 'Path::Class::File' };
 
 # file:/// URIs will be converted to plain paths
 
-coerce File, 
+coerce File,
     from Str, via { $_ =~ s{^file://}{}; Path::Class::File->new($_) };
 
 #-----------------------------------------------------------------------------
@@ -162,8 +162,8 @@ coerce File,
 subtype FileList, as ArrayRef [File];
 
 coerce FileList,
-    from File,          via { [ $_ ] }, 
-    from Str,           via { [ Path::Class::File->new($_) ] }, 
+    from File,          via { [ $_ ] },
+    from Str,           via { [ Path::Class::File->new($_) ] },
     from ArrayRef[Str], via { [ map { Path::Class::File->new($_) } @$_ ] };
 
 #-----------------------------------------------------------------------------
@@ -246,10 +246,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -257,7 +254,7 @@ Pinto::Types - Moose types used within Pinto
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 AUTHOR
 

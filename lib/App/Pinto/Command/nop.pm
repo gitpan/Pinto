@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0994_03'; # VERSION
+our $VERSION = '0.0994_04'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ App::Pinto::Command::nop - do nothing
 
 =head1 VERSION
 
-version 0.0994_03
+version 0.0994_04
 
 =head1 SYNOPSIS
 
