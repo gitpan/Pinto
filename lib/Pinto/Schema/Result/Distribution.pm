@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0995'; # VERSION
+our $VERSION = '0.0996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -129,9 +129,9 @@ sub register {
 
     for my $pkg ($self->packages) {
 
-        if (not $pkg->is_simile) {
+        if (not $pkg->can_index) {
             my $file = $pkg->file || '';
-            debug( sub {"Package $pkg in file $file is not a simile.  Skipping registration"} );
+            debug( sub {"Package $pkg in file $file is not indexable.  Skipping registration"} );
             next;
         }
 
@@ -394,7 +394,7 @@ sub main_module {
 
     # Then, look for any indexable package
     for my $pkg (@pkgs) {
-        return $pkg if $pkg->is_simile;
+        return $pkg if $pkg->can_index;
     }
 
     # Then, just use the first package
@@ -490,7 +490,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -498,7 +501,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.0995
+version 0.0996
 
 =head1 NAME
 
@@ -603,7 +606,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
+This software is copyright (c) 2014 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

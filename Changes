@@ -1,3 +1,11 @@
+0.0996    2014-03-22 21:12:29 America/Los_Angeles
+
+      [BUG FIXES]
+
+      - Added a workaround for Net::LibIDN, which was not being properly
+      indexed.  If you experienced this problem, just `pull Net::LibIDN`
+      to correct it.  This fixed GH #149.  Thanks @perlpunk and @malbin.
+
 0.0995    2014-03-18 21:12:56 America/Los_Angeles
 
       [INCOMPATIBLE CHANGES]

@@ -15,7 +15,7 @@ use Pinto::ArchiveUnpacker;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0995'; # VERSION
+our $VERSION = '0.0996'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -88,9 +88,9 @@ sub provides {
         };
     }
 
-    @provides = $self->__apply_workarounds if @provides == 0;
+    @provides = $self->__apply_workarounds(@provides);
 
-    whine "$basename contains no packages and will not be indexed" 
+    whine "$basename contains no packages and will not be in the index" 
         if not @provides;
 
     return @provides;
@@ -154,31 +154,22 @@ sub metadata {
     return $metadata;
 }
 
-#-----------------------------------------------------------------------------
-# HACK: The common-sense and FCGI distributions generate the .pm file at build
-# time.  It relies on an unusual feature of PAUSE that scans the __DATA__
-# section of .PM files for potential packages.  Module::Metdata doesn't have
-# that feature, so to us, it appears that these distributions contain no packages.
-# I've asked the authors to use the "provides" field of the META file so
-# that other tools can discover the packages in the distribution, but then have
-# not done so.  So we work around it by just assuming the distribution contains a
-# package named "common::sense" or "FCGI".
+#=============================================================================
+# TODO: Generalize these workarounds and/or move them into a separate module
 
 sub __apply_workarounds {
-    my ($self) = @_;
+    my ($self, @provides) = @_;
 
-    return $self->__common_sense_workaround
+    return $self->__common_sense_workaround(@provides)
         if $self->archive->basename =~ m/^ common-sense /x;
 
-    return $self->__fcgi_workaround
+    return $self->__fcgi_workaround(@provides)
         if $self->archive->basename =~ m/^ FCGI-\d /x;
 
-    return;
+    return @provides;
 }
 
 #-----------------------------------------------------------------------------
-# TODO: Generalize both of these workaround methods into a single method that
-# just guesses the package name and version based on the distribution name.
 
 sub __common_sense_workaround {
     my ($self) = @_;
@@ -187,13 +178,12 @@ sub __common_sense_workaround {
 
     return {
         name    => 'common::sense',
-        version => version->parse($version)
+        file    => 'sense.pm.PL',
+        version => version->parse($version),
     };
 }
 
 #-----------------------------------------------------------------------------
-# TODO: Generalize both of these workaround methods into a single method that
-# just guesses the package name and version based on the distribution name.
 
 sub __fcgi_workaround {
     my ($self) = @_;
@@ -202,7 +192,8 @@ sub __fcgi_workaround {
 
     return {
         name    => 'FCGI',
-        version => version->parse($version)
+        file    => 'FCGI.PL',
+        version => version->parse($version),
     };
 }
 
@@ -220,10 +211,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -231,7 +219,7 @@ Pinto::PackageExtractor - Extract packages provided/required by a distribution a
 
 =head1 VERSION
 
-version 0.0995
+version 0.0996
 
 =head1 AUTHOR
 
@@ -239,7 +227,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
+This software is copyright (c) 2014 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

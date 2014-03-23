@@ -75,7 +75,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0995'; # VERSION
+our $VERSION = '0.0996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -99,16 +99,6 @@ has is_main_module => (
     isa      => Bool,
     init_arg => undef,
     default  => sub { $_[0]->distribution->main_module->id eq $_[0]->id },
-    lazy     => 1,
-);
-
-#------------------------------------------------------------------------------
-
-has can_index => (
-    is       => 'ro',
-    isa      => Bool,
-    init_arg => undef,
-    default  => sub { $_[0]->is_simile },
     lazy     => 1,
 );
 
@@ -179,7 +169,7 @@ sub is_simile {
     my($self) = @_;
 
     my $package = $self->name;
-    my $file = $self->file;
+    my $file    = $self->file;
 
     # Some older version of Pinto did not record the filename of each
     # package.  In that case we must assume that it is a simile.
@@ -200,6 +190,22 @@ sub is_simile {
     }
 
     return $ret;
+}
+
+#------------------------------------------------------------------------------
+
+sub can_index {
+    my ($self) = @_;
+
+    # Workaround for Net::LibIDN (see GH #194)
+    return 1 if $self->name eq 'Net::LibIDN'
+        and $self->file eq '_LibIDN.pm';
+
+    # Workaround for FCGI
+    return 1 if $self->name eq 'FCGI'
+        and $self->file eq 'FCGI.PL';
+
+    return $self->is_simile;
 }
 
 #------------------------------------------------------------------------------
@@ -308,10 +314,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -319,7 +322,7 @@ Pinto::Schema::Result::Package - Represents a Package provided by a Distribution
 
 =head1 VERSION
 
-version 0.0995
+version 0.0996
 
 =head1 NAME
 
@@ -411,7 +414,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
+This software is copyright (c) 2014 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

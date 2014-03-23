@@ -11,7 +11,7 @@ use Pinto::Exception;
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0995'; # VERSION
+our $VERSION = '0.0996'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ Pinto::Target - Create Spec objects from strings
 
 =head1 VERSION
 
-version 0.0995
+version 0.0996
 
 =head1 METHODS
 
@@ -83,7 +83,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
+This software is copyright (c) 2014 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
