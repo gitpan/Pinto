@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault RevisionID);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ Pinto::Action::Reset - Reset stack to a prior revision
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

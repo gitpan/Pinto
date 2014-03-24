@@ -14,7 +14,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ Pinto::Remote::Action::Install - Install packages from the repository
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =for Pod::Coverage BUILD
 

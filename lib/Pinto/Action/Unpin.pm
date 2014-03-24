@@ -11,7 +11,7 @@ use Pinto::Types qw(TargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -38,27 +38,21 @@ sub execute {
 
     my $stack = $self->stack;
 
-    my @dists = map { $self->_unpin( $_, $stack ) } $self->targets;
+    for my $target ( $self->targets ) {
 
-    return @dists;
-}
+        throw "$target is not registered on stack $stack"
+            unless my $dist = $stack->get_distribution( target => $target );
 
-#------------------------------------------------------------------------------
+        $self->notice("Unpinning distribution $dist from stack $stack");
 
-sub _unpin {
-    my ( $self, $target, $stack ) = @_;
+        my $did_unpin = $dist->unpin( stack => $stack );
+        push @{$self->affected}, $dist if $did_unpin;
 
-    my $dist = $stack->get_distribution( target => $target );
+        $self->warning("Distribution $dist is not pinned to stack $stack")
+            unless $did_unpin;
+    }
 
-    throw "$target is not registered on stack $stack" if not defined $dist;
-
-    $self->notice("Unpinning distribution $dist from stack $stack");
-
-    my $did_unpin = $dist->unpin( stack => $stack );
-
-    $self->warning("Distribution $dist is not pinned to stack $stack") unless $did_unpin;
-
-    return $did_unpin ? $dist : ();
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -75,7 +69,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -83,7 +80,7 @@ Pinto::Action::Unpin - Loosen a package that has been pinned
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

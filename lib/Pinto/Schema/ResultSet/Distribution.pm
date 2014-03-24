@@ -11,7 +11,7 @@ use base 'DBIx::Class::ResultSet';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ Pinto::Schema::ResultSet::Distribution - Common queries for Distributions
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

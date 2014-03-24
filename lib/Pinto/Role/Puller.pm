@@ -12,7 +12,7 @@ use Pinto::Util qw(throw whine);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -34,6 +34,12 @@ has cascade => (
 );
 
 has pin => (
+    is      => 'ro',
+    isa     => Bool,
+    default => 0,
+);
+
+has force => (
     is      => 'ro',
     isa     => Bool,
     default => 0,
@@ -72,6 +78,9 @@ sub pull {
 
     my $target = $args{target};
     my $stack  = $self->stack;
+
+    my $did_register         = 0;
+    my $did_register_prereqs = 0;
     my $dist;
 
     if ( $target->isa('Pinto::Schema::Result::Distribution') ) {
@@ -85,7 +94,7 @@ sub pull {
         my $tpv = $stack->target_perl_version;
         if ( $target->is_core( in => $tpv ) ) {
             $self->warning("Skipping $target: included in perl $tpv core");
-            return;
+            return (undef, 0, 0); # Nothing was pulled
         }
 
         $dist = $self->find( target => $target );
@@ -94,10 +103,10 @@ sub pull {
         throw "Illeagal arguments";
     }
 
-    $dist->register( stack => $stack, pin => $self->pin );
-    $self->do_recursion( start => $dist ) if $self->recurse;
+    $did_register = $dist->register( stack => $stack, pin => $self->pin, force => $self->force );
+    $did_register_prereqs = $self->do_recursion( start => $dist ) if $self->recurse;
 
-    return $dist;
+    return ($dist, $did_register, $did_register_prereqs);
 }
 
 #-----------------------------------------------------------------------------
@@ -143,6 +152,8 @@ sub do_recursion {
     my $stack = $self->stack;
 
     my %last_seen;
+    my $did_register = 0;
+
     my $cb = sub {
         my ($prereq) = @_;
 
@@ -156,7 +167,7 @@ sub do_recursion {
 
         return if not my $dist = $self->find( target => $target );
 
-        $dist->register( stack => $stack );
+        $did_register += $dist->register( stack => $stack, force => $self->force);
 
         # Record the most recent version of the packages that has
         # been registered, so we don't need to find it again.
@@ -179,7 +190,7 @@ sub do_recursion {
 
     while ( $walker->next ) { };    # Just want the callback side effects
 
-    return $self;
+    return $did_register;
 }
 
 #-----------------------------------------------------------------------------
@@ -202,7 +213,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -210,7 +224,7 @@ Pinto::Role::Puller - Something pulls packages to a stack
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

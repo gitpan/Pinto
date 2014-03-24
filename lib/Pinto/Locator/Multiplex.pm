@@ -12,7 +12,7 @@ use Pinto::Constants qw(:stratopan);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ Pinto::Locator::Multiplex - Find a package/distribution target among CPAN-like r
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

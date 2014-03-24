@@ -13,7 +13,7 @@ use Pinto::Types qw(AuthorID FileList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -77,13 +77,12 @@ sub BUILD {
 sub execute {
     my ($self) = @_;
 
-    my ( @successful, @failed );
     for my $archive ( $self->archives ) {
 
         try {
             $self->repo->svp_begin;
             my $dist = $self->_add($archive);
-            push @successful, $dist ? $dist : ();
+            push @{$self->affected}, $dist if $dist;
         }
         catch {
             throw $_ unless $self->no_fail;
@@ -93,7 +92,6 @@ sub execute {
 
             $self->error("$_");
             $self->error("Archive $archive failed...continuing anyway");
-            push @failed, $archive;
         }
         finally {
             my ($error) = @_;
@@ -103,7 +101,7 @@ sub execute {
 
     $self->chrome->progress_done;
 
-    return @successful;
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -123,7 +121,7 @@ sub _add {
     }
 
     $self->notice( "Registering $dist on stack " . $self->stack );
-    $self->pull( target => $dist );    # Registers dist and pulls prereqs
+    ($dist, undef, undef) = $self->pull( target => $dist );    # Registers dist and pulls prereqs
 
     return $dist;
 }
@@ -184,10 +182,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -195,7 +190,7 @@ Pinto::Action::Add - Add a local distribution into the repository
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 

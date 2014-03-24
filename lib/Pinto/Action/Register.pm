@@ -12,7 +12,7 @@ use Pinto::Types qw(DistributionTargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0996'; # VERSION
+our $VERSION = '0.0997'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -45,25 +45,21 @@ sub execute {
 
     my $stack = $self->stack;
 
-    my @dists = map { $self->_register( $_, $stack ) } $self->targets;
+    for my $target ( $self->targets ) {
 
-    return @dists;
-}
+        throw "Distribution $target is not in the repository"
+            unless my $dist = $self->repo->get_distribution( target => $target );
 
-#------------------------------------------------------------------------------
+        $self->notice("Registering distribution $dist on stack $stack");
 
-sub _register {
-    my ( $self, $spec, $stack ) = @_;
+        my $did_register = $dist->register( stack => $stack, pin => $self->pin );
+        push @{$self->affected}, $dist if $did_register;
 
-    my $dist = $self->repo->get_distribution( target => $spec );
+        $self->warning("Distribution $dist is already registered on stack $stack")
+            unless $did_register;
+    }
 
-    throw "Distribution $spec is not in the repository" if not defined $dist;
-
-    $self->notice("Registering distribution $dist on stack $stack");
-
-    my $did_register = $dist->register( stack => $stack, pin => $self->pin );
-
-    return $did_register ? $dist : ();
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -88,7 +84,7 @@ Pinto::Action::Register - Register packages from existing archives on a stack
 
 =head1 VERSION
 
-version 0.0996
+version 0.0997
 
 =head1 AUTHOR
 
