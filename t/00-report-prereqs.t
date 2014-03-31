@@ -90,7 +90,6 @@ my @modules = qw(
   MooseX::StrictConstructor
   MooseX::Types
   MooseX::Types::Moose
-  Package::Locator
   Path::Class
   Path::Class::Dir
   Path::Class::File
