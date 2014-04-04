@@ -73,7 +73,7 @@ with 'Pinto::Role::Schema::Result';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0998'; # VERSION
+our $VERSION = '0.0999'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -405,7 +405,7 @@ Pinto::Schema::Result::Revision - Represents a set of changes to a stack
 
 =head1 VERSION
 
-version 0.0998
+version 0.0999
 
 =head1 NAME
 

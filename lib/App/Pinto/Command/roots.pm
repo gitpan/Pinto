@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0998'; # VERSION
+our $VERSION = '0.0999'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@ App::Pinto::Command::roots - show the roots of a stack
 
 =head1 VERSION
 
-version 0.0998
+version 0.0999
 
 =head1 SYNOPSIS
 

@@ -13,7 +13,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------
 
-our $VERSION = '0.0998'; # VERSION
+our $VERSION = '0.0999'; # VERSION
 
 #------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ Pinto::IndexReader - The package index of a repository
 
 =head1 VERSION
 
-version 0.0998
+version 0.0999
 
 =head1 AUTHOR
 

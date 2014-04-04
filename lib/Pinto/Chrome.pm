@@ -9,7 +9,7 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.0998'; # VERSION
+our $VERSION = '0.0999'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ Pinto::Chrome - Base class for interactive interfaces
 
 =head1 VERSION
 
-version 0.0998
+version 0.0999
 
 =head1 AUTHOR
 

@@ -13,7 +13,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0998'; # VERSION
+our $VERSION = '0.0999'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ Pinto::Target::Distribution - Specifies a distribution by author and archive
 
 =head1 VERSION
 
-version 0.0998
+version 0.0999
 
 =head1 METHODS
 
