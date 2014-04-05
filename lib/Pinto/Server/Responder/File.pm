@@ -11,7 +11,7 @@ use HTTP::Date ();
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0999'; # VERSION
+our $VERSION = '0.09991'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ Pinto::Server::Responder::File - Responder for static files
 
 =head1 VERSION
 
-version 0.0999
+version 0.09991
 
 =head1 METHODS
 

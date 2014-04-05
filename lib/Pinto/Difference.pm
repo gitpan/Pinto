@@ -16,7 +16,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0999'; # VERSION
+our $VERSION = '0.09991'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ Pinto::Difference - Compute difference between two revisions
 
 =head1 VERSION
 
-version 0.0999
+version 0.09991
 
 =head1 AUTHOR
 

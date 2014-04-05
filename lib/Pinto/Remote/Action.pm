@@ -13,11 +13,12 @@ use HTTP::Request::Common;
 
 use Pinto::Result;
 use Pinto::Constants qw(:server);
+use Pinto::Util qw(current_time_offset);
 use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0999'; # VERSION
+our $VERSION = '0.09991'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -120,7 +121,10 @@ sub _chrome_args {
 sub _pinto_args {
     my ($self) = @_;
 
-    my $pinto_args = { username => $self->username };
+    my $pinto_args = {
+        username    => $self->username,
+        time_offset => current_time_offset,
+    };
 
     return ( pinto => encode_json($pinto_args) );
 }
@@ -207,7 +211,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
+Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
+G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -215,7 +222,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.0999
+version 0.09991
 
 =head1 METHODS
 

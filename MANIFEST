@@ -212,6 +212,7 @@ t/03-remote/01-requests.t
 t/03-remote/02-responses.t
 t/03-remote/03-install.t
 t/03-remote/04-install-with-auth.t
+t/03-remote/05-timezone.t
 t/04-server/01-functional.t
 t/04-server/02-authentication.t
 t/lib/Pinto/Server/Tester.pm

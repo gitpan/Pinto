@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.0999'; # VERSION
+our $VERSION = '0.09991'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -747,7 +747,7 @@ sub to_string {
         T => sub { truncate_text( $self->head->message_title,      $_[0] ) },
         b => sub { $self->head->message_body },
         j => sub { $self->head->username },
-        u => sub { $self->head->datetime->strftime( $_[0] || '%c' ) },
+        u => sub { $self->head->datetime_local->strftime( $_[0] || '%c' ) },
     );
 
     $format ||= $self->default_format();
@@ -786,7 +786,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.0999
+version 0.09991
 
 =head1 METHODS
 

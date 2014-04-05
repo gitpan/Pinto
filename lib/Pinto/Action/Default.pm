@@ -11,7 +11,7 @@ use Pinto::Types qw(StackName StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.0999'; # VERSION
+our $VERSION = '0.09991'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ Pinto::Action::Default - Set the default stack
 
 =head1 VERSION
 
-version 0.0999
+version 0.09991
 
 =head1 AUTHOR
 
