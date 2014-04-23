@@ -18,7 +18,7 @@ use Pinto::Types qw(Uri);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09991'; # VERSION
+our $VERSION = '0.09992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -146,9 +146,10 @@ sub _send_request {
 
     my $request = $args{req} || $self->_make_request;
     my $status = 0;
+    my $buffer = '';
 
     # Currying in some extra args to the callback...
-    my $callback = sub { $self->_response_callback( \$status, @_ ) };
+    my $callback = sub { $self->_response_callback( \$status, \$buffer, @_ ) };
     my $response = $self->request( $request, $callback );
 
     if ( not $response->is_success ) {
@@ -162,21 +163,11 @@ sub _send_request {
 #------------------------------------------------------------------------------
 
 sub _response_callback {
-    my ( $self, $status, $data ) = @_;
+    my ( $self, $status, $buffer, $data ) = @_;
 
-    # Each data chunk will be one or more lines ending with \n
-
-    chomp $data;
-    if ( not $data ) {
-
-        # HACK: So that blank lines come out right
-        # Need to find a better way to do this!!
-        $self->chrome->show('');
-        return 1;
-    }
-
-    for my $line ( split m/\n/, $data, -1 ) {
-
+    $data = ${$buffer}.$data;
+    while($data =~ /\G([^\n]*)\n/gc) {
+        my $line = $1;
         if ( $line eq $PINTO_SERVER_STATUS_OK ) {
             ${$status} = 1;
         }
@@ -184,7 +175,6 @@ sub _response_callback {
             $self->chrome->show_progress;
         }
         elsif ( $line eq $PINTO_SERVER_NULL_MESSAGE ) {
-
             # Do nothing, discard message
         }
         elsif ( $line =~ m{^ \Q$PINTO_SERVER_DIAG_PREFIX\E (.*)}x ) {
@@ -194,6 +184,8 @@ sub _response_callback {
             $self->chrome->show($line);
         }
     }
+    #Save leftovers, use them in next packet
+    (${$buffer}) = ($data =~ /\G(.*)$/g);
 
     return 1;
 }
@@ -211,10 +203,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Oleg Gashev Steffen Schwigon Tommy Stanton
-Wolfgang Kinkeldei Yanick Boris Champoux brian d foy hesco popl Däppen Cory
-G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -222,7 +211,7 @@ Pinto::Remote::Action - Base class for remote Actions
 
 =head1 VERSION
 
-version 0.09991
+version 0.09992
 
 =head1 METHODS
 

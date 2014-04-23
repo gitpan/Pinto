@@ -12,7 +12,7 @@ use Pinto::Constants qw(:server);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.09991'; # VERSION
+our $VERSION = '0.09992'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ Pinto::Chrome::Net - Interface for network-based interaction
 
 =head1 VERSION
 
-version 0.09991
+version 0.09992
 
 =head1 AUTHOR
 

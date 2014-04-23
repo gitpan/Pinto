@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09991'; # VERSION
+our $VERSION = '0.09992'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ Pinto::Action::Roots - Show the roots of a stack
 
 =head1 VERSION
 
-version 0.09991
+version 0.09992
 
 =head1 AUTHOR
 

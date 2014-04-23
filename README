@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.09991
+    version 0.09992
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -206,6 +206,8 @@ CONTRIBUTORS
     *   Karen Etheridge <ether@cpan.org>
 
     *   Michael G. Schwern <schwern@pobox.com>
+
+    *   Nikolay Martynov <mar.kolya@gmail.com>
 
     *   Oleg Gashev <oleg@gashev.net>
 
