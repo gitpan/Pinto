@@ -15,7 +15,7 @@ use Pinto::Types qw(StackName StackDefault StackObject);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ sub _show_properties {
     while ( my ( $prop, $value ) = each %{$props} ) {
 
         my $string = stringf( $self->format, { p => $prop, v => $value } );
-        my $color = is_system_prop($prop) ? $PINTO_COLOR_2 : undef;
+        my $color = is_system_prop($prop) ? $PINTO_PALETTE_COLOR_2 : undef;
 
         $self->show( $string, { color => $color } );
     }
@@ -101,7 +101,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -109,7 +112,7 @@ Pinto::Action::Props - Show or change stack properties
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

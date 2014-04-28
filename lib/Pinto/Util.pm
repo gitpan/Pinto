@@ -25,7 +25,7 @@ use Pinto::Types qw(DiffStyle);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ Readonly our @EXPORT_OK => qw(
     throw
     trim_text
     truncate_text
-    user_colors
+    user_palette
     uuid
     whine
 );
@@ -421,12 +421,13 @@ sub uuid {
 #-------------------------------------------------------------------------------
 
 
-sub user_colors {
-    my $colors = $ENV{PINTO_COLORS} || $ENV{PINTO_COLOURS};
+sub user_palette {
+    my $palette = $ENV{PINTO_PALETTE}
+        || $ENV{PINTO_COLORS} || $ENV{PINTO_COLOURS}; # For backcompat
 
-    return $PINTO_DEFAULT_COLORS if not $colors;
+    return $PINTO_DEFAULT_PALETTE if not $palette;
 
-    return [ split m/\s* , \s*/x, $colors ];
+    return [ split m/\s* , \s*/x, $palette ];
 }
 
 #-------------------------------------------------------------------------------
@@ -473,7 +474,7 @@ sub is_remote_repo {
 #-------------------------------------------------------------------------------
 
 sub tempdir {
-    
+
     return Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
 }
 
@@ -482,12 +483,12 @@ sub tempdir {
 
 
 sub default_diff_style {
-    
+
     if (my $style = $ENV{PINTO_DIFF_STYLE}) {
 
         throw "PINTO_DIFF_STYLE ($style) is invalid.  Must be one of (@PINTO_DIFF_STYLES)"
             unless DiffStyle->check($style);
-        
+
         return $style;
     }
 
@@ -531,7 +532,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 DESCRIPTION
 
@@ -671,8 +672,8 @@ there is no newline, returns an empty string.
 
 =head2 truncate_text($string, $length, $elipses)
 
-Truncates the C<$string> and appends C<$elipses> if the C<$string> is 
-longer than C<$length> characters.  C<$elipses> defaults to '...' if 
+Truncates the C<$string> and appends C<$elipses> if the C<$string> is
+longer than C<$length> characters.  C<$elipses> defaults to '...' if
 not specified.
 
 =head2 decamelize($string)
@@ -701,11 +702,11 @@ Returns true if C<$string> is the name of a system property.
 Returns a UUID as a string.  Currently, the UUID is derived from
 random numbers.
 
-=head2 user_colors()
+=head2 user_palette()
 
-Returns a reference to an array containing the names of the colors pinto 
-can use.  This can be influenced by setting the C<PINTO_COLORS> or 
-C<PINTO_COLOURS> environment variables.
+Returns a reference to an array containing the names of the colors pinto
+can use.  This can be influenced by setting the C<PINTO_PALETTE> environment
+variable.
 
 =head2 is_blank($string)
 
@@ -718,7 +719,7 @@ Returns true if the string contains any non-whitespace characters.
 =head2 mask_uri_passwords($string)
 
 Masks the parts the string that look like a password embedded in an http or
-https URI. For example, C<http://joe:secret@foo.com> would return 
+https URI. For example, C<http://joe:secret@foo.com> would return
 C<http://joe:*password*@foo.com>
 
 =head2 is_remote_repo {

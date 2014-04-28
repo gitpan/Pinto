@@ -61,7 +61,7 @@ use overload ( '""' => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 # NOTE: We often convert a Prerequsite to/from a PackageSpec object. They don't
@@ -103,6 +103,13 @@ sub to_string {
 
 #------------------------------------------------------------------------------
 
+for my $phase ( qw(configure build test runtime develop) ) {
+    no strict 'refs';
+    *{__PACKAGE__ . "::is_$phase"} = sub {shift->phase eq $phase};
+}
+
+#------------------------------------------------------------------------------
+
 __PACKAGE__->meta->make_immutable;
 
 #------------------------------------------------------------------------------
@@ -122,7 +129,7 @@ Pinto::Schema::Result::Prerequisite - Represents a Distribution -> Package depen
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 NAME
 

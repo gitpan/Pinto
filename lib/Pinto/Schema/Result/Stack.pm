@@ -53,7 +53,7 @@ with 'Pinto::Role::Schema::Result';
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -511,7 +511,10 @@ sub roots {
 
     for my $dist ( @dists ) {
         for my $prereq ($dist->prerequisites) {
-            # TODO: Decide what to do about development prereqs
+            # TODO: When we support suggested/recommended prereqs
+            # those will have to be skipped too.  See here for more
+            # discussion: https://github.com/thaljef/Pinto/issues/158
+            next if $prereq->is_test or $prereq->is_develop;
             next if $prereq->is_core(in => $tpv) or $prereq->is_perl;
             my %args = (target => $prereq->as_target, cache => \%cache);
             next unless my $prereq_dist = $self->get_distribution(%args);
@@ -775,7 +778,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -783,7 +789,7 @@ Pinto::Schema::Result::Stack - Represents a named set of Packages
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 METHODS
 

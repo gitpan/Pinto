@@ -8,11 +8,11 @@ use MooseX::MarkAsMethods ( autoclean => 1 );
 
 use Pinto::Types qw(Io);
 use Pinto::Util qw(itis);
-use Pinto::Constants qw(:server);
+use Pinto::Constants qw(:protocol);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ sub diag {
     # Prepend prefix to each line (not just at the start of the message)
     # The prefix is used by Pinto::Remote to distinguish between
     # messages that go to stderr and those that should go to stdout
-    $msg =~ s/^/$PINTO_SERVER_DIAG_PREFIX/gmx;
+    $msg =~ s/^/$PINTO_PROTOCOL_DIAG_PREFIX/gmx;
 
     print { $self->stderr } $msg or croak $!;
 }
@@ -70,7 +70,7 @@ sub show_progress {
 
     $self->stderr->autoflush;    # Make sure pipes are hot
 
-    print { $self->stderr } $PINTO_SERVER_PROGRESS_MESSAGE . "\n" or croak $!;
+    print { $self->stderr } $PINTO_PROTOCOL_PROGRESS_MESSAGE . "\n" or croak $!;
 }
 
 #-----------------------------------------------------------------------------
@@ -104,7 +104,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -112,7 +115,7 @@ Pinto::Chrome::Net - Interface for network-based interaction
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

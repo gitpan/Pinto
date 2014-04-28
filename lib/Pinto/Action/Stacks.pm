@@ -13,7 +13,7 @@ use Pinto::Constants qw(:color);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -42,8 +42,8 @@ sub execute {
         my $string = $stack->to_string($format);
 
         my $color =
-              $stack->is_default ? $PINTO_COLOR_0
-            : $stack->is_locked  ? $PINTO_COLOR_2
+              $stack->is_default ? $PINTO_PALETTE_COLOR_0
+            : $stack->is_locked  ? $PINTO_PALETTE_COLOR_2
             :                      undef;
 
         $self->show( $string, { color => $color } );
@@ -66,7 +66,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -74,7 +77,7 @@ Pinto::Action::Stacks - List known stacks in the repository
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

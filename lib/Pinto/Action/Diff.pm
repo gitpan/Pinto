@@ -15,7 +15,7 @@ use Pinto::Util qw(throw default_diff_style);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -67,8 +67,8 @@ sub execute {
     # class that can be reused.  Maybe subclassed for HTML and text.
 
     if ( $diff->is_different ) {
-        $self->show( "--- $left",  { color => $PINTO_COLOR_1 } );
-        $self->show( "+++ $right", { color => $PINTO_COLOR_1 } );
+        $self->show( "--- $left",  { color => $PINTO_PALETTE_COLOR_1 } );
+        $self->show( "+++ $right", { color => $PINTO_PALETTE_COLOR_1 } );
     }
 
     my $format = $self->style eq $PINTO_DIFF_STYLE_DETAILED
@@ -76,7 +76,7 @@ sub execute {
         : '%o[%F] %a/%f';
 
     for my $entry ( $diff->entries ) {
-        my $color  = $entry->is_addition ? $PINTO_COLOR_0 : $PINTO_COLOR_2;
+        my $color  = $entry->is_addition ? $PINTO_PALETTE_COLOR_0 : $PINTO_PALETTE_COLOR_2;
         my $string = $entry->to_string($format);
         $self->show( $string, { color => $color } );
     }
@@ -108,7 +108,7 @@ Pinto::Action::Diff - Show the difference between stacks or revisions
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

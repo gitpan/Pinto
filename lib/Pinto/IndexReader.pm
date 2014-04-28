@@ -13,7 +13,7 @@ use Pinto::Util qw(throw);
 
 #------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------
 
@@ -79,7 +79,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -87,7 +90,7 @@ Pinto::IndexReader - The package index of a repository
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

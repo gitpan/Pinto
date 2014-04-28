@@ -8,7 +8,7 @@ use version;
 
 use MooseX::Types -declare => [ qw(
     ANSIColor
-    ANSIColorSet
+    ANSIColorPalette
     AuthorID
     DiffStyle
     Dir
@@ -51,7 +51,7 @@ use Pinto::Constants qw(:all);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #-----------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ subtype ANSIColor, as Str,
 
 #-----------------------------------------------------------------------------
 
-subtype ANSIColorSet, as ArrayRef[ANSIColor],
+subtype ANSIColorPalette, as ArrayRef[ANSIColor],
     where { @{$_} == 3 },
     message {'Must be exactly three colors'};
 
@@ -163,8 +163,8 @@ subtype FileList, as ArrayRef [File];
 
 coerce FileList,
     from File,          via { [ $_ ] },
-    from Str,           via { [ Path::Class::File->new($_) ] },
-    from ArrayRef[Str], via { [ map { Path::Class::File->new($_) } @$_ ] };
+    from Str,           via { s{^file://}{}; [ Path::Class::File->new($_) ] },
+    from ArrayRef[Str], via { [ map { s{^file://}{}; Path::Class::File->new($_) } @$_ ] };
 
 #-----------------------------------------------------------------------------
 
@@ -254,7 +254,7 @@ Pinto::Types - Moose types used within Pinto
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 AUTHOR
 

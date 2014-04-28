@@ -1,3 +1,47 @@
+0.09992_01 2014-04-28 10:31:21 America/Los_Angeles
+
+      [INCOMPATILBE CHANGES]
+
+      - The protocol used to communicate with a remote Pinto repository is now
+      versioned with media types via the "Accept" header.  So if you upgrade
+      to this version of pinto, you'll also need to upgrade pintod to this same
+      version.  Going forward, the protocol will be versioned so that we
+      can potentially support different versions of the client and server at
+      the same time.  But for the time being, you'll get an exception telling
+      you whether to upgrade your client (pinto) or the server (pintod).
+
+      - The PINTO_COLORS and PINTO_COLOURS environment variables are deprecated
+      in favor of PINTO_PALETTE.  You can still use the old names for now, but
+      they will be removed in a future release.
+
+      - When using the --all option with the "list" command, the default format
+      shows the pin status as "?" (i.e. indeterminable) instead of showing the
+      main module status.
+
+      [BUG FIXES]
+
+      - Colorization is now disabled by default when the output is being piped or
+      redirected to a file.  This improves interoperability with tools like grep,
+      sort, etc.  To force colorization, use the --color or --colour option.
+      Fixes GH #155. Thanks @mar-kolya.
+
+      - The "roots" will now include test and develop prereqs, since Pinto has no
+      way of knowing how those distributions relate to your application. This
+      fixes GH #158. Thanks @mar-kolya.
+
+      [ENHANCEMENTS]
+
+      - When using the "add" command, the paths to the local archives can now be
+      expressed using file:/// URLs.
+
+      - The PINTO_PAGER_OPTIONS environment variable can now be used to pass specific
+      options to your pager when using it with pinto.  For example, to tell `less`
+      to display colors.
+
+      [DOCUMENTATION]
+
+      - Revised the Tutorial and QuickStart documentation.
+
 0.09992   2014-04-23 15:14:50 America/Los_Angeles
 
       [BUG FIXES]
@@ -132,7 +176,8 @@
       [ENHANCEMENTS]
 
       - When the repository is a local directory, it can also be expressed
-      using a file:// URI.  This applies to both the --root option and the PINTO_REPOSITORY_ROOT environment variable. Fixes GH #128.
+      using a file:// URI.  This applies to both the --root option and the
+      PINTO_REPOSITORY_ROOT environment variable. Fixes GH #128.
 
 0.0992    2014-02-10 02:01:18 America/Los_Angeles
 

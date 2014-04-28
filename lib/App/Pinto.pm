@@ -11,7 +11,7 @@ use Pinto::Util qw(is_remote_repo);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ sub global_opt_spec {
 
     return (
         [ 'root|r=s'           => 'Path to your repository root directory' ],
-        [ 'no-color|no-colour' => 'Do not colorize any output' ],
+        [ 'color|colour!'      => 'Colorize any output (negatable)' ],
         [ 'password|p=s'       => 'Password for server authentication' ],
         [ 'quiet|q'            => 'Only report fatal errors' ],
         [ 'username|u=s'       => 'Username for server authentication' ],
@@ -38,10 +38,15 @@ sub pinto {
         $global_options->{root} ||= $ENV{PINTO_REPOSITORY_ROOT}
             || $self->usage_error('Must specify a repository root');
 
-        # Discard password and username arguments if this is not a 
+        # Discard password and username arguments if this is not a
         # remote repository.  StrictConstrutor will not allow them.
         delete @{$global_options}{qw(username password)}
             if not is_remote_repo($global_options->{root});
+
+        # Disable color if STDOUT is not a tty, unless it has already been
+        # explicitly enabled. For example: pinto --color ls | less -R
+        $global_options->{color} = 0 if ($ENV{PINTO_NO_COLOR} or not -t STDOUT)
+            and not defined $global_options->{color};
 
         $global_options->{password} = $self->_prompt_for_password
             if defined $global_options->{password} and $global_options->{password} eq '-';
@@ -86,7 +91,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -94,7 +102,7 @@ App::Pinto - Command-line driver for Pinto
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 SYNOPSIS
 

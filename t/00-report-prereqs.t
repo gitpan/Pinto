@@ -56,7 +56,6 @@ my @modules = qw(
   Getopt::Long
   HTTP::Body
   HTTP::Date
-  HTTP::Request
   HTTP::Request::Common
   HTTP::Response
   HTTP::Server::PSGI

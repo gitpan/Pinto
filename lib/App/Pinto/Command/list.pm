@@ -13,7 +13,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992'; # VERSION
+our $VERSION = '0.09992_01'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -65,7 +65,10 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer
+=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
+G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
+Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
+popl Däppen Cory G Watson David Steinbrunner Glenn
 
 =head1 NAME
 
@@ -73,7 +76,7 @@ App::Pinto::Command::list - show the packages in a stack
 
 =head1 VERSION
 
-version 0.09992
+version 0.09992_01
 
 =head1 SYNOPSIS
 
@@ -113,7 +116,9 @@ the default stack.
 List every package in every distribution that exists in the entire repository,
 including distributions that are not currently registered on any stack.  When
 the C<--all> option is used, then the stack argument and C<--stack> option are
-not allowed.
+not allowed.  Also note the pin status is indeterminable when using the C<--all>
+option so it always appears as C<?> (see the C<--format> option below for more
+details about that).
 
 =item --authors=PATTERN
 
@@ -172,9 +177,11 @@ like this:
 
   [%m%s%y] %-40p %12v %a/%f
 
-When using the C<--all> option, the default format looks something like this:
+When using the C<--all> option, the pin status is indeterminable so it always
+appears as C<?>.  Also, the indexable status is shown.  So the default format
+looks something like this instead:
 
-  [%m%s%y%x%M] %-40p %12v %a/%f
+  [%m%s?%x] %-40p %12v %a/%f
 
 =item --packages=PATTERN
 
