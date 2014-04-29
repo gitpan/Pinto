@@ -25,7 +25,7 @@ use Pinto::Types qw(DiffStyle);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.09992_01'; # VERSION
+our $VERSION = '0.09992_02'; # VERSION
 
 #-------------------------------------------------------------------------------
 
@@ -532,7 +532,7 @@ Pinto::Util - Static utility functions for Pinto
 
 =head1 VERSION
 
-version 0.09992_01
+version 0.09992_02
 
 =head1 DESCRIPTION
 

@@ -20,7 +20,7 @@ my %module_build_args = (
     "Jeffrey Ryan Thalhammer <jeff\@stratopan.com>"
   ],
   "dist_name" => "Pinto",
-  "dist_version" => "0.09992_01",
+  "dist_version" => "0.09992_02",
   "license" => "perl",
   "module_name" => "Pinto",
   "recommends" => {},

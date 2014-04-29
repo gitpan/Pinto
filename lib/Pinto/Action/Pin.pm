@@ -11,7 +11,7 @@ use Pinto::Types qw(TargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992_01'; # VERSION
+our $VERSION = '0.09992_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ Pinto::Action::Pin - Force a package to stay in a stack
 
 =head1 VERSION
 
-version 0.09992_01
+version 0.09992_02
 
 =head1 AUTHOR
 

@@ -26,7 +26,7 @@ Pinto::Manual::QuickStart - A condensed summary of Pinto
 
 =head1 VERSION
 
-version 0.09992_01
+version 0.09992_02
 
 =head1 INSTALLING PINTO
 

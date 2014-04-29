@@ -87,7 +87,7 @@ use overload (
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992_01'; # VERSION
+our $VERSION = '0.09992_02'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -504,7 +504,7 @@ Pinto::Schema::Result::Distribution - Represents a distribution archive
 
 =head1 VERSION
 
-version 0.09992_01
+version 0.09992_02
 
 =head1 NAME
 
