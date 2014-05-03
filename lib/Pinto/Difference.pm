@@ -16,7 +16,7 @@ use overload ( q{""} => 'to_string' );
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992_02'; # VERSION
+our $VERSION = '0.09993'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -210,10 +210,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
-Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
-popl Däppen Cory G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -221,7 +218,7 @@ Pinto::Difference - Compute difference between two revisions
 
 =head1 VERSION
 
-version 0.09992_02
+version 0.09993
 
 =head1 AUTHOR
 

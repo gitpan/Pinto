@@ -12,7 +12,7 @@ use Pinto::Types qw(StackName StackObject StackDefault);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09992_02'; # VERSION
+our $VERSION = '0.09993'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ Pinto::Action::Merge - Join two stack histories together
 
 =head1 VERSION
 
-version 0.09992_02
+version 0.09993
 
 =head1 AUTHOR
 
