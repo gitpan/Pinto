@@ -13,15 +13,8 @@ dist.ini
 etc/TODO.pod
 etc/benchmark
 etc/cpanm
-etc/demo
-etc/findists
-etc/init.d/pintod.debian
 etc/install.sh
-etc/loadcpan
 etc/mkdbic
-etc/provides
-etc/puppet/manifests/pinto.pp
-etc/puppet/modules/pinto/files/root/lib/sh/pinto_install.sh
 etc/smoke
 inc/Pinto/Module/Build.pm
 lib/App/Pinto.pm
@@ -215,6 +208,7 @@ t/03-remote/04-install-with-auth.t
 t/03-remote/05-timezone.t
 t/04-server/01-functional.t
 t/04-server/02-authentication.t
+t/04-server/03-security.t
 t/lib/Pinto/Server/Tester.pm
 t/lib/Pinto/Tester.pm
 t/lib/Pinto/Tester/Util.pm

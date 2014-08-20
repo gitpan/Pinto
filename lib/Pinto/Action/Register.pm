@@ -12,7 +12,7 @@ use Pinto::Types qw(DistributionTargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09993'; # VERSION
+our $VERSION = '0.09995'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ Pinto::Action::Register - Register packages from existing archives on a stack
 
 =head1 VERSION
 
-version 0.09993
+version 0.09995
 
 =head1 AUTHOR
 

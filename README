@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.09993
+    version 0.09995
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -201,7 +201,7 @@ CONTRIBUTORS
 
     *   Jakob Voss <jakob@nichtich.de>
 
-    *   Jeffrey Ryan Thalhammer <jeff@imaginative-software.com>
+    *   Jeffrey Ryan Thalhammer <jeff@thaljef.org>
 
     *   Karen Etheridge <ether@cpan.org>
 

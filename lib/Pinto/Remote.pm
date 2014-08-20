@@ -7,6 +7,7 @@ use MooseX::StrictConstructor;
 use MooseX::MarkAsMethods ( autoclean => 1 );
 use MooseX::Types::Moose qw(Maybe Str);
 
+use Try::Tiny;
 use LWP::UserAgent;
 
 use Pinto::Chrome::Term;
@@ -17,7 +18,7 @@ use Pinto::Types qw(Uri);
 
 #-------------------------------------------------------------------------------
 
-our $VERSION = '0.09993'; # VERSION
+our $VERSION = '0.09995'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -66,19 +67,32 @@ around BUILDARGS => sub {
 sub run {
     my ( $self, $action_name, @args ) = @_;
 
+    # Divert all warnings through our chrome
+    local $SIG{__WARN__} = sub { $self->warning($_) for @_ };
+
     my $action_args = ( @args == 1 and ref $args[0] eq 'HASH' ) ? $args[0] : {@args};
-    my $action_class = $self->load_class_for_action( name => $action_name );
 
-    my $action = $action_class->new(
-        name     => $action_name,
-        args     => $action_args,
-        root     => $self->root,
-        username => $self->username,
-        password => $self->password,
-        chrome   => $self->chrome,
-    );
+    my $result = try {
 
-    return $action->execute;
+        my $action_class = $self->load_class_for_action( name => $action_name );
+
+        my $action = $action_class->new(
+            name     => $action_name,
+            args     => $action_args,
+            root     => $self->root,
+            username => $self->username,
+            password => $self->password,
+            chrome   => $self->chrome,
+        );
+
+        $action->execute;
+    }
+    catch {
+        $self->error($_);
+        Pinto::Result->new->failed( because => $_ );
+    };
+
+    return $result;
 }
 
 #------------------------------------------------------------------------------
@@ -114,10 +128,7 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
-Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
-popl Däppen Cory G Watson David Steinbrunner Glenn
+=for :stopwords Jeffrey Ryan Thalhammer
 
 =head1 NAME
 
@@ -125,7 +136,7 @@ Pinto::Remote - Interact with a remote Pinto repository
 
 =head1 VERSION
 
-version 0.09993
+version 0.09995
 
 =head1 SYNOPSIS
 

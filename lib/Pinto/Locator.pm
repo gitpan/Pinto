@@ -11,7 +11,7 @@ use Pinto::Util qw(throw tempdir);
 
 #------------------------------------------------------------------------
 
-our $VERSION = '0.09993'; # VERSION
+our $VERSION = '0.09995'; # VERSION
 
 #------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ Pinto::Locator - Base class for Locators
 
 =head1 VERSION
 
-version 0.09993
+version 0.09995
 
 =head1 AUTHOR
 
