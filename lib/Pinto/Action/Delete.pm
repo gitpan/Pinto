@@ -12,7 +12,7 @@ use Pinto::Types qw(DistributionTargetList);
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09995'; # VERSION
+our $VERSION = '0.09996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ Pinto::Action::Delete - Delete archives from the repository
 
 =head1 VERSION
 
-version 0.09995
+version 0.09996
 
 =head1 AUTHOR
 

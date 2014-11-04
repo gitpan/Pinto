@@ -31,7 +31,7 @@ use DateTime::TimeZone::Local::Unix;
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09995'; # VERSION
+our $VERSION = '0.09996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -144,12 +144,8 @@ __END__
 
 =encoding UTF-8
 
-=for :stopwords Jeffrey Ryan Thalhammer BenRifkah Fowler Jakob Voss Karen Etheridge Michael
-G. Bergsten-Buret Schwern Nikolay Martynov Oleg Gashev Steffen Schwigon
-Tommy Stanton Wolfgang Boris Kinkeldei Yanick Champoux brian d foy hesco
-popl Däppen Cory G Watson David Steinbrunner Glenn cpan testmatrix url
-annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
-placeholders metacpan
+=for :stopwords Jeffrey Ryan Thalhammer cpan testmatrix url annocpan anno bugtracker rt
+cpants kwalitee diff irc mailto metadata placeholders metacpan
 
 =head1 NAME
 
@@ -157,7 +153,7 @@ Pinto - Curate a repository of Perl modules
 
 =head1 VERSION
 
-version 0.09995
+version 0.09996
 
 =head1 SYNOPSIS
 
@@ -312,7 +308,7 @@ CPANTS
 
 The CPANTS is a website that analyzes the Kwalitee ( code metrics ) of a distribution.
 
-L<http://cpants.perl.org/dist/overview/Pinto>
+L<http://cpants.cpanauthors.org/dist/overview/Pinto>
 
 =item *
 
@@ -373,11 +369,45 @@ L<https://github.com/thaljef/Pinto>
 
 =head1 CONTRIBUTORS
 
+=for stopwords BenRifkah Bergsten-Buret Oleg Gashev Steffen Schwigon Tommy Stanton Wolfgang Kinkeldei Yanick Champoux brian d foy hesco popl Boris Däppen Cory G Watson David Steinbrunner Glenn Fowler Jakob Voss Jeffrey Ryan Thalhammer Karen Etheridge Michael G. Schwern Nikolay Martynov
+
 =over 4
 
 =item *
 
 BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
+
+=item *
+
+Oleg Gashev <oleg@gashev.net>
+
+=item *
+
+Steffen Schwigon <ss5@renormalist.net>
+
+=item *
+
+Tommy Stanton <tommystanton@gmail.com>
+
+=item *
+
+Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
+
+=item *
+
+Yanick Champoux <yanick@babyl.dyndns.org>
+
+=item *
+
+brian d foy <brian.d.foy@gmail.com>
+
+=item *
+
+hesco <hesco@campaignfoundations.com>
+
+=item *
+
+popl <popl_likes_to_code@yahoo.com>
 
 =item *
 
@@ -414,38 +444,6 @@ Michael G. Schwern <schwern@pobox.com>
 =item *
 
 Nikolay Martynov <mar.kolya@gmail.com>
-
-=item *
-
-Oleg Gashev <oleg@gashev.net>
-
-=item *
-
-Steffen Schwigon <ss5@renormalist.net>
-
-=item *
-
-Tommy Stanton <tommystanton@gmail.com>
-
-=item *
-
-Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-=item *
-
-Yanick Champoux <yanick@babyl.dyndns.org>
-
-=item *
-
-brian d foy <brian.d.foy@gmail.com>
-
-=item *
-
-hesco <hesco@campaignfoundations.com>
-
-=item *
-
-popl <popl_likes_to_code@yahoo.com>
 
 =back
 

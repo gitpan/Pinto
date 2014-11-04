@@ -2,7 +2,7 @@ NAME
     Pinto - Curate a repository of Perl modules
 
 VERSION
-    version 0.09995
+    version 0.09996
 
 SYNOPSIS
     See pinto to create and manage a Pinto repository.
@@ -140,7 +140,7 @@ SUPPORT
         The CPANTS is a website that analyzes the Kwalitee ( code metrics )
         of a distribution.
 
-        <http://cpants.perl.org/dist/overview/Pinto>
+        <http://cpants.cpanauthors.org/dist/overview/Pinto>
 
     *   CPAN Testers
 
@@ -191,6 +191,22 @@ SUPPORT
 CONTRIBUTORS
     *   BenRifkah Bergsten-Buret <mail.spammagnet+github@gmail.com>
 
+    *   Oleg Gashev <oleg@gashev.net>
+
+    *   Steffen Schwigon <ss5@renormalist.net>
+
+    *   Tommy Stanton <tommystanton@gmail.com>
+
+    *   Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
+
+    *   Yanick Champoux <yanick@babyl.dyndns.org>
+
+    *   brian d foy <brian.d.foy@gmail.com>
+
+    *   hesco <hesco@campaignfoundations.com>
+
+    *   popl <popl_likes_to_code@yahoo.com>
+
     *   Boris Däppen <bdaeppen.perl@gmail.com>
 
     *   Cory G Watson <gphat@onemogin.com>
@@ -208,22 +224,6 @@ CONTRIBUTORS
     *   Michael G. Schwern <schwern@pobox.com>
 
     *   Nikolay Martynov <mar.kolya@gmail.com>
-
-    *   Oleg Gashev <oleg@gashev.net>
-
-    *   Steffen Schwigon <ss5@renormalist.net>
-
-    *   Tommy Stanton <tommystanton@gmail.com>
-
-    *   Wolfgang Kinkeldei <wolfgang@kinkeldei.de>
-
-    *   Yanick Champoux <yanick@babyl.dyndns.org>
-
-    *   brian d foy <brian.d.foy@gmail.com>
-
-    *   hesco <hesco@campaignfoundations.com>
-
-    *   popl <popl_likes_to_code@yahoo.com>
 
 AUTHOR
     Jeffrey Ryan Thalhammer <jeff@stratopan.com>

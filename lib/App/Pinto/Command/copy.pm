@@ -11,7 +11,7 @@ use base 'App::Pinto::Command';
 
 #------------------------------------------------------------------------------
 
-our $VERSION = '0.09995'; # VERSION
+our $VERSION = '0.09996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ App::Pinto::Command::copy - create a new stack by copying another
 
 =head1 VERSION
 
-version 0.09995
+version 0.09996
 
 =head1 SYNOPSIS
 

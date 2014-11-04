@@ -13,7 +13,7 @@ use overload ( q{""} => 'to_string' );
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '0.09995'; # VERSION
+our $VERSION = '0.09996'; # VERSION
 
 #------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ Pinto::Result - The result from running an Action
 
 =head1 VERSION
 
-version 0.09995
+version 0.09996
 
 =head1 AUTHOR
 
